@@ -1,0 +1,2050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dijitally – Homepage</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── NeuSans Trial @font-face ── */
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Light.otf") format("opentype"); font-weight:300; font-style:normal; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-LightItalic.otf") format("opentype"); font-weight:300; font-style:italic; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Book.otf") format("opentype"); font-weight:350; font-style:normal; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-BookItalic.otf") format("opentype"); font-weight:350; font-style:italic; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Regular.otf") format("opentype"); font-weight:400; font-style:normal; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-RegularItalic.otf") format("opentype"); font-weight:400; font-style:italic; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Medium.otf") format("opentype"); font-weight:500; font-style:normal; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-MediumItalic.otf") format("opentype"); font-weight:500; font-style:italic; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Bold.otf") format("opentype"); font-weight:700; font-style:normal; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-BoldItalic.otf") format("opentype"); font-weight:700; font-style:italic; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Black.otf") format("opentype"); font-weight:900; font-style:normal; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-BlackItalic.otf") format("opentype"); font-weight:900; font-style:italic; }
+  </style>
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/gsap/dist/ScrollSmoother.min.js"></script>
+  <script src="https://unpkg.com/gsap/dist/ScrambleTextPlugin.min.js"></script>
+  <script src="https://unpkg.com/gsap/dist/SplitText.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <style>
+    /* ── Design Tokens ── */
+    :root {
+      --primary:   #FDFEFF;   /* near-white surface */
+      --secondary: #121010;   /* primary text */
+      --static:    #878787;   /* muted / grey text */
+      --grey:      #DEDEDE;   /* border / contact bg */
+      --tech:      #B6F4C9;   /* accent green */
+      --bg:        #FDFEFF;   /* page bg */
+
+      /* Fonts */
+      --sans: "NeuSans Trial", "Helvetica Neue", Arial, sans-serif;
+      --mono: "JetBrains Mono", monospace;
+
+      /* Typography — Figma exact */
+      /* H1.desktop */ --h1: 48px; --h1-w: 500; --h1-lh: 100%; --h1-ls: -0.96px;
+      /* H2.desktop */ --h2: 32px; --h2-w: 500; --h2-lh: 110%; --h2-ls: -0.64px;
+      /* Nav links  */ --nav-size: 19px; --nav-w: 600; --nav-ls: -0.38px;
+      /* Eyebrow    */ --eyebrow: 12px; --eyebrow-ls: -0.24px;
+      /* Card title */ --card: 24px; --card-lh: 120%;
+      /* Card meta  */ --meta: 10px; --meta-ls: -0.2px;
+      /* Accordion body */ --acc-body: 17px; --acc-body-lh: 120%;
+
+      /* Spacing */
+      --s4:4px; --s6:6px; --s8:8px; --s10:10px; --s12:12px;
+      --s16:16px; --s24:24px; --s32:32px; --s42:42px;
+      --s48:48px; --s64:64px; --s82:82px; --s96:96px; --s128:128px;
+
+      --nav-h: 126px;
+      --frame: 1690px;
+      --content: 1606px; /* 1690 - 42*2 */
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--secondary);
+      -webkit-font-smoothing: antialiased;
+      min-width: 320px;
+    }
+
+    /* Scrollbar */
+    ::-webkit-scrollbar { height: 2px; width: 2px; }
+    ::-webkit-scrollbar-thumb { background: var(--tech); }
+
+    /* Ticker */
+    @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+    .ticker-inner { display:flex; animation:ticker 30s linear infinite; will-change:transform; }
+
+    /* Pixel dot grid */
+    .dot-grid {
+      position:absolute; inset:0; pointer-events:none;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.06) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+    .dot-grid-dense {
+      position:absolute; inset:0; pointer-events:none;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.04) 1px, transparent 1px);
+      background-size: 12px 12px;
+    }
+
+    /* Accordion */
+    .acc-body { overflow:hidden; max-height:0; transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1); }
+    .acc-body.open { max-height:600px; }
+
+    /* Lightbox */
+    .lb { opacity:0; pointer-events:none; transition:opacity 0.2s ease; }
+    .lb.open { opacity:1; pointer-events:all; }
+
+    /* CTA slide panel */
+    #cta-panel {
+      transform: translateX(661px);
+      transition: transform 0.7s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+    #cta-panel.open { transform: translateX(0); }
+    #cta-overlay {
+      opacity: 0; pointer-events: none;
+      background: #1A1A1A;
+      mix-blend-mode: multiply;
+      transition: opacity 0.4s ease;
+    }
+    #cta-overlay.open { opacity: 0.75; pointer-events: auto; }
+
+    /* Disable all site interactions while CTA panel is open */
+    #smooth-wrapper.cta-open { pointer-events: none; }
+    #dj-cursor.cta-open { opacity: 0; }
+
+    /* Work card hover */
+    /* Dark mode overrides */
+    .dark {
+      --primary:   #1a1a1a;
+      --secondary: #F5F5F5;
+      --static:    #666666;
+      --grey:      #2a2a2a;
+      --bg:        #121010;
+    }
+    .dark .dot-grid {
+      background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+    }
+    .dark .dot-grid-dense {
+      background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+    }
+
+    /* ScrollSmoother */
+    #smooth-wrapper { overflow: hidden; position: fixed; height: 100%; width: 100%; top: 0; left: 0; right: 0; bottom: 0; }
+    #smooth-content { overflow: visible; width: 100%; will-change: transform; }
+
+
+    /* Custom cursor */
+    * { cursor: none !important; }
+    #dj-cursor {
+      position: fixed;
+      width: 16px; height: 16px;
+      background: #ffffff;
+      mix-blend-mode: difference;
+      pointer-events: none;
+      transform: translate(-50%, -50%);
+      z-index: 9999;
+      transition: transform 0.1s ease;
+    }
+    #dj-cursor.active { transform: translate(-50%, -50%) scale(1.5); }
+    /* No native drag in carousel */
+    .wc img, .wc canvas { -webkit-user-drag: none; user-drag: none; pointer-events: none; }
+    /* Hide carousel scrollbar */
+    [data-carousel]::-webkit-scrollbar { display: none; }
+    [data-carousel] { scrollbar-width: none; -ms-overflow-style: none; }
+
+    /* Responsive */
+    @media(max-width:900px){
+      :root{ --h1:32px; --h2:22px; --nav-size:14px; }
+    }
+  </style>
+</head>
+<body>
+<div id="dj-cursor"></div>
+<div id="preloader-counter" style="position:fixed;left:50%;bottom:42px;transform:translateX(-50%);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:400;color:#121010;letter-spacing:0.05em;z-index:99;pointer-events:none;line-height:1;">00</div>
+<div id="thumb-overlay" style="display:block;opacity:0;position:fixed;z-index:98;overflow:hidden;border-radius:4px;pointer-events:none;background:#FDFEFF"><video src="videos/thumbnail.mp4?v=2" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:contain;display:block"></video></div>
+<div id="carousel-tooltip" style="display:none;position:fixed;z-index:200;pointer-events:none;width:108px;height:42px"><div id="carousel-tooltip-bg" style="position:absolute;inset:0;border-radius:21px;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)"></div><img src="tooltips/drag.svg" alt="Drag" id="carousel-tooltip-svg" style="position:relative;z-index:1;width:108px;height:42px;display:block"/></div>
+<div id="lb-portal"></div>
+<div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
+<script type="text/babel">
+const { useState, useEffect, useLayoutEffect, useRef } = React;
+
+/* ── ASCII reveal — left to right, 9 randomisations per char, 2s total ── */
+const SPECIAL = '!@#$%&|<>{}░▒▓×±§÷¶~^*_+=[]/?\\';
+
+function useAsciiReveal(text, totalMs=2000, active=true) {
+  const [state, setState] = useState({
+    chars: Array.from(text).map(c => c===' ' ? ' ' : ' '),
+    cursorIdx: 0,
+    done: false,
+  });
+
+  useEffect(() => {
+    const RAND = 6;
+    const perChar = totalMs / text.length;
+    const perFrame = perChar / (RAND + 1);
+    const ts = [];
+
+    for (let step = 0; step < text.length; step++) {
+      const i = step; // left → right
+      const base = step * perChar;
+
+      if (text[i] === ' ') {
+        ts.push(setTimeout(() =>
+          setState(prev => {
+            const chars = [...prev.chars]; chars[i] = ' ';
+            return { chars, cursorIdx: i + 1, done: i === text.length - 1 };
+          }), base));
+      } else {
+        for (let r = 0; r < RAND; r++) {
+          ts.push(setTimeout(() =>
+            setState(prev => {
+              const chars = [...prev.chars];
+              chars[i] = SPECIAL[Math.floor(Math.random() * SPECIAL.length)];
+              return { chars, cursorIdx: i, done: false };
+            }), base + r * perFrame));
+        }
+        ts.push(setTimeout(() =>
+          setState(prev => {
+            const chars = [...prev.chars]; chars[i] = text[i];
+            return { chars, cursorIdx: i + 1, done: i === text.length - 1 };
+          }), base + RAND * perFrame));
+      }
+    }
+    return () => ts.forEach(clearTimeout);
+    if (!active) return;
+  }, [text, totalMs, active]);
+
+  return state;
+}
+
+function AsciiReveal({ text, style, active=true, getColor=null }) {
+  const { chars, cursorIdx, done } = useAsciiReveal(text, 2000, active);
+  const isCursor = (i) => active && !done && i === cursorIdx;
+  return (
+    <span style={style}>
+      {Array.from(text).map((_, i) => (
+        <span key={i} style={{
+          background: isCursor(i) ? 'var(--secondary)' : 'transparent',
+          color: isCursor(i) ? 'var(--bg)' : getColor ? getColor(i) : 'inherit',
+        }}>
+          {chars[i]}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+/* ── Logo ticker — SVG files ── */
+const PARTNER_LOGOS = [
+  { src:"clients/Afterpay.svg?v=2",       alt:"Afterpay"       },
+  { src:"clients/Airwallex.svg",      alt:"Airwallex"      },
+  { src:"clients/SYD.svg",            alt:"SYD"            },
+  { src:"clients/Constantinople.svg", alt:"Constantinople" },
+  { src:"clients/Procore.svg",        alt:"Procore"        },
+  { src:"clients/Blackmores.svg",     alt:"Blackmores"     },
+];
+function Ticker({dark}) {
+  const items = [...PARTNER_LOGOS,...PARTNER_LOGOS,...PARTNER_LOGOS,...PARTNER_LOGOS];
+  return (
+    <div style={{overflow:"hidden",padding:"18px 0"}}>
+      <div className="ticker-inner">
+        {items.map((logo,i)=>(
+          <span key={i} style={{display:"inline-flex",alignItems:"center",paddingRight:128,flexShrink:0}}>
+            <img
+              src={logo.src}
+              alt={logo.alt}
+              style={{height:logo.alt==="Afterpay"?38:20,width:"auto",display:"block",filter:dark?"brightness(0) invert(1)":"none",transition:"filter 0.3s ease"}}
+              onError={e=>{
+                /* fallback to text if SVG not yet placed */
+                e.target.style.display="none";
+                e.target.nextSibling.style.display="inline";
+              }}
+            />
+            <span style={{display:"none",fontFamily:"var(--mono)",fontSize:11,fontWeight:400,letterSpacing:"0.1em",textTransform:"uppercase",color:"var(--static)",whiteSpace:"nowrap"}}>
+              {logo.alt}
+            </span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+
+/* ── PixelRevealImg — digitising pixel reveal animation ── */
+function PixelRevealImg({ src, alt, style = {}, externalTrigger = false, delay = 0 }) {
+  const containerRef = useRef(null);
+  const imgRef       = useRef(null);
+  const revealRef    = useRef(null);  // reveal canvas
+  const hoverRef     = useRef(null);  // hover pixel canvas
+  const mouseRef     = useRef({ x: -9999, y: -9999 });
+  const hoveredRef   = useRef(false);
+  const hoverRafRef  = useRef(null);
+  const [ready,  setReady]  = useState(false);
+  const [inView, setInView] = useState(false);
+
+  const PX = 16;
+
+  // IntersectionObserver — skip if externalTrigger controls inView
+  useEffect(() => {
+    if (externalTrigger) return; // controlled externally
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setInView(true); obs.disconnect(); }
+    }, { threshold: 0.45 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, [externalTrigger]);
+
+  // Accept external trigger
+  useEffect(() => {
+    if (externalTrigger) setInView(true);
+  }, [externalTrigger]);
+
+  // ── Pixel reveal on load + in-view ──
+  useEffect(() => {
+    if (!ready || !inView) return;
+    const img    = imgRef.current;
+    const canvas = revealRef.current;
+    if (!img || !canvas) return;
+    const W = img.offsetWidth, H = img.offsetHeight;
+    if (!W || !H) return;
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    const BG = document.body.classList.contains('dark') ? '#121010' : '#1A1A1A';
+    ctx.fillStyle = BG;
+    ctx.fillRect(0, 0, W, H);
+    img.style.opacity = 1;
+    const cols = Math.ceil(W / PX), rows = Math.ceil(H / PX);
+    const blocks = [];
+    for (let r = 0; r < rows; r++)
+      for (let cl = 0; cl < cols; cl++)
+        blocks.push({ r, c: cl, d: r + cl });
+    blocks.sort((a, b) => (a.d + (Math.random()-0.5)*4) - (b.d + (Math.random()-0.5)*4));
+    const total = blocks.length, DURATION = 600;
+    let next = 0, start = null, raf;
+    const tick = (now) => {
+      if (!start) start = now;
+      const tp = Math.min((now - start) / DURATION, 1);
+      const target = Math.floor(tp * total);
+      while (next < target) { const { r, c } = blocks[next++]; ctx.clearRect(c * PX, r * PX, PX, PX); }
+      if (tp < 1) raf = requestAnimationFrame(tick);
+      else canvas.style.display = 'none';
+    };
+    const t = setTimeout(() => { raf = requestAnimationFrame(tick); }, delay * 1000);
+    return () => { clearTimeout(t); cancelAnimationFrame(raf); };
+  }, [ready, inView]);
+
+  // ── Hover: pixelation ramp 1→16 over 1s + zoom + cursor displacement ──
+  useEffect(() => {
+    if (!ready) return;
+    const container = containerRef.current;
+    const img    = imgRef.current;
+    const canvas = hoverRef.current;
+    if (!container || !img || !canvas) return;
+
+    const W = img.offsetWidth, H = img.offsetHeight;
+    if (!W || !H) return;
+    canvas.width = W; canvas.height = H;
+
+    const ctx    = canvas.getContext('2d');
+    const smpl   = document.createElement('canvas'); // off-screen sampler
+    const sctx   = smpl.getContext('2d');
+    const RAMP   = 1000; // ms — 1→16 ramp duration
+    const MAX_PX = PX; // 16
+
+    let enterTime = null, leaveTime = null;
+    const ease = t => t < 0.5 ? 2*t*t : -1+(4-2*t)*t; // ease in-out
+
+    const loop = (now) => {
+      const isHov = hoveredRef.current;
+      if (isHov && !enterTime) { enterTime = now; leaveTime = null; }
+      if (!isHov && !leaveTime) { leaveTime = now; enterTime = null; }
+
+      // Pixelation progress: ramp up on enter, ramp down on leave
+      const rampUp   = enterTime ? Math.min((now - enterTime) / RAMP, 1) : 0;
+      const rampDown = leaveTime ? Math.min((now - leaveTime) / (RAMP * 0.5), 1) : 0;
+      const prog     = isHov ? ease(rampUp) : ease(1 - rampDown);
+
+      if (!isHov && prog <= 0) {
+        // Fully de-pixelated — stop
+        ctx.clearRect(0, 0, W, H);
+        img.style.transform = '';
+        img.style.opacity = '1';
+        hoverRafRef.current = null;
+        return;
+      }
+
+      // Current pixel block size: 1 → 16
+      const curPX  = Math.max(1, Math.round(1 + (MAX_PX - 1) * prog));
+      // Zoom proportional to pixelation
+      img.style.transform   = `scale(${1 + prog * 0.06})`;
+      img.style.transition  = 'none';
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.imageSmoothingEnabled = false;
+
+      // Step 1 — draw full pixelated image (fast)
+      const cCols = Math.ceil(W / curPX), cRows = Math.ceil(H / curPX);
+      smpl.width = cCols; smpl.height = cRows;
+      sctx.drawImage(img, 0, 0, cCols, cRows);
+      ctx.imageSmoothingEnabled = false;
+      ctx.drawImage(smpl, 0, 0, cCols, cRows, 0, 0, W, H);
+
+      hoverRafRef.current = requestAnimationFrame(loop);
+    };
+
+    const onEnter = () => {
+      hoveredRef.current = true;
+      img.style.opacity = '0';
+      if (!hoverRafRef.current) hoverRafRef.current = requestAnimationFrame(loop);
+    };
+    const onLeave = () => { hoveredRef.current = false; mouseRef.current = { x:-9999, y:-9999 }; };
+    const onMove  = e  => {
+      const r = canvas.getBoundingClientRect();
+      mouseRef.current = { x: e.clientX - r.left, y: e.clientY - r.top };
+    };
+
+    container.addEventListener('mouseenter', onEnter);
+    container.addEventListener('mouseleave', onLeave);
+    container.addEventListener('mousemove',  onMove);
+    return () => {
+      container.removeEventListener('mouseenter', onEnter);
+      container.removeEventListener('mouseleave', onLeave);
+      container.removeEventListener('mousemove',  onMove);
+      cancelAnimationFrame(hoverRafRef.current);
+    };
+  }, [ready]);
+
+  return (
+    <div ref={containerRef} style={{ position: 'relative', lineHeight: 0, overflow: 'hidden', borderRadius: 4, background: '#1A1A1A', ...style }}>
+      <img
+        ref={imgRef}
+        src={src}
+        alt={alt}
+        draggable={false}
+        onDragStart={e=>e.preventDefault()}
+        crossOrigin="anonymous"
+        onLoad={() => setReady(true)}
+        style={{ display: 'block', width: '100%', height: 'auto', opacity: 0 }}
+      />
+      <canvas ref={revealRef} style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }} />
+      <canvas ref={hoverRef}  style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }} />
+    </div>
+  );
+}
+
+/* ── PixelResolveVideo — reverse hover effect: starts fully pixelated, resolves to clear ── */
+function PixelResolveVideo({ src, videoRef: externalVideoRef, videoProps={}, style={}, externalTrigger=false }) {
+  const containerRef     = useRef(null);
+  const internalVideoRef = useRef(null);
+  const canvasRef        = useRef(null);
+  const rafRef           = useRef(null);
+  const [ready, setReady] = useState(false);
+  const PX   = 16;
+  const RAMP = 1200;
+
+  const setVideoRef = (el) => {
+    internalVideoRef.current = el;
+    if (typeof externalVideoRef === 'function') externalVideoRef(el);
+    else if (externalVideoRef && 'current' in externalVideoRef) externalVideoRef.current = el;
+  };
+
+  const drawAt = (ctx, smpl, sctx, video, W, H, curPX) => {
+    ctx.clearRect(0, 0, W, H);
+    ctx.imageSmoothingEnabled = false;
+    smpl.width  = Math.ceil(W / curPX);
+    smpl.height = Math.ceil(H / curPX);
+
+    // Replicate objectFit:cover — scale to fill, crop centre
+    const vW = video.videoWidth  || W;
+    const vH = video.videoHeight || H;
+    const scale = Math.max(W / vW, H / vH);
+    const dW = vW * scale, dH = vH * scale;
+    const sx = (dW - W) / 2 / scale;   // source x in video coords
+    const sy = (dH - H) / 2 / scale;   // source y in video coords
+    const sw = W / scale;               // visible width  in video coords
+    const sh = H / scale;               // visible height in video coords
+
+    sctx.drawImage(video, sx, sy, sw, sh, 0, 0, smpl.width, smpl.height);
+    ctx.drawImage(smpl, 0, 0, smpl.width, smpl.height, 0, 0, W, H);
+  };
+
+  // WAITING loop — continuously sample video at full pixelation until trigger fires.
+  // Runs whenever ready=true and externalTrigger=false.
+  useEffect(() => {
+    if (!ready || externalTrigger) return;
+    cancelAnimationFrame(rafRef.current);
+    const canvas = canvasRef.current;
+    const video  = internalVideoRef.current;
+    if (!canvas || !video) return;
+    const W = canvas.offsetWidth, H = canvas.offsetHeight;
+    if (!W || !H) return;
+    canvas.width = W; canvas.height = H;
+    const ctx  = canvas.getContext('2d');
+    const smpl = document.createElement('canvas');
+    const sctx = smpl.getContext('2d');
+    const loop = () => {
+      drawAt(ctx, smpl, sctx, video, W, H, PX);
+      rafRef.current = requestAnimationFrame(loop);
+    };
+    rafRef.current = requestAnimationFrame(loop);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [ready, externalTrigger]);
+
+  // RESOLVE animation — pixelate 16→1 using same technique as work-card hover.
+  useEffect(() => {
+    if (!externalTrigger || !ready) return;
+    cancelAnimationFrame(rafRef.current);
+    const canvas = canvasRef.current;
+    const video  = internalVideoRef.current;
+    if (!canvas || !video) return;
+    const W = canvas.offsetWidth, H = canvas.offsetHeight;
+    if (!W || !H) return;
+    canvas.width = W; canvas.height = H;
+    const ctx  = canvas.getContext('2d');
+    const smpl = document.createElement('canvas');
+    const sctx = smpl.getContext('2d');
+    const ease = t => t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+    let start = null;
+    const tick = (now) => {
+      if (!start) start = now;
+      const tp    = Math.min((now - start) / RAMP, 1);
+      const prog  = ease(1 - tp);
+      const curPX = Math.max(1, Math.round(1 + (PX - 1) * prog));
+      drawAt(ctx, smpl, sctx, video, W, H, curPX);
+      if (tp < 1) { rafRef.current = requestAnimationFrame(tick); }
+      else        { ctx.clearRect(0, 0, W, H); } // transparent — NO display:none avoids size shift
+    };
+    rafRef.current = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [externalTrigger, ready]);
+
+  return (
+    <div ref={containerRef} style={{ position:'relative', width:'100%', height:'100%', ...style }}>
+      <video
+        ref={setVideoRef}
+        src={src}
+        onCanPlay={() => setReady(true)}
+        {...videoProps}
+        style={{ display:'block', width:'100%', height:'100%', ...(videoProps.style||{}) }}
+      />
+      <canvas ref={canvasRef} style={{ position:'absolute', top:0, left:0, width:'100%', height:'100%', pointerEvents:'none' }} />
+    </div>
+  );
+}
+
+/* ── InViewAscii — triggers AsciiReveal when element enters viewport ── */
+function InViewAscii({ text, style, getColor=null }) {
+  const [active, setActive] = useState(false);
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setActive(true); obs.disconnect(); } },
+      { threshold: 0.15 }
+    );
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+  return (
+    <span ref={ref} style={{display:'contents'}}>
+      <AsciiReveal text={text} style={style} active={active} getColor={getColor} />
+    </span>
+  );
+}
+
+/* ── Eyebrow label (JetBrains Mono 12px) ── */
+function Eyebrow({children,style={},center=true}) {
+  const ref = useRef(null);
+
+  useEffect(()=>{
+    const el = ref.current;
+    if (!el || typeof gsap==='undefined' || typeof ScrambleTextPlugin==='undefined') return;
+    gsap.registerPlugin(ScrambleTextPlugin);
+    const text = String(children||'');
+    const obs = new IntersectionObserver(([e])=>{
+      if (!e.isIntersecting) return;
+      obs.disconnect();
+      gsap.to(el, {
+        duration: 1.5, ease:'none',
+        scrambleText:{ text, chars:'upperCase', revealDelay:0.3, speed:0.6 },
+      });
+    },{ threshold:0.5 });
+    obs.observe(el);
+    return ()=> obs.disconnect();
+  },[]);
+
+  return (
+    <span
+      ref={ref}
+      dangerouslySetInnerHTML={{__html: String(children||'')}}
+      style={{fontFamily:"var(--mono)",fontSize:"var(--eyebrow)",fontWeight:400,lineHeight:"100%",letterSpacing:"var(--eyebrow-ls)",color:"var(--static)",textAlign:center?"center":"left",...style}}
+    />
+  );
+}
+
+/* ── ScrambleSpan — applies ScrambleText to any inline element on scroll-enter ── */
+function ScrambleSpan({children, style={}, tag='span'}) {
+  const ref = useRef(null);
+  useEffect(()=>{
+    const el = ref.current;
+    if (!el || typeof gsap==='undefined' || typeof ScrambleTextPlugin==='undefined') return;
+    gsap.registerPlugin(ScrambleTextPlugin);
+    const text = String(children||'');
+    const obs = new IntersectionObserver(([e])=>{
+      if (!e.isIntersecting) return;
+      obs.disconnect();
+      gsap.to(el, { duration:1.5, ease:'none',
+        scrambleText:{ text, chars:'upperCase', revealDelay:0.3, speed:0.6 },
+      });
+    },{ threshold:0.5 });
+    obs.observe(el);
+    return ()=> obs.disconnect();
+  },[]);
+  const Tag = tag;
+  return React.createElement(Tag, {
+    ref,
+    dangerouslySetInnerHTML:{__html: String(children||'')},
+    style,
+  });
+}
+
+/* ── ContactPixels — grid-aligned corner pixel clusters matching Figma design ── */
+const SVG_LOGOS = [
+  'svgs/pattern_01.svg',
+  'svgs/pattern_02.svg',
+  'svgs/pattern_03.svg',
+];
+
+function ContactPixels({ dark }) {
+  const canvasRef = useRef(null);
+  const darkRef   = useRef(dark);
+  useEffect(()=>{ darkRef.current = dark; }, [dark]);
+
+  useEffect(()=>{
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const CELL = 32;
+    let W = 0, H = 0, particles = [], raf;
+
+    // Preload SVG images
+    const svgImgs = SVG_LOGOS.map(src => {
+      const img = new Image(); img.src = src; return img;
+    });
+
+    // Deterministic hash
+    const hash = (col, row) => {
+      let h = (col * 2654435761 ^ row * 2246822519) >>> 0;
+      h ^= h >>> 16; h = Math.imul(h, 0x45d9f3b); h ^= h >>> 16;
+      return (h >>> 0) / 0xFFFFFFFF;
+    };
+
+    const init = () => {
+      particles = [];
+      const reach   = H * 0.67;
+      const cols    = Math.ceil(reach / CELL);
+      const rows    = Math.ceil(reach / CELL);
+      const maxDist = Math.sqrt(cols*cols + rows*rows);
+
+      ['tl','br'].forEach(corner => {
+        for (let ci = 0; ci < cols; ci++) {
+          for (let ri = 0; ri < rows; ri++) {
+            const dist    = Math.sqrt(ci*ci + ri*ri);
+            const invDist = (maxDist - dist) / maxDist;
+            // 1.25× density boost near card edge
+            const prob    = Math.min(Math.pow(invDist, 1.6) * 1.6, 1);
+            const h1 = hash(ci + (corner==='br'?1000:0), ri + (corner==='br'?1000:0));
+            if (h1 > prob) continue;
+
+            const totalCols = Math.floor(W / CELL);
+            const totalRows = Math.floor(H / CELL);
+            const hcol = corner==='tl' ? ci : totalCols - ci;
+            const hrow = corner==='tl' ? ri : totalRows - ri;
+
+            const h2 = hash(ci + (corner==='br'?2000:500), ri + (corner==='br'?2000:500));
+            const greenChance = corner==='tl' ? 0.38 : 0.18;
+            const isSvg = h2 < greenChance;
+
+            // Pick a deterministic SVG for this cell
+            const svgIdx = isSvg
+              ? Math.floor(hash(ci + (corner==='br'?5000:3000), ri + (corner==='br'?5000:3000)) * SVG_LOGOS.length)
+              : -1;
+
+            const cL = '#FDFEFF';
+            const cD = '#484848';
+
+            particles.push({ hcol, hrow, col:hcol, row:hrow, cL, cD, isSvg, svgIdx });
+          }
+        }
+      });
+    };
+
+    const setSize = () => {
+      W = canvas.offsetWidth; H = canvas.offsetHeight;
+      if (!W || !H) return;
+      canvas.width = W; canvas.height = H;
+      init();
+    };
+
+    const loop = () => {
+      raf = requestAnimationFrame(loop);
+      if (!W || !H) return;
+      const ctx = canvas.getContext('2d');
+      ctx.clearRect(0, 0, W, H);
+      const isDark = darkRef.current;
+
+      for (const p of particles) {
+        const x = p.col * CELL, y = p.row * CELL;
+        if (p.isSvg && svgImgs[p.svgIdx]?.complete) {
+          if (isDark) { ctx.filter = 'invert(1)'; }
+          ctx.drawImage(svgImgs[p.svgIdx], x, y, CELL, CELL);
+          ctx.filter = 'none';
+        } else if (!p.isSvg) {
+          ctx.fillStyle = isDark ? p.cD : p.cL;
+          ctx.fillRect(x, y, CELL, CELL);
+        }
+      }
+    };
+
+    const ro = new ResizeObserver(setSize);
+    ro.observe(canvas);
+    setSize();
+    loop();
+
+    return () => {
+      cancelAnimationFrame(raf);
+      ro.disconnect();
+    };
+  }, []);
+
+  return (
+    <canvas ref={canvasRef} style={{
+      position:'absolute', inset:0, width:'100%', height:'100%',
+      pointerEvents:'none', zIndex:0,
+    }}/>
+  );
+}
+
+/* ── Green CTA button ── */
+function GreenBtn({children,onClick,style={}}) {
+  return (
+    <button onClick={onClick} style={{background:"var(--tech)",border:"none",borderRadius:0,padding:"var(--s6) var(--s8)",fontFamily:"var(--sans)",fontSize:11,fontWeight:600,letterSpacing:"0.04em",color:"var(--secondary)",cursor:"pointer",whiteSpace:"nowrap",...style}}>
+      {children}
+    </button>
+  );
+}
+
+/* ── Data ── */
+const MODELS = [
+  {
+    name:"Integrated",
+    body:"We bring high-impact capabilities together into one connected way of working to enable faster decision-making and more efficient execution across every stage of growth.",
+    areas:["Strategy + Media + Performance","Platforms + Experience","Creative + Production"],
+    video:"videos/Integrated.mp4",
+  },
+  {
+    name:"In-house",
+    body:"We embed within your team, operating as a true extension of your business to build capability, culture, and output from the inside out.",
+    areas:["Embedded Expertise","Team Augmentation","Internal Capability Building"],
+    video:"videos/Inhouse+Embedded.mp4",
+  },
+  {
+    name:"Embedded",
+    body:"A dedicated squad that lives inside your organisation, fully aligned to your goals, processes, and people.",
+    areas:["Dedicated Squad","Full Alignment","Continuous Delivery"],
+    video:"videos/Inhouse+Embedded.mp4",
+  },
+];
+
+const WORKS = [
+  {title:"Afterpay x Dijitally", meta:"PARTNERSHIP · 2024 · DIGITAL",   cat:"PERFORMANCE",bg:"#000",fg:"#B6F4C9",label:"DIJITALLY × afterpay",img:"work/AfterpayxDijitally.jpg"},
+  {title:"Afterpay Day",         meta:"CREATIVE · DESIGN · SOCIAL",      cat:"CREATIVE",   bg:"#1a1a1a",fg:"#fff",label:"Afterpay Day",img:"work/AfterpayDay.jpg"},
+  {title:"Procore SURE",  meta:"CREATIVE · DESIGN · SOCIAL",      cat:"SOCIAL",     bg:"#FF4500",fg:"#fff",label:"ProSURE",img:"work/ProcoreSURE.png"},
+  {title:"Airwallex Global",     meta:"PERFORMANCE · 2024 · DATA",       cat:"DATA",       bg:"#0a0a1e",fg:"#B6F4C9",label:"Airwallex",img:"work/AWX.png"},
+];
+const CATS = ["ALL","PERFORMANCE","CREATIVE","SOCIAL","DATA"];
+
+
+/* ═══════════════════════════════════════════════════
+   DITHER CANVAS — hero background
+═══════════════════════════════════════════════════ */
+function DitherCanvas({ dark }) {
+  const canvasRef     = useRef(null);
+  const wrapRef       = useRef(null);
+  const videoRef      = useRef(null);
+  const darkRef   = useRef(dark);
+  useEffect(()=>{ darkRef.current = dark; }, [dark]);
+
+  useEffect(()=>{
+    const canvas = canvasRef.current;
+    const video  = videoRef.current;
+    if (!canvas || !video) return;
+
+    const ctx  = canvas.getContext('2d');
+    const smpl = document.createElement('canvas');
+    const sctx = smpl.getContext('2d', { willReadFrequently:true });
+
+    const PX=8, RADIUS=300, FORCE=6, WOBBLE=5, SPRING=0.06, DAMP=0.5;
+    const BR=0.10, CT=2.4, GM=1.13;
+    const LON=[241,242,243], LOFF=[253,254,255];
+    const DON=[18,16,16],    DOFF=[0,0,0];
+    const BAYER=[[0,2,0,2],[3,1,3,1],[0,2,0,2],[3,1,3,1]];
+    const R2=RADIUS*RADIUS, IDLE_V=0.3, IDLE_D=(RADIUS+PX*2)**2;
+
+    let particles=[], cols=0, rows=0, time=0, raf;
+    let outBuf=null;
+    let frameCount=0, cachedId=null;
+    const mouse={ x:-9999, y:-9999 };
+
+    class P {
+      constructor(col,row){
+        this.col=col; this.row=row;
+        this.hx=(col+0.5)*PX; this.hy=(row+0.5)*PX;
+        this.x=this.hx; this.y=this.hy;
+        this.vx=0; this.vy=0;
+        this.phase=Math.random()*Math.PI*2;
+        this.r=255; this.g=255; this.b=255;
+      }
+      sample(id){
+        const idx=(this.row*cols+this.col)*4;
+        let lum=(0.299*id.data[idx]+0.587*id.data[idx+1]+0.114*id.data[idx+2])/255;
+        lum=Math.pow(Math.max(0,lum),GM);
+        lum=(lum-0.5)*CT+0.5;
+        lum=Math.max(0,Math.min(1,lum+BR));
+        const bl=darkRef.current?1-lum:lum;
+        const thr=(BAYER[this.row&3][this.col&3]+0.5)/4;
+        const ch=(bl<=thr)?(darkRef.current?DON:LON):(darkRef.current?DOFF:LOFF);
+        this.r=ch[0]; this.g=ch[1]; this.b=ch[2];
+      }
+      update(){
+        const dx=this.x-mouse.x, dy=this.y-mouse.y;
+        const d2=dx*dx+dy*dy;
+        if(d2>IDLE_D && Math.abs(this.vx)<IDLE_V && Math.abs(this.vy)<IDLE_V){
+          this.x=this.hx; this.y=this.hy; this.vx=0; this.vy=0; return;
+        }
+        if(d2<R2&&d2>0.01){
+          const d=Math.sqrt(d2), prx=1-d/RADIUS;
+          this.vx+=(dx/d)*prx*FORCE;
+          this.vy+=(dy/d)*prx*FORCE;
+          const w=prx*prx*WOBBLE;
+          this.vx+=Math.cos(time+this.phase)*w;
+          this.vy+=Math.sin(time+this.phase*1.3)*w;
+        }
+        this.vx+=(this.hx-this.x)*SPRING;
+        this.vy+=(this.hy-this.y)*SPRING;
+        this.vx*=DAMP; this.vy*=DAMP;
+        this.x+=this.vx; this.y+=this.vy;
+      }
+      paint(W){
+        const gx=Math.floor(this.x/PX)*PX, gy=Math.floor(this.y/PX)*PX;
+        const r=this.r, g=this.g, b=this.b;
+        for(let dy=0;dy<PX;dy++){
+          let base=((gy+dy)*W+gx)*4;
+          for(let dx=0;dx<PX;dx++){
+            outBuf[base]=r; outBuf[base+1]=g; outBuf[base+2]=b; outBuf[base+3]=255;
+            base+=4;
+          }
+        }
+      }
+    }
+
+    function build(){
+      cols=Math.floor(canvas.width/PX);
+      rows=Math.floor(canvas.height/PX);
+      smpl.width=cols; smpl.height=rows;
+      outBuf=new Uint8ClampedArray(canvas.width*canvas.height*4);
+      particles=[];
+      for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) particles.push(new P(c,r));
+    }
+
+    function setSize(){
+      const vw=video.videoWidth||640, vh=video.videoHeight||360;
+      canvas.width =Math.floor(vw*2/PX)*PX;
+      canvas.height=Math.floor(vh*2/PX)*PX;
+      canvas.style.width =canvas.width+'px';
+      canvas.style.height=canvas.height+'px';
+      build();
+    }
+
+    function loop(){
+      raf=requestAnimationFrame(loop);
+      time+=0.06; frameCount++;
+      if(!outBuf||video.readyState<2) return;
+
+      // Re-sample video every 2 frames
+      if(frameCount%2===0){
+        sctx.drawImage(video,0,0,cols,rows);
+        cachedId=sctx.getImageData(0,0,cols,rows);
+      }
+      if(!cachedId) return;
+
+      // Fill background with off-colour
+      const bg=darkRef.current?DOFF:LOFF;
+      outBuf.fill(0);
+      const W=canvas.width;
+
+      for(const p of particles){
+        p.sample(cachedId);
+        p.update();
+        p.paint(W);
+      }
+      // Single putImageData instead of thousands of fillRect calls
+      ctx.putImageData(new ImageData(outBuf,W,canvas.height),0,0);
+    }
+
+    const onMove = e=>{
+      const r=canvas.getBoundingClientRect();
+      mouse.x=e.clientX-r.left;
+      mouse.y=e.clientY-r.top;
+    };
+    window.addEventListener('mousemove', onMove, {passive:true});
+    video.addEventListener('loadedmetadata', setSize);
+    setSize();
+
+    // ── Intro animation: synchronous so centering applies before first paint ──
+    {
+      const wrap = wrapRef.current;
+      if (wrap) {
+        const cW = canvas.offsetWidth  || 1280;
+        const cH = canvas.offsetHeight || 720;
+        const initialScale = Math.min(196 / cW, 196 / cH);
+        // Set position immediately — prevents grey flash on first frame
+        gsap.set(wrap, { xPercent:-50, yPercent:-50, y: window.innerHeight*0.5, scale: initialScale });
+        // Hold 2s, then scale+slide to final position over 0.5s
+        gsap.to(wrap, { y:128, scale:1, duration:0.5, ease:'power2.inOut', delay:2 });
+
+        // Counter: 00→99 over 2.5s, then remove
+        const counter = document.getElementById('preloader-counter');
+        if (counter) {
+          const proxy = { v: 0 };
+          gsap.to(proxy, {
+            v: 99, duration: 2.5, ease: 'none',
+            onUpdate: () => { counter.textContent = String(Math.floor(proxy.v)).padStart(2,'0'); },
+            onComplete: () => { counter.style.display = 'none'; }
+          });
+        }
+      }
+    }
+
+    video.play().catch(()=>{});
+    loop();
+
+    return ()=>{
+      cancelAnimationFrame(raf);
+      window.removeEventListener('mousemove', onMove);
+    };
+  },[]);
+
+  return (
+    <>
+      <video ref={videoRef} src="videos/thumbnail_02.mp4" autoPlay muted loop playsInline
+        crossOrigin="anonymous"
+        style={{position:'absolute',opacity:0,width:1,height:1,pointerEvents:'none'}}
+      />
+      {/* GSAP owns all transform/position on this wrapper */}
+      <div ref={wrapRef} style={{position:'absolute',left:'50%',top:0,zIndex:0,pointerEvents:'none'}}>
+        <canvas ref={canvasRef} style={{display:'block',opacity:0.9}}/>
+      </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   PAGE
+═══════════════════════════════════════════════════ */
+function Page() {
+  const [dark,        setDark]        = useState(()=> localStorage.getItem("dijitally-theme") === "dark");
+  const [scrollY,     setScrollY]     = useState(0);
+  const [activeModel, setActiveModel] = useState(0);
+  const [hoverModel,  setHoverModel]  = useState(-1);
+  const [activeFilter,setActiveFilter]= useState("ALL");
+  const [email,       setEmail]       = useState("");
+  const [reelOpen,    setReelOpen]    = useState(false);
+  const [ctaOpen,     setCtaOpen]     = useState(false);
+  const [thumbHover,  setThumbHover]  = useState(false);
+
+  const CTA_W = 661;
+
+  // Slide #smooth-wrapper left and animate CTA panel in/out
+  useEffect(()=>{
+    const wrapper = document.getElementById("smooth-wrapper");
+    const panel   = document.getElementById("cta-panel");
+    const overlay = document.getElementById("cta-overlay");
+    if (!wrapper || !panel || !overlay) return;
+    const cursor  = document.getElementById("dj-cursor");
+    const heading = document.getElementById("cta-heading");
+    if (ctaOpen) {
+      gsap.to(wrapper, { x: -CTA_W, duration: 0.7, ease: "power3.inOut" });
+      panel.classList.add("open");
+      overlay.classList.add("open");
+      wrapper.classList.add("cta-open");
+      if (cursor) cursor.classList.add("cta-open");
+
+      // SplitText on the heading — animate lines up after panel slides in
+      if (heading && typeof SplitText !== "undefined") {
+        // Revert any previous split so the DOM is clean
+        heading._ctaSplit && heading._ctaSplit.revert();
+        const split = new SplitText(heading, { type:"lines", linesClass:"split-line" });
+        heading._ctaSplit = split;
+        split.lines.forEach(line => {
+          const wrap = document.createElement("div");
+          wrap.style.overflow = "hidden";
+          line.parentNode.insertBefore(wrap, line);
+          wrap.appendChild(line);
+        });
+        gsap.from(split.lines, {
+          y: "110%",
+          duration: 0.75,
+          ease: "power3.out",
+          stagger: 0.08,
+          delay: 0.35,
+        });
+      }
+    } else {
+      gsap.to(wrapper, { x: 0, duration: 0.7, ease: "power3.inOut" });
+      panel.classList.remove("open");
+      overlay.classList.remove("open");
+      wrapper.classList.remove("cta-open");
+      if (cursor) cursor.classList.remove("cta-open");
+    }
+  }, [ctaOpen]);
+
+  useEffect(()=>{
+    localStorage.setItem("dijitally-theme", dark ? "dark" : "light");
+    document.body.classList.toggle("dark", dark);
+    const svg=document.getElementById('carousel-tooltip-svg');
+    const bg=document.getElementById('carousel-tooltip-bg');
+    
+    if(bg) bg.style.background='rgba(26,26,26,0.5)';
+  }, [dark]);
+
+  // ScrollSmoother — drive all scroll state from smoother.scrollTop() via GSAP ticker
+  useEffect(()=>{
+    if (typeof ScrollSmoother === "undefined" || typeof ScrollTrigger === "undefined") return;
+    gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
+    const smoother = ScrollSmoother.create({
+      wrapper: "#smooth-wrapper",
+      content: "#smooth-content",
+      smooth: 1.5,
+      effects: true,
+      normalizeScroll: true,
+    });
+    smootherRef.current = smoother;
+    return () => { smoother.kill(); smootherRef.current = null; };
+  }, []);
+
+  const smootherRef       = useRef(null);
+  const heroLogoRef       = useRef(null);
+  const heroBodyRef       = useRef(null);
+  const navRef            = useRef(null);
+  const footerLogoRef     = useRef(null);
+  const heroThumbRef      = useRef(null);
+  const carouselRef       = useRef(null);
+  const carouselSectionRef = useRef(null);
+  const [carouselVisible, setCarouselVisible] = useState(false);
+  const [modelsVisible,  setModelsVisible]  = useState(false);
+  const dragRef           = useRef({ active: false, startX: 0, scrollLeft: 0 });
+  const [tooltip, setTooltip] = useState({ visible: false, x: 0, y: 0 });
+  const reelPlayerRef     = useRef(null);
+  const modelPanelRef     = useRef(null);
+  const modelVideoRefs    = useRef([]);
+  const heroTextRef       = useRef(null);
+
+  // Capture the hero logo's initial bounding rect (once, before any scroll)
+  const captureRect = () => {};
+
+
+
+
+  // Hide hero elements before first paint — useLayoutEffect fires synchronously
+  // before the browser renders, so there is no flash of visible content
+  useLayoutEffect(()=>{
+    if (typeof gsap === "undefined") return;
+    if (heroBodyRef.current)  gsap.set(heroBodyRef.current, { opacity:0, y:16 });
+    if (heroThumbRef.current) gsap.set(heroThumbRef.current, { opacity:0, x:24 });
+    if (navRef.current)       gsap.set(navRef.current,      { y:"-100%" });
+  }, []);
+
+  // Lottie + hero entrance sequence
+  useEffect(()=>{
+    if (typeof lottie === "undefined" || typeof gsap === "undefined") return;
+    const el = heroLogoRef.current;
+    if (!el) return;
+
+    const anim = lottie.loadAnimation({
+      container: el,
+      renderer: "svg",
+      loop: false,
+      autoplay: false,            // manual start
+      path: "json/Dijitally-Alternate.json?v=3",
+      rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
+    });
+
+    anim.addEventListener("DOMLoaded", () => {
+      captureRect();
+      // 1. Play Lottie after 2s (pixel snap animation plays during this window)
+      setTimeout(() => {
+        anim.play();
+        // 2. Body copy at 25% of Lottie duration (1500ms * 0.25 = 375ms after start)
+        setTimeout(() => {
+          // SplitText lines on hero body after container appears
+      if (typeof SplitText !== "undefined" && heroBodyRef.current) {
+        const heroSpan = heroBodyRef.current.querySelector("[data-split-entrance]");
+        if (heroSpan) {
+          const split = new SplitText(heroSpan, { type:"lines", linesClass:"split-line" });
+          split.lines.forEach(line => {
+            const w = document.createElement("div");
+            w.style.overflow = "hidden";
+            line.parentNode.insertBefore(w, line);
+            w.appendChild(line);
+          });
+          gsap.set(split.lines, { y:"110%" });
+          gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out",
+            onComplete: () => gsap.to(split.lines, { y:"0%", duration:0.7, ease:"power3.out", stagger:0.08 })
+          });
+        } else {
+          gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out" });
+        }
+      } else {
+        gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out" });
+      }
+          // 3. Thumbnail 0.5s after body copy — capture rect AFTER x:0 resolves so overlay starts at correct position
+          gsap.to(heroThumbRef.current, { opacity:1, x:0, duration:0.5, ease:"power2.out", delay:0.5,
+            onComplete: () => {
+              if (heroThumbRef.current) initThumbRect.current = heroThumbRef.current.getBoundingClientRect();
+            }
+          });
+          // 4. Nav after thumbnail
+          gsap.to(navRef.current, { y:"0%", duration:0.55, ease:"power2.out", delay:0.85 });
+        }, 375);
+      }, 2500);
+    });
+
+    return () => anim.destroy();
+  }, []);
+
+
+  // Capture thumbnail + reel rects once at mount
+  const initThumbRect = useRef(null);
+  const initReelRect  = useRef(null);
+  useEffect(()=>{
+    const raf = requestAnimationFrame(()=>{
+      // initThumbRect is captured in the entrance animation's onComplete (after x:0 resolves)
+      // so we don't capture it here — only set initial opacity/overlay state
+      if (heroThumbRef.current)  heroThumbRef.current.style.opacity = "1";
+      if (reelPlayerRef.current) {
+        initReelRect.current = reelPlayerRef.current.getBoundingClientRect();
+        reelPlayerRef.current.style.opacity = "0";
+      }
+      const ov = document.getElementById("thumb-overlay");
+      if (ov) ov.style.opacity = "0";
+    });
+    return ()=> cancelAnimationFrame(raf);
+  }, []);
+
+  // Drive animation — runs every frame via scrollY state updates
+  useEffect(()=>{
+    const tR = initThumbRect.current;
+    const rR = initReelRect.current;
+    const thumbEl   = heroThumbRef.current;
+    const reelEl    = reelPlayerRef.current;
+    const overlayEl = document.getElementById("thumb-overlay");
+    if (!tR || !rR || !thumbEl || !reelEl || !overlayEl) return;
+
+    const vpH     = window.innerHeight;
+    const TO_TOP  = vpH * 0.25;
+    const END     = Math.max(rR.top - TO_TOP, 1);
+    const tp      = Math.min(Math.max(scrollY / END, 0), 1);
+    const lerp    = (a,b,t) => a + (b-a)*t;
+
+    if (scrollY <= 2) {
+      thumbEl.style.opacity   = "1";
+      overlayEl.style.opacity = "0";
+      reelEl.style.opacity    = "0";
+      return;
+    }
+
+    thumbEl.style.opacity = "0";
+
+    if (tp >= 1) {
+      overlayEl.style.opacity = "0";
+      reelEl.style.opacity    = "1";
+      return;
+    }
+
+    reelEl.style.opacity    = "0";
+    overlayEl.style.display = "block";
+    overlayEl.style.opacity = "1";
+
+    const fromTop = tR.top - scrollY;
+    overlayEl.style.top    = lerp(fromTop,   TO_TOP,  tp) + "px";
+    overlayEl.style.left   = lerp(tR.left,   rR.left, tp) + "px";
+    overlayEl.style.width  = lerp(tR.width,  rR.width,  tp) + "px";
+    overlayEl.style.height = lerp(tR.height, rR.height, tp) + "px";
+  }, [scrollY]);
+
+
+  // Operating model videos — play once on scroll into view, no loop
+  const modelInView = useRef(false);
+  useEffect(()=>{
+    const panel = modelPanelRef.current;
+    const videos = modelVideoRefs.current.filter(Boolean);
+    if (!panel || !videos.length) return;
+
+    const obs = new IntersectionObserver(([entry])=>{
+      modelInView.current = entry.isIntersecting;
+      if (entry.isIntersecting) {
+        // Play active video (once); pause others
+        videos.forEach((v, i)=>{
+          if (i === activeModel && !v.ended) { v.currentTime=0; v.play().catch(()=>{}); }
+          else { v.pause(); }
+        });
+      } else {
+        videos.forEach(v=>v.pause());
+      }
+    }, { threshold: 0.25 });
+
+    obs.observe(panel);
+    return ()=> obs.disconnect();
+  }, []); // mount/unmount only — observer persists
+
+  // When user switches model while section is in view: play new video from start
+  useEffect(()=>{
+    if (!modelInView.current) return;
+    const videos = modelVideoRefs.current.filter(Boolean);
+    videos.forEach((v, i)=>{
+      if (i === activeModel && !v.ended) { v.play().catch(()=>{}); }
+      else { v.pause(); }
+    });
+  }, [activeModel]);
+
+
+  // Trigger all carousel images when section enters viewport
+  useEffect(()=>{
+    const el = carouselSectionRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e])=>{
+      if (e.isIntersecting) { setCarouselVisible(true); obs.disconnect(); }
+    }, { threshold: 0.5 });
+    obs.observe(el);
+    return ()=> obs.disconnect();
+  }, []);
+
+  // Trigger operating model videos when panel enters viewport
+  useEffect(()=>{
+    const el = modelPanelRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e])=>{
+      if (e.isIntersecting) { setModelsVisible(true); obs.disconnect(); }
+    }, { threshold: 0.3 });
+    obs.observe(el);
+    return ()=> obs.disconnect();
+  }, []);
+
+
+  // SplitText — animate every heading line-by-line on scroll
+  useEffect(()=>{
+    if (typeof gsap === "undefined" || typeof SplitText === "undefined" || typeof ScrollTrigger === "undefined") return;
+    gsap.registerPlugin(SplitText, ScrollTrigger);
+
+    const headings = document.querySelectorAll("h2, [data-split]");
+    const splits = [];
+
+    headings.forEach(el => {
+      // Skip headings inside the accordion (already styled specifically)
+      const split = new SplitText(el, { type: "lines", linesClass: "split-line" });
+      splits.push(split);
+
+      // Wrap each line in a clip container to hide overflow
+      split.lines.forEach(line => {
+        const wrapper = document.createElement("div");
+        wrapper.style.overflow = "hidden";
+        line.parentNode.insertBefore(wrapper, line);
+        wrapper.appendChild(line);
+      });
+
+      gsap.from(split.lines, {
+        y: "110%",
+        duration: 0.7,
+        ease: "power3.out",
+        stagger: 0.1,
+        scrollTrigger: {
+          trigger: el,
+          start: "top 88%",
+          once: true,
+        },
+      });
+    });
+
+    return () => splits.forEach(s => s.revert());
+  }, []);
+
+
+  // Footer Lottie — play once when footer enters view
+  useEffect(()=>{
+    if (typeof lottie === "undefined") return;
+    const el = footerLogoRef.current;
+    if (!el) return;
+    let anim = null;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !anim) {
+        anim = lottie.loadAnimation({
+          container: el,
+          renderer: "svg",
+          loop: false,
+          autoplay: true,
+          path: "json/Dijitally-Alternate.json?v=3",
+          rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
+        });
+        // Sync dark mode filter on SVG
+        const syncFilter = () => {
+          const svg = el.querySelector("svg");
+          if (svg) svg.style.filter = document.body.classList.contains("dark") ? "invert(1)" : "none";
+        };
+        anim.addEventListener("DOMLoaded", syncFilter);
+        obs.disconnect();
+      }
+    }, { threshold: 0.2 });
+    obs.observe(el);
+    return () => { obs.disconnect(); if (anim) anim.destroy(); };
+  }, []);
+
+
+
+
+
+  useEffect(()=>{
+    // Scroll position tracker via GSAP ticker
+    const tick = ()=>{
+      const current = smootherRef.current
+        ? smootherRef.current.scrollTop()
+        : window.scrollY;
+      setScrollY(current);
+    };
+    gsap.ticker.add(tick);
+
+
+    // Carousel tooltip — global mousemove for reliability
+    const tipEl = document.getElementById('carousel-tooltip');
+    const moveTip = e => {
+      if (!tipEl || !carouselRef.current) return;
+      const rect = carouselRef.current.getBoundingClientRect();
+      const inside = e.clientX >= rect.left && e.clientX <= rect.right &&
+                     e.clientY >= rect.top  && e.clientY <= rect.bottom;
+      if (inside) {
+        tipEl.style.left = (e.clientX - 54) + 'px';
+        tipEl.style.top  = (e.clientY - 21) + 'px';
+        tipEl.style.display = 'block';
+        if (cursorEl) cursorEl.style.opacity = '0';
+      } else {
+        tipEl.style.display = 'none';
+        if (cursorEl) cursorEl.style.opacity = '1';
+      }
+    };
+    window.addEventListener('mousemove', moveTip, { passive: true });
+
+    // Custom cursor
+    const cursorEl = document.getElementById('dj-cursor');
+    const onCursorMove = e => {
+      cursorEl.style.left = e.clientX + 'px';
+      cursorEl.style.top  = e.clientY + 'px';
+    };
+    const onCursorDown = () => cursorEl.classList.add('active');
+    const onCursorUp   = () => cursorEl.classList.remove('active');
+    window.addEventListener('mousemove',  onCursorMove, { passive: true });
+    window.addEventListener('mousedown',  onCursorDown);
+    window.addEventListener('mouseup',    onCursorUp);
+
+    return()=>{
+      gsap.ticker.remove(tick);
+      window.removeEventListener('mousemove', onCursorMove);
+      window.removeEventListener('mousedown', onCursorDown);
+      window.removeEventListener('mouseup',   onCursorUp);
+    };
+  },[]);
+
+
+  // Derived state
+  const scrolled = scrollY > 60;
+
+
+
+  const vpH          = typeof window !== "undefined" ? window.innerHeight : 800;
+
+  const filtered = activeFilter==="ALL" ? WORKS : WORKS.filter(w=>w.cat===activeFilter);
+  const divider  = {};
+
+  return (
+    <div className={dark ? "dark" : ""} style={{background:"var(--bg)",color:"var(--secondary)",minHeight:"100vh",transition:"background 0.3s ease, color 0.3s ease"}}>
+
+      {/* ══════════════════════════════════════
+          NAV — 126px height, 42px padding
+      ══════════════════════════════════════ */}
+      <header ref={navRef} style={{
+        position:"fixed",top:0,left:0,right:0,zIndex:100,
+        height: scrolled ? 72 : "var(--nav-h)",
+        padding:"0 var(--s42)",
+        display:"flex", alignItems:"center", justifyContent:"flex-end",
+        background: "transparent",
+        
+        transition:"height 0.35s ease, background 0.3s ease",
+      }}>
+
+        {/* Logo — hidden until hero SVG locks in on scroll */}
+        <a href="/" style={{
+          display:"none",
+          height: scrolled ? 20 : 28,
+          flexShrink:0,
+          transition:"height 0.35s ease",
+        }}>
+          <img
+            src="dijitally-heading.svg"
+            alt="DIJITALLY™"
+            style={{height:"100%",width:"auto",display:"block",filter:dark?"invert(1)":"none",transition:"filter 0.3s ease"}}
+          />
+        </a>
+
+        {/* Nav links — 19px, weight 600, ls -0.38px */}
+        <nav style={{display:"flex", alignItems:"center", gap:42}}>
+          {/* Nav items — dot + label, padding 6px, gap 4px, letter-spacing -0.38px */}
+          {["Work","Services","About","Blog"].map(l=>(
+            <span key={l} style={{
+              display:"flex", alignItems:"center", gap:4,
+              padding:6,
+              fontFamily:"var(--sans)",
+              fontSize:"var(--nav-size)",
+              fontWeight:"var(--nav-w)",
+              letterSpacing:"-0.38px",
+              color:"var(--secondary)",
+              cursor:"default",
+              userSelect:"none",
+            }}>
+              <span style={{width:3,height:3,background:"var(--secondary)",display:"inline-block",flexShrink:0}}/>
+              {l}
+            </span>
+          ))}
+
+          {/* Get in touch — Touchy variant: bg #B6F4C9, padding 6px, gap 4px, same text style */}
+          <button onClick={()=>setCtaOpen(true)} style={{
+            display:"flex", alignItems:"center", gap:4,
+            padding:6,
+            background:"var(--tech)",
+            border:"none", borderRadius:0,
+            fontFamily:"var(--sans)",
+            fontSize:"var(--nav-size)",
+            fontWeight:"var(--nav-w)",
+            letterSpacing:"-0.38px",
+            color:"#121010",
+            cursor:"pointer",
+            flexShrink:0,
+          }}>
+            <span style={{width:3,height:3,background:"#121010",display:"inline-block",flexShrink:0}}/>
+            Get in touch
+          </button>
+
+          {/* Toggle UI — pill, border: 1px solid var(--secondary), border-radius: 256px, padding 3px, w 29px */}
+          <button
+            onClick={()=>setDark(d=>!d)}
+            aria-label="Toggle theme"
+            style={{
+              width:29, height:19,
+              borderRadius:256,
+              background:"none",
+              border:"1px solid var(--secondary)",
+              cursor:"pointer",
+              position:"relative",
+              flexShrink:0,
+              padding:3,
+              display:"flex",
+              alignItems:"center",
+              transition:"border-color 0.3s",
+            }}
+          >
+            <span style={{
+              width:11, height:11,
+              borderRadius:"50%",
+              background:"var(--secondary)",
+              display:"block",
+              flexShrink:0,
+              transition:"transform 0.3s ease",
+              transform: dark ? "translateX(10px)" : "translateX(0px)",
+            }}/>
+          </button>
+        </nav>
+      </header>
+
+      {/* ══════════════════════════════════════
+          HERO + HYPE REEL — combined section for smooth thumb→reel animation
+      ══════════════════════════════════════ */}
+      <section style={{position:"relative"}}>
+        <DitherCanvas dark={dark} />
+
+        {/* Hero viewport — 100vh */}
+        <div style={{height:"100vh", position:"relative", overflow:"hidden"}}>
+
+          {/* DIJITALLY™ — centred within first viewport */}
+          <div style={{
+            position:"absolute",
+            top:"50%", left:"var(--s42)", right:"var(--s42)",
+            transform:"translateY(-50%)",
+            zIndex:1,
+          }}>
+            <div
+              ref={heroLogoRef}
+              style={{
+                width:"100%",
+                aspectRatio:"1604/223",
+                filter:dark?"invert(1)":"none",
+                transition:"filter 0.3s ease",
+              }}
+            />
+          </div>
+
+          {/* Body copy + thumbnail — pinned to first viewport bottom */}
+          <div ref={heroBodyRef} style={{
+            position:"absolute",
+            bottom:"var(--s42)", left:"var(--s42)", right:"var(--s42)",
+            display:"flex", alignItems:"flex-end", gap:"var(--s42)",
+            zIndex:1,
+          }}>
+            <div style={{flexShrink:0,display:"flex",flexDirection:"column",gap:"var(--s10)"}}>
+              <span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--static)"}}>·</span>
+              <span ref={heroTextRef} data-split-entrance="" style={{
+                  fontFamily:"var(--sans)",
+                  fontSize:"var(--h2)", fontWeight:350,
+                  lineHeight:"var(--h2-lh)", letterSpacing:"var(--h2-ls)",
+                  color:"var(--secondary)",
+                  maxWidth:533,
+                  display:"block",
+                }}>Through flexible, built-for-scale models, we connect creative, marketing, and technology to drive measurable impact for our allies.</span>
+            </div>
+
+            {/* Thumbnail — GSAP wrapper owns x/opacity; button owns hover scale separately */}
+            <div ref={heroThumbRef} style={{position:"relative",width:256,height:144,flexShrink:0,marginLeft:"auto"}}>
+              <button
+                onClick={()=>setReelOpen(true)}
+                onMouseEnter={()=>setThumbHover(true)}
+                onMouseLeave={()=>setThumbHover(false)}
+                style={{
+                  position:"absolute",inset:0,
+                  background:"transparent",border:"none",cursor:"pointer",
+                  overflow:"visible",padding:0,
+                  transform: thumbHover ? "scale(1.15)" : "scale(1)",
+                  boxShadow: thumbHover ? "0 18px 30px rgba(0,0,0,0.15)" : "none",
+                  transformOrigin:"bottom right",
+                  transition:"transform 0.3s ease, box-shadow 0.3s ease",
+                }}>
+                {/* Inner clip wrapper preserves rounded corners while outer allows shadow */}
+                <div style={{position:"absolute",inset:0,borderRadius:4,overflow:"hidden"}}>
+                  <PixelResolveVideo
+                    src="videos/thumbnail.mp4?v=2"
+                    externalTrigger={true}
+                    videoProps={{autoPlay:true,muted:true,loop:true,playsInline:true,style:{width:"100%",height:"100%",objectFit:"contain",display:"block"}}}
+                  />
+                </div>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Hype reel — quote left, reel player right */}
+           <div style={{
+          padding:"256px var(--s42) var(--s128)",
+          display:"flex", alignItems:"center", gap:"var(--s42)",
+        }}>
+          {/* Left text — vertically centred with video */}
+          <div style={{
+            width:400, flexShrink:0,
+            display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s32)",
+          }}>
+            <Eyebrow>++ FROM ENGINEERING TO EXECUTION ++</Eyebrow>
+            <p data-split="" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)"}}>
+              <span style={{  fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)"  }}>Growth doesn't come from going it alone. It comes from having the right ally beside you. One who sees the big picture. And the small details that put it into action.</span>
+            </p>
+          </div>
+
+          {/* Reel player */}
+          <button ref={reelPlayerRef} onClick={()=>setReelOpen(true)} style={{
+            flex:1, aspectRatio:"16/9",
+            border:"none", cursor:"pointer", position:"relative",
+            background:"#FDFEFF", borderRadius:4,
+            overflow:"hidden",
+          }}>
+            <video
+              src="videos/thumbnail.mp4?v=2"
+              autoPlay muted loop playsInline
+              style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"contain",display:"block"}}
+            />
+          </button>
+        </div>
+
+      </section>
+
+      {/* Partners / Clients ticker — below hero + reel */}
+      <div style={{paddingTop:"var(--s42)",paddingBottom:"var(--s82)"}}>
+        <Ticker dark={dark}/>
+      </div>
+
+      {/* ══════════════════════════════════════
+          OPERATING MODELS — 1690 × 1000, flex column
+      ══════════════════════════════════════ */}
+      <section id="services" style={{...divider, minHeight:1000}}>
+
+        {/* Text header */}
+        <div style={{padding:"var(--s42) var(--s42) var(--s32) calc(400px + var(--s42) * 2)",display:"flex",flexDirection:"column",gap:16}}>
+          <Eyebrow center={false}>++ HOW WE OPERATE ++</Eyebrow>
+
+          <h2 style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:585}}>
+            <span style={{  fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)"  }}>Three models. One ecosystem. Globally. We help brands scale by enabling product, brand and marketing teams to deliver results. Fast.</span>
+          </h2>
+        </div>
+
+        {/* Accordion + image, padding 0 42px, gap 42px */}
+        <div style={{display:"flex",padding:"0 var(--s42)",gap:"var(--s42)"}}>
+
+          {/* Accordion — width 400 */}
+          <div style={{width:400,flexShrink:0}}>
+            {MODELS.map((m,i)=>(
+              <div key={m.name}
+                style={{marginBottom: i < MODELS.length-1 ? 8 : 0}}
+                onMouseEnter={()=>setHoverModel(i)}
+                onMouseLeave={()=>setHoverModel(-1)}
+              >
+                {i===activeModel ? (
+                  /* Active — full grey card containing heading + content */
+                  <div style={{
+                    background:dark?"#1A1A1A":"#F6F6F6",
+                    borderRadius:4,
+                    padding:"24px",
+                  }}>
+                    <span style={{
+                      fontFamily:"var(--sans)",
+                      fontSize:"var(--h2)", fontWeight:350,
+                      lineHeight:"var(--h2-lh)", letterSpacing:"var(--h2-ls)",
+                      color:"var(--secondary)",
+                      display:"block", marginBottom:16,
+                    }}>{m.name}</span>
+
+                    <p style={{
+                      fontFamily:"var(--sans)",
+                      fontSize:"var(--acc-body)", fontWeight:350,
+                      lineHeight:"var(--acc-body-lh)",
+                      color:"var(--static)",
+                      marginBottom:42,
+                    }}>{m.body}</p>
+
+                    <div>
+                      <Eyebrow center={false} style={{display:"block",marginBottom:8,textTransform:"uppercase",letterSpacing:"0.12em"}}>
+                        Areas of Service
+                      </Eyebrow>
+                      <ul style={{listStyle:"none",display:"flex",flexDirection:"column",gap:4}}>
+                        {m.areas.map(a=>(
+                          <li key={a} style={{fontFamily:"var(--sans)",fontSize:"var(--acc-body)",fontWeight:350,display:"flex",alignItems:"center",gap:8,color:"var(--secondary)"}}>
+                            <span style={{color:"var(--secondary)"}}>·</span>{a}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  </div>
+                ) : (
+                  /* Inactive — heading only, hover transitions to dark */
+                  <button
+                    onClick={()=>setActiveModel(i)}
+                    style={{
+                      display:"flex", alignItems:"center", justifyContent:"space-between",
+                      width:"100%",
+                      padding:"16px 24px", background: hoverModel===i ? (dark?"#1A1A1A":"#F6F6F6") : "none", borderRadius:4, border:"none",
+                      cursor:"pointer", textAlign:"left",
+                    }}
+                  >
+                    <span style={{
+                      fontFamily:"var(--sans)",
+                      fontSize:"var(--h2)", fontWeight:350,
+                      lineHeight:"var(--h2-lh)", letterSpacing:"var(--h2-ls)",
+                      color: hoverModel===i ? "var(--secondary)" : "var(--static)",
+                      transition:"color 0.2s ease",
+                    }}>{m.name}</span>
+                    <span style={{
+                      fontFamily:"var(--sans)",
+                      fontSize:"var(--h2)", fontWeight:350,
+                      color:"var(--static)",
+                      opacity: hoverModel===i ? 1 : 0,
+                      transition:"opacity 0.2s ease",
+                      lineHeight:1,
+                    }}>+</span>
+                  </button>
+                )}
+              </div>
+            ))}
+          </div>
+
+          {/* Video panel — 1164 × 700, sticky */}
+          <div ref={modelPanelRef} style={{
+            flex:1,
+            position:"sticky", top:"var(--nav-h)", alignSelf:"flex-start",
+            aspectRatio:"1164/700",
+            overflow:"hidden",
+            background:"#FDFEFF",
+            borderRadius:4,
+          }}>
+            {MODELS.map((m, i) => (
+              <div key={m.name} style={{
+                position:"absolute", inset:0,
+                opacity: i === activeModel ? 1 : 0,
+                transition:"opacity 0.4s ease",
+              }}>
+                <PixelResolveVideo
+                  src={m.video}
+                  videoRef={el => modelVideoRefs.current[i] = el}
+                  externalTrigger={modelsVisible && i === activeModel}
+                  videoProps={{muted:true, playsInline:true, style:{objectFit:"cover"}}}
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          WORK / MAIN FRAME
+          padding: 128px 64px, bg #FDFEFF, gap 24px
+      ══════════════════════════════════════ */}
+      <section id="work" ref={carouselSectionRef} style={{
+        ...divider,
+        padding:"var(--s128) 0",
+        display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s24)",
+      }}>
+        {/* Header + filters */}
+        <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",width:"100%",gap:"var(--s42)",paddingLeft:"var(--s64)",paddingRight:"var(--s64)"}}>
+          <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
+            <h2 style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:500}}>
+              <span style={{  fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)"  }}>Our work. Creative that converts. Data that performs. Systems that support. Production that moves.</span>
+            </h2>
+            {/* Filter pills — under heading */}
+            <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+              {CATS.map(c=>(
+                <button key={c} onClick={()=>setActiveFilter(c)} style={{
+                  padding:"5px 12px",
+                  background: c===activeFilter ? "#121010" : "transparent",
+                  border: `1px solid ${c===activeFilter?"#121010":"var(--grey)"}`,
+                  borderRadius:100,
+                  fontFamily:"var(--mono)",fontSize:11,fontWeight:400,letterSpacing:"0.08em",
+                  color: c===activeFilter ? "#FDFEFF" : "var(--secondary)",
+                  cursor:"pointer",transition:"all 0.15s",
+                }}>{c}</button>
+              ))}
+            </div>
+          </div>
+          <a href="#work" style={{
+            display:"inline-flex", alignItems:"center", justifyContent:"center", gap:10,
+            padding:"18px 24px",
+            background:"var(--tech)",
+            border:"none", borderRadius:0,
+            fontFamily:"var(--sans)", fontSize:16, fontWeight:500, letterSpacing:"0.04em",
+            color:"#121010",
+            textDecoration:"none", whiteSpace:"nowrap",
+            flexShrink:0,
+          }}><span style={{display:"inline-block",width:4,height:4,background:"#121010",flexShrink:0}}></span>View all our work</a>
+        </div>
+
+        {/* Cards — horizontal scroll */}
+        <div
+          ref={carouselRef}
+          data-carousel=""
+
+          onMouseDown={e=>{
+            dragRef.current = { active:true, startX: e.pageX - carouselRef.current.offsetLeft, scrollLeft: carouselRef.current.scrollLeft };
+            carouselRef.current.style.cursor = 'grabbing';
+            carouselRef.current.style.userSelect = 'none';
+            
+          }}
+          onMouseMove={e=>{
+            if (!dragRef.current.active) return;
+            e.preventDefault();
+            const x = e.pageX - carouselRef.current.offsetLeft;
+            const walk = x - dragRef.current.startX;
+            carouselRef.current.scrollLeft = dragRef.current.scrollLeft - walk;
+          }}
+          onMouseUp={()=>{ dragRef.current.active = false; carouselRef.current.style.cursor = 'grab';  }}
+          onMouseLeave={()=>{ dragRef.current.active = false; carouselRef.current.style.cursor = 'grab';  }}
+          style={{
+            display:"flex",gap:24,overflowX:"auto",
+            width:"100%",
+            paddingBottom:"var(--s16)",
+            cursor:"grab",
+            WebkitUserDrag:"none",
+          }}>
+          <div style={{width:64,minWidth:64,flexShrink:0,flexGrow:0}}/>
+          {filtered.map((w,i)=>(
+            <div key={i} className="wc" style={{flexShrink:0,width:504,cursor:"pointer"}}>
+              {/* Thumbnail */}
+              <div style={{position:"relative",width:504,flexShrink:0,overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg}}>
+                {w.img
+                  ? <PixelRevealImg src={w.img} alt={w.title} externalTrigger={carouselVisible} delay={i * 0.35} />
+                  : <div style={{width:504,height:680,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      <span style={{fontFamily:"var(--sans)",fontSize:22,fontWeight:900,color:w.fg,letterSpacing:"-0.02em",textAlign:"center",padding:16}}>{w.label}</span>
+                    </div>
+                }
+              </div>
+              {/* Card meta — JetBrains Mono 10px, ls -0.2px, #878787 */}
+              <div style={{padding:"16px 0 0",display:"flex",flexDirection:"column",gap:4}}>
+                <p style={{fontFamily:"var(--sans)",fontSize:"var(--card)",fontWeight:350,lineHeight:"var(--card-lh)",color:"var(--secondary)"}}>{w.title}</p>
+                {/* Card title — NeuSans Trial 24px, weight 500, lh 120% */}
+                <span style={{fontFamily:"var(--mono)",fontSize:"var(--meta)",fontWeight:400,letterSpacing:"var(--meta-ls)",color:"var(--static)"}}>{w.meta}</span>
+              </div>
+            </div>
+          ))}
+          <div style={{width:40,minWidth:40,flexShrink:0,flexGrow:0}}/>
+        </div>
+
+      </section>
+
+      {/* ══════════════════════════════════════
+          CONTACT SECTION — padding: 96px 64px, bg #DEDEDE, gap 24px
+      ══════════════════════════════════════ */}
+      <section style={{
+        ...divider,
+        background:"var(--grey)",
+        padding:"var(--s96) var(--s64)",
+        display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", gap:"var(--s24)",
+        position:"relative", overflow:"hidden",
+      }}>
+        {/* Corner pixel effects — interactive, light/dark-aware */}
+        <ContactPixels dark={dark} />
+
+        {/* Inner contact card — 720×409px, bg #FDFEFF, br 4px */}
+        <div style={{
+          background:"var(--primary)",
+          borderRadius:4,
+          width:736, height:416,
+          position:"relative",
+          zIndex:1,
+          display:"flex", alignItems:"center",
+          paddingLeft:176,
+          paddingRight:"var(--s64)",
+          overflow:"hidden",
+          flexShrink:0,
+        }}>
+          {/* Video — 150×150, 8px off top-left */}
+          <div style={{
+            position:"absolute", top:8, left:8,
+            width:150, height:150,
+            flexShrink:0,
+            clipPath:"inset(0 round 2px)",
+            transform:"translateZ(0)",
+          }}>
+            <video
+              src="videos/thumbnail_02.mp4"
+              autoPlay muted loop playsInline
+              style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}}
+            />
+          </div>
+
+          {/* Right: form */}
+          <div style={{flex:1,display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
+            <Eyebrow center={false} style={{letterSpacing:"0.08em"}}>LET'S CHAT</Eyebrow>
+
+            <h2 style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",color:"var(--secondary)"}}>
+              Looking for an ally on your next project?
+            </h2>
+
+            {/* Input + button — same height via matching padding */}
+            <div style={{display:"flex",gap:12}}>
+              <input
+                type="email" placeholder="Your contact email"
+                value={email} onChange={e=>setEmail(e.target.value)}
+                style={{
+                  flex:1,padding:"18px 14px",fontFamily:"var(--sans)",fontSize:13,
+                  border:"1px solid var(--grey)",outline:"none",
+                  background:"var(--bg)",color:"var(--secondary)",
+                  boxSizing:"border-box",
+                }}
+              />
+              <button style={{
+                display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,
+                padding:"18px 24px",
+                background:"var(--tech)",
+                border:"none",borderRadius:0,
+                fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:"0.04em",
+                color:"#121010",
+                cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,
+              }}>
+                <span style={{display:"inline-block",width:4,height:4,background:"#121010",flexShrink:0}}/>
+                Submit
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* ══════════════════════════════════════
+          FOOTER — flex column, align-items flex-end, 447px
+      ══════════════════════════════════════ */}
+      <footer style={{
+        ...divider,
+        minHeight:447,
+        padding:"var(--s64)",
+        display:"flex", flexDirection:"column", alignItems:"flex-end",
+        background:"var(--bg)",
+      }}>
+        {/* Row 1 — nav links left, Privacy Policy right */}
+        <div style={{width:"100%", paddingTop:"var(--s32)", display:"flex", alignItems:"center", justifyContent:"space-between"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
+            {["WORK","SERVICES","ABOUT","BLOG"].map(l=>(
+              <span key={l} style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
+                <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
+                <ScrambleSpan style={{
+                  fontFamily:"var(--mono)",fontSize:12,fontWeight:400,
+                  letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",
+                  color:"var(--secondary)",
+                }}>{l}</ScrambleSpan>
+              </span>
+            ))}
+          </div>
+          <span style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
+            <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
+            <a href="#" style={{textDecoration:"none"}}>
+              <ScrambleSpan style={{
+                fontFamily:"var(--mono)",fontSize:12,fontWeight:400,
+                letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",
+                color:"var(--secondary)",
+              }}>PRIVACY POLICY</ScrambleSpan>
+            </a>
+          </span>
+        </div>
+
+        {/* Row 2 — LinkedIn left, Terms + Conditions right */}
+        <div style={{
+          width:"100%", padding:"var(--s12) 0 var(--s32) 0",
+          display:"flex", alignItems:"center", justifyContent:"space-between",
+        }}>
+          <a href="#" aria-label="LinkedIn" style={{display:"flex",alignItems:"center",justifyContent:"center",width:24,height:24,flexShrink:0}}>
+            <img src="dijitally-footer.svg" alt="LinkedIn" style={{width:24,height:24,display:"block"}}/>
+          </a>
+          <span style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
+            <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
+            <a href="#" style={{textDecoration:"none"}}>
+              <ScrambleSpan style={{
+                fontFamily:"var(--mono)",fontSize:12,fontWeight:400,
+                letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",
+                color:"var(--secondary)",
+              }}>TERMS + CONDITIONS</ScrambleSpan>
+            </a>
+          </span>
+        </div>
+
+        {/* Footer DIJITALLY™ logo — Lottie, plays once on enter */}
+        <div ref={footerLogoRef} style={{width:"100%",overflow:"hidden"}} />
+      </footer>
+
+      {/* ══════════════════════════════════════
+          REEL LIGHTBOX — portalled outside smooth-wrapper so position:fixed works
+      ══════════════════════════════════════ */}
+      {ReactDOM.createPortal(
+        <div className={"lb " + (reelOpen?"open":"")} style={{
+          position:"fixed",inset:0,zIndex:200,
+          background:"rgba(18,16,16,0.97)",
+          display:"flex",alignItems:"center",justifyContent:"center",
+        }} onClick={()=>setReelOpen(false)}>
+          <div style={{position:"relative",width:"80vw",aspectRatio:"16/9",background:"#0a0a0a",borderRadius:8,overflow:"hidden"}} onClick={e=>e.stopPropagation()}>
+            <video
+              src="videos/thumbnail.mp4?v=2"
+              autoPlay muted loop playsInline
+              style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}}
+            />
+            <button onClick={()=>setReelOpen(false)} style={{position:"absolute",top:16,right:16,background:"none",border:"none",color:"rgba(255,255,255,0.6)",fontSize:24,cursor:"pointer",zIndex:1}}>×</button>
+          </div>
+        </div>,
+        document.getElementById("lb-portal")
+      )}
+
+      {/* ══════════════════════════════════════
+          GET IN TOUCH — dark overlay + slide-in panel, both portalled outside smooth-wrapper
+      ══════════════════════════════════════ */}
+      {ReactDOM.createPortal(
+        React.createElement(React.Fragment, null,
+          /* Dark overlay — covers the shifted page content */
+          React.createElement("div", {
+            id: "cta-overlay",
+            onClick: ()=>setCtaOpen(false),
+            style: { position:"fixed", inset:0, zIndex:199 }
+          }),
+          /* Slide-in panel */
+          React.createElement("div", {
+            id: "cta-panel",
+            style: {
+              position:"fixed", top:0, right:0, height:"100vh", width:CTA_W, zIndex:200,
+              background:"var(--primary)",
+              display:"flex", flexDirection:"column",
+              padding:"42px 64px",
+              overflowY:"auto",
+            },
+            onClick: e=>e.stopPropagation()
+          },
+            /* Close button */
+            React.createElement("div", { style:{display:"flex",justifyContent:"flex-end",marginBottom:42} },
+              React.createElement("button", {
+                onClick: ()=>setCtaOpen(false),
+                style:{ background:"none",border:"none",cursor:"pointer",width:28,height:19,position:"relative",flexShrink:0 }
+              },
+                React.createElement("div",{style:{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}},
+                  React.createElement("div",{style:{width:30,height:2,background:"var(--secondary)",transform:"rotate(-30deg)",position:"absolute"}}),
+                  React.createElement("div",{style:{width:30,height:2,background:"var(--secondary)",transform:"rotate(-150deg)",position:"absolute"}})
+                )
+              )
+            ),
+            /* Content */
+            React.createElement("div", { style:{display:"flex",flexDirection:"column",gap:42,flex:1,justifyContent:"center"} },
+              /* Heading */
+              React.createElement("div", { id:"cta-heading", style:{fontFamily:"var(--sans)",fontSize:32,fontWeight:350,lineHeight:"110%",letterSpacing:"-0.64px"} },
+                React.createElement("span",{style:{color:"var(--static)"}},"Need an ally? "),
+                React.createElement("span",{style:{color:"var(--secondary)"}}, "Let's start"),
+                React.createElement("br",null),
+                React.createElement("span",{style:{color:"var(--secondary)"}},"a project together.")
+              ),
+              /* Form */
+              React.createElement("div", { style:{display:"flex",flexDirection:"column",width:533} },
+                React.createElement("input",{placeholder:"Your name",type:"text",style:{padding:16,fontFamily:"var(--sans)",fontSize:16,fontWeight:350,border:"1px solid var(--grey)",outline:"none",background:"var(--primary)",color:"var(--secondary)",letterSpacing:"0.16px"}}),
+                React.createElement("input",{placeholder:"Your email",type:"email",style:{padding:16,fontFamily:"var(--sans)",fontSize:16,fontWeight:350,border:"1px solid var(--grey)",borderTop:"none",outline:"none",background:"var(--primary)",color:"var(--secondary)",letterSpacing:"0.16px"}}),
+                React.createElement("textarea",{placeholder:"Add any notes, if desired.",style:{padding:16,fontFamily:"var(--sans)",fontSize:16,fontWeight:350,border:"1px solid var(--grey)",borderTop:"none",outline:"none",background:"var(--primary)",color:"var(--static)",resize:"none",height:186,letterSpacing:"0.16px"}}),
+                React.createElement("div",{style:{display:"flex",justifyContent:"flex-end",marginTop:10}},
+                  React.createElement("button",{style:{background:"var(--secondary)",color:"var(--primary)",border:"none",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:4,padding:6,fontFamily:"var(--sans)",fontSize:19,fontWeight:500,letterSpacing:"-0.38px",lineHeight:1}},
+                    React.createElement("span",{style:{width:3,height:3,background:"var(--grey)",display:"inline-block",flexShrink:0}}),
+                    "Submit"
+                  )
+                )
+              )
+            )
+          )
+        ),
+        document.getElementById("lb-portal")
+      )}
+
+
+
+
+
+
+
+
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById("root")).render(<Page/>);
+</script>
+</body>
+</html>
