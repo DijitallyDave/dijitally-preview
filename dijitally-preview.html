@@ -125,7 +125,7 @@
     /* Dark mode overrides */
     .dark {
       --primary:   #1a1a1a;
-      --secondary: #F5F5F5;
+      --secondary: #FDFEFF;
       --static:    #666666;
       --grey:      #2a2a2a;
       --bg:        #121010;
@@ -147,7 +147,7 @@
     #dj-cursor {
       position: fixed;
       width: 16px; height: 16px;
-      background: #ffffff;
+      background: #FDFEFF;
       mix-blend-mode: difference;
       pointer-events: none;
       transform: translate(-50%, -50%);
@@ -656,34 +656,8 @@ function ContactPixels({ dark }) {
   const canvasRef     = useRef(null);
   const darkRef       = useRef(dark);
   const scrollProgRef = useRef(0);
-  const svgImgsRef    = useRef([]);
 
-  // Update darkRef and force a one-time redraw whenever dark mode toggles
-  useEffect(()=>{
-    darkRef.current = dark;
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const ctx = canvas.getContext('2d');
-    const W = canvas.width, H = canvas.height;
-    if (!W || !H) return;
-    ctx.clearRect(0, 0, W, H);
-    // Re-draw all currently revealed particles with new palette
-    // (particles array is captured via closure in the main effect — use a stored ref)
-    if (canvasRef._particles) {
-      const isDark = dark;
-      const prog = scrollProgRef.current;
-      for (const p of canvasRef._particles) {
-        if (prog < p.revealAt) continue;
-        const x = p.col * 32, y = p.row * 32;
-        if (p.isSvg && svgImgsRef.current[p.svgIdx]?.complete) {
-          ctx.drawImage(svgImgsRef.current[p.svgIdx], x, y, 32, 32);
-        } else if (!p.isSvg) {
-          ctx.fillStyle = isDark ? p.cD : p.cL;
-          ctx.fillRect(x, y, 32, 32);
-        }
-      }
-    }
-  }, [dark]);
+  useEffect(()=>{ darkRef.current = dark; }, [dark]);
 
   useEffect(()=>{
     const canvas = canvasRef.current;
@@ -699,7 +673,7 @@ function ContactPixels({ dark }) {
       const img = new Image();
       img.onload = img.onerror = () => res(img);
       img.src = src;
-    }))).then(imgs => { svgImgs = imgs; svgImgsRef.current = imgs; });
+    }))).then(imgs => { svgImgs = imgs; });
 
     // Deterministic hash
     const hash = (col, row) => {
@@ -750,7 +724,6 @@ function ContactPixels({ dark }) {
       if (!W || !H) return;
       canvas.width = W; canvas.height = H;
       init();
-      canvasRef._particles = particles; // expose for dark-mode redraw
     };
 
     // ScrollTrigger: progress 0 when section enters bottom of viewport → 1 when section top hits top
@@ -765,63 +738,34 @@ function ContactPixels({ dark }) {
       });
     }
 
-    let allRevealed = false;
-    let canvasVisible = false;
-
     const loop = () => {
-      if (!W || !H) { raf = requestAnimationFrame(loop); return; }
-      const ctx      = canvas.getContext('2d');
-      const isDark   = darkRef.current;
-      const progress = scrollProgRef.current;
-      ctx.clearRect(0, 0, W, H);
-
-      for (const p of particles) {
-        // Reveal instantly when scroll progress passes this particle's threshold
-        if (progress < p.revealAt) continue;
-
-        const x = p.col * CELL, y = p.row * CELL;
-        if (p.isSvg && svgImgs[p.svgIdx]?.complete) {
-          ctx.drawImage(svgImgs[p.svgIdx], x, y, CELL, CELL);
-        } else if (!p.isSvg) {
-          ctx.fillStyle = isDark ? p.cD : p.cL;
-          ctx.fillRect(x, y, CELL, CELL);
+      if (W && H) {
+        const ctx      = canvas.getContext('2d');
+        const isDark   = darkRef.current;
+        const progress = scrollProgRef.current;
+        ctx.clearRect(0, 0, W, H);
+        for (const p of particles) {
+          if (progress < p.revealAt) continue;
+          const x = p.col * CELL, y = p.row * CELL;
+          if (p.isSvg && svgImgs[p.svgIdx]?.complete) {
+            ctx.drawImage(svgImgs[p.svgIdx], x, y, CELL, CELL);
+          } else if (!p.isSvg) {
+            ctx.fillStyle = isDark ? p.cD : p.cL;
+            ctx.fillRect(x, y, CELL, CELL);
+          }
         }
-      }
-
-      if (progress >= 0.95) {
-        allRevealed = true;
-        return; // stop rAF loop — all particles revealed
       }
       raf = requestAnimationFrame(loop);
     };
 
-    const startLoop = () => {
-      if (!allRevealed && canvasVisible) {
-        cancelAnimationFrame(raf);
-        raf = requestAnimationFrame(loop);
-      }
-    };
-
-    const visObs = new IntersectionObserver(([entry]) => {
-      canvasVisible = entry.isIntersecting;
-      if (canvasVisible) {
-        startLoop();
-      } else {
-        cancelAnimationFrame(raf);
-      }
-    }, { threshold: 0 });
-    visObs.observe(canvas);
-
     const ro = new ResizeObserver(setSize);
     ro.observe(canvas);
     setSize();
-    canvasVisible = true;
     raf = requestAnimationFrame(loop);
 
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
-      visObs.disconnect();
       if (st) st.kill();
     };
   }, []);
@@ -2059,7 +2003,7 @@ function Page() {
         </div>
 
         {/* Footer DIJITALLY™ logo — Lottie, plays once on enter */}
-        <div ref={footerLogoRef} style={{width:"100%",overflow:"hidden"}} />
+        <div ref={footerLogoRef} style={{width:"100%",overflow:"hidden",filter:dark?"invert(1)":"none",transition:"filter 0.3s ease"}} />
       </footer>
 
       {/* ══════════════════════════════════════
@@ -2077,7 +2021,7 @@ function Page() {
               autoPlay muted loop playsInline
               style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}}
             />
-            <button onClick={()=>setReelOpen(false)} style={{position:"absolute",top:16,right:16,background:"none",border:"none",color:"rgba(255,255,255,0.6)",fontSize:24,cursor:"pointer",zIndex:1}}>×</button>
+            <button onClick={()=>setReelOpen(false)} style={{position:"absolute",top:16,right:16,background:"none",border:"none",color:"rgba(253,254,255,0.6)",fontSize:24,cursor:"pointer",zIndex:1}}>×</button>
           </div>
         </div>,
         document.getElementById("lb-portal")
