@@ -629,8 +629,9 @@ const SVG_LOGOS = [
 ];
 
 function ContactPixels({ dark }) {
-  const canvasRef = useRef(null);
-  const darkRef   = useRef(dark);
+  const canvasRef     = useRef(null);
+  const darkRef       = useRef(dark);
+  const scrollProgRef = useRef(0); // 0 = section off-screen, 1 = section top at viewport top
   useEffect(()=>{ darkRef.current = dark; }, [dark]);
 
   useEffect(()=>{
@@ -638,6 +639,7 @@ function ContactPixels({ dark }) {
     if (!canvas) return;
 
     const CELL = 32;
+
     let W = 0, H = 0, particles = [], raf;
 
     // Preload SVG images
@@ -664,7 +666,6 @@ function ContactPixels({ dark }) {
           for (let ri = 0; ri < rows; ri++) {
             const dist    = Math.sqrt(ci*ci + ri*ri);
             const invDist = (maxDist - dist) / maxDist;
-            // 1.25× density boost near card edge
             const prob    = Math.min(Math.pow(invDist, 1.6) * 1.6, 1);
             const h1 = hash(ci + (corner==='br'?1000:0), ri + (corner==='br'?1000:0));
             if (h1 > prob) continue;
@@ -675,18 +676,16 @@ function ContactPixels({ dark }) {
             const hrow = corner==='tl' ? ri : totalRows - ri;
 
             const h2 = hash(ci + (corner==='br'?2000:500), ri + (corner==='br'?2000:500));
-            const greenChance = corner==='tl' ? 0.38 : 0.18;
-            const isSvg = h2 < greenChance;
-
-            // Pick a deterministic SVG for this cell
+            const isSvg = h2 < (corner==='tl' ? 0.38 : 0.18);
             const svgIdx = isSvg
               ? Math.floor(hash(ci + (corner==='br'?5000:3000), ri + (corner==='br'?5000:3000)) * SVG_LOGOS.length)
               : -1;
 
-            const cL = '#FDFEFF';
-            const cD = '#484848';
+            // Random reveal threshold: spread staggered entry across 0→0.75 of scroll range
+            const revealAt = hash(ci + (corner==='br'?6000:8000), ri + (corner==='br'?6000:8000)) * 0.95;
 
-            particles.push({ hcol, hrow, col:hcol, row:hrow, cL, cD, isSvg, svgIdx });
+            particles.push({ hcol, hrow, col:hcol, row:hrow,
+              cL:'#FDFEFF', cD:'#121010', isSvg, svgIdx, revealAt });
           }
         }
       });
@@ -699,19 +698,34 @@ function ContactPixels({ dark }) {
       init();
     };
 
+    // ScrollTrigger: progress 0 when section enters bottom of viewport → 1 when section top hits top
+    let st;
+    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+      gsap.registerPlugin(ScrollTrigger);
+      const section = canvas.parentElement;
+      st = ScrollTrigger.create({
+        trigger: section,
+        start: 'top bottom',
+        end:   'top top',
+        onUpdate: self => { scrollProgRef.current = self.progress; },
+      });
+    }
+
     const loop = () => {
       raf = requestAnimationFrame(loop);
       if (!W || !H) return;
-      const ctx = canvas.getContext('2d');
+      const ctx      = canvas.getContext('2d');
+      const isDark   = darkRef.current;
+      const progress = scrollProgRef.current;
       ctx.clearRect(0, 0, W, H);
-      const isDark = darkRef.current;
 
       for (const p of particles) {
+        // Reveal instantly when scroll progress passes this particle's threshold
+        if (progress < p.revealAt) continue;
+
         const x = p.col * CELL, y = p.row * CELL;
         if (p.isSvg && svgImgs[p.svgIdx]?.complete) {
-          if (isDark) { ctx.filter = 'invert(1)'; }
           ctx.drawImage(svgImgs[p.svgIdx], x, y, CELL, CELL);
-          ctx.filter = 'none';
         } else if (!p.isSvg) {
           ctx.fillStyle = isDark ? p.cD : p.cL;
           ctx.fillRect(x, y, CELL, CELL);
@@ -727,6 +741,7 @@ function ContactPixels({ dark }) {
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      if (st) st.kill();
     };
   }, []);
 
@@ -1817,7 +1832,7 @@ function Page() {
       ══════════════════════════════════════ */}
       <section style={{
         ...divider,
-        background:"var(--grey)",
+        background: dark ? "#1A1A1A" : "var(--grey)",
         padding:"var(--s96) var(--s64)",
         display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", gap:"var(--s24)",
         position:"relative", overflow:"hidden",
@@ -1827,7 +1842,7 @@ function Page() {
 
         {/* Inner contact card — 720×409px, bg #FDFEFF, br 4px */}
         <div style={{
-          background:"var(--primary)",
+          background: dark ? "#121010" : "var(--primary)",
           borderRadius:4,
           width:736, height:416,
           position:"relative",
