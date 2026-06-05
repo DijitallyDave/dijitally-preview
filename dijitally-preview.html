@@ -177,6 +177,12 @@
 <script type="text/babel">
 const { useState, useEffect, useLayoutEffect, useRef } = React;
 
+if (typeof gsap !== 'undefined') {
+  if (typeof ScrollTrigger !== 'undefined') gsap.registerPlugin(ScrollTrigger);
+  if (typeof SplitText !== 'undefined') gsap.registerPlugin(SplitText);
+  if (typeof ScrambleTextPlugin !== 'undefined') gsap.registerPlugin(ScrambleTextPlugin);
+}
+
 /* ── ASCII reveal — left to right, 9 randomisations per char, 2s total ── */
 const SPECIAL = '!@#$%&|<>{}░▒▓×±§÷¶~^*_+=[]/?\\';
 
@@ -365,8 +371,10 @@ function PixelRevealImg({ src, alt, style = {}, externalTrigger = false, delay =
 
     let enterTime = null, leaveTime = null;
     const ease = t => t < 0.5 ? 2*t*t : -1+(4-2*t)*t; // ease in-out
+    const mounted = { v: true };
 
     const loop = (now) => {
+      if (!mounted.v) return;
       const isHov = hoveredRef.current;
       if (isHov && !enterTime) { enterTime = now; leaveTime = null; }
       if (!isHov && !leaveTime) { leaveTime = now; enterTime = null; }
@@ -419,6 +427,7 @@ function PixelRevealImg({ src, alt, style = {}, externalTrigger = false, delay =
     container.addEventListener('mouseleave', onLeave);
     container.addEventListener('mousemove',  onMove);
     return () => {
+      mounted.v = false;
       container.removeEventListener('mouseenter', onEnter);
       container.removeEventListener('mouseleave', onLeave);
       container.removeEventListener('mousemove',  onMove);
@@ -480,6 +489,8 @@ function PixelResolveVideo({ src, videoRef: externalVideoRef, videoProps={}, sty
     ctx.drawImage(smpl, 0, 0, smpl.width, smpl.height, 0, 0, W, H);
   };
 
+  const visibleRef = useRef(false);
+
   // WAITING loop — continuously sample video at full pixelation until trigger fires.
   // Runs whenever ready=true and externalTrigger=false.
   useEffect(() => {
@@ -498,8 +509,23 @@ function PixelResolveVideo({ src, videoRef: externalVideoRef, videoProps={}, sty
       drawAt(ctx, smpl, sctx, video, W, H, PX);
       rafRef.current = requestAnimationFrame(loop);
     };
-    rafRef.current = requestAnimationFrame(loop);
-    return () => cancelAnimationFrame(rafRef.current);
+    const startLoop = () => { cancelAnimationFrame(rafRef.current); rafRef.current = requestAnimationFrame(loop); };
+    const stopLoop  = () => { cancelAnimationFrame(rafRef.current); };
+
+    // Only run rAF when container is visible
+    const obs = new IntersectionObserver(([entry]) => {
+      visibleRef.current = entry.isIntersecting;
+      if (entry.isIntersecting) {
+        startLoop();
+      } else {
+        stopLoop();
+      }
+    }, { threshold: 0 });
+    if (containerRef.current) obs.observe(containerRef.current);
+
+    if (visibleRef.current) startLoop();
+
+    return () => { stopLoop(); obs.disconnect(); };
   }, [ready, externalTrigger]);
 
   // RESOLVE animation — pixelate 16→1 using same technique as work-card hover.
@@ -572,7 +598,6 @@ function Eyebrow({children,style={},center=true}) {
   useEffect(()=>{
     const el = ref.current;
     if (!el || typeof gsap==='undefined' || typeof ScrambleTextPlugin==='undefined') return;
-    gsap.registerPlugin(ScrambleTextPlugin);
     const text = String(children||'');
     const obs = new IntersectionObserver(([e])=>{
       if (!e.isIntersecting) return;
@@ -601,7 +626,6 @@ function ScrambleSpan({children, style={}, tag='span'}) {
   useEffect(()=>{
     const el = ref.current;
     if (!el || typeof gsap==='undefined' || typeof ScrambleTextPlugin==='undefined') return;
-    gsap.registerPlugin(ScrambleTextPlugin);
     const text = String(children||'');
     const obs = new IntersectionObserver(([e])=>{
       if (!e.isIntersecting) return;
@@ -643,9 +667,12 @@ function ContactPixels({ dark }) {
     let W = 0, H = 0, particles = [], raf;
 
     // Preload SVG images
-    const svgImgs = SVG_LOGOS.map(src => {
-      const img = new Image(); img.src = src; return img;
-    });
+    let svgImgs = [];
+    Promise.all(SVG_LOGOS.map(src => new Promise(res => {
+      const img = new Image();
+      img.onload = img.onerror = () => res(img);
+      img.src = src;
+    }))).then(imgs => { svgImgs = imgs; });
 
     // Deterministic hash
     const hash = (col, row) => {
@@ -701,7 +728,6 @@ function ContactPixels({ dark }) {
     // ScrollTrigger: progress 0 when section enters bottom of viewport → 1 when section top hits top
     let st;
     if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
-      gsap.registerPlugin(ScrollTrigger);
       const section = canvas.parentElement;
       st = ScrollTrigger.create({
         trigger: section,
@@ -711,9 +737,11 @@ function ContactPixels({ dark }) {
       });
     }
 
+    let allRevealed = false;
+    let canvasVisible = false;
+
     const loop = () => {
-      raf = requestAnimationFrame(loop);
-      if (!W || !H) return;
+      if (!W || !H) { raf = requestAnimationFrame(loop); return; }
       const ctx      = canvas.getContext('2d');
       const isDark   = darkRef.current;
       const progress = scrollProgRef.current;
@@ -731,16 +759,41 @@ function ContactPixels({ dark }) {
           ctx.fillRect(x, y, CELL, CELL);
         }
       }
+
+      if (progress >= 0.95) {
+        allRevealed = true;
+        return; // stop rAF loop — all particles revealed
+      }
+      raf = requestAnimationFrame(loop);
     };
+
+    const startLoop = () => {
+      if (!allRevealed && canvasVisible) {
+        cancelAnimationFrame(raf);
+        raf = requestAnimationFrame(loop);
+      }
+    };
+
+    const visObs = new IntersectionObserver(([entry]) => {
+      canvasVisible = entry.isIntersecting;
+      if (canvasVisible) {
+        startLoop();
+      } else {
+        cancelAnimationFrame(raf);
+      }
+    }, { threshold: 0 });
+    visObs.observe(canvas);
 
     const ro = new ResizeObserver(setSize);
     ro.observe(canvas);
     setSize();
-    loop();
+    canvasVisible = true;
+    raf = requestAnimationFrame(loop);
 
     return () => {
       cancelAnimationFrame(raf);
       ro.disconnect();
+      visObs.disconnect();
       if (st) st.kill();
     };
   }, []);
@@ -821,6 +874,7 @@ function DitherCanvas({ dark }) {
 
     let particles=[], cols=0, rows=0, time=0, raf;
     let outBuf=null;
+    let outImageData=null;
     let frameCount=0, cachedId=null;
     const mouse={ x:-9999, y:-9999 };
 
@@ -881,6 +935,7 @@ function DitherCanvas({ dark }) {
       rows=Math.floor(canvas.height/PX);
       smpl.width=cols; smpl.height=rows;
       outBuf=new Uint8ClampedArray(canvas.width*canvas.height*4);
+      outImageData=ctx.createImageData(canvas.width, canvas.height);
       particles=[];
       for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) particles.push(new P(c,r));
     }
@@ -917,7 +972,8 @@ function DitherCanvas({ dark }) {
         p.paint(W);
       }
       // Single putImageData instead of thousands of fillRect calls
-      ctx.putImageData(new ImageData(outBuf,W,canvas.height),0,0);
+      outImageData.data.set(outBuf);
+      ctx.putImageData(outImageData, 0, 0);
     }
 
     const onMove = e=>{
@@ -982,7 +1038,9 @@ function DitherCanvas({ dark }) {
 ═══════════════════════════════════════════════════ */
 function Page() {
   const [dark,        setDark]        = useState(()=> localStorage.getItem("dijitally-theme") === "dark");
-  const [scrollY,     setScrollY]     = useState(0);
+  const [scrolled,    setScrolled]    = useState(false);
+  const scrollYRef    = useRef(0);
+  const scrolledRef   = useRef(false);
   const [activeModel, setActiveModel] = useState(0);
   const [hoverModel,  setHoverModel]  = useState(-1);
   const [activeFilter,setActiveFilter]= useState("ALL");
@@ -1049,7 +1107,6 @@ function Page() {
   // ScrollSmoother — drive all scroll state from smoother.scrollTop() via GSAP ticker
   useEffect(()=>{
     if (typeof ScrollSmoother === "undefined" || typeof ScrollTrigger === "undefined") return;
-    gsap.registerPlugin(ScrollTrigger, ScrollSmoother);
     const smoother = ScrollSmoother.create({
       wrapper: "#smooth-wrapper",
       content: "#smooth-content",
@@ -1057,6 +1114,7 @@ function Page() {
       effects: true,
       normalizeScroll: true,
     });
+    smoother.paused(true); // hold until hero sequence finishes
     smootherRef.current = smoother;
     return () => { smoother.kill(); smootherRef.current = null; };
   }, []);
@@ -1143,7 +1201,9 @@ function Page() {
             }
           });
           // 4. Nav after thumbnail
-          gsap.to(navRef.current, { y:"0%", duration:0.55, ease:"power2.out", delay:0.85 });
+          gsap.to(navRef.current, { y:"0%", duration:0.55, ease:"power2.out", delay:0.85,
+            onComplete: () => { if (smootherRef.current) smootherRef.current.paused(false); }
+          });
         }, 375);
       }, 2500);
     });
@@ -1170,46 +1230,51 @@ function Page() {
     return ()=> cancelAnimationFrame(raf);
   }, []);
 
-  // Drive animation — runs every frame via scrollY state updates
+  // Drive animation — runs every frame via GSAP ticker (reads scrollYRef to avoid re-renders)
   useEffect(()=>{
-    const tR = initThumbRect.current;
-    const rR = initReelRect.current;
-    const thumbEl   = heroThumbRef.current;
-    const reelEl    = reelPlayerRef.current;
-    const overlayEl = document.getElementById("thumb-overlay");
-    if (!tR || !rR || !thumbEl || !reelEl || !overlayEl) return;
+    const lerp = (a,b,t) => a + (b-a)*t;
+    const tick = () => {
+      const tR = initThumbRect.current;
+      const rR = initReelRect.current;
+      const thumbEl   = heroThumbRef.current;
+      const reelEl    = reelPlayerRef.current;
+      const overlayEl = document.getElementById("thumb-overlay");
+      if (!tR || !rR || !thumbEl || !reelEl || !overlayEl) return;
 
-    const vpH     = window.innerHeight;
-    const TO_TOP  = vpH * 0.25;
-    const END     = Math.max(rR.top - TO_TOP, 1);
-    const tp      = Math.min(Math.max(scrollY / END, 0), 1);
-    const lerp    = (a,b,t) => a + (b-a)*t;
+      const scrollY = scrollYRef.current;
+      const vpH     = window.innerHeight;
+      const TO_TOP  = vpH * 0.25;
+      const END     = Math.max(rR.top - TO_TOP, 1);
+      const tp      = Math.min(Math.max(scrollY / END, 0), 1);
 
-    if (scrollY <= 2) {
-      thumbEl.style.opacity   = "1";
-      overlayEl.style.opacity = "0";
+      if (scrollY <= 2) {
+        thumbEl.style.opacity   = "1";
+        overlayEl.style.opacity = "0";
+        reelEl.style.opacity    = "0";
+        return;
+      }
+
+      thumbEl.style.opacity = "0";
+
+      if (tp >= 1) {
+        overlayEl.style.opacity = "0";
+        reelEl.style.opacity    = "1";
+        return;
+      }
+
       reelEl.style.opacity    = "0";
-      return;
-    }
+      overlayEl.style.display = "block";
+      overlayEl.style.opacity = "1";
 
-    thumbEl.style.opacity = "0";
-
-    if (tp >= 1) {
-      overlayEl.style.opacity = "0";
-      reelEl.style.opacity    = "1";
-      return;
-    }
-
-    reelEl.style.opacity    = "0";
-    overlayEl.style.display = "block";
-    overlayEl.style.opacity = "1";
-
-    const fromTop = tR.top - scrollY;
-    overlayEl.style.top    = lerp(fromTop,   TO_TOP,  tp) + "px";
-    overlayEl.style.left   = lerp(tR.left,   rR.left, tp) + "px";
-    overlayEl.style.width  = lerp(tR.width,  rR.width,  tp) + "px";
-    overlayEl.style.height = lerp(tR.height, rR.height, tp) + "px";
-  }, [scrollY]);
+      const fromTop = tR.top - scrollY;
+      overlayEl.style.top    = lerp(fromTop,   TO_TOP,  tp) + "px";
+      overlayEl.style.left   = lerp(tR.left,   rR.left, tp) + "px";
+      overlayEl.style.width  = lerp(tR.width,  rR.width,  tp) + "px";
+      overlayEl.style.height = lerp(tR.height, rR.height, tp) + "px";
+    };
+    gsap.ticker.add(tick);
+    return () => gsap.ticker.remove(tick);
+  }, []);
 
 
   // Operating model videos — play once on scroll into view, no loop
@@ -1273,7 +1338,6 @@ function Page() {
   // SplitText — animate every heading line-by-line on scroll
   useEffect(()=>{
     if (typeof gsap === "undefined" || typeof SplitText === "undefined" || typeof ScrollTrigger === "undefined") return;
-    gsap.registerPlugin(SplitText, ScrollTrigger);
 
     const headings = document.querySelectorAll("h2, [data-split]");
     const splits = [];
@@ -1343,20 +1407,25 @@ function Page() {
 
   useEffect(()=>{
     // Scroll position tracker via GSAP ticker
-    const tick = ()=>{
-      const current = smootherRef.current
-        ? smootherRef.current.scrollTop()
-        : window.scrollY;
-      setScrollY(current);
+    const tick = () => {
+      const current = smootherRef.current ? smootherRef.current.scrollTop() : window.scrollY;
+      scrollYRef.current = current;
+      const newScrolled = current > 60;
+      if (newScrolled !== scrolledRef.current) { setScrolled(newScrolled); scrolledRef.current = newScrolled; }
     };
     gsap.ticker.add(tick);
 
 
     // Carousel tooltip — global mousemove for reliability
     const tipEl = document.getElementById('carousel-tooltip');
+    let carouselRect = carouselRef.current?.getBoundingClientRect();
+    const carouselRo = carouselRef.current ? new ResizeObserver(() => {
+      carouselRect = carouselRef.current?.getBoundingClientRect();
+    }) : null;
+    if (carouselRo && carouselRef.current) carouselRo.observe(carouselRef.current);
     const moveTip = e => {
-      if (!tipEl || !carouselRef.current) return;
-      const rect = carouselRef.current.getBoundingClientRect();
+      if (!tipEl || !carouselRect) return;
+      const rect = carouselRect;
       const inside = e.clientX >= rect.left && e.clientX <= rect.right &&
                      e.clientY >= rect.top  && e.clientY <= rect.bottom;
       if (inside) {
@@ -1380,20 +1449,20 @@ function Page() {
     const onCursorDown = () => cursorEl.classList.add('active');
     const onCursorUp   = () => cursorEl.classList.remove('active');
     window.addEventListener('mousemove',  onCursorMove, { passive: true });
-    window.addEventListener('mousedown',  onCursorDown);
-    window.addEventListener('mouseup',    onCursorUp);
+    window.addEventListener('mousedown',  onCursorDown, { passive: true });
+    window.addEventListener('mouseup',    onCursorUp,   { passive: true });
 
     return()=>{
       gsap.ticker.remove(tick);
+      window.removeEventListener('mousemove', moveTip);
       window.removeEventListener('mousemove', onCursorMove);
-      window.removeEventListener('mousedown', onCursorDown);
-      window.removeEventListener('mouseup',   onCursorUp);
+      window.removeEventListener('mousedown', onCursorDown, { passive: true });
+      window.removeEventListener('mouseup',   onCursorUp,   { passive: true });
+      if (carouselRo) carouselRo.disconnect();
     };
   },[]);
 
 
-  // Derived state
-  const scrolled = scrollY > 60;
 
 
 
