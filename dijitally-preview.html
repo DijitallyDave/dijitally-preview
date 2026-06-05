@@ -655,8 +655,35 @@ const SVG_LOGOS = [
 function ContactPixels({ dark }) {
   const canvasRef     = useRef(null);
   const darkRef       = useRef(dark);
-  const scrollProgRef = useRef(0); // 0 = section off-screen, 1 = section top at viewport top
-  useEffect(()=>{ darkRef.current = dark; }, [dark]);
+  const scrollProgRef = useRef(0);
+  const svgImgsRef    = useRef([]);
+
+  // Update darkRef and force a one-time redraw whenever dark mode toggles
+  useEffect(()=>{
+    darkRef.current = dark;
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const W = canvas.width, H = canvas.height;
+    if (!W || !H) return;
+    ctx.clearRect(0, 0, W, H);
+    // Re-draw all currently revealed particles with new palette
+    // (particles array is captured via closure in the main effect — use a stored ref)
+    if (canvasRef._particles) {
+      const isDark = dark;
+      const prog = scrollProgRef.current;
+      for (const p of canvasRef._particles) {
+        if (prog < p.revealAt) continue;
+        const x = p.col * 32, y = p.row * 32;
+        if (p.isSvg && svgImgsRef.current[p.svgIdx]?.complete) {
+          ctx.drawImage(svgImgsRef.current[p.svgIdx], x, y, 32, 32);
+        } else if (!p.isSvg) {
+          ctx.fillStyle = isDark ? p.cD : p.cL;
+          ctx.fillRect(x, y, 32, 32);
+        }
+      }
+    }
+  }, [dark]);
 
   useEffect(()=>{
     const canvas = canvasRef.current;
@@ -672,7 +699,7 @@ function ContactPixels({ dark }) {
       const img = new Image();
       img.onload = img.onerror = () => res(img);
       img.src = src;
-    }))).then(imgs => { svgImgs = imgs; });
+    }))).then(imgs => { svgImgs = imgs; svgImgsRef.current = imgs; });
 
     // Deterministic hash
     const hash = (col, row) => {
@@ -723,6 +750,7 @@ function ContactPixels({ dark }) {
       if (!W || !H) return;
       canvas.width = W; canvas.height = H;
       init();
+      canvasRef._particles = particles; // expose for dark-mode redraw
     };
 
     // ScrollTrigger: progress 0 when section enters bottom of viewport → 1 when section top hits top
