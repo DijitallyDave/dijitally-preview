@@ -200,6 +200,10 @@
 
       /* CTA panel full width on mobile */
       #cta-panel { width: 100vw !important; padding: 32px 24px !important; }
+
+      /* Restore native scroll — ScrollSmoother is disabled on mobile */
+      #smooth-wrapper { position: static !important; overflow: visible !important; height: auto !important; }
+      #smooth-content { will-change: auto !important; transform: none !important; }
     }
   </style>
 </head>
