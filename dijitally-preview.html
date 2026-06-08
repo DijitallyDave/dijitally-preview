@@ -1119,8 +1119,9 @@ function Page() {
     if(bg) bg.style.background='rgba(26,26,26,0.5)';
   }, [dark]);
 
-  // ScrollSmoother — drive all scroll state from smoother.scrollTop() via GSAP ticker
+  // ScrollSmoother — desktop only; on mobile native scroll is far smoother
   useEffect(()=>{
+    if (isMobile) return; // skip entirely on mobile
     if (typeof ScrollSmoother === "undefined" || typeof ScrollTrigger === "undefined") return;
     const smoother = ScrollSmoother.create({
       wrapper: "#smooth-wrapper",
@@ -1606,7 +1607,7 @@ function Page() {
           HERO + HYPE REEL — combined section for smooth thumb→reel animation
       ══════════════════════════════════════ */}
       <section style={{position:"relative"}}>
-        <DitherCanvas dark={dark} />
+        {!isMobile && <DitherCanvas dark={dark} />}
 
         {/* Hero viewport — 100vh */}
         <div style={{height:"100vh", position:"relative", overflow:"hidden"}}>
@@ -1962,7 +1963,7 @@ function Page() {
         position:"relative", overflow:"hidden",
       }}>
         {/* Corner pixel effects — interactive, light/dark-aware */}
-        <ContactPixels dark={dark} />
+        {!isMobile && <ContactPixels dark={dark} />}
 
         {/* Inner contact card — 720×409px, bg #FDFEFF, br 4px */}
         <div className="contact-card-inner" style={{
