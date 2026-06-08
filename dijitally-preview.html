@@ -109,6 +109,9 @@
       transition: transform 0.7s cubic-bezier(0.76, 0, 0.24, 1);
     }
     #cta-panel.open { transform: translateX(0); }
+    @media(max-width:768px){
+      #cta-panel { transform: translateX(100vw); }
+    }
     #cta-overlay {
       opacity: 0; pointer-events: none;
       background: #1A1A1A;
@@ -161,9 +164,42 @@
     [data-carousel]::-webkit-scrollbar { display: none; }
     [data-carousel] { scrollbar-width: none; -ms-overflow-style: none; }
 
-    /* Responsive */
+    /* Responsive — 900px */
     @media(max-width:900px){
       :root{ --h1:32px; --h2:22px; --nav-size:14px; }
+    }
+
+    /* ── Mobile breakpoint 768px ── */
+    @media(max-width:768px){
+      :root{
+        --h1: 28px;
+        --h2: 20px;
+        --nav-size: 13px;
+        --s64: 24px;
+        --s42: 16px;
+      }
+
+      /* Nav: hide nav links, keep logo + toggle */
+      .mobile-nav-links { display: none !important; }
+
+      /* Hero body copy: cap width on mobile */
+      .hero-body-text { max-width: 100% !important; }
+
+      /* Work carousel cards: smaller */
+      .wc { width: calc(100vw - 48px) !important; }
+      .wc > div:first-child { width: 100% !important; }
+
+      /* Contact section: full width on mobile */
+      .contact-card-inner { width: calc(100% - 32px) !important; height: auto !important; padding: 24px !important; }
+
+      /* Footer: single column */
+      .footer-row { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+
+      /* Filter pills: always wrap */
+      .filter-row { flex-wrap: wrap !important; }
+
+      /* CTA panel full width on mobile */
+      #cta-panel { width: 100vw !important; padding: 32px 24px !important; }
     }
   </style>
 </head>
@@ -1011,6 +1047,7 @@ function DitherCanvas({ dark }) {
 function Page() {
   const [dark,        setDark]        = useState(()=> localStorage.getItem("dijitally-theme") === "dark");
   const [scrolled,    setScrolled]    = useState(false);
+  const [isMobile,    setIsMobile]    = useState(()=> window.innerWidth <= 768);
   const scrollYRef    = useRef(0);
   const scrolledRef   = useRef(false);
   const [activeModel, setActiveModel] = useState(0);
@@ -1021,7 +1058,7 @@ function Page() {
   const [ctaOpen,     setCtaOpen]     = useState(false);
   const [thumbHover,  setThumbHover]  = useState(false);
 
-  const CTA_W = 661;
+  const CTA_W = isMobile ? window.innerWidth : 661;
 
   // Slide #smooth-wrapper left and animate CTA panel in/out
   useEffect(()=>{
@@ -1066,6 +1103,12 @@ function Page() {
       if (cursor) cursor.classList.remove("cta-open");
     }
   }, [ctaOpen]);
+
+  useEffect(()=>{
+    const onResize = () => setIsMobile(window.innerWidth <= 768);
+    window.addEventListener('resize', onResize, { passive: true });
+    return () => window.removeEventListener('resize', onResize);
+  }, []);
 
   useEffect(()=>{
     localStorage.setItem("dijitally-theme", dark ? "dark" : "light");
@@ -1451,18 +1494,18 @@ function Page() {
       ══════════════════════════════════════ */}
       <header ref={navRef} style={{
         position:"fixed",top:0,left:0,right:0,zIndex:100,
-        height: scrolled ? 72 : "var(--nav-h)",
-        padding:"0 var(--s42)",
-        display:"flex", alignItems:"center", justifyContent:"flex-end",
+        height: isMobile ? 64 : (scrolled ? 72 : "var(--nav-h)"),
+        padding: isMobile ? "0 16px" : "0 var(--s42)",
+        display:"flex", alignItems:"center", justifyContent: isMobile ? "space-between" : "flex-end",
         background: "transparent",
-        
         transition:"height 0.35s ease, background 0.3s ease",
       }}>
 
-        {/* Logo — hidden until hero SVG locks in on scroll */}
+        {/* Logo — visible on mobile, hidden on desktop until hero SVG locks in on scroll */}
         <a href="/" style={{
-          display:"none",
-          height: scrolled ? 20 : 28,
+          display: isMobile ? "flex" : "none",
+          alignItems: "center",
+          height: 20,
           flexShrink:0,
           transition:"height 0.35s ease",
         }}>
@@ -1474,10 +1517,10 @@ function Page() {
         </a>
 
         {/* Nav links — 19px, weight 600, ls -0.38px */}
-        <nav style={{display:"flex", alignItems:"center", gap:42}}>
+        <nav style={{display:"flex", alignItems:"center", gap: isMobile ? 12 : 42}}>
           {/* Nav items — dot + label, padding 6px, gap 4px, letter-spacing -0.38px */}
           {["Work","Services","About","Blog"].map(l=>(
-            <span key={l} style={{
+            <span key={l} className="mobile-nav-links" style={{
               display:"flex", alignItems:"center", gap:4,
               padding:6,
               fontFamily:"var(--sans)",
@@ -1494,7 +1537,7 @@ function Page() {
           ))}
 
           {/* Get in touch — Touchy variant: bg #B6F4C9, padding 6px, gap 4px, same text style */}
-          <button onClick={()=>setCtaOpen(true)} style={{
+          <button onClick={()=>setCtaOpen(true)} className="mobile-nav-links" style={{
             display:"flex", alignItems:"center", gap:4,
             padding:6,
             background:"var(--tech)",
@@ -1510,6 +1553,23 @@ function Page() {
             <span style={{width:3,height:3,background:"#121010",display:"inline-block",flexShrink:0}}/>
             Get in touch
           </button>
+
+          {/* Hamburger — mobile only: tap to open CTA/menu panel */}
+          {isMobile && (
+            <button
+              onClick={()=>setCtaOpen(true)}
+              aria-label="Open menu"
+              style={{
+                background:"none", border:"none", cursor:"pointer",
+                display:"flex", flexDirection:"column", justifyContent:"center", gap:4,
+                width:28, height:28, padding:2, flexShrink:0,
+              }}
+            >
+              <span style={{display:"block",width:20,height:2,background:"var(--secondary)"}}/>
+              <span style={{display:"block",width:20,height:2,background:"var(--secondary)"}}/>
+              <span style={{display:"block",width:12,height:2,background:"var(--secondary)"}}/>
+            </button>
+          )}
 
           {/* Toggle UI — pill, border: 1px solid var(--secondary), border-radius: 256px, padding 3px, w 29px */}
           <button
@@ -1573,12 +1633,15 @@ function Page() {
           <div ref={heroBodyRef} style={{
             position:"absolute",
             bottom:"var(--s42)", left:"var(--s42)", right:"var(--s42)",
-            display:"flex", alignItems:"flex-end", gap:"var(--s42)",
+            display:"flex",
+            flexDirection: isMobile ? "column" : "row",
+            alignItems: isMobile ? "flex-start" : "flex-end",
+            gap:"var(--s42)",
             zIndex:1,
           }}>
             <div style={{flexShrink:0,display:"flex",flexDirection:"column",gap:"var(--s10)"}}>
               <span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--static)"}}>·</span>
-              <span ref={heroTextRef} data-split-entrance="" style={{
+              <span ref={heroTextRef} data-split-entrance="" className="hero-body-text" style={{
                   fontFamily:"var(--sans)",
                   fontSize:"var(--h2)", fontWeight:350,
                   lineHeight:"var(--h2-lh)", letterSpacing:"var(--h2-ls)",
@@ -1588,8 +1651,8 @@ function Page() {
                 }}>Through flexible, built-for-scale models, we connect creative, marketing, and technology to drive measurable impact for our allies.</span>
             </div>
 
-            {/* Thumbnail — GSAP wrapper owns x/opacity; button owns hover scale separately */}
-            <div ref={heroThumbRef} style={{position:"relative",width:256,height:144,flexShrink:0,marginLeft:"auto"}}>
+            {/* Thumbnail — hidden on mobile, shown on desktop */}
+            <div ref={heroThumbRef} style={{position:"relative",width:256,height:144,flexShrink:0,marginLeft:"auto",display: isMobile ? "none" : "block"}}>
               <button
                 onClick={()=>setReelOpen(true)}
                 onMouseEnter={()=>setThumbHover(true)}
@@ -1618,12 +1681,15 @@ function Page() {
 
         {/* Hype reel — quote left, reel player right */}
            <div style={{
-          padding:"256px var(--s42) var(--s128)",
-          display:"flex", alignItems:"center", gap:"var(--s42)",
+          padding: isMobile ? "80px var(--s42) var(--s64)" : "256px var(--s42) var(--s128)",
+          display:"flex",
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: isMobile ? "flex-start" : "center",
+          gap:"var(--s42)",
         }}>
           {/* Left text — vertically centred with video */}
           <div style={{
-            width:400, flexShrink:0,
+            width: isMobile ? "100%" : 400, flexShrink:0,
             display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s32)",
           }}>
             <Eyebrow>++ FROM ENGINEERING TO EXECUTION ++</Eyebrow>
@@ -1660,7 +1726,7 @@ function Page() {
       <section id="services" style={{...divider, minHeight:1000}}>
 
         {/* Text header */}
-        <div style={{padding:"var(--s42) var(--s42) var(--s32) calc(400px + var(--s42) * 2)",display:"flex",flexDirection:"column",gap:16}}>
+        <div style={{padding: isMobile ? "var(--s42) var(--s42) var(--s32)" : "var(--s42) var(--s42) var(--s32) calc(400px + var(--s42) * 2)",display:"flex",flexDirection:"column",gap:16}}>
           <Eyebrow center={false}>++ HOW WE OPERATE ++</Eyebrow>
 
           <h2 style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:585}}>
@@ -1669,10 +1735,15 @@ function Page() {
         </div>
 
         {/* Accordion + image, padding 0 42px, gap 42px */}
-        <div style={{display:"flex",padding:"0 var(--s42)",gap:"var(--s42)"}}>
+        <div style={{
+          display:"flex",
+          flexDirection: isMobile ? "column" : "row",
+          padding:"0 var(--s42)",
+          gap:"var(--s42)",
+        }}>
 
-          {/* Accordion — width 400 */}
-          <div style={{width:400,flexShrink:0}}>
+          {/* Accordion — width 400 on desktop, full width on mobile */}
+          <div style={{width: isMobile ? "100%" : 400,flexShrink:0}}>
             {MODELS.map((m,i)=>(
               <div key={m.name}
                 style={{marginBottom: i < MODELS.length-1 ? 8 : 0}}
@@ -1747,11 +1818,13 @@ function Page() {
             ))}
           </div>
 
-          {/* Video panel — 1164 × 700, sticky */}
+          {/* Video panel — 1164 × 700, sticky on desktop */}
           <div ref={modelPanelRef} style={{
             flex:1,
-            position:"sticky", top:"var(--nav-h)", alignSelf:"flex-start",
-            aspectRatio:"1164/700",
+            position: isMobile ? "relative" : "sticky",
+            top: isMobile ? "auto" : "var(--nav-h)",
+            alignSelf: isMobile ? "auto" : "flex-start",
+            aspectRatio:"16/9",
             overflow:"hidden",
             background:"#FDFEFF",
             borderRadius:4,
@@ -1784,7 +1857,16 @@ function Page() {
         display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s24)",
       }}>
         {/* Header + filters */}
-        <div style={{display:"flex",alignItems:"flex-end",justifyContent:"space-between",width:"100%",gap:"var(--s42)",paddingLeft:"var(--s64)",paddingRight:"var(--s64)"}}>
+        <div style={{
+          display:"flex",
+          flexDirection: isMobile ? "column" : "row",
+          alignItems: isMobile ? "flex-start" : "flex-end",
+          justifyContent:"space-between",
+          width:"100%",
+          gap:"var(--s42)",
+          paddingLeft:"var(--s64)",
+          paddingRight:"var(--s64)",
+        }}>
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
             <h2 style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:500}}>
               <span style={{  fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)"  }}>Our work. Creative that converts. Data that performs. Systems that support. Production that moves.</span>
@@ -1843,7 +1925,7 @@ function Page() {
             cursor:"grab",
             WebkitUserDrag:"none",
           }}>
-          <div style={{width:64,minWidth:64,flexShrink:0,flexGrow:0}}/>
+          <div style={{width: isMobile ? 16 : 64, minWidth: isMobile ? 16 : 64, flexShrink:0, flexGrow:0}}/>
           {filtered.map((w,i)=>(
             <div key={i} className="wc" style={{flexShrink:0,width:504,cursor:"pointer"}}>
               {/* Thumbnail */}
@@ -1874,7 +1956,7 @@ function Page() {
       <section style={{
         ...divider,
         background: dark ? "#1A1A1A" : "var(--grey)",
-        padding:"var(--s96) var(--s64)",
+        padding: isMobile ? "48px 16px" : "var(--s96) var(--s64)",
         display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", gap:"var(--s24)",
         position:"relative", overflow:"hidden",
       }}>
@@ -1882,25 +1964,29 @@ function Page() {
         <ContactPixels dark={dark} />
 
         {/* Inner contact card — 720×409px, bg #FDFEFF, br 4px */}
-        <div style={{
+        <div className="contact-card-inner" style={{
           background: dark ? "#121010" : "var(--primary)",
           borderRadius:4,
-          width:736, height:416,
+          width: isMobile ? "calc(100% - 32px)" : 736,
+          height: isMobile ? "auto" : 416,
           position:"relative",
           zIndex:1,
           display:"flex", alignItems:"center",
-          paddingLeft:176,
-          paddingRight:"var(--s64)",
+          paddingLeft: isMobile ? 24 : 176,
+          paddingRight: isMobile ? 24 : "var(--s64)",
+          paddingTop: isMobile ? 24 : 0,
+          paddingBottom: isMobile ? 24 : 0,
           overflow:"hidden",
           flexShrink:0,
         }}>
-          {/* Video — 150×150, 8px off top-left */}
+          {/* Video — 150×150, 8px off top-left — hidden on mobile to avoid overlay mess */}
           <div style={{
             position:"absolute", top:8, left:8,
             width:150, height:150,
             flexShrink:0,
             clipPath:"inset(0 round 2px)",
             transform:"translateZ(0)",
+            display: isMobile ? "none" : "block",
           }}>
             <video
               src="videos/thumbnail_02.mp4"
@@ -1951,14 +2037,14 @@ function Page() {
       ══════════════════════════════════════ */}
       <footer style={{
         ...divider,
-        minHeight:447,
-        padding:"var(--s64)",
-        display:"flex", flexDirection:"column", alignItems:"flex-end",
+        minHeight: isMobile ? "auto" : 447,
+        padding: isMobile ? "32px 16px" : "var(--s64)",
+        display:"flex", flexDirection:"column", alignItems: isMobile ? "flex-start" : "flex-end",
         background:"var(--bg)",
       }}>
         {/* Row 1 — nav links left, Privacy Policy right */}
-        <div style={{width:"100%", paddingTop:"var(--s32)", display:"flex", alignItems:"center", justifyContent:"space-between"}}>
-          <div style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
+        <div className="footer-row" style={{width:"100%", paddingTop:"var(--s32)", display:"flex", alignItems:"center", justifyContent:"space-between"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"var(--s12)",flexWrap:"wrap"}}>
             {["WORK","SERVICES","ABOUT","BLOG"].map(l=>(
               <span key={l} style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
                 <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
@@ -1983,7 +2069,7 @@ function Page() {
         </div>
 
         {/* Row 2 — LinkedIn left, Terms + Conditions right */}
-        <div style={{
+        <div className="footer-row" style={{
           width:"100%", padding:"var(--s12) 0 var(--s32) 0",
           display:"flex", alignItems:"center", justifyContent:"space-between",
         }}>
@@ -2045,7 +2131,7 @@ function Page() {
               position:"fixed", top:0, right:0, height:"100vh", width:CTA_W, zIndex:200,
               background:"var(--primary)",
               display:"flex", flexDirection:"column",
-              padding:"42px 64px",
+              padding: isMobile ? "32px 24px" : "42px 64px",
               overflowY:"auto",
             },
             onClick: e=>e.stopPropagation()
@@ -2072,7 +2158,7 @@ function Page() {
                 React.createElement("span",{style:{color:"var(--secondary)"}},"a project together.")
               ),
               /* Form */
-              React.createElement("div", { style:{display:"flex",flexDirection:"column",width:533} },
+              React.createElement("div", { style:{display:"flex",flexDirection:"column",width: isMobile ? "100%" : 533} },
                 React.createElement("input",{placeholder:"Your name",type:"text",style:{padding:16,fontFamily:"var(--sans)",fontSize:16,fontWeight:350,border:"1px solid var(--grey)",outline:"none",background:"var(--primary)",color:"var(--secondary)",letterSpacing:"0.16px"}}),
                 React.createElement("input",{placeholder:"Your email",type:"email",style:{padding:16,fontFamily:"var(--sans)",fontSize:16,fontWeight:350,border:"1px solid var(--grey)",borderTop:"none",outline:"none",background:"var(--primary)",color:"var(--secondary)",letterSpacing:"0.16px"}}),
                 React.createElement("textarea",{placeholder:"Add any notes, if desired.",style:{padding:16,fontFamily:"var(--sans)",fontSize:16,fontWeight:350,border:"1px solid var(--grey)",borderTop:"none",outline:"none",background:"var(--primary)",color:"var(--static)",resize:"none",height:186,letterSpacing:"0.16px"}}),
