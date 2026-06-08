@@ -1903,33 +1903,34 @@ function Page() {
           ref={carouselRef}
           data-carousel=""
 
-          onMouseDown={e=>{
+          onMouseDown={isMobile ? undefined : e=>{
             dragRef.current = { active:true, startX: e.pageX - carouselRef.current.offsetLeft, scrollLeft: carouselRef.current.scrollLeft };
             carouselRef.current.style.cursor = 'grabbing';
             carouselRef.current.style.userSelect = 'none';
-            
           }}
-          onMouseMove={e=>{
+          onMouseMove={isMobile ? undefined : e=>{
             if (!dragRef.current.active) return;
             e.preventDefault();
             const x = e.pageX - carouselRef.current.offsetLeft;
             const walk = x - dragRef.current.startX;
             carouselRef.current.scrollLeft = dragRef.current.scrollLeft - walk;
           }}
-          onMouseUp={()=>{ dragRef.current.active = false; carouselRef.current.style.cursor = 'grab';  }}
-          onMouseLeave={()=>{ dragRef.current.active = false; carouselRef.current.style.cursor = 'grab';  }}
+          onMouseUp={isMobile ? undefined : ()=>{ dragRef.current.active = false; carouselRef.current.style.cursor = 'grab'; }}
+          onMouseLeave={isMobile ? undefined : ()=>{ dragRef.current.active = false; carouselRef.current.style.cursor = 'grab'; }}
           style={{
-            display:"flex",gap:24,overflowX:"auto",
+            display:"flex", gap:24, overflowX:"auto",
             width:"100%",
             paddingBottom:"var(--s16)",
-            cursor:"grab",
+            cursor: isMobile ? "default" : "grab",
             WebkitUserDrag:"none",
+            WebkitOverflowScrolling:"touch",
+            touchAction: isMobile ? "pan-x pan-y" : "auto",
           }}>
           <div style={{width: isMobile ? 16 : 64, minWidth: isMobile ? 16 : 64, flexShrink:0, flexGrow:0}}/>
           {filtered.map((w,i)=>(
-            <div key={i} className="wc" style={{flexShrink:0,width:504,cursor:"pointer"}}>
+            <div key={i} className="wc" style={{flexShrink:0, width: isMobile ? "calc(100vw - 48px)" : 504, cursor:"pointer"}}>
               {/* Thumbnail */}
-              <div style={{position:"relative",width:504,flexShrink:0,overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg}}>
+              <div style={{position:"relative",width:"100%",flexShrink:0,overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg}}>
                 {w.img
                   ? <PixelRevealImg src={w.img} alt={w.title} externalTrigger={carouselVisible} delay={i * 0.35} />
                   : <div style={{width:504,height:680,display:"flex",alignItems:"center",justifyContent:"center"}}>
