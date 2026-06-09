@@ -1600,22 +1600,6 @@ function Page() {
         boxSizing:"border-box",
       }}>
 
-        {/* Mobile logo — tucked below hamburger, centred, NOT in the nav row */}
-        {isMobile && (
-          <a href="/" style={{
-            position:"absolute", top:"100%", left:"50%",
-            transform:"translateX(-50%)",
-            display:"flex", alignItems:"center",
-            paddingTop:8,
-            textDecoration:"none",
-          }}>
-            <img
-              src="dijitally-heading.svg"
-              alt="DIJITALLY™"
-              style={{height:14, width:"auto", display:"block", filter:dark?"invert(1)":"none", transition:"filter 0.3s ease"}}
-            />
-          </a>
-        )}
 
         {/* Secondary nav logo — desktop only, shown when scrolled */}
         {!isMobile && scrolled && (
@@ -1747,8 +1731,9 @@ function Page() {
           {/* DIJITALLY™ — centred within first viewport */}
           <div style={{
             position:"absolute",
-            top:"50%", left:"var(--s42)", right:"var(--s42)",
-            transform:"translateY(-50%)",
+            top: isMobile ? "var(--s42)" : "50%",
+            left:"var(--s42)", right:"var(--s42)",
+            transform: isMobile ? "none" : "translateY(-50%)",
             zIndex:1,
           }}>
             <div
