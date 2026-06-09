@@ -238,7 +238,11 @@
 const { useState, useEffect, useLayoutEffect, useRef } = React;
 
 if (typeof gsap !== 'undefined') {
-  if (typeof ScrollTrigger !== 'undefined') gsap.registerPlugin(ScrollTrigger);
+  if (typeof ScrollTrigger !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+    // Prevent ScrollTrigger from refreshing (and snapping scroll) when iOS browser chrome hides/shows
+    ScrollTrigger.config({ ignoreMobileResize: true });
+  }
   if (typeof SplitText !== 'undefined') gsap.registerPlugin(SplitText);
   if (typeof ScrambleTextPlugin !== 'undefined') gsap.registerPlugin(ScrambleTextPlugin);
 }
@@ -1154,8 +1158,8 @@ function MobileDitherVideo({ dark }) {
     function setSize() {
       const vw = video.videoWidth  || 640;
       const vh = video.videoHeight || 360;
-      // Scale to fill viewport width on mobile
-      const s = window.innerWidth / vw;
+      // Scale to fill viewport width on mobile — 2x for larger dither effect
+      const s = (window.innerWidth / vw) * 2;
       canvas.width  = Math.floor(vw * s / PX) * PX;
       canvas.height = Math.floor(vh * s / PX) * PX;
       canvas.style.width  = canvas.width  + 'px';
@@ -1171,16 +1175,9 @@ function MobileDitherVideo({ dark }) {
       gsap.to(wrap, { x: window.innerWidth * 0.5, y: 128, scale: 1,
         duration: 0.5, ease: 'power2.inOut', delay: 2 });
 
-      // Preloader counter
+      // Preloader counter — disabled on mobile
       const counter = document.getElementById('preloader-counter');
-      if (counter) {
-        const proxy = { v: 0 };
-        gsap.to(proxy, {
-          v: 99, duration: 2.5, ease: 'none',
-          onUpdate:   ()=> { counter.textContent = String(Math.floor(proxy.v)).padStart(2,'0'); },
-          onComplete: ()=> { counter.style.display = 'none'; }
-        });
-      }
+      if (counter) counter.style.display = 'none';
     }
 
     function loop() {
@@ -1228,7 +1225,7 @@ function MobileDitherVideo({ dark }) {
 
   return (
     <>
-      <video ref={videoRef} src="videos/thumbnail_02.mp4" autoPlay muted loop playsInline
+      <video ref={videoRef} src="videos/thumbnail_02.mp4?v=2" autoPlay muted loop playsInline
         crossOrigin="anonymous"
         style={{ position:'absolute', opacity:0, width:1, height:1, pointerEvents:'none' }}
       />
@@ -1269,14 +1266,20 @@ function MenuPixelReveal({ onComplete }) {
     blocks.sort((a, b) => (a.d + (Math.random()-0.5)*4) - (b.d + (Math.random()-0.5)*4));
 
     const total = blocks.length;
-    const DURATION = 700;
+    const DURATION = 595;
     const LEAD = 14;
     let next = 0, start = null, raf;
 
-    // Draw SVG frontier at the leading edge (ahead of the fill wave)
+    // Draw SVG frontier at the leading edge of the fill wave.
+    // Each frontier block is pre-filled #121010 first so the SVG is
+    // visible on a dark background — matching how PixelRevealImg shows
+    // patterns on its dark canvas. The main fill wave covers them solid
+    // on the next tick.
     const drawFrontier = (from, to) => {
+      ctx.fillStyle = '#121010';
       for (let i = from; i < Math.min(to, total); i++) {
         const { r, c } = blocks[i];
+        ctx.fillRect(c * PX, r * PX, PX, PX); // dark base so SVG is visible
         if (Math.random() > 0.25) {
           const p = PATTERN_IMGS[Math.floor(Math.random() * PATTERN_IMGS.length)];
           if (p.complete && p.naturalWidth > 0) {
@@ -1402,15 +1405,30 @@ function Page() {
     };
   }, [menuReady]);
 
-  // Mobile menu open/close — tile grid handles reveal; just lock/unlock page scroll
+  // Mobile menu open/close — lock body scroll and pointer events while open
   useEffect(()=>{
     if (!isMobile) return;
     const wrapper = document.getElementById("smooth-wrapper");
     const cursor  = document.getElementById("dj-cursor");
     if (menuOpen) {
+      // Lock scroll: save current position, freeze body
+      const scrollY = window.scrollY;
+      document.body.style.position   = 'fixed';
+      document.body.style.top        = `-${scrollY}px`;
+      document.body.style.left       = '0';
+      document.body.style.right      = '0';
+      document.body.style.overflowY  = 'scroll'; // keep scrollbar width stable
       wrapper?.classList.add("cta-open");
       if (cursor) cursor.classList.add("cta-open");
     } else {
+      // Restore scroll position exactly
+      const scrollY = parseInt(document.body.style.top || '0') * -1;
+      document.body.style.position  = '';
+      document.body.style.top       = '';
+      document.body.style.left      = '';
+      document.body.style.right     = '';
+      document.body.style.overflowY = '';
+      window.scrollTo(0, scrollY);
       wrapper?.classList.remove("cta-open");
       if (cursor) cursor.classList.remove("cta-open");
       setMenuReady(false);
@@ -1568,7 +1586,9 @@ function Page() {
   }, []);
 
   // Drive animation — runs every frame via GSAP ticker (reads scrollYRef to avoid re-renders)
+  // Disabled on mobile: modifying position:fixed top/left every frame triggers iOS scroll snapping
   useEffect(()=>{
+    if (isMobile) return;
     const lerp = (a,b,t) => a + (b-a)*t;
     const tick = () => {
       const tR = initThumbRect.current;
@@ -1956,13 +1976,12 @@ function Page() {
               aria-label="Open menu"
               style={{
                 background:"none", border:"none", cursor:"pointer",
-                display:"flex", flexDirection:"column", justifyContent:"center", gap:4,
-                width:28, height:28, padding:2, flexShrink:0,
+                display:"flex", flexDirection:"column", justifyContent:"flex-start", gap:6,
+                width:30, height:10, padding:0, flexShrink:0,
               }}
             >
-              <span style={{display:"block",width:20,height:2,background:"var(--secondary)"}}/>
-              <span style={{display:"block",width:20,height:2,background:"var(--secondary)"}}/>
-              <span style={{display:"block",width:12,height:2,background:"var(--secondary)"}}/>
+              <span style={{display:"block",width:30,height:2,background:"var(--secondary)"}}/>
+              <span style={{display:"block",width:30,height:2,background:"var(--secondary)"}}/>
             </button>
           )}
         </nav>
@@ -2588,21 +2607,12 @@ function Page() {
             }}
             onClick={e=>e.stopPropagation()}
           >
-            {/* Header row — toggle + X close, right-aligned, 24px padding, gap 24px */}
-            <div style={{ display:"flex", justifyContent:"flex-end", alignItems:"center", gap:24, padding:24, flexShrink:0, zIndex:1 }}>
-              {/* Toggle pill — always light-on-dark */}
-              <button
-                onClick={()=>setDark(d=>!d)}
-                aria-label="Toggle theme"
-                style={{ width:29, height:19, borderRadius:256, background:"none", border:"1px solid #FDFEFF", cursor:"pointer", flexShrink:0, padding:3, display:"flex", alignItems:"center", transition:"border-color 0.3s" }}
-              >
-                <span style={{ width:13, height:13, borderRadius:"50%", background:"#FDFEFF", display:"block", flexShrink:0, transition:"transform 0.3s ease", transform: dark ? "translateX(10px)" : "translateX(0px)" }} />
-              </button>
-              {/* Close X */}
+            {/* Header row — X close only, positioned to match hamburger in main nav (right:16px, vertically centred in 64px) */}
+            <div style={{ position:"relative", height:64, flexShrink:0, zIndex:1, visibility: menuReady ? "visible" : "hidden" }}>
               <button
                 onClick={()=>setMenuOpen(false)}
                 aria-label="Close menu"
-                style={{ background:"none", border:"none", cursor:"pointer", width:30, height:30, position:"relative", flexShrink:0, padding:0 }}
+                style={{ background:"none", border:"none", cursor:"pointer", width:30, height:10, position:"absolute", right:16, top:"50%", transform:"translateY(-50%)", padding:0 }}
               >
                 <div style={{ position:"absolute", top:"50%", left:"50%", width:30, height:2, background:"#FDFEFF", transform:"translate(-50%,-50%) rotate(-30deg)" }} />
                 <div style={{ position:"absolute", top:"50%", left:"50%", width:30, height:2, background:"#FDFEFF", transform:"translate(-50%,-50%) rotate(-150deg)" }} />
