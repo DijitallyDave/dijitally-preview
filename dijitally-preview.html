@@ -191,6 +191,7 @@
 
     /* ── Mobile breakpoint 768px ── */
     @media(max-width:768px){
+      html, body { overscroll-behavior: none; overflow-anchor: none; }
       .ticker-inner { animation-duration: 22.5s; }
       .ticker-wrap { width: 133.34%; transform: scale(0.75); transform-origin: left center; }
       :root{
@@ -243,7 +244,12 @@ if (typeof gsap !== 'undefined') {
   if (typeof ScrollTrigger !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
     // Prevent ScrollTrigger from refreshing (and snapping scroll) when iOS browser chrome hides/shows
-    ScrollTrigger.config({ ignoreMobileResize: true });
+    ScrollTrigger.config({
+      ignoreMobileResize: true,
+      // Prevent resize/orientationchange from triggering ScrollTrigger refresh
+      // (iOS chrome show/hide fires these and causes scroll position jumps)
+      autoRefreshEvents: "visibilitychange,DOMContentLoaded,load",
+    });
   }
   if (typeof SplitText !== 'undefined') gsap.registerPlugin(SplitText);
   if (typeof ScrambleTextPlugin !== 'undefined') gsap.registerPlugin(ScrambleTextPlugin);
@@ -1177,7 +1183,7 @@ function MobileDitherVideo({ dark }) {
         y: window.innerHeight * 0.5,
         scale: initialScale });
       gsap.to(wrap, { x: window.innerWidth * 0.5, y: 128, scale: 1,
-        duration: 0.5, ease: 'power2.inOut', delay: 2 });
+        duration: 0.333, ease: 'power2.inOut', delay: 2 });
 
       // Preloader counter — disabled on mobile
       const counter = document.getElementById('preloader-counter');
@@ -1451,7 +1457,12 @@ function Page() {
   }, [menuReady]);
 
   useEffect(()=>{
-    const onResize = () => setIsMobile(window.innerWidth <= 768);
+    // Only update isMobile on genuine width changes (not iOS chrome height-only resize)
+    let lastWidth = window.innerWidth;
+    const onResize = () => {
+      const w = window.innerWidth;
+      if (w !== lastWidth) { lastWidth = w; setIsMobile(w <= 768); }
+    };
     window.addEventListener('resize', onResize, { passive: true });
     return () => window.removeEventListener('resize', onResize);
   }, []);
@@ -1815,10 +1826,12 @@ function Page() {
 
       const nav = navRef.current;
       if (nav) {
-        if (avg > 0.4 && current > 120 && !navHiddenRef.current) {
+        // Higher threshold on mobile so deceleration wobble doesn't trigger hide/show
+        const threshold = isMobile ? 2.5 : 0.4;
+        if (avg > threshold && current > 120 && !navHiddenRef.current) {
           gsap.to(nav, { y:"-100%", duration:0.4, ease:"power2.in", overwrite:"auto" });
           navHiddenRef.current = true;
-        } else if (avg < -0.4 && navHiddenRef.current) {
+        } else if (avg < -threshold && navHiddenRef.current) {
           gsap.to(nav, { y:"0%", duration:0.4, ease:"power2.out", overwrite:"auto" });
           navHiddenRef.current = false;
         }
