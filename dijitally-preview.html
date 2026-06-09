@@ -1183,7 +1183,7 @@ function MobileDitherVideo({ dark }) {
         y: window.innerHeight * 0.5,
         scale: initialScale });
       gsap.to(wrap, { x: window.innerWidth * 0.5, y: 128, scale: 1,
-        duration: 0.333, ease: 'power2.inOut', delay: 2 });
+        duration: 0.2, ease: 'power2.inOut', delay: 1 });
 
       // Preloader counter — disabled on mobile
       const counter = document.getElementById('preloader-counter');
@@ -1222,14 +1222,18 @@ function MobileDitherVideo({ dark }) {
       ctx.putImageData(outImageData, 0, 0);
     }
 
-    video.addEventListener('loadedmetadata', setSize);
-    setSize();
+    // Call setSize once metadata is available (real dimensions); fall back to direct call if already loaded
+    if (video.videoWidth > 0) {
+      setSize();
+    } else {
+      video.addEventListener('loadedmetadata', setSize, { once: true });
+    }
     video.play().catch(()=>{});
     loop();
 
     return ()=>{
       cancelAnimationFrame(raf);
-      video.removeEventListener('loadedmetadata', setSize);
+      video.removeEventListener('loadedmetadata', setSize, { once: true });
     };
   }, []);
 
@@ -1538,7 +1542,7 @@ function Page() {
 
     anim.addEventListener("DOMLoaded", () => {
       captureRect();
-      // 1. Play Lottie after 2s (pixel snap animation plays during this window)
+      // 1. Play Lottie — 1.5s on mobile (dither expands at 1s), 2.5s on desktop
       setTimeout(() => {
         anim.play();
         // 2. Body copy at 25% of Lottie duration (1500ms * 0.25 = 375ms after start)
@@ -1575,7 +1579,7 @@ function Page() {
             onComplete: () => { if (smootherRef.current) smootherRef.current.paused(false); }
           });
         }, 375);
-      }, 2500);
+      }, isMobile ? 1500 : 2500);
     });
 
     return () => anim.destroy();
@@ -2056,14 +2060,13 @@ function Page() {
                 }}>Through flexible, built-for-scale models, we connect creative, marketing, and technology to drive measurable impact for our allies.</span>
             </div>
 
-            {/* Thumbnail — 2/3vw on mobile, 256×144 on desktop */}
+            {/* Thumbnail — full container width on mobile, 256×144 on desktop */}
             <div ref={heroThumbRef} style={{
               position:"relative",
-              width: isMobile ? "calc(100vw * 2 / 3)" : 256,
-              height: isMobile ? "calc(100vw * 2 / 3 * 9 / 16)" : 144,
+              width: isMobile ? "100%" : 256,
+              height: isMobile ? "calc((100vw - 32px) * 9 / 16)" : 144,
               flexShrink:0,
               marginLeft: isMobile ? 0 : "auto",
-              order: isMobile ? -1 : 0,
               display:"block",
             }}>
               <button
