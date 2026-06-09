@@ -1389,11 +1389,16 @@ function Page() {
   }, []);
 
 
-  // CTA button ScrambleText on hover
+  // CTA button ScrambleText on hover — width locked so button never resizes
   useEffect(()=>{
     if (typeof gsap==='undefined' || typeof ScrambleTextPlugin==='undefined') return;
     const handlers = [];
     document.querySelectorAll('.cta-btn .cta-text').forEach(el => {
+      // Lock natural width once so scramble characters don't change button size
+      el.style.display    = 'inline-block';
+      el.style.width      = el.offsetWidth + 'px';
+      el.style.overflow   = 'hidden';
+      el.style.textAlign  = 'left';
       const original = el.textContent;
       const handler = () => gsap.to(el, {
         duration:0.5, ease:'none',
