@@ -405,7 +405,11 @@ function PixelRevealImg({ src, alt, style = {}, externalTrigger = false, delay =
         const { r, c } = blocks[i];
         if (Math.random() > 0.25) {
           const p = PATTERN_IMGS[Math.floor(Math.random() * PATTERN_IMGS.length)];
-          if (p.complete && p.naturalWidth > 0) ctx.drawImage(p, c * PX, r * PX, PX, PX);
+          if (p.complete && p.naturalWidth > 0) {
+            ctx.globalAlpha = 0.4 + Math.random() * 0.6;
+            ctx.drawImage(p, c * PX, r * PX, PX, PX);
+            ctx.globalAlpha = 1;
+          }
         }
       }
     };
