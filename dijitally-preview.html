@@ -1600,20 +1600,22 @@ function Page() {
         boxSizing:"border-box",
       }}>
 
-        {/* Logo — visible on mobile, hidden on desktop until hero SVG locks in on scroll */}
-        <a href="/" style={{
-          display: isMobile ? "flex" : "none",
-          alignItems: "center",
-          height: 20,
-          flexShrink:0,
-          transition:"height 0.35s ease",
-        }}>
-          <img
-            src="dijitally-heading.svg"
-            alt="DIJITALLY™"
-            style={{height:"100%",width:"auto",display:"block",filter:dark?"invert(1)":"none",transition:"filter 0.3s ease"}}
-          />
-        </a>
+        {/* Mobile logo — tucked below hamburger, centred, NOT in the nav row */}
+        {isMobile && (
+          <a href="/" style={{
+            position:"absolute", top:"100%", left:"50%",
+            transform:"translateX(-50%)",
+            display:"flex", alignItems:"center",
+            paddingTop:8,
+            textDecoration:"none",
+          }}>
+            <img
+              src="dijitally-heading.svg"
+              alt="DIJITALLY™"
+              style={{height:14, width:"auto", display:"block", filter:dark?"invert(1)":"none", transition:"filter 0.3s ease"}}
+            />
+          </a>
+        )}
 
         {/* Secondary nav logo — desktop only, shown when scrolled */}
         {!isMobile && scrolled && (
