@@ -1492,8 +1492,10 @@ function Page() {
       if (newScrolled !== scrolledRef.current) { setScrolled(newScrolled); scrolledRef.current = newScrolled; }
 
       // Hide nav on scroll down, reveal on scroll up
+      // Use accumulated delta (only reset reference once 8px threshold crossed)
+      // so smooth-scroll's per-frame micro-deltas don't cause missed direction changes
       const delta = current - prevScrollRef.current;
-      if (Math.abs(delta) > 1 && navRef.current) {
+      if (Math.abs(delta) >= 8 && navRef.current) {
         if (current > 120 && delta > 0 && !navHiddenRef.current) {
           gsap.to(navRef.current, { y:"-100%", duration:0.4, ease:"power2.in", overwrite:true });
           navHiddenRef.current = true;
@@ -1501,8 +1503,8 @@ function Page() {
           gsap.to(navRef.current, { y:"0%", duration:0.4, ease:"power2.out", overwrite:true });
           navHiddenRef.current = false;
         }
+        prevScrollRef.current = current; // only reset once threshold crossed
       }
-      prevScrollRef.current = current;
     };
     gsap.ticker.add(tick);
 
