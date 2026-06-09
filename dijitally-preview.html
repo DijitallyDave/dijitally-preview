@@ -139,11 +139,11 @@
     .work-card-cta {
       position: absolute;
       bottom: 24px; right: 24px;
-      transform: translateX(calc(100% + 24px));
+      transform: translateY(calc(100% + 24px));
       transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1),
                   background 0.2s ease, color 0.2s ease;
     }
-    .wc:hover .work-card-cta { transform: translateX(0); }
+    .wc:hover .work-card-cta { transform: translateY(0); }
 
     /* Work card hover */
     /* Dark mode overrides */
@@ -465,7 +465,12 @@ function PixelRevealImg({ src, alt, style = {}, externalTrigger = false, delay =
       img.style.opacity = '0';
       if (!hoverRafRef.current) hoverRafRef.current = requestAnimationFrame(loop);
     };
-    const onLeave = () => { hoveredRef.current = false; mouseRef.current = { x:-9999, y:-9999 }; };
+    const onLeave = (e) => {
+      // Keep effect active if cursor moved to a sibling inside the same .wc card (e.g. the CTA button)
+      const card = container.closest('.wc');
+      if (card && card.contains(e.relatedTarget)) return;
+      hoveredRef.current = false; mouseRef.current = { x:-9999, y:-9999 };
+    };
     const onMove  = e  => {
       const r = canvas.getBoundingClientRect();
       mouseRef.current = { x: e.clientX - r.left, y: e.clientY - r.top };
