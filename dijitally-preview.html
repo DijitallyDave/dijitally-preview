@@ -659,6 +659,8 @@ function ScrambleSpan({children, style={}, tag='span'}) {
     const el = ref.current;
     if (!el || typeof gsap==='undefined' || typeof ScrambleTextPlugin==='undefined') return;
     const text = String(children||'');
+
+    // Scroll-enter scramble (one-shot)
     const obs = new IntersectionObserver(([e])=>{
       if (!e.isIntersecting) return;
       obs.disconnect();
@@ -667,7 +669,20 @@ function ScrambleSpan({children, style={}, tag='span'}) {
       });
     },{ threshold:0.5 });
     obs.observe(el);
-    return ()=> obs.disconnect();
+
+    // Hover scramble — lock width first so layout never shifts
+    const lockAndScramble = () => {
+      el.style.display    = 'inline-block';
+      el.style.whiteSpace = 'nowrap';
+      if (!el.style.width) el.style.width = el.offsetWidth + 'px';
+      el.style.overflow   = 'hidden';
+      gsap.to(el, { duration:0.5, ease:'none',
+        scrambleText:{ text, chars:'upperCase', revealDelay:0.1, speed:0.8 },
+      });
+    };
+    el.addEventListener('mouseenter', lockAndScramble);
+
+    return ()=>{ obs.disconnect(); el.removeEventListener('mouseenter', lockAndScramble); };
   },[]);
   const Tag = tag;
   return React.createElement(Tag, {
