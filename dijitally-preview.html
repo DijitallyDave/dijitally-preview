@@ -1971,22 +1971,23 @@ function Page() {
           <div style={{flex:1,display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
             <Eyebrow center={false} style={{letterSpacing:"0.08em"}}>LET'S CHAT</Eyebrow>
 
-            <h2 style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",color:"var(--secondary)"}}>
-              Looking for an ally on your next project?
-            </h2>
-
-            {/* Input + button — same height via matching padding */}
-            <div style={{display:"flex",gap:12}}>
-              <input
-                type="email" placeholder="Your contact email"
-                value={email} onChange={e=>setEmail(e.target.value)}
-                style={{
-                  flex:1,padding:"18px 14px",fontFamily:"var(--sans)",fontSize:13,
-                  border:"1px solid var(--grey)",outline:"none",
-                  background:"var(--bg)",color:"var(--secondary)",
-                  boxSizing:"border-box",
-                }}
-              />
+            {/* Heading + input share a column so h2 wraps to input width; button is a sibling */}
+            <div style={{display:"flex",gap:12,alignItems:"flex-end"}}>
+              <div style={{flex:1,display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
+                <h2 style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",color:"var(--secondary)"}}>
+                  Looking for an ally on your next project?
+                </h2>
+                <input
+                  type="email" placeholder="Your contact email"
+                  value={email} onChange={e=>setEmail(e.target.value)}
+                  style={{
+                    width:"100%",padding:"18px 14px",fontFamily:"var(--sans)",fontSize:13,
+                    border:"1px solid var(--grey)",outline:"none",
+                    background:"var(--bg)",color:"var(--secondary)",
+                    boxSizing:"border-box",
+                  }}
+                />
+              </div>
               <button style={{
                 display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,
                 padding:"18px 24px",
