@@ -124,6 +124,11 @@
     #smooth-wrapper.cta-open { pointer-events: none; }
     #dj-cursor.cta-open { opacity: 0; }
 
+    /* CTA button hover — swap green bg ↔ near-black, text becomes green */
+    .cta-btn { transition: background 0.2s ease, color 0.2s ease; }
+    .cta-btn:hover { background: #121010 !important; color: #B6F4C9 !important; }
+    .dark .cta-btn:hover { background: #FDFEFF !important; color: #B6F4C9 !important; }
+
     /* Work card hover */
     /* Dark mode overrides */
     .dark {
@@ -1384,6 +1389,22 @@ function Page() {
   }, []);
 
 
+  // CTA button ScrambleText on hover
+  useEffect(()=>{
+    if (typeof gsap==='undefined' || typeof ScrambleTextPlugin==='undefined') return;
+    const handlers = [];
+    document.querySelectorAll('.cta-btn .cta-text').forEach(el => {
+      const original = el.textContent;
+      const handler = () => gsap.to(el, {
+        duration:0.5, ease:'none',
+        scrambleText:{ text:original, chars:'upperCase', revealDelay:0.1, speed:0.8 },
+      });
+      el.closest('.cta-btn').addEventListener('mouseenter', handler);
+      handlers.push({ btn: el.closest('.cta-btn'), handler });
+    });
+    return ()=> handlers.forEach(({ btn, handler })=> btn.removeEventListener('mouseenter', handler));
+  }, []);
+
   // Footer Lottie — play once when footer enters view
   useEffect(()=>{
     if (typeof lottie === "undefined") return;
@@ -1508,7 +1529,7 @@ function Page() {
           ))}
 
           {/* Get in touch — Touchy variant: bg #B6F4C9, padding 6px, gap 4px, same text style */}
-          <button onClick={()=>setCtaOpen(true)} className="mobile-nav-links" style={{
+          <button onClick={()=>setCtaOpen(true)} className="mobile-nav-links cta-btn" style={{
             display:"flex", alignItems:"center", gap:4,
             padding:6,
             background:"var(--tech)",
@@ -1521,8 +1542,8 @@ function Page() {
             cursor:"pointer",
             flexShrink:0,
           }}>
-            <span style={{width:3,height:3,background:"#121010",display:"inline-block",flexShrink:0}}/>
-            Get in touch
+            <span style={{width:3,height:3,background:"currentColor",display:"inline-block",flexShrink:0}}/>
+            <span className="cta-text">Get in touch</span>
           </button>
 
           {/* Hamburger — mobile only: tap to open CTA/menu panel */}
@@ -1857,7 +1878,7 @@ function Page() {
               ))}
             </div>
           </div>
-          <a href="#work" style={{
+          <a href="#work" className="cta-btn" style={{
             display:"inline-flex", alignItems:"center", justifyContent:"center", gap:10,
             padding:"18px 24px",
             background:"var(--tech)",
@@ -1866,7 +1887,7 @@ function Page() {
             color:"#121010",
             textDecoration:"none", whiteSpace:"nowrap",
             flexShrink:0,
-          }}><span style={{display:"inline-block",width:4,height:4,background:"#121010",flexShrink:0}}></span>View all our work</a>
+          }}><span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span></a>
         </div>
 
         {/* Cards — horizontal scroll */}
@@ -1988,7 +2009,7 @@ function Page() {
                   }}
                 />
               </div>
-              <button style={{
+              <button className="cta-btn" style={{
                 display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,
                 padding:"18px 24px",
                 background:"var(--tech)",
@@ -1997,8 +2018,8 @@ function Page() {
                 color:"#121010",
                 cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,
               }}>
-                <span style={{display:"inline-block",width:4,height:4,background:"#121010",flexShrink:0}}/>
-                Submit
+                <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/>
+                <span className="cta-text">Submit</span>
               </button>
             </div>
           </div>
@@ -2136,9 +2157,9 @@ function Page() {
                 React.createElement("input",{placeholder:"Your email",type:"email",style:{padding:16,fontFamily:"var(--sans)",fontSize:16,fontWeight:350,border:"1px solid var(--grey)",borderTop:"none",outline:"none",background:"var(--primary)",color:"var(--secondary)",letterSpacing:"0.16px"}}),
                 React.createElement("textarea",{placeholder:"Add any notes, if desired.",style:{padding:16,fontFamily:"var(--sans)",fontSize:16,fontWeight:350,border:"1px solid var(--grey)",borderTop:"none",outline:"none",background:"var(--primary)",color:"var(--static)",resize:"none",height:186,letterSpacing:"0.16px"}}),
                 React.createElement("div",{style:{display:"flex",justifyContent:"flex-end",marginTop:10}},
-                  React.createElement("button",{style:{background:"var(--secondary)",color:"var(--primary)",border:"none",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:4,padding:6,fontFamily:"var(--sans)",fontSize:19,fontWeight:500,letterSpacing:"-0.38px",lineHeight:1}},
-                    React.createElement("span",{style:{width:3,height:3,background:"var(--grey)",display:"inline-block",flexShrink:0}}),
-                    "Submit"
+                  React.createElement("button",{className:"cta-btn",style:{background:"var(--tech)",color:"#121010",border:"none",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:4,padding:6,fontFamily:"var(--sans)",fontSize:19,fontWeight:500,letterSpacing:"-0.38px",lineHeight:1}},
+                    React.createElement("span",{style:{width:3,height:3,background:"currentColor",display:"inline-block",flexShrink:0}}),
+                    React.createElement("span",{className:"cta-text"},"Submit")
                   )
                 )
               )
