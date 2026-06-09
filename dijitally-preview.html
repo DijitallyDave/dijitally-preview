@@ -128,6 +128,20 @@
     }
     #cta-overlay.open { opacity: 0.75; pointer-events: auto; }
 
+    /* Mobile menu slide panel */
+    #menu-panel {
+      transform: translateX(100vw);
+      transition: transform 0.7s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+    #menu-panel.open { transform: translateX(0); }
+    #menu-overlay {
+      opacity: 0; pointer-events: none;
+      background: #1A1A1A;
+      mix-blend-mode: multiply;
+      transition: opacity 0.4s ease;
+    }
+    #menu-overlay.open { opacity: 0.75; pointer-events: auto; }
+
     /* Disable all site interactions while CTA panel is open */
     #smooth-wrapper.cta-open { pointer-events: none; }
     #dj-cursor.cta-open { opacity: 0; }
@@ -1123,6 +1137,7 @@ function Page() {
   const [email,       setEmail]       = useState("");
   const [reelOpen,    setReelOpen]    = useState(false);
   const [ctaOpen,     setCtaOpen]     = useState(false);
+  const [menuOpen,    setMenuOpen]    = useState(false);
   const [thumbHover,  setThumbHover]  = useState(false);
 
   const CTA_W = isMobile ? window.innerWidth : 661;
@@ -1170,6 +1185,29 @@ function Page() {
       if (cursor) cursor.classList.remove("cta-open");
     }
   }, [ctaOpen]);
+
+  // Slide wrapper left and animate mobile menu panel in/out
+  useEffect(()=>{
+    if (!isMobile) return;
+    const wrapper = document.getElementById("smooth-wrapper");
+    const panel   = document.getElementById("menu-panel");
+    const overlay = document.getElementById("menu-overlay");
+    if (!wrapper || !panel || !overlay) return;
+    const cursor = document.getElementById("dj-cursor");
+    if (menuOpen) {
+      gsap.to(wrapper, { x: -window.innerWidth, duration: 0.7, ease: "power3.inOut" });
+      panel.classList.add("open");
+      overlay.classList.add("open");
+      wrapper.classList.add("cta-open");
+      if (cursor) cursor.classList.add("cta-open");
+    } else {
+      gsap.to(wrapper, { x: 0, duration: 0.7, ease: "power3.inOut" });
+      panel.classList.remove("open");
+      overlay.classList.remove("open");
+      wrapper.classList.remove("cta-open");
+      if (cursor) cursor.classList.remove("cta-open");
+    }
+  }, [menuOpen, isMobile]);
 
   useEffect(()=>{
     const onResize = () => setIsMobile(window.innerWidth <= 768);
@@ -1593,7 +1631,7 @@ function Page() {
         position:"fixed",top:0,left:0,right:0,zIndex:100,
         height: isMobile ? 64 : (scrolled ? "auto" : "var(--nav-h)"),
         padding: isMobile ? "0 16px" : (scrolled ? "var(--s32) var(--s42)" : "0 var(--s42)"),
-        display:"flex", alignItems:"center", justifyContent: (isMobile || scrolled) ? "space-between" : "flex-end",
+        display:"flex", alignItems:"center", justifyContent: isMobile ? "flex-end" : (scrolled ? "space-between" : "flex-end"),
         background: scrolled ? "var(--bg)" : "transparent",
         borderBottom: scrolled ? "1px solid var(--grey)" : "none",
         transition:"padding 0.35s ease, background 0.3s ease, border-color 0.3s ease",
@@ -1671,23 +1709,6 @@ function Page() {
             <span className="cta-text">Get in touch</span>
           </button>
 
-          {/* Hamburger — mobile only: tap to open CTA/menu panel */}
-          {isMobile && (
-            <button
-              onClick={()=>setCtaOpen(true)}
-              aria-label="Open menu"
-              style={{
-                background:"none", border:"none", cursor:"pointer",
-                display:"flex", flexDirection:"column", justifyContent:"center", gap:4,
-                width:28, height:28, padding:2, flexShrink:0,
-              }}
-            >
-              <span style={{display:"block",width:20,height:2,background:"var(--secondary)"}}/>
-              <span style={{display:"block",width:20,height:2,background:"var(--secondary)"}}/>
-              <span style={{display:"block",width:12,height:2,background:"var(--secondary)"}}/>
-            </button>
-          )}
-
           {/* Toggle UI — pill, border: 1px solid var(--secondary), border-radius: 256px, padding 3px, w 29px */}
           <button
             onClick={()=>setDark(d=>!d)}
@@ -1716,6 +1737,23 @@ function Page() {
               transform: dark ? "translateX(10px)" : "translateX(0px)",
             }}/>
           </button>
+
+          {/* Hamburger — mobile only: tap to open mobile nav menu */}
+          {isMobile && (
+            <button
+              onClick={()=>setMenuOpen(true)}
+              aria-label="Open menu"
+              style={{
+                background:"none", border:"none", cursor:"pointer",
+                display:"flex", flexDirection:"column", justifyContent:"center", gap:4,
+                width:28, height:28, padding:2, flexShrink:0,
+              }}
+            >
+              <span style={{display:"block",width:20,height:2,background:"var(--secondary)"}}/>
+              <span style={{display:"block",width:20,height:2,background:"var(--secondary)"}}/>
+              <span style={{display:"block",width:12,height:2,background:"var(--secondary)"}}/>
+            </button>
+          )}
         </nav>
       </header>, document.getElementById('nav-portal'))}
 
@@ -1731,7 +1769,7 @@ function Page() {
           {/* DIJITALLY™ — centred within first viewport */}
           <div style={{
             position:"absolute",
-            top: isMobile ? "var(--s42)" : "50%",
+            top: isMobile ? "72px" : "50%",
             left:"var(--s42)", right:"var(--s42)",
             transform: isMobile ? "none" : "translateY(-50%)",
             zIndex:1,
@@ -2311,6 +2349,111 @@ function Page() {
             </button>
           </div>
         </div>,
+        document.getElementById("lb-portal")
+      )}
+
+      {/* ══════════════════════════════════════
+          MOBILE NAV MENU — slide-in panel, portalled outside smooth-wrapper
+      ══════════════════════════════════════ */}
+      {isMobile && ReactDOM.createPortal(
+        React.createElement(React.Fragment, null,
+          /* Overlay */
+          React.createElement("div", {
+            id: "menu-overlay",
+            onClick: ()=>setMenuOpen(false),
+            style: { position:"fixed", inset:0, zIndex:199 }
+          }),
+          /* Panel */
+          React.createElement("div", {
+            id: "menu-panel",
+            className: dark ? "dark" : "",
+            style: {
+              position:"fixed", top:0, right:0, height:"100vh", width:"100vw", zIndex:200,
+              background:"var(--bg)",
+              display:"flex", flexDirection:"column",
+              padding:"24px 24px 40px",
+              boxSizing:"border-box",
+            },
+            onClick: e=>e.stopPropagation()
+          },
+            /* Top row: close button right-aligned */
+            React.createElement("div", { style:{display:"flex", justifyContent:"flex-end", alignItems:"center", gap:12, marginBottom:0} },
+              /* Dark mode toggle — same pill */
+              React.createElement("button", {
+                onClick:()=>setDark(d=>!d),
+                "aria-label":"Toggle theme",
+                style:{
+                  width:29, height:19, borderRadius:256, background:"none",
+                  border:"1px solid var(--secondary)", cursor:"pointer",
+                  position:"relative", flexShrink:0, padding:3,
+                  display:"flex", alignItems:"center", transition:"border-color 0.3s",
+                }
+              },
+                React.createElement("span", {
+                  style:{
+                    width:11, height:11, borderRadius:"50%", background:"var(--secondary)",
+                    display:"block", flexShrink:0, transition:"transform 0.3s ease",
+                    transform: dark ? "translateX(10px)" : "translateX(0px)",
+                  }
+                })
+              ),
+              /* Close X */
+              React.createElement("button", {
+                onClick:()=>setMenuOpen(false),
+                "aria-label":"Close menu",
+                style:{ background:"none", border:"none", cursor:"pointer", width:28, height:28, position:"relative", flexShrink:0, padding:0 }
+              },
+                React.createElement("span", {style:{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}),
+                React.createElement("div", {style:{position:"absolute",top:"50%",left:"50%",width:22,height:2,background:"var(--secondary)",transform:"translate(-50%,-50%) rotate(45deg)"}}),
+                React.createElement("div", {style:{position:"absolute",top:"50%",left:"50%",width:22,height:2,background:"var(--secondary)",transform:"translate(-50%,-50%) rotate(-45deg)"}})
+              )
+            ),
+
+            /* Nav links — large, stacked, fills space */
+            React.createElement("div", {
+              style:{
+                flex:1, display:"flex", flexDirection:"column", justifyContent:"center",
+                gap:0, paddingBottom:16,
+              }
+            },
+              ...["Work","Services","About","Blog"].map(label =>
+                React.createElement("a", {
+                  key: label,
+                  href: "#",
+                  onClick: e=>{ e.preventDefault(); setMenuOpen(false); },
+                  style:{
+                    display:"flex", alignItems:"center", gap:8,
+                    fontFamily:"var(--sans)", fontSize:42, fontWeight:500,
+                    lineHeight:"110%", letterSpacing:"-0.84px",
+                    color:"var(--secondary)", textDecoration:"none",
+                    borderBottom:"1px solid var(--grey)",
+                    padding:"20px 0",
+                  }
+                },
+                  React.createElement("span", {style:{width:6,height:6,background:"var(--secondary)",flexShrink:0,display:"inline-block"}}),
+                  React.createElement("span", {}, label)
+                )
+              ),
+              /* Get in touch — CTA green button */
+              React.createElement("div", { style:{paddingTop:28} },
+                React.createElement("button", {
+                  onClick:()=>{ setMenuOpen(false); setTimeout(()=>setCtaOpen(true), 400); },
+                  className:"cta-btn",
+                  style:{
+                    display:"inline-flex", alignItems:"center", gap:4,
+                    background:"var(--tech)", color:"#121010",
+                    border:"none", cursor:"pointer",
+                    padding:6, fontFamily:"var(--sans)",
+                    fontSize:19, fontWeight:500, letterSpacing:0, lineHeight:1,
+                  }
+                },
+                  React.createElement("span", {style:{width:3,height:3,background:"currentColor",display:"inline-block",flexShrink:0}}),
+                  React.createElement("span", {className:"cta-text"}, "Get in touch")
+                )
+              )
+            )
+          )
+        ),
         document.getElementById("lb-portal")
       )}
 
