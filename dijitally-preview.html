@@ -1112,6 +1112,134 @@ function DitherCanvas({ dark }) {
 }
 
 /* ═══════════════════════════════════════════════════
+   MOBILE DITHER VIDEO
+   Stripped-down version of DitherCanvas for mobile:
+   same Bayer dithering, no particle physics, sized to
+   fit within the hero viewport (overflow:hidden clips it).
+═══════════════════════════════════════════════════ */
+function MobileDitherVideo({ dark }) {
+  const canvasRef = useRef(null);
+  const wrapRef   = useRef(null);
+  const videoRef  = useRef(null);
+  const darkRef   = useRef(dark);
+  useEffect(()=>{ darkRef.current = dark; }, [dark]);
+
+  useEffect(()=>{
+    const canvas = canvasRef.current;
+    const video  = videoRef.current;
+    const wrap   = wrapRef.current;
+    if (!canvas || !video || !wrap) return;
+
+    const ctx  = canvas.getContext('2d');
+    const smpl = document.createElement('canvas');
+    const sctx = smpl.getContext('2d', { willReadFrequently: true });
+
+    const PX    = 8;
+    const BAYER = [[0,2,0,2],[3,1,3,1],[0,2,0,2],[3,1,3,1]];
+    const GM=1.13, CT=2.4, BR=0.10;
+    const LON=[241,242,243], LOFF=[253,254,255];
+    const DON=[18,16,16],    DOFF=[0,0,0];
+
+    let cols=0, rows=0, raf;
+    let outBuf=null, outImageData=null;
+
+    function build() {
+      cols = Math.floor(canvas.width  / PX);
+      rows = Math.floor(canvas.height / PX);
+      smpl.width = cols; smpl.height = rows;
+      outBuf = new Uint8ClampedArray(canvas.width * canvas.height * 4);
+      outImageData = ctx.createImageData(canvas.width, canvas.height);
+    }
+
+    function setSize() {
+      const vw = video.videoWidth  || 640;
+      const vh = video.videoHeight || 360;
+      // Scale to fill viewport width on mobile
+      const s = window.innerWidth / vw;
+      canvas.width  = Math.floor(vw * s / PX) * PX;
+      canvas.height = Math.floor(vh * s / PX) * PX;
+      canvas.style.width  = canvas.width  + 'px';
+      canvas.style.height = canvas.height + 'px';
+      build();
+
+      // Intro animation — matches DitherCanvas desktop logic
+      const initialScale = Math.min(196 / canvas.width, 196 / canvas.height);
+      gsap.set(wrap, { xPercent:-50, yPercent:-50,
+        x: window.innerWidth * 0.5,
+        y: window.innerHeight * 0.5,
+        scale: initialScale });
+      gsap.to(wrap, { x: window.innerWidth * 0.5, y: 128, scale: 1,
+        duration: 0.5, ease: 'power2.inOut', delay: 2 });
+
+      // Preloader counter
+      const counter = document.getElementById('preloader-counter');
+      if (counter) {
+        const proxy = { v: 0 };
+        gsap.to(proxy, {
+          v: 99, duration: 2.5, ease: 'none',
+          onUpdate:   ()=> { counter.textContent = String(Math.floor(proxy.v)).padStart(2,'0'); },
+          onComplete: ()=> { counter.style.display = 'none'; }
+        });
+      }
+    }
+
+    function loop() {
+      raf = requestAnimationFrame(loop);
+      if (!outBuf || video.readyState < 2) return;
+
+      sctx.drawImage(video, 0, 0, cols, rows);
+      const id = sctx.getImageData(0, 0, cols, rows);
+      outBuf.fill(0);
+      const W = canvas.width;
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const idx = (r * cols + c) * 4;
+          let lum = (0.299*id.data[idx] + 0.587*id.data[idx+1] + 0.114*id.data[idx+2]) / 255;
+          lum = Math.pow(Math.max(0, lum), GM);
+          lum = (lum - 0.5) * CT + 0.5;
+          lum = Math.max(0, Math.min(1, lum + BR));
+          const bl  = darkRef.current ? 1 - lum : lum;
+          const thr = (BAYER[r & 3][c & 3] + 0.5) / 4;
+          const ch  = (bl <= thr) ? (darkRef.current ? DON : LON) : (darkRef.current ? DOFF : LOFF);
+          for (let dy = 0; dy < PX; dy++) {
+            let base = ((r * PX + dy) * W + c * PX) * 4;
+            for (let dx = 0; dx < PX; dx++) {
+              outBuf[base]=ch[0]; outBuf[base+1]=ch[1]; outBuf[base+2]=ch[2]; outBuf[base+3]=255;
+              base += 4;
+            }
+          }
+        }
+      }
+      outImageData.data.set(outBuf);
+      ctx.putImageData(outImageData, 0, 0);
+    }
+
+    video.addEventListener('loadedmetadata', setSize);
+    setSize();
+    video.play().catch(()=>{});
+    loop();
+
+    return ()=>{
+      cancelAnimationFrame(raf);
+      video.removeEventListener('loadedmetadata', setSize);
+    };
+  }, []);
+
+  return (
+    <>
+      <video ref={videoRef} src="videos/thumbnail_02.mp4" autoPlay muted loop playsInline
+        crossOrigin="anonymous"
+        style={{ position:'absolute', opacity:0, width:1, height:1, pointerEvents:'none' }}
+      />
+      <div ref={wrapRef} style={{ position:'absolute', left:0, top:0, zIndex:0, pointerEvents:'none' }}>
+        <canvas ref={canvasRef} style={{ display:'block', opacity:0.9 }} />
+      </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
    MENU PIXEL REVEAL
    Same diagonal canvas animation as work thumbnails.
    Always uses #121010 fill (dark-mode palette on both themes).
@@ -1129,14 +1257,11 @@ function MenuPixelReveal({ onComplete }) {
     canvas.height = H;
     const ctx = canvas.getContext('2d');
 
-    // Fill with dark — always #121010 regardless of light/dark mode
-    ctx.fillStyle = '#121010';
-    ctx.fillRect(0, 0, W, H);
-
+    // Canvas starts transparent — blocks are DRAWN in (#121010) as the wave moves,
+    // masking the page beneath. SVG frontier leads the fill edge then gets covered.
     const cols = Math.ceil(W / PX);
     const rows = Math.ceil(H / PX);
 
-    // Diagonal sort with randomness — identical to PixelRevealImg
     const blocks = [];
     for (let r = 0; r < rows; r++)
       for (let c = 0; c < cols; c++)
@@ -1148,6 +1273,7 @@ function MenuPixelReveal({ onComplete }) {
     const LEAD = 14;
     let next = 0, start = null, raf;
 
+    // Draw SVG frontier at the leading edge (ahead of the fill wave)
     const drawFrontier = (from, to) => {
       for (let i = from; i < Math.min(to, total); i++) {
         const { r, c } = blocks[i];
@@ -1166,7 +1292,10 @@ function MenuPixelReveal({ onComplete }) {
       if (!start) start = now;
       const tp = Math.min((now - start) / DURATION, 1);
       const target = Math.floor(tp * total);
-      while (next < target) { const { r, c } = blocks[next++]; ctx.clearRect(c * PX, r * PX, PX, PX); }
+      // Fill blocks with #121010 — covers page as wave moves down
+      ctx.fillStyle = '#121010';
+      while (next < target) { const { r, c } = blocks[next++]; ctx.fillRect(c * PX, r * PX, PX, PX); }
+      // SVG patterns at frontier — briefly visible before next fill wave covers them
       if (next < total) drawFrontier(next, next + LEAD);
       if (tp < 1) { raf = requestAnimationFrame(tick); }
       else { onComplete(); }
@@ -1306,15 +1435,6 @@ function Page() {
     localStorage.setItem("dijitally-theme", dark ? "dark" : "light");
     document.body.classList.toggle("dark", dark);
   }, [dark]);
-
-  // On mobile DitherCanvas (which drives the counter) is skipped — hide counter independently
-  useEffect(()=>{
-    if (!isMobile) return;
-    const counter = document.getElementById('preloader-counter');
-    if (!counter) return;
-    const t = setTimeout(() => { counter.style.display = 'none'; }, 2500);
-    return () => clearTimeout(t);
-  }, [isMobile]);
 
   // ScrollSmoother — desktop only; on mobile native scroll is far smoother
   useEffect(()=>{
@@ -1853,6 +1973,8 @@ function Page() {
 
         {/* Hero viewport — 100dvh on mobile (accounts for iOS collapsing browser chrome), 100vh on desktop */}
         <div style={{height: isMobile ? "100dvh" : "100vh", position:"relative", overflow:"hidden"}}>
+          {/* Mobile dither video — rendered inside overflow:hidden so it can't bleed over the nav */}
+          {isMobile && <MobileDitherVideo dark={dark} />}
 
           {/* DIJITALLY™ — centred within first viewport */}
           <div style={{
@@ -2450,13 +2572,13 @@ function Page() {
             <MenuPixelReveal onComplete={()=> setMenuReady(true)} />
           )}
 
-          {/* Menu panel — sits behind tile grid, content animates up after reveal */}
+          {/* Menu panel — always dark (#121010) regardless of site theme */}
           <div
             id="menu-panel"
-            className={dark ? "dark" : ""}
+            className="dark"
             style={{
               position:"fixed", inset:0, zIndex:200,
-              background: dark ? "#121010" : "#FDFEFF",
+              background:"#121010",
               display:"flex", flexDirection:"column",
               boxSizing:"border-box",
               overflow:"hidden",
@@ -2465,26 +2587,26 @@ function Page() {
           >
             {/* Header row — toggle + X close, right-aligned, 24px padding, gap 24px */}
             <div style={{ display:"flex", justifyContent:"flex-end", alignItems:"center", gap:24, padding:24, flexShrink:0, zIndex:1 }}>
-              {/* Toggle pill */}
+              {/* Toggle pill — always light-on-dark */}
               <button
                 onClick={()=>setDark(d=>!d)}
                 aria-label="Toggle theme"
-                style={{ width:29, height:19, borderRadius:256, background:"none", border:"1px solid var(--secondary)", cursor:"pointer", flexShrink:0, padding:3, display:"flex", alignItems:"center", transition:"border-color 0.3s" }}
+                style={{ width:29, height:19, borderRadius:256, background:"none", border:"1px solid #FDFEFF", cursor:"pointer", flexShrink:0, padding:3, display:"flex", alignItems:"center", transition:"border-color 0.3s" }}
               >
-                <span style={{ width:13, height:13, borderRadius:"50%", background:"var(--secondary)", display:"block", flexShrink:0, transition:"transform 0.3s ease", transform: dark ? "translateX(10px)" : "translateX(0px)" }} />
+                <span style={{ width:13, height:13, borderRadius:"50%", background:"#FDFEFF", display:"block", flexShrink:0, transition:"transform 0.3s ease", transform: dark ? "translateX(10px)" : "translateX(0px)" }} />
               </button>
-              {/* Close X — two crossing lines at -30° / -150° per Figma */}
+              {/* Close X */}
               <button
                 onClick={()=>setMenuOpen(false)}
                 aria-label="Close menu"
                 style={{ background:"none", border:"none", cursor:"pointer", width:30, height:30, position:"relative", flexShrink:0, padding:0 }}
               >
-                <div style={{ position:"absolute", top:"50%", left:"50%", width:30, height:2, background:"var(--secondary)", transform:"translate(-50%,-50%) rotate(-30deg)" }} />
-                <div style={{ position:"absolute", top:"50%", left:"50%", width:30, height:2, background:"var(--secondary)", transform:"translate(-50%,-50%) rotate(-150deg)" }} />
+                <div style={{ position:"absolute", top:"50%", left:"50%", width:30, height:2, background:"#FDFEFF", transform:"translate(-50%,-50%) rotate(-30deg)" }} />
+                <div style={{ position:"absolute", top:"50%", left:"50%", width:30, height:2, background:"#FDFEFF", transform:"translate(-50%,-50%) rotate(-150deg)" }} />
               </button>
             </div>
 
-            {/* Nav content — hidden until menuReady, then SplitText animates items up */}
+            {/* Nav content — hidden until menuReady, then items animate up */}
             <div
               ref={menuContentRef}
               style={{
@@ -2493,7 +2615,7 @@ function Page() {
                 visibility: menuReady ? "visible" : "hidden",
               }}
             >
-              {/* Work, Services, About, Blog — each wrapped for overflow-clip on SplitText */}
+              {/* Work, Services, About, Blog */}
               {["Work","Services","About","Blog"].map(label => (
                 <div key={label} style={{ overflow:"hidden" }}>
                   <a
@@ -2503,7 +2625,7 @@ function Page() {
                     style={{
                       fontFamily:"var(--sans)", fontSize:26, fontWeight:350,
                       lineHeight:"120%", letterSpacing:"0.26px",
-                      color:"var(--secondary)", textDecoration:"none",
+                      color:"#FDFEFF", textDecoration:"none",
                       display:"block", opacity:0,
                     }}
                   >{label}</a>
@@ -2520,22 +2642,22 @@ function Page() {
                     background:"none", border:"none", cursor:"pointer", padding:0,
                     fontFamily:"var(--sans)", fontSize:26, fontWeight:500,
                     lineHeight:"120%", letterSpacing:"0.26px",
-                    color:"var(--secondary)", opacity:0,
+                    color:"#FDFEFF", opacity:0,
                   }}
                 >
-                  <span style={{ width:4, height:4, background:"var(--secondary)", flexShrink:0, display:"inline-block" }} />
+                  <span style={{ width:4, height:4, background:"#FDFEFF", flexShrink:0, display:"inline-block" }} />
                   <span>Get in touch</span>
                 </button>
               </div>
 
-              {/* Email — JetBrains Mono 14px, --static */}
+              {/* Email — JetBrains Mono 14px, muted */}
               <div style={{ overflow:"hidden", paddingTop:8 }}>
                 <span
                   className="menu-nav-item"
                   style={{
                     fontFamily:"var(--mono)", fontSize:14, fontWeight:400,
                     lineHeight:"100%", letterSpacing:"-0.28px",
-                    color:"var(--static)", display:"block", opacity:0,
+                    color:"#878787", display:"block", opacity:0,
                   }}
                 >hello@dijitally.com</span>
               </div>
@@ -2545,7 +2667,7 @@ function Page() {
             <div style={{ flexShrink:0, width:"100%" }}>
               <div
                 ref={menuLogoRef}
-                style={{ width:"100%", overflow:"hidden", filter: dark ? "invert(1)" : "none", transition:"filter 0.3s ease" }}
+                style={{ width:"100%", overflow:"hidden", filter:"invert(1)" }}
               />
             </div>
           </div>
