@@ -189,7 +189,7 @@
     /* ── Mobile breakpoint 768px ── */
     @media(max-width:768px){
       :root{
-        --h1: 28px;
+        --h1: 26px;
         --h2: 20px;
         --nav-size: 13px;
         --s64: 24px;
@@ -1741,8 +1741,8 @@ function Page() {
       <section style={{position:"relative"}}>
         {!isMobile && <DitherCanvas dark={dark} />}
 
-        {/* Hero viewport — 100vh */}
-        <div style={{height:"100vh", position:"relative", overflow:"hidden"}}>
+        {/* Hero viewport — 100dvh on mobile (accounts for iOS collapsing browser chrome), 100vh on desktop */}
+        <div style={{height: isMobile ? "100dvh" : "100vh", position:"relative", overflow:"hidden"}}>
 
           {/* DIJITALLY™ — centred within first viewport */}
           <div style={{
@@ -1776,7 +1776,7 @@ function Page() {
               <span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--static)"}}>·</span>
               <span ref={heroTextRef} data-split-entrance="" className="hero-body-text" style={{
                   fontFamily:"var(--sans)",
-                  fontSize:"var(--h2)", fontWeight:350,
+                  fontSize: isMobile ? "var(--h1)" : "var(--h2)", fontWeight:350,
                   lineHeight:"var(--h2-lh)", letterSpacing:"var(--h2-ls)",
                   color:"var(--secondary)",
                   maxWidth:533,
