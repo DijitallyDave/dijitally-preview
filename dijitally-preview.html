@@ -403,8 +403,10 @@ function PixelRevealImg({ src, alt, style = {}, externalTrigger = false, delay =
     const drawFrontier = (from, to) => {
       for (let i = from; i < Math.min(to, total); i++) {
         const { r, c } = blocks[i];
-        const p = PATTERN_IMGS[Math.floor(Math.random() * PATTERN_IMGS.length)];
-        if (p.complete && p.naturalWidth > 0) ctx.drawImage(p, c * PX, r * PX, PX, PX);
+        if (Math.random() > 0.25) {
+          const p = PATTERN_IMGS[Math.floor(Math.random() * PATTERN_IMGS.length)];
+          if (p.complete && p.naturalWidth > 0) ctx.drawImage(p, c * PX, r * PX, PX, PX);
+        }
       }
     };
 
