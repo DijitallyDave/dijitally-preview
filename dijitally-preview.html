@@ -124,6 +124,15 @@
     #smooth-wrapper.cta-open { pointer-events: none; }
     #dj-cursor.cta-open { opacity: 0; }
 
+    /* Work thumbnail CTA — slides in from right on card hover */
+    .work-card-cta {
+      position: absolute;
+      bottom: 24px; right: 24px;
+      transform: translateX(calc(100% + 24px));
+      transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+    .wc:hover .work-card-cta { transform: translateX(0); }
+
     /* Nav item hover — swap bg ↔ secondary (works for both light + dark) */
     .nav-item { transition: background 0.2s ease, color 0.2s ease; }
     .nav-item:hover { background: var(--secondary) !important; color: var(--bg) !important; }
@@ -2014,6 +2023,24 @@ function Page() {
                       <span style={{fontFamily:"var(--sans)",fontSize:22,fontWeight:900,color:w.fg,letterSpacing:"-0.02em",textAlign:"center",padding:16}}>{w.label}</span>
                     </div>
                 }
+                {/* Slide-in CTA */}
+                <a href="#" className="cta-btn work-card-cta" style={{
+                  display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,
+                  padding:"18px 24px",
+                  background:"var(--tech)",
+                  border:"none",borderRadius:0,
+                  fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,
+                  color:"#121010",
+                  textDecoration:"none",whiteSpace:"nowrap",flexShrink:0,
+                }} onMouseEnter={e=>{
+                  const t=e.currentTarget.querySelector('.cta-text');
+                  if(!t||typeof gsap==='undefined') return;
+                  if(!t.style.width){t.style.display='inline-block';t.style.whiteSpace='nowrap';t.style.width=t.offsetWidth+'px';t.style.overflow='hidden';}
+                  gsap.to(t,{duration:0.4,ease:'none',scrambleText:{text:'View project',chars:'upperCase',revealDelay:0.1,speed:0.8}});
+                }}>
+                  <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/>
+                  <span className="cta-text">View project</span>
+                </a>
               </div>
               {/* Card meta — JetBrains Mono 10px, ls -0.2px, #878787 */}
               <div style={{padding:"16px 0 0",display:"flex",flexDirection:"column",gap:4}}>
