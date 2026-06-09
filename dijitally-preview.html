@@ -1847,6 +1847,7 @@ function Page() {
                 position:"absolute", inset:0,
                 opacity: i === activeModel ? 1 : 0,
                 transition:"opacity 0.4s ease",
+                pointerEvents: i === activeModel ? "auto" : "none",
               }}>
                 <PixelResolveVideo
                   src={m.video}
