@@ -1161,22 +1161,7 @@ function Page() {
     smoother.paused(true); // hold until hero sequence finishes
     smootherRef.current = smoother;
 
-    // Hide nav on scroll down, reveal on scroll up via ScrollTrigger direction
-    const navST = ScrollTrigger.create({
-      onUpdate(self) {
-        const nav = navRef.current;
-        if (!nav) return;
-        if (self.direction === 1 && self.scroll() > 120 && !navHiddenRef.current) {
-          gsap.to(nav, { y:"-100%", duration:0.4, ease:"power2.in", overwrite:true });
-          navHiddenRef.current = true;
-        } else if (self.direction === -1 && navHiddenRef.current) {
-          gsap.to(nav, { y:"0%", duration:0.4, ease:"power2.out", overwrite:true });
-          navHiddenRef.current = false;
-        }
-      }
-    });
-
-    return () => { navST.kill(); smoother.kill(); smootherRef.current = null; };
+    return () => { smoother.kill(); smootherRef.current = null; };
   }, []);
 
   const smootherRef       = useRef(null);
@@ -1498,6 +1483,7 @@ function Page() {
 
   const prevScrollRef   = useRef(0);
   const navHiddenRef    = useRef(false);
+  const navDeltaHistory = useRef([]);
 
   useEffect(()=>{
     // Scroll position tracker via GSAP ticker
@@ -1506,27 +1492,27 @@ function Page() {
       scrollYRef.current = current;
       const newScrolled = current > 60;
       if (newScrolled !== scrolledRef.current) { setScrolled(newScrolled); scrolledRef.current = newScrolled; }
-    };
-    gsap.ticker.add(tick);
 
-    // Mobile nav hide/show — ScrollTrigger not available on mobile, use scroll event
-    if (isMobile) {
-      const onScroll = () => {
-        const current = window.scrollY;
-        const nav = navRef.current;
-        if (!nav) return;
-        if (current > 120 && current > prevScrollRef.current && !navHiddenRef.current) {
-          gsap.to(nav, { y:"-100%", duration:0.35, ease:"power2.in", overwrite:true });
+      // Nav hide/show — rolling average of last 5 frame deltas to reliably detect direction
+      const delta = current - prevScrollRef.current;
+      prevScrollRef.current = current;
+      const hist = navDeltaHistory.current;
+      hist.push(delta);
+      if (hist.length > 5) hist.shift();
+      const avg = hist.reduce((a,b)=>a+b,0) / hist.length;
+
+      const nav = navRef.current;
+      if (nav) {
+        if (avg > 0.4 && current > 120 && !navHiddenRef.current) {
+          gsap.to(nav, { y:"-100%", duration:0.4, ease:"power2.in", overwrite:"auto" });
           navHiddenRef.current = true;
-        } else if (current < prevScrollRef.current && navHiddenRef.current) {
-          gsap.to(nav, { y:"0%", duration:0.35, ease:"power2.out", overwrite:true });
+        } else if (avg < -0.4 && navHiddenRef.current) {
+          gsap.to(nav, { y:"0%", duration:0.4, ease:"power2.out", overwrite:"auto" });
           navHiddenRef.current = false;
         }
-        prevScrollRef.current = current;
-      };
-      window.addEventListener('scroll', onScroll, { passive:true });
-      return () => { gsap.ticker.remove(tick); window.removeEventListener('scroll', onScroll); };
-    }
+      }
+    };
+    gsap.ticker.add(tick);
 
 
     // Custom cursor
