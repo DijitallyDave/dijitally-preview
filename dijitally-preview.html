@@ -128,19 +128,8 @@
     }
     #cta-overlay.open { opacity: 0.75; pointer-events: auto; }
 
-    /* Mobile menu slide panel */
-    #menu-panel {
-      transform: translateX(100vw);
-      transition: transform 0.7s cubic-bezier(0.76, 0, 0.24, 1);
-    }
-    #menu-panel.open { transform: translateX(0); }
-    #menu-overlay {
-      opacity: 0; pointer-events: none;
-      background: #1A1A1A;
-      mix-blend-mode: multiply;
-      transition: opacity 0.4s ease;
-    }
-    #menu-overlay.open { opacity: 0.75; pointer-events: auto; }
+    /* Mobile menu panel — pixel reveal canvas covers until animation completes */
+    #menu-panel { }
 
     /* Disable all site interactions while CTA panel is open */
     #smooth-wrapper.cta-open { pointer-events: none; }
@@ -1123,6 +1112,84 @@ function DitherCanvas({ dark }) {
 }
 
 /* ═══════════════════════════════════════════════════
+   MENU PIXEL REVEAL
+   Same diagonal canvas animation as work thumbnails.
+   Always uses #121010 fill (dark-mode palette on both themes).
+═══════════════════════════════════════════════════ */
+function MenuPixelReveal({ onComplete }) {
+  const canvasRef = useRef(null);
+  const PX = 16;
+
+  useEffect(()=>{
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    canvas.width  = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // Fill with dark — always #121010 regardless of light/dark mode
+    ctx.fillStyle = '#121010';
+    ctx.fillRect(0, 0, W, H);
+
+    const cols = Math.ceil(W / PX);
+    const rows = Math.ceil(H / PX);
+
+    // Diagonal sort with randomness — identical to PixelRevealImg
+    const blocks = [];
+    for (let r = 0; r < rows; r++)
+      for (let c = 0; c < cols; c++)
+        blocks.push({ r, c, d: r + c });
+    blocks.sort((a, b) => (a.d + (Math.random()-0.5)*4) - (b.d + (Math.random()-0.5)*4));
+
+    const total = blocks.length;
+    const DURATION = 700;
+    const LEAD = 14;
+    let next = 0, start = null, raf;
+
+    const drawFrontier = (from, to) => {
+      for (let i = from; i < Math.min(to, total); i++) {
+        const { r, c } = blocks[i];
+        if (Math.random() > 0.25) {
+          const p = PATTERN_IMGS[Math.floor(Math.random() * PATTERN_IMGS.length)];
+          if (p.complete && p.naturalWidth > 0) {
+            ctx.globalAlpha = 0.4 + Math.random() * 0.6;
+            ctx.drawImage(p, c * PX, r * PX, PX, PX);
+            ctx.globalAlpha = 1;
+          }
+        }
+      }
+    };
+
+    const tick = (now) => {
+      if (!start) start = now;
+      const tp = Math.min((now - start) / DURATION, 1);
+      const target = Math.floor(tp * total);
+      while (next < target) { const { r, c } = blocks[next++]; ctx.clearRect(c * PX, r * PX, PX, PX); }
+      if (next < total) drawFrontier(next, next + LEAD);
+      if (tp < 1) { raf = requestAnimationFrame(tick); }
+      else { onComplete(); }
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position:"fixed", top:0, left:0,
+        width:"100vw", height:"100dvh",
+        zIndex:210, pointerEvents:"none",
+        display:"block",
+      }}
+    />
+  );
+}
+
+/* ═══════════════════════════════════════════════════
    PAGE
 ═══════════════════════════════════════════════════ */
 function Page() {
@@ -1138,6 +1205,8 @@ function Page() {
   const [reelOpen,    setReelOpen]    = useState(false);
   const [ctaOpen,     setCtaOpen]     = useState(false);
   const [menuOpen,    setMenuOpen]    = useState(false);
+  const [menuReady,   setMenuReady]   = useState(false);
+  const menuContentRef = useRef(null);
   const [thumbHover,  setThumbHover]  = useState(false);
 
   const CTA_W = isMobile ? window.innerWidth : 661;
@@ -1186,28 +1255,46 @@ function Page() {
     }
   }, [ctaOpen]);
 
-  // Slide wrapper left and animate mobile menu panel in/out
+  // Menu Lottie — load when menu opens
+  useEffect(()=>{
+    if (!menuOpen || typeof lottie === "undefined") return;
+    const el = menuLogoRef.current;
+    if (!el || el._menuAnim) return;
+    el._menuAnim = lottie.loadAnimation({
+      container: el,
+      renderer: "svg",
+      loop: false,
+      autoplay: true,
+      path: "json/Dijitally-Alternate.json?v=3",
+      rendererSettings: { preserveAspectRatio:"xMidYMid meet" },
+    });
+  }, [menuOpen]);
+
+  // Mobile menu open/close — tile grid handles reveal; just lock/unlock page scroll
   useEffect(()=>{
     if (!isMobile) return;
     const wrapper = document.getElementById("smooth-wrapper");
-    const panel   = document.getElementById("menu-panel");
-    const overlay = document.getElementById("menu-overlay");
-    if (!wrapper || !panel || !overlay) return;
-    const cursor = document.getElementById("dj-cursor");
+    const cursor  = document.getElementById("dj-cursor");
     if (menuOpen) {
-      gsap.to(wrapper, { x: -window.innerWidth, duration: 0.7, ease: "power3.inOut" });
-      panel.classList.add("open");
-      overlay.classList.add("open");
-      wrapper.classList.add("cta-open");
+      wrapper?.classList.add("cta-open");
       if (cursor) cursor.classList.add("cta-open");
     } else {
-      gsap.to(wrapper, { x: 0, duration: 0.7, ease: "power3.inOut" });
-      panel.classList.remove("open");
-      overlay.classList.remove("open");
-      wrapper.classList.remove("cta-open");
+      wrapper?.classList.remove("cta-open");
       if (cursor) cursor.classList.remove("cta-open");
+      setMenuReady(false);
     }
   }, [menuOpen, isMobile]);
+
+  // Animate menu items up with SplitText once tiles have completed
+  useEffect(()=>{
+    if (!menuReady || !menuContentRef.current) return;
+    const items = menuContentRef.current.querySelectorAll('.menu-nav-item');
+    if (!items.length) return;
+    gsap.fromTo(items,
+      { y: "110%", opacity: 0 },
+      { y: "0%", opacity: 1, duration: 0.65, ease: "power3.out", stagger: 0.07, delay: 0.05 }
+    );
+  }, [menuReady]);
 
   useEffect(()=>{
     const onResize = () => setIsMobile(window.innerWidth <= 768);
@@ -1251,6 +1338,7 @@ function Page() {
   const heroBodyRef       = useRef(null);
   const navRef            = useRef(null);
   const footerLogoRef     = useRef(null);
+  const menuLogoRef       = useRef(null);
   const heroThumbRef      = useRef(null);
   const carouselRef       = useRef(null);
   const carouselSectionRef = useRef(null);
@@ -2353,107 +2441,115 @@ function Page() {
       )}
 
       {/* ══════════════════════════════════════
-          MOBILE NAV MENU — slide-in panel, portalled outside smooth-wrapper
+          MOBILE NAV MENU — tile reveal + SplitText content animation
       ══════════════════════════════════════ */}
-      {isMobile && ReactDOM.createPortal(
-        React.createElement(React.Fragment, null,
-          /* Overlay */
-          React.createElement("div", {
-            id: "menu-overlay",
-            onClick: ()=>setMenuOpen(false),
-            style: { position:"fixed", inset:0, zIndex:199 }
-          }),
-          /* Panel */
-          React.createElement("div", {
-            id: "menu-panel",
-            className: dark ? "dark" : "",
-            style: {
-              position:"fixed", top:0, right:0, height:"100vh", width:"100vw", zIndex:200,
-              background:"var(--bg)",
-              display:"flex", flexDirection:"column",
-              padding:"24px 24px 40px",
-              boxSizing:"border-box",
-            },
-            onClick: e=>e.stopPropagation()
-          },
-            /* Top row: close button right-aligned */
-            React.createElement("div", { style:{display:"flex", justifyContent:"flex-end", alignItems:"center", gap:12, marginBottom:0} },
-              /* Dark mode toggle — same pill */
-              React.createElement("button", {
-                onClick:()=>setDark(d=>!d),
-                "aria-label":"Toggle theme",
-                style:{
-                  width:29, height:19, borderRadius:256, background:"none",
-                  border:"1px solid var(--secondary)", cursor:"pointer",
-                  position:"relative", flexShrink:0, padding:3,
-                  display:"flex", alignItems:"center", transition:"border-color 0.3s",
-                }
-              },
-                React.createElement("span", {
-                  style:{
-                    width:11, height:11, borderRadius:"50%", background:"var(--secondary)",
-                    display:"block", flexShrink:0, transition:"transform 0.3s ease",
-                    transform: dark ? "translateX(10px)" : "translateX(0px)",
-                  }
-                })
-              ),
-              /* Close X */
-              React.createElement("button", {
-                onClick:()=>setMenuOpen(false),
-                "aria-label":"Close menu",
-                style:{ background:"none", border:"none", cursor:"pointer", width:28, height:28, position:"relative", flexShrink:0, padding:0 }
-              },
-                React.createElement("span", {style:{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}),
-                React.createElement("div", {style:{position:"absolute",top:"50%",left:"50%",width:22,height:2,background:"var(--secondary)",transform:"translate(-50%,-50%) rotate(45deg)"}}),
-                React.createElement("div", {style:{position:"absolute",top:"50%",left:"50%",width:22,height:2,background:"var(--secondary)",transform:"translate(-50%,-50%) rotate(-45deg)"}})
-              )
-            ),
+      {isMobile && menuOpen && ReactDOM.createPortal(
+        <>
+          {/* Tile grid — flips from edges to centre, fires onComplete when done */}
+          {!menuReady && (
+            <MenuPixelReveal onComplete={()=> setMenuReady(true)} />
+          )}
 
-            /* Nav links — large, stacked, fills space */
-            React.createElement("div", {
-              style:{
+          {/* Menu panel — sits behind tile grid, content animates up after reveal */}
+          <div
+            id="menu-panel"
+            className={dark ? "dark" : ""}
+            style={{
+              position:"fixed", inset:0, zIndex:200,
+              background: dark ? "#121010" : "#FDFEFF",
+              display:"flex", flexDirection:"column",
+              boxSizing:"border-box",
+              overflow:"hidden",
+            }}
+            onClick={e=>e.stopPropagation()}
+          >
+            {/* Header row — toggle + X close, right-aligned, 24px padding, gap 24px */}
+            <div style={{ display:"flex", justifyContent:"flex-end", alignItems:"center", gap:24, padding:24, flexShrink:0, zIndex:1 }}>
+              {/* Toggle pill */}
+              <button
+                onClick={()=>setDark(d=>!d)}
+                aria-label="Toggle theme"
+                style={{ width:29, height:19, borderRadius:256, background:"none", border:"1px solid var(--secondary)", cursor:"pointer", flexShrink:0, padding:3, display:"flex", alignItems:"center", transition:"border-color 0.3s" }}
+              >
+                <span style={{ width:13, height:13, borderRadius:"50%", background:"var(--secondary)", display:"block", flexShrink:0, transition:"transform 0.3s ease", transform: dark ? "translateX(10px)" : "translateX(0px)" }} />
+              </button>
+              {/* Close X — two crossing lines at -30° / -150° per Figma */}
+              <button
+                onClick={()=>setMenuOpen(false)}
+                aria-label="Close menu"
+                style={{ background:"none", border:"none", cursor:"pointer", width:30, height:30, position:"relative", flexShrink:0, padding:0 }}
+              >
+                <div style={{ position:"absolute", top:"50%", left:"50%", width:30, height:2, background:"var(--secondary)", transform:"translate(-50%,-50%) rotate(-30deg)" }} />
+                <div style={{ position:"absolute", top:"50%", left:"50%", width:30, height:2, background:"var(--secondary)", transform:"translate(-50%,-50%) rotate(-150deg)" }} />
+              </button>
+            </div>
+
+            {/* Nav content — hidden until menuReady, then SplitText animates items up */}
+            <div
+              ref={menuContentRef}
+              style={{
                 flex:1, display:"flex", flexDirection:"column", justifyContent:"center",
-                gap:0, paddingBottom:16,
-              }
-            },
-              ...["Work","Services","About","Blog"].map(label =>
-                React.createElement("a", {
-                  key: label,
-                  href: "#",
-                  onClick: e=>{ e.preventDefault(); setMenuOpen(false); },
-                  style:{
-                    display:"flex", alignItems:"center", gap:8,
-                    fontFamily:"var(--sans)", fontSize:42, fontWeight:500,
-                    lineHeight:"110%", letterSpacing:"-0.84px",
-                    color:"var(--secondary)", textDecoration:"none",
-                    borderBottom:"1px solid var(--grey)",
-                    padding:"20px 0",
-                  }
-                },
-                  React.createElement("span", {style:{width:6,height:6,background:"var(--secondary)",flexShrink:0,display:"inline-block"}}),
-                  React.createElement("span", {}, label)
-                )
-              ),
-              /* Get in touch — CTA green button */
-              React.createElement("div", { style:{paddingTop:28} },
-                React.createElement("button", {
-                  onClick:()=>{ setMenuOpen(false); setTimeout(()=>setCtaOpen(true), 400); },
-                  className:"cta-btn",
-                  style:{
-                    display:"inline-flex", alignItems:"center", gap:4,
-                    background:"var(--tech)", color:"#121010",
-                    border:"none", cursor:"pointer",
-                    padding:6, fontFamily:"var(--sans)",
-                    fontSize:19, fontWeight:500, letterSpacing:0, lineHeight:1,
-                  }
-                },
-                  React.createElement("span", {style:{width:3,height:3,background:"currentColor",display:"inline-block",flexShrink:0}}),
-                  React.createElement("span", {className:"cta-text"}, "Get in touch")
-                )
-              )
-            )
-          )
-        ),
+                padding:"42px", gap:28,
+                visibility: menuReady ? "visible" : "hidden",
+              }}
+            >
+              {/* Work, Services, About, Blog — each wrapped for overflow-clip on SplitText */}
+              {["Work","Services","About","Blog"].map(label => (
+                <div key={label} style={{ overflow:"hidden" }}>
+                  <a
+                    href="#"
+                    className="menu-nav-item"
+                    onClick={e=>{ e.preventDefault(); setMenuOpen(false); }}
+                    style={{
+                      fontFamily:"var(--sans)", fontSize:26, fontWeight:350,
+                      lineHeight:"120%", letterSpacing:"0.26px",
+                      color:"var(--secondary)", textDecoration:"none",
+                      display:"block", opacity:0,
+                    }}
+                  >{label}</a>
+                </div>
+              ))}
+
+              {/* Get in touch — 4×4 dot + NeuSans Medium 26px */}
+              <div style={{ overflow:"hidden" }}>
+                <button
+                  className="menu-nav-item"
+                  onClick={()=>{ setMenuOpen(false); setTimeout(()=>setCtaOpen(true), 400); }}
+                  style={{
+                    display:"flex", alignItems:"center", gap:10,
+                    background:"none", border:"none", cursor:"pointer", padding:0,
+                    fontFamily:"var(--sans)", fontSize:26, fontWeight:500,
+                    lineHeight:"120%", letterSpacing:"0.26px",
+                    color:"var(--secondary)", opacity:0,
+                  }}
+                >
+                  <span style={{ width:4, height:4, background:"var(--secondary)", flexShrink:0, display:"inline-block" }} />
+                  <span>Get in touch</span>
+                </button>
+              </div>
+
+              {/* Email — JetBrains Mono 14px, --static */}
+              <div style={{ overflow:"hidden", paddingTop:8 }}>
+                <span
+                  className="menu-nav-item"
+                  style={{
+                    fontFamily:"var(--mono)", fontSize:14, fontWeight:400,
+                    lineHeight:"100%", letterSpacing:"-0.28px",
+                    color:"var(--static)", display:"block", opacity:0,
+                  }}
+                >hello@dijitally.com</span>
+              </div>
+            </div>
+
+            {/* Footer — DIJITALLY™ Lottie logo full width */}
+            <div style={{ flexShrink:0, width:"100%" }}>
+              <div
+                ref={menuLogoRef}
+                style={{ width:"100%", overflow:"hidden", filter: dark ? "invert(1)" : "none", transition:"filter 0.3s ease" }}
+              />
+            </div>
+          </div>
+        </>,
         document.getElementById("lb-portal")
       )}
 
