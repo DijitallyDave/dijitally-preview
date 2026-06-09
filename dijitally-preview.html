@@ -1182,6 +1182,15 @@ function Page() {
     document.body.classList.toggle("dark", dark);
   }, [dark]);
 
+  // On mobile DitherCanvas (which drives the counter) is skipped — hide counter independently
+  useEffect(()=>{
+    if (!isMobile) return;
+    const counter = document.getElementById('preloader-counter');
+    if (!counter) return;
+    const t = setTimeout(() => { counter.style.display = 'none'; }, 2500);
+    return () => clearTimeout(t);
+  }, [isMobile]);
+
   // ScrollSmoother — desktop only; on mobile native scroll is far smoother
   useEffect(()=>{
     if (isMobile) return; // skip entirely on mobile
