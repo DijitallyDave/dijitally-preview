@@ -1384,9 +1384,9 @@ function Page() {
     }
   }, [ctaOpen]);
 
-  // Menu Lottie — load when menu opens
+  // Menu Lottie — load after pixel reveal completes (menuReady), not on open
   useEffect(()=>{
-    if (!menuOpen || typeof lottie === "undefined") return;
+    if (!menuReady || typeof lottie === "undefined") return;
     const el = menuLogoRef.current;
     if (!el || el._menuAnim) return;
     el._menuAnim = lottie.loadAnimation({
@@ -1397,7 +1397,10 @@ function Page() {
       path: "json/Dijitally-Alternate.json?v=3",
       rendererSettings: { preserveAspectRatio:"xMidYMid meet" },
     });
-  }, [menuOpen]);
+    return () => {
+      if (el._menuAnim) { el._menuAnim.destroy(); el._menuAnim = null; }
+    };
+  }, [menuReady]);
 
   // Mobile menu open/close — tile grid handles reveal; just lock/unlock page scroll
   useEffect(()=>{
@@ -2578,7 +2581,7 @@ function Page() {
             className="dark"
             style={{
               position:"fixed", inset:0, zIndex:200,
-              background:"#121010",
+              background: menuReady ? "#121010" : "transparent",
               display:"flex", flexDirection:"column",
               boxSizing:"border-box",
               overflow:"hidden",
