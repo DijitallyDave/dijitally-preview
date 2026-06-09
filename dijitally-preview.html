@@ -1553,11 +1553,13 @@ function Page() {
       ══════════════════════════════════════ */}
       {ReactDOM.createPortal(<header ref={navRef} className={dark?"dark":""} style={{
         position:"fixed",top:0,left:0,right:0,zIndex:100,
-        height: isMobile ? 64 : (scrolled ? 72 : "var(--nav-h)"),
-        padding: isMobile ? "0 16px" : "0 var(--s42)",
+        height: isMobile ? 64 : (scrolled ? "auto" : "var(--nav-h)"),
+        padding: isMobile ? "0 16px" : (scrolled ? "var(--s32) var(--s42)" : "0 var(--s42)"),
         display:"flex", alignItems:"center", justifyContent: isMobile ? "space-between" : "flex-end",
-        background: "transparent",
-        transition:"height 0.35s ease, background 0.3s ease",
+        background: scrolled ? "var(--bg)" : "transparent",
+        borderBottom: scrolled ? "1px solid var(--grey)" : "none",
+        transition:"padding 0.35s ease, background 0.3s ease, border-color 0.3s ease",
+        boxSizing:"border-box",
       }}>
 
         {/* Logo — visible on mobile, hidden on desktop until hero SVG locks in on scroll */}
