@@ -1480,13 +1480,29 @@ function Page() {
 
 
 
+  const prevScrollRef   = useRef(0);
+  const navHiddenRef    = useRef(false);
+
   useEffect(()=>{
-    // Scroll position tracker via GSAP ticker
+    // Scroll position tracker via GSAP ticker + hide/show nav on direction change
     const tick = () => {
       const current = smootherRef.current ? smootherRef.current.scrollTop() : window.scrollY;
       scrollYRef.current = current;
       const newScrolled = current > 60;
       if (newScrolled !== scrolledRef.current) { setScrolled(newScrolled); scrolledRef.current = newScrolled; }
+
+      // Hide nav on scroll down, reveal on scroll up
+      const delta = current - prevScrollRef.current;
+      if (Math.abs(delta) > 1 && navRef.current) {
+        if (current > 120 && delta > 0 && !navHiddenRef.current) {
+          gsap.to(navRef.current, { y:"-100%", duration:0.4, ease:"power2.in", overwrite:true });
+          navHiddenRef.current = true;
+        } else if (delta < 0 && navHiddenRef.current) {
+          gsap.to(navRef.current, { y:"0%", duration:0.4, ease:"power2.out", overwrite:true });
+          navHiddenRef.current = false;
+        }
+      }
+      prevScrollRef.current = current;
     };
     gsap.ticker.add(tick);
 
