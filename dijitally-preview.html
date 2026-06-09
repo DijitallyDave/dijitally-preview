@@ -1962,7 +1962,7 @@ function Page() {
             WebkitOverflowScrolling:"touch",
             touchAction: isMobile ? "pan-x pan-y" : "auto",
           }}>
-          <div style={{width: isMobile ? 16 : 64, minWidth: isMobile ? 16 : 64, flexShrink:0, flexGrow:0}}/>
+          <div style={{width:"var(--s64)", minWidth:"var(--s64)", flexShrink:0, flexGrow:0}}/>
           {filtered.map((w,i)=>(
             <div key={i} className="wc" style={{flexShrink:0, width: isMobile ? "calc(100vw - 48px)" : 504, cursor:"pointer"}}>
               {/* Thumbnail */}
@@ -1982,7 +1982,7 @@ function Page() {
               </div>
             </div>
           ))}
-          <div style={{width:40,minWidth:40,flexShrink:0,flexGrow:0}}/>
+          <div style={{width:"var(--s64)",minWidth:"var(--s64)",flexShrink:0,flexGrow:0}}/>
         </div>
 
       </section>
