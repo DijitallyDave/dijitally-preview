@@ -124,6 +124,11 @@
     #smooth-wrapper.cta-open { pointer-events: none; }
     #dj-cursor.cta-open { opacity: 0; }
 
+    /* Nav item hover — swap bg ↔ secondary (works for both light + dark) */
+    .nav-item { transition: background 0.2s ease, color 0.2s ease; }
+    .nav-item:hover { background: var(--secondary) !important; color: var(--bg) !important; }
+    .nav-item:hover .nav-dot { background: var(--bg) !important; }
+
     /* CTA button hover — swap green bg ↔ near-black, text becomes green */
     .cta-btn { transition: background 0.2s ease, color 0.2s ease; }
     .cta-btn:hover { background: #121010 !important; color: #B6F4C9 !important; }
@@ -1533,9 +1538,10 @@ function Page() {
         <nav style={{display:"flex", alignItems:"center", gap: isMobile ? 12 : 42}}>
           {/* Nav items — dot + label, padding 6px, gap 4px, letter-spacing -0.38px */}
           {["Work","Services","About","Blog"].map(l=>(
-            <span key={l} className="mobile-nav-links" style={{
+            <span key={l} className="mobile-nav-links nav-item" style={{
               display:"flex", alignItems:"center", gap:4,
               padding:6,
+              background:"var(--bg)",
               fontFamily:"var(--sans)",
               fontSize:"var(--nav-size)",
               fontWeight:"var(--nav-w)",
@@ -1543,9 +1549,23 @@ function Page() {
               color:"var(--secondary)",
               cursor:"default",
               userSelect:"none",
+            }}
+            onMouseEnter={e=>{
+              const el = e.currentTarget;
+              const textNode = el.querySelector('.nav-text');
+              if (!textNode || typeof gsap==='undefined') return;
+              if (!textNode.dataset.wLocked) {
+                textNode.style.display='inline-block';
+                textNode.style.whiteSpace='nowrap';
+                textNode.style.overflow='hidden';
+                textNode.style.width=textNode.offsetWidth+'px';
+                textNode.dataset.wLocked='1';
+              }
+              gsap.to(textNode,{duration:0.4,ease:'none',
+                scrambleText:{text:l,chars:'upperCase',revealDelay:0.1,speed:0.9}});
             }}>
-              <span style={{width:3,height:3,background:"var(--secondary)",display:"inline-block",flexShrink:0}}/>
-              {l}
+              <span className="nav-dot" style={{width:3,height:3,background:"var(--secondary)",display:"inline-block",flexShrink:0}}/>
+              <span className="nav-text">{l}</span>
             </span>
           ))}
 
