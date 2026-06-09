@@ -145,19 +145,7 @@
     #smooth-content { overflow: visible; width: 100%; will-change: transform; }
 
 
-    /* Custom cursor */
-    * { cursor: none !important; }
-    #dj-cursor {
-      position: fixed;
-      width: 16px; height: 16px;
-      background: #FDFEFF;
-      mix-blend-mode: difference;
-      pointer-events: none;
-      transform: translate(-50%, -50%);
-      z-index: 9999;
-      transition: transform 0.1s ease;
-    }
-    #dj-cursor.active { transform: translate(-50%, -50%) scale(1.5); }
+    #dj-cursor { display: none; }
     /* No native drag in carousel */
     .wc img, .wc canvas { -webkit-user-drag: none; user-drag: none; pointer-events: none; }
     /* Hide carousel scrollbar */
@@ -1356,9 +1344,11 @@ function Page() {
 
 
   // SplitText — animate every heading line-by-line on scroll
+  // Wait for fonts to load before splitting so NeuSans Trial line breaks are correct
   useEffect(()=>{
     if (typeof gsap === "undefined" || typeof SplitText === "undefined" || typeof ScrollTrigger === "undefined") return;
 
+    const run = () => {
     const headings = document.querySelectorAll("h2, [data-split]");
     const splits = [];
 
@@ -1389,6 +1379,14 @@ function Page() {
     });
 
     return () => splits.forEach(s => s.revert());
+    }; // end run()
+
+    // Run after fonts are ready so NeuSans line breaks are correct
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(run);
+    } else {
+      run();
+    }
   }, []);
 
 
