@@ -1395,10 +1395,11 @@ function Page() {
     const handlers = [];
     document.querySelectorAll('.cta-btn .cta-text').forEach(el => {
       // Lock natural width once so scramble characters don't change button size
-      el.style.display    = 'inline-block';
-      el.style.width      = el.offsetWidth + 'px';
-      el.style.overflow   = 'hidden';
-      el.style.textAlign  = 'left';
+      el.style.display      = 'inline-block';
+      el.style.whiteSpace   = 'nowrap';
+      el.style.width        = el.offsetWidth + 'px';
+      el.style.overflow     = 'hidden';
+      el.style.textAlign    = 'left';
       const original = el.textContent;
       const handler = () => gsap.to(el, {
         duration:0.5, ease:'none',
