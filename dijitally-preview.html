@@ -1465,12 +1465,7 @@ function Page() {
           path: "json/Dijitally-Alternate.json?v=3",
           rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
         });
-        // Sync dark mode filter on SVG
-        const syncFilter = () => {
-          const svg = el.querySelector("svg");
-          if (svg) svg.style.filter = document.body.classList.contains("dark") ? "invert(1)" : "none";
-        };
-        anim.addEventListener("DOMLoaded", syncFilter);
+        // Dark mode handled by parent div's filter — no need to set inline SVG filter
         obs.disconnect();
       }
     }, { threshold: 0.2 });
