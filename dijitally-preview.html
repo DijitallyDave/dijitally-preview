@@ -1854,6 +1854,20 @@ function Page() {
                   externalTrigger={modelsVisible && i === activeModel}
                   videoProps={{muted:true, playsInline:true, style:{objectFit:"cover"}}}
                 />
+                {/* Find out more CTA — bottom-right, 42px inset */}
+                <a href="#" className="cta-btn" style={{
+                  position:"absolute", bottom:42, right:42,
+                  display:"inline-flex", alignItems:"center", justifyContent:"center", gap:10,
+                  padding:"18px 24px",
+                  background:"var(--tech)",
+                  border:"none", borderRadius:0,
+                  fontFamily:"var(--sans)", fontSize:16, fontWeight:500, letterSpacing:0,
+                  color:"#121010",
+                  textDecoration:"none", whiteSpace:"nowrap", flexShrink:0,
+                }}>
+                  <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/>
+                  <span className="cta-text">Find out more</span>
+                </a>
               </div>
             ))}
           </div>
