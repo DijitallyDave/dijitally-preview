@@ -1889,7 +1889,7 @@ function Page() {
       ══════════════════════════════════════ */}
       <section id="work" ref={carouselSectionRef} style={{
         ...divider,
-        padding:"var(--s128) 0",
+        padding:"var(--s128) var(--s64)",
         display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s24)",
       }}>
         {/* Header + filters */}
@@ -1900,8 +1900,6 @@ function Page() {
           justifyContent:"space-between",
           width:"100%",
           gap:"var(--s42)",
-          paddingLeft:"var(--s64)",
-          paddingRight:"var(--s64)",
         }}>
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
             <h2 style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:500}}>
@@ -1955,7 +1953,9 @@ function Page() {
           onMouseLeave={isMobile ? undefined : ()=>{ dragRef.current.active = false; carouselRef.current.style.cursor = 'grab'; }}
           style={{
             display:"flex", gap:24, overflowX:"auto",
-            width:"100%",
+            width:"calc(100% + 2 * var(--s64))",
+            marginLeft:"calc(-1 * var(--s64))",
+            marginRight:"calc(-1 * var(--s64))",
             paddingBottom:"var(--s16)",
             cursor: isMobile ? "default" : "grab",
             WebkitUserDrag:"none",
