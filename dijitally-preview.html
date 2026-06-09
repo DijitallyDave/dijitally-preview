@@ -191,6 +191,8 @@
 
     /* ── Mobile breakpoint 768px ── */
     @media(max-width:768px){
+      .ticker-inner { animation-duration: 22.5s; }
+      .ticker-wrap { width: 133.34%; transform: scale(0.75); transform-origin: left center; }
       :root{
         --h1: 26px;
         --h2: 26px;
@@ -206,7 +208,7 @@
       .hero-body-text { max-width: 100% !important; }
 
       /* Work carousel cards: smaller */
-      .wc { width: calc(100vw - 48px) !important; }
+      .wc { width: calc(100vw - 96px) !important; }
       .wc > div:first-child { width: 100% !important; }
 
       /* Contact section: full width on mobile */
@@ -326,14 +328,15 @@ function Ticker({dark}) {
   // Exactly 2 sets: first scrolls off while second (identical) scrolls in → perfect loop at -50%
   const items = [...PARTNER_LOGOS, ...PARTNER_LOGOS];
   return (
-    <div style={{overflow:"hidden",padding:"18px 0",whiteSpace:"nowrap"}}>
+    <div style={{overflow:"hidden"}}>
+    <div className="ticker-wrap" style={{padding:"18px 0",whiteSpace:"nowrap"}}>
       <div className="ticker-inner">
         {items.map((logo,i)=>(
           <span key={i} style={{display:"inline-flex",alignItems:"center",paddingRight:128,flexShrink:0}}>
             <img
               src={logo.src}
               alt={logo.alt}
-              style={{height:logo.alt==="Afterpay"?38:20,width:"auto",display:"block",filter:dark?"brightness(0) invert(1)":"none",transition:"filter 0.3s ease"}}
+              style={{height:logo.alt==="Afterpay"?38:logo.alt==="Constantinople"?22:20,width:"auto",display:"block",filter:dark?"brightness(0) invert(1)":"none",transition:"filter 0.3s ease"}}
               onError={e=>{
                 /* fallback to text if SVG not yet placed */
                 e.target.style.display="none";
@@ -346,6 +349,7 @@ function Ticker({dark}) {
           </span>
         ))}
       </div>
+    </div>
     </div>
   );
 }
@@ -2039,8 +2043,16 @@ function Page() {
                 }}>Through flexible, built-for-scale models, we connect creative, marketing, and technology to drive measurable impact for our allies.</span>
             </div>
 
-            {/* Thumbnail — hidden on mobile, shown on desktop */}
-            <div ref={heroThumbRef} style={{position:"relative",width:256,height:144,flexShrink:0,marginLeft:"auto",display: isMobile ? "none" : "block"}}>
+            {/* Thumbnail — 2/3vw on mobile, 256×144 on desktop */}
+            <div ref={heroThumbRef} style={{
+              position:"relative",
+              width: isMobile ? "calc(100vw * 2 / 3)" : 256,
+              height: isMobile ? "calc(100vw * 2 / 3 * 9 / 16)" : 144,
+              flexShrink:0,
+              marginLeft: isMobile ? 0 : "auto",
+              order: isMobile ? -1 : 0,
+              display:"block",
+            }}>
               <button
                 onClick={()=>setReelOpen(true)}
                 onMouseEnter={()=>setThumbHover(true)}
@@ -2078,7 +2090,7 @@ function Page() {
           {/* Left text — vertically centred with video */}
           <div style={{
             width: isMobile ? "100%" : 400, flexShrink:0,
-            display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s32)",
+            display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s24)",
           }}>
             <Eyebrow>++ FROM ENGINEERING TO EXECUTION ++</Eyebrow>
             <p data-split="" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)"}}>
@@ -2114,7 +2126,7 @@ function Page() {
       <section id="services" style={{...divider, minHeight:1000}}>
 
         {/* Text header */}
-        <div style={{padding: isMobile ? "var(--s42) var(--s42) var(--s32)" : "var(--s42) var(--s42) var(--s32) calc(400px + var(--s42) * 2)",display:"flex",flexDirection:"column",gap:16}}>
+        <div style={{padding: isMobile ? "var(--s42) var(--s42) var(--s32)" : "var(--s42) var(--s42) var(--s32) calc(400px + var(--s42) * 2)",display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
           <Eyebrow center={false}>++ HOW WE OPERATE ++</Eyebrow>
 
           <h2 style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:585}}>
@@ -2145,6 +2157,16 @@ function Page() {
                     borderRadius:4,
                     padding:"24px",
                   }}>
+                    {/* Video — mobile only, above model name */}
+                    {isMobile && (
+                      <div style={{aspectRatio:"16/9",overflow:"hidden",borderRadius:4,marginBottom:16}}>
+                        <PixelResolveVideo
+                          src={m.video}
+                          externalTrigger={true}
+                          videoProps={{muted:true,playsInline:true,autoPlay:true,loop:true,style:{width:"100%",height:"100%",objectFit:"cover",display:"block"}}}
+                        />
+                      </div>
+                    )}
                     <span style={{
                       fontFamily:"var(--sans)",
                       fontSize:"var(--h2)", fontWeight:350,
@@ -2181,7 +2203,9 @@ function Page() {
                     style={{
                       display:"flex", alignItems:"center", justifyContent:"space-between",
                       width:"100%",
-                      padding:"16px 24px", background: hoverModel===i ? (dark?"#1A1A1A":"#F6F6F6") : "none", borderRadius:4, border:"none",
+                      padding:"16px 24px",
+                      background: (isMobile || hoverModel===i) ? (dark?"#1A1A1A":"#F6F6F6") : "none",
+                      borderRadius:4, border:"none",
                       cursor:"pointer", textAlign:"left",
                     }}
                   >
@@ -2189,14 +2213,14 @@ function Page() {
                       fontFamily:"var(--sans)",
                       fontSize:"var(--h2)", fontWeight:350,
                       lineHeight:"var(--h2-lh)", letterSpacing:"var(--h2-ls)",
-                      color: hoverModel===i ? "var(--secondary)" : "var(--static)",
+                      color: (isMobile || hoverModel===i) ? "var(--secondary)" : "var(--static)",
                       transition:"color 0.2s ease",
                     }}>{m.name}</span>
                     <span style={{
                       fontFamily:"var(--sans)",
                       fontSize:"var(--h2)", fontWeight:350,
                       color:"var(--static)",
-                      opacity: hoverModel===i ? 1 : 0,
+                      opacity: (isMobile || hoverModel===i) ? 1 : 0,
                       transition:"opacity 0.2s ease",
                       lineHeight:1,
                     }}>+</span>
@@ -2206,12 +2230,13 @@ function Page() {
             ))}
           </div>
 
-          {/* Video panel — 1164 × 700, sticky on desktop */}
+          {/* Video panel — desktop only; on mobile video lives inside each accordion item */}
           <div ref={modelPanelRef} style={{
             flex:1,
-            position: isMobile ? "relative" : "sticky",
-            top: isMobile ? "auto" : "var(--nav-h)",
-            alignSelf: isMobile ? "auto" : "flex-start",
+            display: isMobile ? "none" : undefined,
+            position:"sticky",
+            top:"var(--nav-h)",
+            alignSelf:"flex-start",
             aspectRatio:"16/9",
             overflow:"hidden",
             background:"#FDFEFF",
@@ -2264,7 +2289,7 @@ function Page() {
       ══════════════════════════════════════ */}
       <section id="work" ref={carouselSectionRef} style={{
         ...divider,
-        paddingTop:"var(--s128)", paddingBottom:"var(--s128)",
+        paddingTop: isMobile ? 64 : "var(--s128)", paddingBottom:"var(--s128)",
         display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s24)",
       }}>
         {/* Header + filters */}
@@ -2279,8 +2304,9 @@ function Page() {
           paddingRight:"var(--s64)",
         }}>
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
+            <Eyebrow center={false}>++ OUR WORK ++</Eyebrow>
             <h2 style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:500}}>
-              <span style={{  fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)"  }}>Our work. Creative that converts. Data that performs. Systems that support. Production that moves.</span>
+              <span style={{  fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)"  }}>Creative that converts. Data that performs. Systems that support. Production that moves.</span>
             </h2>
             {/* Filter pills — under heading */}
             <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
@@ -2317,16 +2343,18 @@ function Page() {
               ))}
             </div>
           </div>
-          <a href="#work" className="cta-btn" style={{
-            display:"inline-flex", alignItems:"center", justifyContent:"center", gap:10,
-            padding:"18px 24px",
-            background:"var(--tech)",
-            border:"none", borderRadius:0,
-            fontFamily:"var(--sans)", fontSize:16, fontWeight:500, letterSpacing:0,
-            color:"#121010",
-            textDecoration:"none", whiteSpace:"nowrap",
-            flexShrink:0,
-          }}><span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span></a>
+          {!isMobile && (
+            <a href="#work" className="cta-btn" style={{
+              display:"inline-flex", alignItems:"center", justifyContent:"center", gap:10,
+              padding:"18px 24px",
+              background:"var(--tech)",
+              border:"none", borderRadius:0,
+              fontFamily:"var(--sans)", fontSize:16, fontWeight:500, letterSpacing:0,
+              color:"#121010",
+              textDecoration:"none", whiteSpace:"nowrap",
+              flexShrink:0,
+            }}><span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span></a>
+          )}
         </div>
 
         {/* Cards — horizontal scroll */}
@@ -2360,7 +2388,7 @@ function Page() {
             touchAction: isMobile ? "pan-x pan-y" : "auto",
           }}>
           {filtered.map((w,i)=>(
-            <div key={i} className="wc" style={{flexShrink:0, width: isMobile ? "calc(100vw - 48px)" : 504, cursor:"pointer"}}>
+            <div key={i} className="wc" style={{flexShrink:0, width: isMobile ? "calc(100vw - 96px)" : 504, cursor:"pointer"}}>
               {/* Thumbnail */}
               <div style={{position:"relative",width:"100%",flexShrink:0,overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg}}>
                 {w.img
@@ -2397,6 +2425,21 @@ function Page() {
             </div>
           ))}
         </div>
+
+        {/* View all CTA — mobile only, below carousel */}
+        {isMobile && (
+          <div style={{paddingLeft:"var(--s64)", paddingRight:"var(--s64)", paddingTop:24}}>
+            <a href="#work" className="cta-btn" style={{
+              display:"inline-flex", alignItems:"center", justifyContent:"center", gap:10,
+              padding:"18px 24px",
+              background:"var(--tech)",
+              border:"none", borderRadius:0,
+              fontFamily:"var(--sans)", fontSize:16, fontWeight:500, letterSpacing:0,
+              color:"#121010",
+              textDecoration:"none", whiteSpace:"nowrap",
+            }}><span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span></a>
+          </div>
+        )}
 
       </section>
 
