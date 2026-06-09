@@ -390,6 +390,19 @@ function PixelRevealImg({ src, alt, style = {}, externalTrigger = false, delay =
     ctx.fillRect(0, 0, W, H);
     img.style.opacity = 1;
     const cols = Math.ceil(W / PX), rows = Math.ceil(H / PX);
+
+    // Scatter pattern SVGs over ~20% of blocks before the reveal sweep
+    for (let r = 0; r < rows; r++) {
+      for (let c = 0; c < cols; c++) {
+        if (Math.random() < 0.20) {
+          const p = PATTERN_IMGS[Math.floor(Math.random() * PATTERN_IMGS.length)];
+          if (p.complete && p.naturalWidth > 0) {
+            ctx.drawImage(p, c * PX, r * PX, PX, PX);
+          }
+        }
+      }
+    }
+
     const blocks = [];
     for (let r = 0; r < rows; r++)
       for (let cl = 0; cl < cols; cl++)
@@ -729,6 +742,10 @@ const SVG_LOGOS = [
   'svgs/pattern_02.svg',
   'svgs/pattern_03.svg',
 ];
+// Preloaded at module level — shared by PixelRevealImg and ContactPixels
+const PATTERN_IMGS = SVG_LOGOS.map(src => {
+  const img = new Image(); img.src = src; return img;
+});
 
 function ContactPixels({ dark }) {
   const canvasRef     = useRef(null);
