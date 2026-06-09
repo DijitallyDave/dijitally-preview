@@ -391,30 +391,32 @@ function PixelRevealImg({ src, alt, style = {}, externalTrigger = false, delay =
     img.style.opacity = 1;
     const cols = Math.ceil(W / PX), rows = Math.ceil(H / PX);
 
-    // Scatter pattern SVGs over ~20% of blocks before the reveal sweep
-    for (let r = 0; r < rows; r++) {
-      for (let c = 0; c < cols; c++) {
-        if (Math.random() < 0.20) {
-          const p = PATTERN_IMGS[Math.floor(Math.random() * PATTERN_IMGS.length)];
-          if (p.complete && p.naturalWidth > 0) {
-            ctx.drawImage(p, c * PX, r * PX, PX, PX);
-          }
-        }
-      }
-    }
-
     const blocks = [];
     for (let r = 0; r < rows; r++)
       for (let cl = 0; cl < cols; cl++)
         blocks.push({ r, c: cl, d: r + cl });
     blocks.sort((a, b) => (a.d + (Math.random()-0.5)*4) - (b.d + (Math.random()-0.5)*4));
     const total = blocks.length, DURATION = 600;
+    const LEAD = 14; // number of blocks in the SVG frontier ahead of the clear wave
     let next = 0, start = null, raf;
+
+    const drawFrontier = (from, to) => {
+      for (let i = from; i < Math.min(to, total); i++) {
+        const { r, c } = blocks[i];
+        const p = PATTERN_IMGS[(r * cols + c) % PATTERN_IMGS.length];
+        if (p.complete && p.naturalWidth > 0) ctx.drawImage(p, c * PX, r * PX, PX, PX);
+      }
+    };
+
     const tick = (now) => {
       if (!start) start = now;
       const tp = Math.min((now - start) / DURATION, 1);
       const target = Math.floor(tp * total);
+      // Clear blocks (also wipes previous frontier SVGs)
+      const prevNext = next;
       while (next < target) { const { r, c } = blocks[next++]; ctx.clearRect(c * PX, r * PX, PX, PX); }
+      // Draw new SVG frontier at the leading edge of the wave
+      if (next < total) drawFrontier(next, next + LEAD);
       if (tp < 1) raf = requestAnimationFrame(tick);
       else canvas.style.display = 'none';
     };
