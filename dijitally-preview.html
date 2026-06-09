@@ -220,6 +220,7 @@
 <div id="dj-cursor"></div>
 <div id="preloader-counter" style="position:fixed;left:50%;bottom:42px;transform:translateX(-50%);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:400;color:#121010;letter-spacing:0.05em;z-index:99;pointer-events:none;line-height:1;">00</div>
 <div id="thumb-overlay" style="display:block;opacity:0;position:fixed;z-index:98;overflow:hidden;border-radius:4px;pointer-events:none;background:#FDFEFF"><video src="videos/thumbnail.mp4?v=2" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:contain;display:block"></video></div>
+<div id="nav-portal"></div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -1550,7 +1551,7 @@ function Page() {
       {/* ══════════════════════════════════════
           NAV — 126px height, 42px padding
       ══════════════════════════════════════ */}
-      <header ref={navRef} style={{
+      {ReactDOM.createPortal(<header ref={navRef} className={dark?"dark":""} style={{
         position:"fixed",top:0,left:0,right:0,zIndex:100,
         height: isMobile ? 64 : (scrolled ? 72 : "var(--nav-h)"),
         padding: isMobile ? "0 16px" : "0 var(--s42)",
@@ -1673,7 +1674,7 @@ function Page() {
             }}/>
           </button>
         </nav>
-      </header>
+      </header>, document.getElementById('nav-portal'))}
 
       {/* ══════════════════════════════════════
           HERO + HYPE REEL — combined section for smooth thumb→reel animation
