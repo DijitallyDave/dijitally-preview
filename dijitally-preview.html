@@ -1555,7 +1555,7 @@ function Page() {
         position:"fixed",top:0,left:0,right:0,zIndex:100,
         height: isMobile ? 64 : (scrolled ? "auto" : "var(--nav-h)"),
         padding: isMobile ? "0 16px" : (scrolled ? "var(--s32) var(--s42)" : "0 var(--s42)"),
-        display:"flex", alignItems:"center", justifyContent: isMobile ? "space-between" : "flex-end",
+        display:"flex", alignItems:"center", justifyContent: (isMobile || scrolled) ? "space-between" : "flex-end",
         background: scrolled ? "var(--bg)" : "transparent",
         borderBottom: scrolled ? "1px solid var(--grey)" : "none",
         transition:"padding 0.35s ease, background 0.3s ease, border-color 0.3s ease",
@@ -1576,6 +1576,23 @@ function Page() {
             style={{height:"100%",width:"auto",display:"block",filter:dark?"invert(1)":"none",transition:"filter 0.3s ease"}}
           />
         </a>
+
+        {/* Secondary nav logo — desktop only, shown when scrolled */}
+        {!isMobile && scrolled && (
+          <a href="/" style={{display:"flex",alignItems:"center",flexShrink:0,textDecoration:"none"}}>
+            <img
+              src="dijitally-heading.svg"
+              alt="DIJITALLY™"
+              style={{
+                height:"var(--nav-size)",
+                width:"auto",
+                display:"block",
+                filter:dark?"invert(1)":"none",
+                transition:"filter 0.3s ease",
+              }}
+            />
+          </a>
+        )}
 
         {/* Nav links — 19px, weight 600, ls -0.38px */}
         <nav style={{display:"flex", alignItems:"center", gap: isMobile ? 12 : 42}}>
