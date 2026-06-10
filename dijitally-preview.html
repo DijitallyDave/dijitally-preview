@@ -2411,8 +2411,8 @@ function Page() {
           }}>
           {filtered.map((w,i)=>(
             <div key={i} className="wc" style={{flexShrink:0, width: isMobile ? "calc(100vw - 96px)" : 504, cursor:"pointer"}}>
-              {/* Thumbnail */}
-              <div style={{position:"relative",width:"100%",flexShrink:0,overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg}}>
+              {/* Thumbnail — aspect-ratio reserves height before image loads, preventing layout shift */}
+              <div style={{position:"relative",width:"100%",flexShrink:0,overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,aspectRatio:"504/680"}}>
                 {w.img
                   ? <PixelRevealImg src={w.img} alt={w.title} externalTrigger={carouselVisible} delay={i * 0.35} />
                   : <div style={{width:504,height:680,display:"flex",alignItems:"center",justifyContent:"center"}}>
