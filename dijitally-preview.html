@@ -222,7 +222,7 @@
       .filter-row { flex-wrap: wrap !important; }
 
       /* CTA panel full width on mobile */
-      #cta-panel { width: 100vw !important; padding: 32px 24px !important; }
+      #cta-panel { width: 100vw !important; padding: 42px 32px !important; }
 
       /* Restore native scroll — ScrollSmoother is disabled on mobile */
       #smooth-wrapper { position: static !important; overflow: visible !important; height: auto !important; }
@@ -235,7 +235,7 @@
 <div id="preloader-counter" style="position:fixed;left:50%;bottom:42px;transform:translateX(-50%);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:400;color:#121010;letter-spacing:0.05em;z-index:99;pointer-events:none;line-height:1;">00</div>
 <div id="thumb-overlay" style="display:block;opacity:0;position:fixed;z-index:98;overflow:hidden;border-radius:4px;pointer-events:none;background:#FDFEFF"><video src="videos/thumbnail.mp4?v=2" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:contain;display:block"></video></div>
 <div id="nav-portal"></div>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 3a9b813</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build e36c717</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -1373,8 +1373,9 @@ function Page() {
     if (!wrapper || !panel || !overlay) return;
     const cursor  = document.getElementById("dj-cursor");
     const heading = document.getElementById("cta-heading");
+    const slideTarget = isMobile ? document.getElementById("smooth-content") || wrapper : wrapper;
     if (ctaOpen) {
-      gsap.to(wrapper, { x: -CTA_W, duration: 0.7, ease: "power3.inOut" });
+      gsap.to(slideTarget, { x: -CTA_W, duration: 0.7, ease: "power3.inOut" });
       panel.classList.add("open");
       overlay.classList.add("open");
       wrapper.classList.add("cta-open");
@@ -1401,7 +1402,7 @@ function Page() {
         });
       }
     } else {
-      gsap.to(wrapper, { x: 0, duration: 0.7, ease: "power3.inOut" });
+      gsap.to(slideTarget, { x: 0, duration: 0.7, ease: "power3.inOut" });
       panel.classList.remove("open");
       overlay.classList.remove("open");
       wrapper.classList.remove("cta-open");
@@ -1720,53 +1721,59 @@ function Page() {
   }, []);
 
 
-  // SplitText — animate every heading line-by-line on scroll (desktop only)
-  // On mobile: DOM mutations from SplitText run async on fonts.ready, potentially
-  // while the user is already scrolling, causing layout shifts and scroll jumps.
+  // SplitText — animate every heading line-by-line on scroll
   useEffect(()=>{
-    if (isMobile) return;
     if (typeof gsap === "undefined" || typeof SplitText === "undefined" || typeof ScrollTrigger === "undefined") return;
 
+    let splits = [];
+    let timeout;
+
     const run = () => {
-    const headings = document.querySelectorAll("h2, [data-split]");
-    const splits = [];
+      const headings = document.querySelectorAll("h2, [data-split]");
 
-    headings.forEach(el => {
-      // Skip headings inside the accordion (already styled specifically)
-      const split = new SplitText(el, { type: "lines", linesClass: "split-line" });
-      splits.push(split);
+      headings.forEach(el => {
+        const split = new SplitText(el, { type: "lines", linesClass: "split-line" });
+        splits.push(split);
 
-      // Wrap each line in a clip container to hide overflow
-      split.lines.forEach(line => {
-        const wrapper = document.createElement("div");
-        wrapper.style.overflow = "hidden";
-        line.parentNode.insertBefore(wrapper, line);
-        wrapper.appendChild(line);
+        split.lines.forEach(line => {
+          const wrapper = document.createElement("div");
+          wrapper.style.overflow = "hidden";
+          line.parentNode.insertBefore(wrapper, line);
+          wrapper.appendChild(line);
+        });
+
+        gsap.from(split.lines, {
+          y: "110%",
+          duration: 0.7,
+          ease: "power3.out",
+          stagger: 0.1,
+          scrollTrigger: {
+            trigger: el,
+            start: "top 88%",
+            once: true,
+          },
+        });
       });
+    };
 
-      gsap.from(split.lines, {
-        y: "110%",
-        duration: 0.7,
-        ease: "power3.out",
-        stagger: 0.1,
-        scrollTrigger: {
-          trigger: el,
-          start: "top 88%",
-          once: true,
-        },
-      });
-    });
+    const schedule = () => {
+      // On mobile, defer until after load + settle to avoid scroll-shift from font mutations
+      if (isMobile) {
+        const go = () => { timeout = setTimeout(run, 600); };
+        if (document.readyState === "complete") { go(); }
+        else { window.addEventListener("load", go, { once: true }); }
+      } else {
+        if (document.fonts && document.fonts.ready) { document.fonts.ready.then(run); }
+        else { run(); }
+      }
+    };
 
-    return () => splits.forEach(s => s.revert());
-    }; // end run()
-
-    // Run after fonts are ready so NeuSans line breaks are correct
-    if (document.fonts && document.fonts.ready) {
-      document.fonts.ready.then(run);
-    } else {
-      run();
-    }
-  }, []);
+    schedule();
+    return () => {
+      clearTimeout(timeout);
+      splits.forEach(s => s.revert());
+    };
+  }, [isMobile]);
 
 
   // CTA button ScrambleText on hover — width locked so button never resizes
@@ -2336,7 +2343,7 @@ function Page() {
       ══════════════════════════════════════ */}
       <section id="work" ref={carouselSectionRef} style={{
         ...divider,
-        paddingTop: isMobile ? 64 : "var(--s128)", paddingBottom:"var(--s128)",
+        paddingTop: isMobile ? 96 : "var(--s128)", paddingBottom:"var(--s128)",
         display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s24)",
       }}>
         {/* Header + filters */}
@@ -2501,14 +2508,14 @@ function Page() {
         position:"relative", overflow:"hidden",
       }}>
         {/* Corner pixel effects — interactive, light/dark-aware */}
-        {!isMobile && <ContactPixels dark={dark} />}
+        <ContactPixels dark={dark} />
 
         {/* Inner contact card — 720×409px, bg #FDFEFF, br 4px */}
         <div className="contact-card-inner" style={{
           background: dark ? "#121010" : "var(--primary)",
           borderRadius:4,
           width: isMobile ? "calc(100% - 32px)" : 736,
-          height: isMobile ? "auto" : 416,
+          height: isMobile ? "66svh" : 416,
           position:"relative",
           zIndex:1,
           display:"flex", alignItems:"center",
@@ -2548,23 +2555,21 @@ function Page() {
           <div style={{flex:1,display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
             <Eyebrow center={false} style={{letterSpacing:"0.08em"}}>LET'S CHAT</Eyebrow>
 
-            {/* Heading + input share a column so h2 wraps to input width; button is a sibling */}
-            <div style={{display:"flex",gap:12,alignItems:"flex-end"}}>
-              <div style={{flex:1,display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
-                <h2 style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",color:"var(--secondary)"}}>
-                  Looking for an ally on your next project?
-                </h2>
-                <input
-                  type="email" placeholder="Your contact email"
-                  value={email} onChange={e=>setEmail(e.target.value)}
-                  style={{
-                    width:"100%",padding:"18px 14px",fontFamily:"var(--sans)",fontSize:13,
-                    border:"1px solid var(--grey)",outline:"none",
-                    background:"var(--bg)",color:"var(--secondary)",
-                    boxSizing:"border-box",
-                  }}
-                />
-              </div>
+            {/* Heading always full width; input+button row below on mobile, inline on desktop */}
+            <h2 style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",color:"var(--secondary)"}}>
+              Looking for an ally on your next project?
+            </h2>
+            <div style={{display:"flex",gap:12,alignItems:"flex-end",flexDirection: isMobile ? "column" : "row"}}>
+              <input
+                type="email" placeholder="Your contact email"
+                value={email} onChange={e=>setEmail(e.target.value)}
+                style={{
+                  flex:1,width:"100%",padding:"18px 14px",fontFamily:"var(--sans)",fontSize:13,
+                  border:"1px solid var(--grey)",outline:"none",
+                  background:"var(--bg)",color:"var(--secondary)",
+                  boxSizing:"border-box",
+                }}
+              />
               <button className="cta-btn" style={{
                 display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,
                 padding:"18px 24px",
@@ -2573,6 +2578,7 @@ function Page() {
                 fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,
                 color:"#121010",
                 cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,
+                alignSelf: isMobile ? "flex-end" : "auto",
               }}>
                 <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/>
                 <span className="cta-text">Submit</span>
