@@ -2150,7 +2150,7 @@ function Page() {
       {/* ══════════════════════════════════════
           OPERATING MODELS — 1690 × 1000, flex column
       ══════════════════════════════════════ */}
-      <section id="services" style={{...divider, minHeight:1000}}>
+      <section id="services" style={{...divider, minHeight: isMobile ? 0 : 1000}}>
 
         {/* Text header */}
         <div style={{padding: isMobile ? "var(--s42) var(--s42) var(--s32)" : "var(--s42) var(--s42) var(--s32) calc(400px + var(--s42) * 2)",display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
