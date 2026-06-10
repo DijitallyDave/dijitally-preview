@@ -235,7 +235,7 @@
 <div id="preloader-counter" style="position:fixed;left:50%;bottom:42px;transform:translateX(-50%);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:400;color:#121010;letter-spacing:0.05em;z-index:99;pointer-events:none;line-height:1;">00</div>
 <div id="thumb-overlay" style="display:block;opacity:0;position:fixed;z-index:98;overflow:hidden;border-radius:4px;pointer-events:none;background:#FDFEFF"><video src="videos/thumbnail.mp4?v=2" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:contain;display:block"></video></div>
 <div id="nav-portal"></div>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 9f539ff_1</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build d611e59_1</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -1386,7 +1386,7 @@ function Page() {
       if (heading && typeof SplitText !== "undefined") {
         // Revert any previous split so the DOM is clean
         heading._ctaSplit && heading._ctaSplit.revert();
-        const split = new SplitText(heading, { type:"lines", linesClass:"split-line" });
+        const split = new SplitText(heading, { type:"lines", linesClass:"split-line", tag:"span" });
         heading._ctaSplit = split;
         split.lines.forEach(line => {
           const wrap = document.createElement("div");
@@ -1564,7 +1564,7 @@ function Page() {
       if (typeof SplitText !== "undefined" && heroBodyRef.current) {
         const heroSpan = heroBodyRef.current.querySelector("[data-split-entrance]");
         if (heroSpan) {
-          const split = new SplitText(heroSpan, { type:"lines", linesClass:"split-line" });
+          const split = new SplitText(heroSpan, { type:"lines", linesClass:"split-line", tag:"span" });
           split.lines.forEach(line => {
             const w = document.createElement("div");
             w.style.overflow = "hidden";
@@ -1735,7 +1735,7 @@ function Page() {
       const headings = document.querySelectorAll("h2, [data-split]");
 
       headings.forEach(el => {
-        const split = new SplitText(el, { type: "lines", linesClass: "split-line" });
+        const split = new SplitText(el, { type: "lines", linesClass: "split-line", tag: "span" });
         splits.push(split);
 
         split.lines.forEach(line => {
