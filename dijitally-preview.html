@@ -1113,7 +1113,7 @@ function DitherCanvas({ dark }) {
 
   return (
     <>
-      <video ref={videoRef} src="videos/thumbnail_02.mp4" autoPlay muted loop playsInline
+      <video ref={videoRef} src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline
         crossOrigin="anonymous"
         style={{position:'absolute',opacity:0,width:1,height:1,pointerEvents:'none'}}
       />
@@ -1194,6 +1194,9 @@ function MobileDitherVideo({ dark }) {
       raf = requestAnimationFrame(loop);
       if (!outBuf || video.readyState < 2) return;
 
+      // Fill with solid background before compositing video — eliminates transparency checkerboard artifacts
+      sctx.fillStyle = darkRef.current ? '#121010' : '#FDFEFF';
+      sctx.fillRect(0, 0, cols, rows);
       sctx.drawImage(video, 0, 0, cols, rows);
       const id = sctx.getImageData(0, 0, cols, rows);
       outBuf.fill(0);
@@ -1239,7 +1242,7 @@ function MobileDitherVideo({ dark }) {
 
   return (
     <>
-      <video ref={videoRef} src="videos/thumbnail_02.mp4?v=2" autoPlay muted loop playsInline
+      <video ref={videoRef} src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline
         crossOrigin="anonymous"
         style={{ position:'absolute', opacity:0, width:1, height:1, pointerEvents:'none' }}
       />
@@ -1829,13 +1832,13 @@ function Page() {
       const avg = hist.reduce((a,b)=>a+b,0) / hist.length;
 
       const nav = navRef.current;
-      if (nav) {
-        // Higher threshold on mobile so deceleration wobble doesn't trigger hide/show
-        const threshold = isMobile ? 2.5 : 0.4;
-        if (avg > threshold && current > 120 && !navHiddenRef.current) {
+      // Nav hide/show — desktop only; animating position:fixed transforms on mobile
+      // causes Android Chrome to recalculate the visual viewport, shifting the page
+      if (nav && !isMobile) {
+        if (avg > 0.4 && current > 120 && !navHiddenRef.current) {
           gsap.to(nav, { y:"-100%", duration:0.4, ease:"power2.in", overwrite:"auto" });
           navHiddenRef.current = true;
-        } else if (avg < -threshold && navHiddenRef.current) {
+        } else if (avg < -0.4 && navHiddenRef.current) {
           gsap.to(nav, { y:"0%", duration:0.4, ease:"power2.out", overwrite:"auto" });
           navHiddenRef.current = false;
         }
@@ -2498,7 +2501,7 @@ function Page() {
             display: isMobile ? "none" : "block",
           }}>
             <video
-              src="videos/thumbnail_02.mp4"
+              src="videos/thumbnail_02.mp4?v=3"
               autoPlay muted loop playsInline
               style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}}
             />
