@@ -235,7 +235,7 @@
 <div id="preloader-counter" style="position:fixed;left:50%;bottom:42px;transform:translateX(-50%);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:400;color:#121010;letter-spacing:0.05em;z-index:99;pointer-events:none;line-height:1;">00</div>
 <div id="thumb-overlay" style="display:block;opacity:0;position:fixed;z-index:98;overflow:hidden;border-radius:4px;pointer-events:none;background:#FDFEFF"><video src="videos/thumbnail.mp4?v=2" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:contain;display:block"></video></div>
 <div id="nav-portal"></div>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build fbc2520_1</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 9f539ff_1</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -773,7 +773,7 @@ const PATTERN_IMGS = SVG_LOGOS.map(src => {
   const img = new Image(); img.src = src; return img;
 });
 
-function ContactPixels({ dark }) {
+function ContactPixels({ dark, mobile }) {
   const canvasRef     = useRef(null);
   const darkRef       = useRef(dark);
   const scrollProgRef = useRef(0);
@@ -784,7 +784,7 @@ function ContactPixels({ dark }) {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
-    const CELL = 32;
+    const CELL = mobile ? Math.round(32 * 0.66) : 32;
 
     let W = 0, H = 0, particles = [], raf;
 
@@ -805,7 +805,7 @@ function ContactPixels({ dark }) {
 
     const init = () => {
       particles = [];
-      const reach   = H * 0.67;
+      const reach   = mobile ? Math.min(W, H) * 0.50 : H * 0.67;
       const cols    = Math.ceil(reach / CELL);
       const rows    = Math.ceil(reach / CELL);
       const maxDist = Math.sqrt(cols*cols + rows*rows);
@@ -815,7 +815,7 @@ function ContactPixels({ dark }) {
           for (let ri = 0; ri < rows; ri++) {
             const dist    = Math.sqrt(ci*ci + ri*ri);
             const invDist = (maxDist - dist) / maxDist;
-            const prob    = Math.min(Math.pow(invDist, 1.6) * 1.6, 1);
+            const prob    = Math.min(Math.pow(invDist, mobile ? 2.2 : 1.6) * (mobile ? 1.2 : 1.6), 1);
             const h1 = hash(ci + (corner==='br'?1000:0), ri + (corner==='br'?1000:0));
             if (h1 > prob) continue;
 
@@ -1512,7 +1512,9 @@ function Page() {
   const menuLogoRef       = useRef(null);
   const heroThumbRef      = useRef(null);
   const carouselRef       = useRef(null);
-  const carouselSectionRef = useRef(null);
+  const carouselSectionRef  = useRef(null);
+  const contactSectionRef   = useRef(null);
+  const [contactHeight, setContactHeight] = useState(null);
   const [carouselVisible, setCarouselVisible] = useState(false);
   const [modelsVisible,  setModelsVisible]  = useState(false);
   const dragRef           = useRef({ active: false, startX: 0, scrollLeft: 0 });
@@ -1776,6 +1778,15 @@ function Page() {
     };
   }, [isMobile]);
 
+
+  // Snap contact section height to nearest cell multiple >= 66svh on mobile
+  useLayoutEffect(()=>{
+    if (!isMobile || !contactSectionRef.current) return;
+    const CELL = Math.round(32 * 0.66);
+    const target = window.innerHeight * 0.66;
+    const snapped = Math.ceil(target / CELL) * CELL;
+    setContactHeight(snapped);
+  }, [isMobile]);
 
   // CTA button ScrambleText on hover — width locked so button never resizes
   useEffect(()=>{
@@ -2467,29 +2478,30 @@ function Page() {
       {/* ══════════════════════════════════════
           CONTACT SECTION — padding: 96px 64px, bg #DEDEDE, gap 24px
       ══════════════════════════════════════ */}
-      <section style={{
+      <section ref={contactSectionRef} style={{
         ...divider,
         background: dark ? "#1A1A1A" : "var(--grey)",
         padding: isMobile ? "48px 16px" : "var(--s96) var(--s64)",
+        minHeight: isMobile ? (contactHeight ? `${contactHeight}px` : "66svh") : "auto",
         display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", gap:"var(--s24)",
         position:"relative", overflow:"hidden",
       }}>
         {/* Corner pixel effects — interactive, light/dark-aware */}
-        <ContactPixels dark={dark} />
+        <ContactPixels dark={dark} mobile={isMobile} />
 
         {/* Inner contact card — 720×409px, bg #FDFEFF, br 4px */}
         <div className="contact-card-inner" style={{
           background: dark ? "#121010" : "var(--primary)",
           borderRadius:4,
           width: isMobile ? "calc(100% - 32px)" : 736,
-          height: isMobile ? "66svh" : 416,
+          height: isMobile ? "auto" : 416,
           position:"relative",
           zIndex:1,
-          display:"flex", alignItems:"center",
+          display:"flex", alignItems: isMobile ? "stretch" : "center",
           paddingLeft: isMobile ? 24 : 176,
           paddingRight: isMobile ? 24 : "var(--s64)",
-          paddingTop: isMobile ? 24 : 0,
-          paddingBottom: isMobile ? 24 : 0,
+          paddingTop: isMobile ? 32 : 0,
+          paddingBottom: isMobile ? 32 : 0,
           overflow:"hidden",
           flexShrink:0,
         }}>
@@ -2519,7 +2531,7 @@ function Page() {
           </div>
 
           {/* Right: form */}
-          <div style={{flex:1,display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
+          <div style={{flex:1,display:"flex",flexDirection:"column",gap:"var(--s24)",justifyContent: isMobile ? "center" : "flex-start"}}>
             <Eyebrow center={false} style={{letterSpacing:"0.08em"}}>LET'S CHAT</Eyebrow>
 
             {/* Heading always full width; input+button row below on mobile, inline on desktop */}
