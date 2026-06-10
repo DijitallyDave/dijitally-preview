@@ -1331,7 +1331,7 @@ function MenuPixelReveal({ onComplete }) {
       ref={canvasRef}
       style={{
         position:"fixed", top:0, left:0,
-        width:"100vw", height:"100dvh",
+        width:"100vw", height:"100svh",
         zIndex:210, pointerEvents:"none",
         display:"block",
       }}
@@ -2020,8 +2020,8 @@ function Page() {
       <section style={{position:"relative"}}>
         {!isMobile && <DitherCanvas dark={dark} />}
 
-        {/* Hero viewport — 100dvh on mobile (accounts for iOS collapsing browser chrome), 100vh on desktop */}
-        <div style={{height: isMobile ? "100dvh" : "100vh", position:"relative", overflow:"hidden"}}>
+        {/* Hero viewport — 100svh on mobile (constant, unaffected by browser chrome show/hide), 100vh on desktop */}
+        <div style={{height: isMobile ? "100svh" : "100vh", position:"relative", overflow:"hidden"}}>
           {/* Mobile dither video — rendered inside overflow:hidden so it can't bleed over the nav */}
           {isMobile && <MobileDitherVideo dark={dark} />}
 
