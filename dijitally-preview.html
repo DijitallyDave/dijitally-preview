@@ -195,8 +195,8 @@
       .ticker-inner { animation-duration: 22.5s; }
       .ticker-wrap { width: 133.34%; transform: scale(0.75); transform-origin: left center; }
       :root{
-        --h1: 28px;
-        --h2: 28px;
+        --h1: 30px;
+        --h2: 30px;
         --nav-size: 13px;
         --s64: 24px;
         --s42: 16px;
@@ -2336,7 +2336,7 @@ function Page() {
       ══════════════════════════════════════ */}
       <section id="work" ref={carouselSectionRef} style={{
         ...divider,
-        paddingTop: isMobile ? 46 : "var(--s128)", paddingBottom:"var(--s128)",
+        paddingTop: isMobile ? 64 : "var(--s128)", paddingBottom:"var(--s128)",
         display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s24)",
       }}>
         {/* Header + filters */}
@@ -2715,7 +2715,7 @@ function Page() {
               style={{
                 flex:1, display:"flex", flexDirection:"column", justifyContent:"center",
                 padding:"42px", gap:28,
-                visibility: menuItemsReady ? "visible" : "hidden",
+                visibility: "visible",
               }}
             >
               {/* Work, Services, About, Blog */}
