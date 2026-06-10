@@ -235,7 +235,7 @@
 <div id="preloader-counter" style="position:fixed;left:50%;bottom:42px;transform:translateX(-50%);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:400;color:#121010;letter-spacing:0.05em;z-index:99;pointer-events:none;line-height:1;">00</div>
 <div id="thumb-overlay" style="display:block;opacity:0;position:fixed;z-index:98;overflow:hidden;border-radius:4px;pointer-events:none;background:#FDFEFF"><video src="videos/thumbnail.mp4?v=2" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:contain;display:block"></video></div>
 <div id="nav-portal"></div>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 04a3c1f</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build fe8060a</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -1350,6 +1350,7 @@ function Page() {
   const [scrolled,    setScrolled]    = useState(false);
   const [isMobile,    setIsMobile]    = useState(()=> window.innerWidth <= 768);
   const scrollYRef    = useRef(0);
+  const menuScrollRef = useRef(0);
   const scrolledRef   = useRef(false);
   const [activeModel, setActiveModel] = useState(0);
   const [hoverModel,  setHoverModel]  = useState(-1);
@@ -1429,13 +1430,13 @@ function Page() {
   }, [menuReady]);
 
   // Mobile menu open/close — lock body scroll and pointer events while open
-  useEffect(()=>{
+  useLayoutEffect(()=>{
     if (!isMobile) return;
     const wrapper = document.getElementById("smooth-wrapper");
     const cursor  = document.getElementById("dj-cursor");
     if (menuOpen) {
-      // Lock scroll: save current position, freeze body
-      const scrollY = window.scrollY;
+      // Lock scroll: use position saved before setState to avoid timing gap
+      const scrollY = menuScrollRef.current;
       document.body.style.position   = 'fixed';
       document.body.style.top        = `-${scrollY}px`;
       document.body.style.left       = '0';
@@ -2011,7 +2012,7 @@ function Page() {
           {/* Hamburger — mobile only: tap to open mobile nav menu */}
           {isMobile && (
             <button
-              onClick={()=>setMenuOpen(true)}
+              onClick={()=>{ menuScrollRef.current = window.scrollY; setMenuOpen(true); }}
               aria-label="Open menu"
               style={{
                 background:"none", border:"none", cursor:"pointer",
