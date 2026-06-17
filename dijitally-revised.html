@@ -1516,7 +1516,7 @@ function MenuGlitch({ onComplete, onMidpoint }) {
     const H = window.innerHeight;
     const sliceH = 2;
     const total = Math.ceil(H / sliceH);
-    const speed = 0.15, spread = 0.15, stagger = 0.001, bellStrength = 0.4;
+    const speed = 0.075, spread = 0.075, stagger = 0.0005, bellStrength = 0.2;
 
     // Same randomised strip order as the intro glitch
     const ordered = Array.from({length: total}, (_, i) => i).sort(() => Math.random() - 0.5);
