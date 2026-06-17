@@ -203,8 +203,7 @@
 
     /* ── Mobile breakpoint 768px ── */
     @media(max-width:768px){
-      html { overscroll-behavior: none; }
-      body { overscroll-behavior: none; overflow-x: hidden; }
+      html, body { overscroll-behavior: none; overflow-x: hidden; overflow-y: auto; }
       .ticker-inner { animation-duration: 22.5s; }
       .ticker-wrap { width: 133.34%; transform: scale(0.75); transform-origin: left center; }
       :root{
