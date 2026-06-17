@@ -235,9 +235,6 @@
       /* CTA panel full width on mobile */
       #cta-panel { width: 100vw !important; padding: 42px 32px !important; }
 
-      /* Hide desktop-only preloader counter */
-      #preloader-counter { display: none !important; }
-
       /* Restore native scroll — ScrollSmoother is disabled on mobile */
       #smooth-wrapper { position: static !important; overflow: visible !important; height: auto !important; }
       #smooth-content { will-change: auto !important; transform: none !important; }
@@ -246,7 +243,6 @@
 </head>
 <body>
 <div id="dj-cursor"></div>
-<div id="preloader-counter" style="position:fixed;left:50%;bottom:42px;transform:translateX(-50%);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:400;color:#121010;letter-spacing:0.05em;z-index:99;pointer-events:none;line-height:1;">00</div>
 <div id="thumb-overlay" style="display:block;opacity:0;position:fixed;z-index:98;overflow:hidden;border-radius:4px;pointer-events:none;background:#F5F3EE"><video src="videos/thumbnail.mp4?v=2" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:contain;display:block"></video></div>
 <div id="nav-portal"></div>
 <div id="glitch-overlay" style="position:fixed;inset:0;z-index:150;overflow:hidden;pointer-events:none;"></div>
@@ -1351,16 +1347,7 @@ function DitherCanvas({ dark }) {
         const cH = canvas.offsetHeight || 720;
         const initialScale = Math.min(196 / cW, 196 / cH);
 
-        if (sessionStorage.getItem('skipIntro')) {
-          // Returning visitor — show dither at full size immediately, hide counter
-          gsap.set(wrap, { xPercent:-50, yPercent:-50, y:128, scale:1 });
-          const counter = document.getElementById('preloader-counter');
-          if (counter) counter.style.display = 'none';
-        } else {
-          gsap.set(wrap, { xPercent:-50, yPercent:-50, y:128, scale:1 });
-          const counter = document.getElementById('preloader-counter');
-          if (counter) counter.style.display = 'none';
-        }
+        gsap.set(wrap, { xPercent:-50, yPercent:-50, y:128, scale:1 });
       }
     }
 
@@ -1439,8 +1426,6 @@ function MobileDitherVideo({ dark }) {
       build();
 
       gsap.set(wrap, { xPercent:-50, yPercent:-50, x: window.innerWidth * 0.5, y: 128, scale: 1 });
-      const counter = document.getElementById('preloader-counter');
-      if (counter) counter.style.display = 'none';
     }
 
     function loop() {
