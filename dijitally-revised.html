@@ -2879,7 +2879,7 @@ function Page() {
           {/* Body copy + thumbnail — pinned to first viewport bottom */}
           <div ref={heroBodyRef} style={{
             position:"absolute",
-            bottom:"var(--s42)", left: isMobile ? "40px" : "var(--s42)", right: isMobile ? "40px" : "var(--s42)",
+            bottom:"var(--s42)", left:"var(--s42)", right:"var(--s42)",
             display:"flex",
             flexDirection: isMobile ? "column" : "row",
             alignItems: isMobile ? "flex-start" : "flex-end",
@@ -2952,7 +2952,7 @@ function Page() {
         {/* Philosophy — centered sticky quote + client logos ticker + floating video card */}
         <div style={{
           position:"relative",
-          padding: isMobile ? "80px 40px var(--s64)" : "192px var(--s42) 192px",
+          padding: isMobile ? "80px var(--s42) var(--s64)" : "192px var(--s42) 192px",
           display:"flex", flexDirection:"column", alignItems:"center", gap:"var(--s64)",
         }}>
           <div style={{
@@ -3036,7 +3036,7 @@ function Page() {
       <section id="services" style={{...divider, minHeight: isMobile ? 0 : 1000}}>
 
         {/* Text header */}
-        <div style={{padding: isMobile ? "var(--s42) 40px 64px" : "var(--s42) var(--s42) 64px calc(400px + var(--s42) * 2)",display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
+        <div style={{padding: isMobile ? "var(--s42) var(--s42) 64px" : "var(--s42) var(--s42) 64px calc(400px + var(--s42) * 2)",display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
           <Eyebrow center={false}>++ HOW WE OPERATE ++</Eyebrow>
 
           <div data-split="" role="heading" aria-level="2" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:720}}>
@@ -3230,8 +3230,8 @@ function Page() {
           justifyContent:"space-between",
           width:"100%",
           gap:"var(--s42)",
-          paddingLeft: isMobile ? "40px" : "var(--s64)",
-          paddingRight: isMobile ? "40px" : "var(--s64)",
+          paddingLeft: isMobile ? "var(--s42)" : "var(--s64)",
+          paddingRight: isMobile ? "var(--s42)" : "var(--s64)",
         }}>
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
             <Eyebrow center={false}>++ OUR WORK ++</Eyebrow>
