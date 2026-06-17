@@ -2974,6 +2974,19 @@ function Page() {
             <Ticker dark={dark}/>
           </div>
 
+          {/* Caption — mobile only, shown below ticker */}
+          {isMobile && (
+            <p style={{
+              margin:0, alignSelf:"flex-start",
+              fontFamily:"var(--sans)",
+              fontSize: 18, fontWeight: 350,
+              lineHeight: 1.2, letterSpacing: 0,
+              color:"#878787",
+            }}>
+              And the small details<br/>that put it into action.
+            </p>
+          )}
+
           {/* Floating video card — centered horizontally, hangs half off bottom of quote text */}
           {!isMobile && (
             <div ref={philoCardRef} style={{
