@@ -1540,7 +1540,7 @@ function MenuGlitch({ onComplete, onMidpoint }) {
     }
 
     let midpointFired = false;
-    const midTimer = setTimeout(() => { if (!midpointFired) { midpointFired = true; onMidpoint?.(); } }, maxEnd * 0.65);
+    const midTimer = setTimeout(() => { if (!midpointFired) { midpointFired = true; onMidpoint?.(); } }, maxEnd * 0.85);
     stripData.forEach(({ sliceIdx, duration, delay }) => {
       setTimeout(() => {
         slices[sliceIdx].style.transition = `transform ${duration.toFixed(3)}s linear`;
