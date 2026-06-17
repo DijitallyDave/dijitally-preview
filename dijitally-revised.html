@@ -2244,7 +2244,11 @@ function Page() {
 
     // Adjust position for mobile
     if (introEl) {
-      if (isMobile) { introEl.style.top = '72px'; introEl.style.transform = 'none'; }
+      if (isMobile) {
+        const s42 = getComputedStyle(document.documentElement).getPropertyValue('--s42').trim() || '16px';
+        introEl.style.top = '72px'; introEl.style.transform = 'none';
+        introEl.style.left = s42; introEl.style.right = s42;
+      }
       introEl.style.display = 'block';
       // SVG mask: strips will paint black rects here as they exit, masking Logo A strip-by-strip
       introEl.style.webkitMask = 'url(#logo-a-mask)';
