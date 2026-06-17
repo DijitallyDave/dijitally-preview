@@ -75,10 +75,16 @@
       min-width: 320px;
     }
 
-    /* Scrollbar */
-    ::-webkit-scrollbar { height: 6px; width: 6px; }
+    /* Scrollbar — thumb colour set via JS on html element */
+    :root { --scrollbar-thumb: #EDEAE5; }
+    ::-webkit-scrollbar { height: 10px; width: 10px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--secondary); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb {
+      background: var(--scrollbar-thumb);
+      border: 2px solid transparent;
+      background-clip: padding-box;
+      border-radius: 5px;
+    }
 
     /* Ticker */
     @keyframes ticker {
@@ -2114,6 +2120,7 @@ function Page() {
   useEffect(()=>{
     localStorage.setItem("dijitally-theme", dark ? "dark" : "light");
     document.body.classList.toggle("dark", dark);
+    document.documentElement.style.setProperty('--scrollbar-thumb', dark ? '#1A1A1A' : '#EDEAE5');
   }, [dark]);
 
   // ScrollSmoother — desktop only; on mobile native scroll is far smoother
