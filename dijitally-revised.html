@@ -2954,7 +2954,7 @@ function Page() {
         {/* Philosophy — centered sticky quote + client logos ticker + floating video card */}
         <div style={{
           position:"relative",
-          padding: isMobile ? "80px var(--s42) var(--s64)" : "192px var(--s42) 192px",
+          padding: isMobile ? "80px var(--s42) 40px" : "192px var(--s42) 192px",
           display:"flex", flexDirection:"column", alignItems:"center", gap:"var(--s64)",
         }}>
           <div style={{
@@ -3038,7 +3038,7 @@ function Page() {
       <section id="services" style={{...divider, minHeight: isMobile ? 0 : 1000}}>
 
         {/* Text header */}
-        <div style={{padding: isMobile ? "var(--s42) var(--s42) 64px" : "var(--s42) var(--s42) 64px calc(400px + var(--s42) * 2)",display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
+        <div style={{padding: isMobile ? "40px var(--s42) 64px" : "var(--s42) var(--s42) 64px calc(400px + var(--s42) * 2)",display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
           <Eyebrow center={false}>++ HOW WE OPERATE ++</Eyebrow>
 
           <div data-split="" role="heading" aria-level="2" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:720}}>
@@ -3221,7 +3221,7 @@ function Page() {
       ══════════════════════════════════════ */}
       <section id="work" ref={carouselSectionRef} style={{
         ...divider,
-        paddingTop: 256, paddingBottom:0,
+        paddingTop: isMobile ? 80 : 256, paddingBottom:0,
         display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s64)",
       }}>
         {/* Header + filters */}
@@ -3328,7 +3328,7 @@ function Page() {
         })()}
 
         {/* View all CTA — below thumbnails, centred */}
-        <div style={{width:"100%",display:"flex",justifyContent:"center",paddingTop:isMobile?24:0,paddingBottom:256,paddingLeft:"var(--s42)",paddingRight:"var(--s42)"}}>
+        <div style={{width:"100%",display:"flex",justifyContent:"center",paddingTop:isMobile?24:0,paddingBottom:isMobile?0:256,paddingLeft:"var(--s42)",paddingRight:"var(--s42)"}}>
           <a href="#work" className="cta-btn" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"18px 24px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,color:"#121010",textDecoration:"none",whiteSpace:"nowrap"}}>
             <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span>
           </a>
@@ -3342,7 +3342,7 @@ function Page() {
       <section ref={contactSectionRef} style={{
         ...divider,
         background: dark ? "#1A1A1A" : "#EDEAE5",
-        padding: isMobile ? "48px 16px" : "var(--s96) var(--s64)",
+        padding: isMobile ? "80px 16px" : "var(--s96) var(--s64)",
         minHeight: isMobile ? (contactHeight ? `${contactHeight}px` : "66svh") : "auto",
         display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", gap:"var(--s24)",
         position:"relative", overflow:"hidden",
