@@ -3227,7 +3227,7 @@ function Page() {
       ══════════════════════════════════════ */}
       <section id="work" ref={carouselSectionRef} style={{
         ...divider,
-        paddingTop: isMobile ? 100 : 256, paddingBottom:0,
+        paddingTop: isMobile ? 100 : 256, paddingBottom: isMobile ? 100 : 0,
         display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s64)",
       }}>
         {/* Header + filters */}
@@ -3348,7 +3348,7 @@ function Page() {
       <section ref={contactSectionRef} style={{
         ...divider,
         background: dark ? "#1A1A1A" : "#EDEAE5",
-        padding: isMobile ? "100px 16px" : "var(--s96) var(--s64)",
+        padding: isMobile ? "48px 16px" : "var(--s96) var(--s64)",
         minHeight: isMobile ? (contactHeight ? `${contactHeight}px` : "66svh") : "auto",
         display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", gap:"var(--s24)",
         position:"relative", overflow:"hidden",
