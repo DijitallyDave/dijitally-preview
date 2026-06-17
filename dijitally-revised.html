@@ -2914,8 +2914,8 @@ function Page() {
                 cursor:"pointer",
                 borderRadius: 4,
                 overflow: "hidden",
-                transform: thumbHover ? "scale(1.15)" : "scale(1)",
-                boxShadow: thumbHover ? "0 18px 30px rgba(0,0,0,0.15)" : "none",
+                transform: (!isMobile && thumbHover) ? "scale(1.15)" : "none",
+                boxShadow: (!isMobile && thumbHover) ? "0 18px 30px rgba(0,0,0,0.15)" : "none",
                 transformOrigin:"bottom right",
                 transition:"transform 0.3s ease, box-shadow 0.3s ease",
               }}>
