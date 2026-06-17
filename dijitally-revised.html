@@ -364,7 +364,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build fc66dc8</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build c45ad27</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -1508,87 +1508,50 @@ function MobileDitherVideo({ dark }) {
    Same diagonal canvas animation as work thumbnails.
    Always uses #121010 fill (dark-mode palette on both themes).
 ═══════════════════════════════════════════════════ */
-function MenuPixelReveal({ onComplete, onMidpoint }) {
-  const canvasRef = useRef(null);
-  const PX = 16;
-
-  useEffect(()=>{
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const W = window.innerWidth;
+function MenuGlitch({ onComplete, onMidpoint }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
     const H = window.innerHeight;
-    canvas.width  = W;
-    canvas.height = H;
-    const ctx = canvas.getContext('2d');
+    const sliceH = 2;
+    const total = Math.ceil(H / sliceH);
+    const speed = 0.3, spread = 0.3, stagger = 0.002, bellStrength = 0.8;
 
-    // Canvas starts transparent — blocks are DRAWN in (#121010) as the wave moves,
-    // masking the page beneath. SVG frontier leads the fill edge then gets covered.
-    const cols = Math.ceil(W / PX);
-    const rows = Math.ceil(H / PX);
+    // Same randomised strip order as the intro glitch
+    const ordered = Array.from({length: total}, (_, i) => i).sort(() => Math.random() - 0.5);
+    const stripData = ordered.map((sliceIdx, i) => {
+      const duration = speed * (0.2 + Math.random() * 1.6);
+      const t = sliceIdx / Math.max(total - 1, 1);
+      const norm = t * 2 - 1;
+      const bellDelay = Math.exp(-norm * norm * 3.5) * bellStrength;
+      const delay = stagger * i + bellDelay + Math.random() * spread;
+      return { sliceIdx, duration, delay };
+    });
+    const maxEnd = Math.max(...stripData.map(d => (d.delay + d.duration) * 1000));
 
-    const blocks = [];
-    for (let r = 0; r < rows; r++)
-      for (let c = 0; c < cols; c++)
-        blocks.push({ r, c, d: r + c });
-    blocks.sort((a, b) => (a.d + (Math.random()-0.5)*4) - (b.d + (Math.random()-0.5)*4));
-
-    const total = blocks.length;
-    const DURATION = 595;
-    const LEAD = 14;
-    let next = 0, start = null, raf;
-
-    // Draw SVG frontier at the leading edge of the fill wave.
-    // Each frontier block is pre-filled #121010 first so the SVG is
-    // visible on a dark background — matching how PixelRevealImg shows
-    // patterns on its dark canvas. The main fill wave covers them solid
-    // on the next tick.
-    const drawFrontier = (from, to) => {
-      ctx.fillStyle = '#121010';
-      for (let i = from; i < Math.min(to, total); i++) {
-        const { r, c } = blocks[i];
-        ctx.fillRect(c * PX, r * PX, PX, PX); // dark base so SVG is visible
-        if (Math.random() > 0.25) {
-          const p = PATTERN_IMGS[Math.floor(Math.random() * PATTERN_IMGS.length)];
-          if (p.complete && p.naturalWidth > 0) {
-            ctx.globalAlpha = 0.4 + Math.random() * 0.6;
-            ctx.drawImage(p, c * PX, r * PX, PX, PX);
-            ctx.globalAlpha = 1;
-          }
-        }
-      }
-    };
+    // Build strip divs — start translateX(100%) (off right), animate to translateX(0)
+    const slices = [];
+    for (let i = 0; i < total; i++) {
+      const div = document.createElement('div');
+      div.style.cssText = `position:absolute;left:0;width:100%;top:${i * sliceH}px;height:${sliceH}px;background:#121010;will-change:transform;transform:translateX(100%);`;
+      el.appendChild(div);
+      slices.push(div);
+    }
 
     let midpointFired = false;
-    const tick = (now) => {
-      if (!start) start = now;
-      const tp = Math.min((now - start) / DURATION, 1);
-      const target = Math.floor(tp * total);
-      // Fire midpoint callback at 65% — menu items animate in while reveal finishes
-      if (!midpointFired && tp >= 0.65) { midpointFired = true; onMidpoint?.(); }
-      // Fill blocks with #121010 — covers page as wave moves down
-      ctx.fillStyle = '#121010';
-      while (next < target) { const { r, c } = blocks[next++]; ctx.fillRect(c * PX, r * PX, PX, PX); }
-      // SVG patterns at frontier — briefly visible before next fill wave covers them
-      if (next < total) drawFrontier(next, next + LEAD);
-      if (tp < 1) { raf = requestAnimationFrame(tick); }
-      else { onComplete(); }
-    };
-
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
+    const midTimer = setTimeout(() => { if (!midpointFired) { midpointFired = true; onMidpoint?.(); } }, maxEnd * 0.65);
+    stripData.forEach(({ sliceIdx, duration, delay }) => {
+      setTimeout(() => {
+        slices[sliceIdx].style.transition = `transform ${duration.toFixed(3)}s linear`;
+        slices[sliceIdx].style.transform = 'translateX(0)';
+      }, delay * 1000);
+    });
+    const doneTimer = setTimeout(() => onComplete(), maxEnd + 100);
+    return () => { clearTimeout(midTimer); clearTimeout(doneTimer); };
   }, []);
 
-  return (
-    <canvas
-      ref={canvasRef}
-      style={{
-        position:"fixed", top:0, left:0,
-        width:"100vw", height:"100svh",
-        zIndex:210, pointerEvents:"none",
-        display:"block",
-      }}
-    />
-  );
+  return <div ref={ref} style={{position:"fixed",inset:0,zIndex:210,pointerEvents:"none",overflow:"hidden"}} />;
 }
 
 /* ═══════════════════════════════════════════════════
@@ -3556,7 +3519,7 @@ function Page() {
         <>
           {/* Tile grid — flips from edges to centre, fires onComplete when done */}
           {!menuReady && (
-            <MenuPixelReveal onComplete={()=> setMenuReady(true)} onMidpoint={()=> setMenuItemsReady(true)} />
+            <MenuGlitch onComplete={()=> setMenuReady(true)} onMidpoint={()=> setMenuItemsReady(true)} />
           )}
 
           {/* Menu panel — always dark (#121010) regardless of site theme */}
