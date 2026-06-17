@@ -2920,7 +2920,7 @@ function Page() {
                 transition:"transform 0.3s ease, box-shadow 0.3s ease",
               }}>
               {/* Clip mask — overflow:hidden here keeps slide-down animation contained */}
-              <div style={{position:"absolute",inset:0,overflow:"hidden",borderRadius:4}}>
+              <div style={{position:"absolute",inset:0,overflow:"hidden",borderRadius:4,transform:"translateZ(0)"}}>
                 {/* thumbSlideRef — animates yPercent downward on first scroll */}
                 <div ref={thumbSlideRef} style={{position:"absolute",inset:0}}>
                   <PixelResolveVideo
