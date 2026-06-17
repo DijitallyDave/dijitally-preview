@@ -2947,7 +2947,7 @@ function Page() {
         {/* Philosophy — centered sticky quote + client logos ticker + floating video card */}
         <div style={{
           position:"relative",
-          padding: isMobile ? "80px var(--s42) 40px" : "192px var(--s42) 192px",
+          padding: isMobile ? "80px var(--s42) 50px" : "192px var(--s42) 192px",
           display:"flex", flexDirection:"column", alignItems:"center", gap:"var(--s64)",
         }}>
           <div style={{
@@ -3044,7 +3044,7 @@ function Page() {
       <section id="services" style={{...divider, minHeight: isMobile ? 0 : 1000}}>
 
         {/* Text header */}
-        <div style={{padding: isMobile ? "40px var(--s42) 64px" : "var(--s42) var(--s42) 64px calc(400px + var(--s42) * 2)",display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
+        <div style={{padding: isMobile ? "50px var(--s42) 64px" : "var(--s42) var(--s42) 64px calc(400px + var(--s42) * 2)",display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
           <Eyebrow center={false}>++ HOW WE OPERATE ++</Eyebrow>
 
           <div data-split="" role="heading" aria-level="2" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:720}}>
@@ -3227,7 +3227,7 @@ function Page() {
       ══════════════════════════════════════ */}
       <section id="work" ref={carouselSectionRef} style={{
         ...divider,
-        paddingTop: isMobile ? 80 : 256, paddingBottom:0,
+        paddingTop: isMobile ? 100 : 256, paddingBottom:0,
         display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s64)",
       }}>
         {/* Header + filters */}
@@ -3348,7 +3348,7 @@ function Page() {
       <section ref={contactSectionRef} style={{
         ...divider,
         background: dark ? "#1A1A1A" : "#EDEAE5",
-        padding: isMobile ? "80px 16px" : "var(--s96) var(--s64)",
+        padding: isMobile ? "100px 16px" : "var(--s96) var(--s64)",
         minHeight: isMobile ? (contactHeight ? `${contactHeight}px` : "66svh") : "auto",
         display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", gap:"var(--s24)",
         position:"relative", overflow:"hidden",
