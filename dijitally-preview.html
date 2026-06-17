@@ -1088,20 +1088,28 @@ function DitherCanvas({ dark }) {
         const cW = canvas.offsetWidth  || 1280;
         const cH = canvas.offsetHeight || 720;
         const initialScale = Math.min(196 / cW, 196 / cH);
-        // Set position immediately — prevents grey flash on first frame
-        gsap.set(wrap, { xPercent:-50, yPercent:-50, y: window.innerHeight*0.5, scale: initialScale });
-        // Hold 1s, then scale+slide to final position over 0.25s
-        gsap.to(wrap, { y:128, scale:1, duration:0.25, ease:'power2.inOut', delay:1 });
 
-        // Counter: 00→99 over 1.25s, then remove
-        const counter = document.getElementById('preloader-counter');
-        if (counter) {
-          const proxy = { v: 0 };
-          gsap.to(proxy, {
-            v: 99, duration: 1.25, ease: 'none',
-            onUpdate: () => { counter.textContent = String(Math.floor(proxy.v)).padStart(2,'0'); },
-            onComplete: () => { counter.style.display = 'none'; }
-          });
+        if (sessionStorage.getItem('skipIntro')) {
+          // Returning visitor — show dither at full size immediately, hide counter
+          gsap.set(wrap, { xPercent:-50, yPercent:-50, y:128, scale:1 });
+          const counter = document.getElementById('preloader-counter');
+          if (counter) counter.style.display = 'none';
+        } else {
+          // Set position immediately — prevents grey flash on first frame
+          gsap.set(wrap, { xPercent:-50, yPercent:-50, y: window.innerHeight*0.5, scale: initialScale });
+          // Hold 1s, then scale+slide to final position over 0.25s
+          gsap.to(wrap, { y:128, scale:1, duration:0.25, ease:'power2.inOut', delay:1 });
+
+          // Counter: 00→99 over 1.25s, then remove
+          const counter = document.getElementById('preloader-counter');
+          if (counter) {
+            const proxy = { v: 0 };
+            gsap.to(proxy, {
+              v: 99, duration: 1.25, ease: 'none',
+              onUpdate: () => { counter.textContent = String(Math.floor(proxy.v)).padStart(2,'0'); },
+              onComplete: () => { counter.style.display = 'none'; }
+            });
+          }
         }
       }
     }
@@ -1472,7 +1480,7 @@ function ServicesPage({ dark, isMobile, setPage }) {
 
   useEffect(()=>{
     if (isMobile || typeof ScrollTrigger === 'undefined') return;
-    const TAB_H = 72;
+    const TAB_H = 85;
     const triggers = svcCardRefs.current.map((el, i) => {
       if (!el) return null;
       return ScrollTrigger.create({
@@ -1546,41 +1554,35 @@ function ServicesPage({ dark, isMobile, setPage }) {
             </div>
           </div>
         ) : (
-          /* Desktop: stacking card — title tab pins at top:i*72, content below */
+          /* Desktop: single full-height card matching Figma — left col items-start py-32 */
           <div key={svc.slug} ref={el=>svcCardRefs.current[i]=el} style={{
+            borderTop:"1px solid var(--border)",
+            borderBottom: i === SVC_ROWS.length-1 ? "1px solid var(--border)" : "none",
             height:650,
+            display:"flex", alignItems:"stretch",
             background:"var(--bg)",
             zIndex: 10 + i,
           }}>
-            {/* ── Title tab (72px) — this portion peeks above subsequent cards ── */}
+            {/* Left col: number + slug top-aligned, full-height border-right */}
             <div style={{
-              borderTop:"1px solid var(--border)",
-              height:72,
-              display:"flex", alignItems:"center",
-              padding:"0 64px", gap:10,
+              flex:"1 0 0",
+              borderRight:"1px solid var(--border)",
+              padding:"32px 64px",
+              display:"flex", gap:10, alignItems:"flex-start",
             }}>
               <span style={{fontFamily:"var(--sans)",fontSize:16,color:"var(--static)",letterSpacing:"-0.32px",flexShrink:0,lineHeight:1}}>{svc.num}.</span>
               <span style={{...h2, lineHeight:1}}>{svc.slug}</span>
             </div>
 
-            {/* ── Content body (578px) — covered by subsequent pinned cards ── */}
-            <div style={{
-              height:578,
-              display:"flex", alignItems:"center", justifyContent:"space-between",
-            }}>
-              {/* Left spacer with right border */}
-              <div style={{flex:"1 0 0", height:"100%", borderRight:"1px solid var(--border)"}} />
+            {/* Center: 370×370 placeholder */}
+            <div style={{flex:"1 0 0", display:"flex", alignItems:"center", justifyContent:"center"}}>
+              <div style={{width:370, height:370, background:"var(--grey)", borderRadius:4, opacity:0.15}} />
+            </div>
 
-              {/* Center: 370×370 placeholder */}
-              <div style={{flex:"1 0 0", height:"100%", display:"flex", alignItems:"center", justifyContent:"center"}}>
-                <div style={{width:370, height:370, background:"var(--grey)", borderRadius:4, opacity:0.15}} />
-              </div>
-
-              {/* Right: headline + body */}
-              <div style={{flex:"1 0 0", height:"100%", padding:"0 64px 0 0", display:"flex", flexDirection:"column", justifyContent:"center", gap:24}}>
-                <div style={{...h2, maxWidth:400}}>{svc.headline}</div>
-                <div style={{...body22, maxWidth:400}}>{svc.body}</div>
-              </div>
+            {/* Right: headline + body */}
+            <div style={{flex:"1 0 0", padding:"0 64px 0 0", display:"flex", flexDirection:"column", justifyContent:"center", gap:24}}>
+              <div style={{...h2, maxWidth:400}}>{svc.headline}</div>
+              <div style={{...body22, maxWidth:400}}>{svc.body}</div>
             </div>
           </div>
         )
@@ -1968,10 +1970,10 @@ function Page() {
 
 
 
-  // Hide hero elements before first paint — useLayoutEffect fires synchronously
-  // before the browser renders, so there is no flash of visible content
+  // Hide hero elements before first paint — skip if returning from a secondary page
   useLayoutEffect(()=>{
     if (typeof gsap === "undefined") return;
+    if (sessionStorage.getItem('skipIntro')) return;
     if (heroBodyRef.current)  gsap.set(heroBodyRef.current, { opacity:0, y:16 });
     if (heroThumbRef.current) gsap.set(heroThumbRef.current, { opacity:0, x:24 });
     if (navRef.current)       gsap.set(navRef.current,      { y:"-100%" });
@@ -1983,56 +1985,59 @@ function Page() {
     const el = heroLogoRef.current;
     if (!el) return;
 
+    const skipIntro = !!sessionStorage.getItem('skipIntro');
+    if (skipIntro) sessionStorage.removeItem('skipIntro');
+
     const anim = lottie.loadAnimation({
       container: el,
       renderer: "svg",
       loop: false,
-      autoplay: false,            // manual start
+      autoplay: false,
       path: "json/Dijitally-Alternate.json?v=3",
       rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
     });
 
     anim.addEventListener("DOMLoaded", () => {
       captureRect();
-      // 1. Play Lottie — 1.5s on mobile (dither expands at 1s), 2.5s on desktop
+      if (skipIntro) {
+        anim.goToAndStop(anim.totalFrames - 1, true);
+        if (smootherRef.current) smootherRef.current.paused(false);
+        return;
+      }
       setTimeout(() => {
         anim.play();
-        // 2. Body copy at 25% of Lottie duration (1500ms * 0.25 = 375ms after start)
         setTimeout(() => {
-          // SplitText lines on hero body after container appears
-      if (typeof SplitText !== "undefined" && heroBodyRef.current) {
-        const heroSpan = heroBodyRef.current.querySelector("[data-split-entrance]");
-        if (heroSpan) {
-          const split = new SplitText(heroSpan, { type:"lines", linesClass:"split-line" });
-          split.lines.forEach(line => {
-            const w = document.createElement("div");
-            w.style.overflow = "hidden";
-            w.style.display = "block";
-            line.parentNode.insertBefore(w, line);
-            w.appendChild(line);
-          });
-          gsap.set(split.lines, { y:"110%" });
-          gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out",
-            onComplete: () => gsap.to(split.lines, { y:"0%", duration:0.7, ease:"power3.out", stagger:0.08 })
-          });
-        } else {
-          gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out" });
-        }
-      } else {
-        gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out" });
-      }
-          // 3. Thumbnail 0.5s after body copy — capture rect AFTER x:0 resolves so overlay starts at correct position
+          if (typeof SplitText !== "undefined" && heroBodyRef.current) {
+            const heroSpan = heroBodyRef.current.querySelector("[data-split-entrance]");
+            if (heroSpan) {
+              const split = new SplitText(heroSpan, { type:"lines", linesClass:"split-line" });
+              split.lines.forEach(line => {
+                const w = document.createElement("div");
+                w.style.overflow = "hidden";
+                w.style.display = "block";
+                line.parentNode.insertBefore(w, line);
+                w.appendChild(line);
+              });
+              gsap.set(split.lines, { y:"110%" });
+              gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out",
+                onComplete: () => gsap.to(split.lines, { y:"0%", duration:0.7, ease:"power3.out", stagger:0.08 })
+              });
+            } else {
+              gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out" });
+            }
+          } else {
+            gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out" });
+          }
           gsap.to(heroThumbRef.current, { opacity:1, x:0, duration:0.5, ease:"power2.out", delay:0.5,
             onComplete: () => {
               if (heroThumbRef.current) initThumbRect.current = heroThumbRef.current.getBoundingClientRect();
             }
           });
-          // 4. Nav after thumbnail
           gsap.to(navRef.current, { y:"0%", duration:0.55, ease:"power2.out", delay:0.85,
             onComplete: () => { if (smootherRef.current) smootherRef.current.paused(false); }
           });
         }, 375);
-      }, isMobile ? 1500 : 2500);
+      }, isMobile ? 1500 : 1500);
     });
 
     return () => anim.destroy();
@@ -2368,7 +2373,7 @@ function Page() {
 
         {/* Nav logo — shown when scrolled, or always on secondary pages */}
         {(scrolled || page !== 'home') && (
-          <a href="/" style={{display:"flex",alignItems:"center",flexShrink:0,textDecoration:"none"}}>
+          <a href="#" onClick={e=>{ e.preventDefault(); setPage('home'); window.scrollTo(0,0); }} style={{display:"flex",alignItems:"center",flexShrink:0,textDecoration:"none"}}>
             <img
               src="dijitally-heading.svg"
               alt="DIJITALLY™"
@@ -2399,7 +2404,7 @@ function Page() {
               cursor:"pointer",
               userSelect:"none",
             }}
-            onClick={()=>{ if(l==="Services"){ setPage('services'); window.scrollTo(0,0); } else if(l==="Work"){ setPage('home'); window.scrollTo(0,0); } }}
+            onClick={()=>{ if(l==="Services"){ window.location.href='dijitally-services.html'; } else if(l==="Work"){ setPage('home'); window.scrollTo(0,0); } }}
             onMouseEnter={e=>{
               const el = e.currentTarget;
               const textNode = el.querySelector('.nav-text');
@@ -3177,7 +3182,7 @@ function Page() {
                   <a
                     href="#"
                     className="menu-nav-item"
-                    onClick={e=>{ e.preventDefault(); setMenuOpen(false); if(label==="Services"){ setTimeout(()=>{ setPage('services'); window.scrollTo(0,0); },300); } else if(label==="Work"){ setTimeout(()=>{ setPage('home'); window.scrollTo(0,0); },300); } }}
+                    onClick={e=>{ e.preventDefault(); setMenuOpen(false); if(label==="Services"){ setTimeout(()=>{ window.location.href='dijitally-services.html'; },300); } else if(label==="Work"){ setTimeout(()=>{ setPage('home'); window.scrollTo(0,0); },300); } }}
                     style={{
                       fontFamily:"var(--sans)", fontSize:26, fontWeight:350,
                       lineHeight:"120%", letterSpacing:"0.26px",

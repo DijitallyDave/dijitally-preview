@@ -31,16 +31,16 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
   <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
   <style>
     /* ── Design Tokens ── */
     :root {
-      --primary:   #FDFEFF;   /* near-white surface */
+      --primary:   #F5F3EE;   /* near-white surface */
       --secondary: #121010;   /* primary text */
       --static:    #878787;   /* muted / grey text */
       --grey:      #DEDEDE;   /* border / contact bg */
       --tech:      #B6F4C9;   /* accent green */
-      --bg:        #FDFEFF;   /* page bg */
+      --bg:        #F5F3EE;   /* page bg */
 
       /* Fonts */
       --sans: "NeuSans Trial", "Helvetica Neue", Arial, sans-serif;
@@ -144,13 +144,16 @@
     /* CTA button hover — swap green bg ↔ near-black, text becomes green */
     .cta-btn { transition: background 0.2s ease, color 0.2s ease; }
     .cta-btn:hover { background: #121010 !important; color: #B6F4C9 !important; }
-    .dark .cta-btn:hover { background: #FDFEFF !important; color: #121010 !important; }
+    .dark .cta-btn:hover { background: #F5F3EE !important; color: #121010 !important; }
 
     /* Work grid — fixed-height image containers with object-fit cover */
     .work-grid-thumb { position:relative; overflow:hidden; border-radius:4px; }
     .work-grid-thumb > div { height:100% !important; }
     .work-grid-thumb img { width:100% !important; height:100% !important; object-fit:cover !important; }
-    .work-grid-thumb canvas { height:100% !important; }
+    .work-grid-thumb canvas { width:100% !important; height:100% !important; }
+    .work-mobile-card { display:block !important; width:100% !important; min-width:0 !important; box-sizing:border-box !important; overflow:hidden !important; }
+    .work-mobile-card .work-grid-thumb { min-width:0 !important; overflow:hidden !important; }
+    .work-mobile-card img, .work-mobile-card canvas { min-width:0 !important; width:100% !important; }
 
     /* Work thumbnail CTA — must come after .cta-btn to keep transform transition */
     .work-card-cta {
@@ -159,14 +162,17 @@
       transform: translateY(calc(100% + 24px));
       transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1),
                   background 0.2s ease, color 0.2s ease;
+      background: #F5F3EE !important;
+      color: #121010 !important;
     }
     .wc:hover .work-card-cta { transform: translateY(0); }
+    .work-card-cta:hover { background: #121010 !important; color: #F5F3EE !important; }
 
     /* Work card hover */
     /* Dark mode overrides */
     .dark {
       --primary:   #1a1a1a;
-      --secondary: #FDFEFF;
+      --secondary: #F5F3EE;
       --static:    #666666;
       --grey:      #2a2a2a;
       --bg:        #121010;
@@ -214,9 +220,8 @@
       /* Hero body copy: cap width on mobile */
       .hero-body-text { max-width: 100% !important; }
 
-      /* Work carousel cards: smaller */
-      .wc { width: calc(100vw - 96px) !important; }
-      .wc > div:first-child { width: 100% !important; }
+      /* Work cards: full width between margins */
+      .wc { width: 100% !important; }
 
       /* Contact section: full width on mobile */
       .contact-card-inner { width: calc(100% - 32px) !important; padding: 24px !important; }
@@ -239,8 +244,126 @@
 <body>
 <div id="dj-cursor"></div>
 <div id="preloader-counter" style="position:fixed;left:50%;bottom:42px;transform:translateX(-50%);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:400;color:#121010;letter-spacing:0.05em;z-index:99;pointer-events:none;line-height:1;">00</div>
-<div id="thumb-overlay" style="display:block;opacity:0;position:fixed;z-index:98;overflow:hidden;border-radius:4px;pointer-events:none;background:#FDFEFF"><video src="videos/thumbnail.mp4?v=2" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:contain;display:block"></video></div>
+<div id="thumb-overlay" style="display:block;opacity:0;position:fixed;z-index:98;overflow:hidden;border-radius:4px;pointer-events:none;background:#F5F3EE"><video src="videos/thumbnail.mp4?v=2" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:contain;display:block"></video></div>
 <div id="nav-portal"></div>
+<div id="glitch-overlay" style="position:fixed;inset:0;z-index:150;overflow:hidden;pointer-events:none;"></div>
+<div id="intro-logo-overlay" style="position:fixed;top:50%;left:42px;right:42px;transform:translateY(-50%);z-index:151;pointer-events:none;aspect-ratio:1604/223;display:none;"></div>
+<svg id="logo-filter-svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
+  <defs>
+    <!-- Inverts black logo paths to exactly #F5F3EE (245,243,238) -->
+    <filter id="to-warm-white" color-interpolation-filters="sRGB">
+      <feColorMatrix type="matrix" values="-1 0 0 0 0.961  0 -1 0 0 0.953  0 0 -1 0 0.933  0 0 0 1 0"/>
+    </filter>
+    <!-- Inverts light logo paths to exactly #1A1818 (26,24,24) -->
+    <filter id="to-off-black" color-interpolation-filters="sRGB">
+      <feColorMatrix type="matrix" values="-1 0 0 0 0.102  0 -1 0 0 0.094  0 0 -1 0 0.094  0 0 0 1 0"/>
+    </filter>
+  </defs>
+</svg>
+<svg id="logo-mask-svg" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:visible;pointer-events:none">
+  <defs>
+    <mask id="logo-a-mask" maskUnits="userSpaceOnUse" x="-99999" y="-99999" width="199998" height="199998">
+      <rect x="-99999" y="-99999" width="199998" height="199998" fill="white"/>
+    </mask>
+  </defs>
+</svg>
+<script>
+(function(){
+  var isDark = localStorage.getItem('dijitally-theme') === 'dark';
+  var C = {
+    speed:0.3, spread:0.3, stagger:0.002,
+    bellStrength:0.8, curveShape:'bell',
+    sliceH:2, order:'random', direction:'right',
+    easing:'linear', overlayColor: isDark ? '#F5F3EE' : '#1A1818'
+  };
+  window.__glitchDone = false;
+  window.__onGlitchDone = null;
+  window.__invertIntroLogo = null;
+  window.__beginGlitchTransition = null;
+  if (sessionStorage.getItem('skipIntro')) {
+    window.__glitchDone = true;
+    var _ov = document.getElementById('glitch-overlay');
+    if (_ov) _ov.remove();
+    var _il = document.getElementById('intro-logo-overlay');
+    if (_il) _il.remove();
+    return;
+  }
+  document.addEventListener('DOMContentLoaded', function() {
+    var overlay = document.getElementById('glitch-overlay');
+    if (!overlay) return;
+    var H = window.innerHeight;
+    var total = Math.ceil(H / C.sliceH);
+    var slices = [];
+    for (var i = 0; i < total; i++) {
+      var el = document.createElement('div');
+      el.style.cssText = 'position:absolute;left:0;width:100%;top:' + (i * C.sliceH) + 'px;height:' + C.sliceH + 'px;background:' + C.overlayColor + ';will-change:transform;';
+      overlay.appendChild(el);
+      slices.push(el);
+    }
+    var exitTransform = 'translateX(100%)';
+    var indices = Array.from({length:total}, function(_,i){ return i; });
+    var ordered = indices.slice().sort(function(){ return Math.random() - 0.5; });
+    // Pre-calculate all strip timings
+    var stripData = ordered.map(function(sliceIdx, i) {
+      var variation = 0.2 + Math.random() * 1.6;
+      var duration = C.speed * variation;
+      var t = sliceIdx / Math.max(total - 1, 1);
+      var norm = t * 2 - 1;
+      var curveFactor = Math.exp(-norm * norm * 3.5);
+      var bellDelay = curveFactor * C.bellStrength;
+      var delay = (C.stagger * i) + bellDelay + (Math.random() * C.spread);
+      return { sliceIdx: sliceIdx, duration: duration, delay: delay };
+    });
+    var maxEnd = 0;
+    stripData.forEach(function(d) {
+      var ms = (d.delay + d.duration) * 1000;
+      if (ms > maxEnd) maxEnd = ms;
+    });
+    // Find when center of screen clears (for logo color inversion)
+    var centerStripIdx = Math.round(total / 2);
+    var centerMs = maxEnd / 2; // fallback
+    for (var j = 0; j < stripData.length; j++) {
+      if (stripData[j].sliceIdx === centerStripIdx) {
+        centerMs = (stripData[j].delay + stripData[j].duration) * 1000;
+        break;
+      }
+    }
+    window.__beginGlitchTransition = function() {
+      // Capture logo A's top offset once so mask rects use correct local coordinates
+      var introEl = document.getElementById('intro-logo-overlay');
+      var logoTop = introEl ? introEl.getBoundingClientRect().top : 0;
+      var maskEl = document.getElementById('logo-a-mask');
+      stripData.forEach(function(d) {
+        (function(sl, sliceIdx, dur, del) {
+          // Animate strip exit
+          setTimeout(function() {
+            sl.style.transition = 'transform ' + dur.toFixed(3) + 's ' + C.easing;
+            sl.style.transform = exitTransform;
+          }, del * 1000);
+          // When strip finishes sliding away, mask Logo A at that Y band
+          setTimeout(function() {
+            if (!maskEl) return;
+            var vy = sliceIdx * C.sliceH;
+            var ly = vy - logoTop;
+            var r = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+            r.setAttribute('x', '-99999');
+            r.setAttribute('y', String(ly - 1));
+            r.setAttribute('width', '199998');
+            r.setAttribute('height', String(C.sliceH + 2));
+            r.setAttribute('fill', 'black');
+            maskEl.appendChild(r);
+          }, (del + dur) * 1000);
+        })(slices[d.sliceIdx], d.sliceIdx, d.duration, d.delay);
+      });
+      setTimeout(function() {
+        overlay.remove();
+        window.__glitchDone = true;
+        if (window.__onGlitchDone) window.__onGlitchDone();
+      }, maxEnd + 100);
+    };
+  });
+})();
+</script>
 <div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 64c81b5</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
@@ -678,6 +801,113 @@ function PixelResolveVideo({ src, videoRef: externalVideoRef, videoProps={}, sty
   );
 }
 
+/* ── PixelResolveImg — same block-pixel resolve effect as PixelResolveVideo but for images ── */
+function PixelResolveImg({ src, alt, style={}, delay=0 }) {
+  const containerRef = useRef(null);
+  const imgElRef     = useRef(null);
+  const canvasRef    = useRef(null);
+  const rafRef       = useRef(null);
+  const timerRef     = useRef(null);
+  const [ready, setReady]     = useState(false);
+  const [inView, setInView]   = useState(false);
+  const PX = 16, RAMP = 1200;
+
+  // Fire ready even when image is already cached (onLoad missed)
+  useEffect(() => {
+    const img = imgElRef.current;
+    if (!img) return;
+    if (img.complete && img.naturalWidth) { setReady(true); return; }
+    const handler = () => setReady(true);
+    img.addEventListener('load', handler);
+    return () => img.removeEventListener('load', handler);
+  }, []);
+
+  // Each thumbnail triggers itself when it enters the viewport
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setInView(true); obs.disconnect(); }
+    }, { threshold: 0.2 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const drawAt = (ctx, W, H, curPX) => {
+    const img = imgElRef.current;
+    if (!img || !img.complete || !img.naturalWidth) return;
+    ctx.clearRect(0, 0, W, H);
+    ctx.imageSmoothingEnabled = false;
+    const smpl = document.createElement('canvas');
+    smpl.width  = Math.max(1, Math.ceil(W / curPX));
+    smpl.height = Math.max(1, Math.ceil(H / curPX));
+    const sctx = smpl.getContext('2d');
+    const vW = img.naturalWidth, vH = img.naturalHeight;
+    const scale = Math.max(W / vW, H / vH);
+    const sx = ((vW * scale - W) / 2) / scale;
+    const sy = ((vH * scale - H) / 2) / scale;
+    sctx.drawImage(img, sx, sy, W / scale, H / scale, 0, 0, smpl.width, smpl.height);
+    ctx.drawImage(smpl, 0, 0, smpl.width, smpl.height, 0, 0, W, H);
+  };
+
+  const getDims = () => {
+    const c = containerRef.current;
+    return c ? { W: c.offsetWidth, H: c.offsetHeight } : { W: 0, H: 0 };
+  };
+
+  // Show fully pixelated while waiting for in-view
+  useEffect(() => {
+    if (!ready || inView) return;
+    cancelAnimationFrame(rafRef.current);
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const { W, H } = getDims();
+    if (!W || !H) return;
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    drawAt(ctx, W, H, PX);
+  }, [ready, inView]);
+
+  // Resolve 16→1 when in view
+  useEffect(() => {
+    if (!inView || !ready) return;
+    clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      cancelAnimationFrame(rafRef.current);
+      const canvas = canvasRef.current;
+      if (!canvas) return;
+      const { W, H } = getDims();
+      if (!W || !H) return;
+      canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext('2d');
+      const ease = t => t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+      let start = null;
+      const tick = (now) => {
+        if (!start) start = now;
+        const tp    = Math.min((now - start) / RAMP, 1);
+        const curPX = Math.max(1, Math.round(1 + (PX - 1) * ease(1 - tp)));
+        drawAt(ctx, W, H, curPX);
+        if (tp < 1) rafRef.current = requestAnimationFrame(tick);
+        else        ctx.clearRect(0, 0, W, H);
+      };
+      rafRef.current = requestAnimationFrame(tick);
+    }, delay * 1000);
+    return () => { clearTimeout(timerRef.current); cancelAnimationFrame(rafRef.current); };
+  }, [inView, ready]);
+
+  return (
+    <div ref={containerRef} style={{ position:'relative', width:'100%', height:'100%', ...style }}>
+      <img
+        ref={imgElRef}
+        src={src}
+        alt={alt||''}
+        style={{ display:'block', width:'100%', height:'100%', objectFit:'cover' }}
+      />
+      <canvas ref={canvasRef} style={{ position:'absolute', top:0, left:0, width:'100%', height:'100%', pointerEvents:'none' }} />
+    </div>
+  );
+}
+
 /* ── InViewAscii — triggers AsciiReveal when element enters viewport ── */
 function InViewAscii({ text, style, getColor=null }) {
   const [active, setActive] = useState(false);
@@ -863,7 +1093,7 @@ function ContactPixels({ dark, mobile }) {
             const revealAt = hash(ci + (corner==='br'?6000:8000), ri + (corner==='br'?6000:8000)) * 0.95;
 
             particles.push({ hcol, hrow, col:hcol, row:hrow,
-              cL:'#FDFEFF', cD:'#121010', isSvg, svgIdx, revealAt });
+              cL:'#F5F3EE', cD:'#121010', isSvg, svgIdx, revealAt });
           }
         }
       });
@@ -960,10 +1190,10 @@ const MODELS = [
 ];
 
 const WORKS = [
-  {title:"Afterpay x Dijitally", meta:"PARTNERSHIP · 2024 · DIGITAL",   cat:"PERFORMANCE",bg:"#000",fg:"#B6F4C9",label:"DIJITALLY × afterpay",img:"work/AfterpayxDijitally.jpg",aspect:"1008/1360"},
-  {title:"Afterpay Day",         meta:"CREATIVE · DESIGN · SOCIAL",      cat:"CREATIVE",   bg:"#1a1a1a",fg:"#fff",label:"Afterpay Day",img:"work/AfterpayDay.jpg",aspect:"1/1"},
-  {title:"Procore SURE",  meta:"CREATIVE · DESIGN · SOCIAL",      cat:"SOCIAL",     bg:"#FF4500",fg:"#fff",label:"ProSURE",img:"work/ProcoreSURE.png",aspect:"1008/1360"},
-  {title:"Airwallex Global",     meta:"PERFORMANCE · 2024 · DATA",       cat:"DATA",       bg:"#0a0a1e",fg:"#B6F4C9",label:"Airwallex",img:"work/AWX.png",aspect:"1008/1230"},
+  {title:"Afterpay x Dijitally", meta:"PARTNERSHIP · 2024 · DIGITAL",   cat:"PERFORMANCE",bg:"#000",fg:"#B6F4C9",label:"DIJITALLY × afterpay",img:"work/AfterpayxDijitally.png",aspect:"1008/1360"},
+  {title:"Afterpay Day",         meta:"CREATIVE · DESIGN · SOCIAL",      cat:"CREATIVE",   bg:"#1a1a1a",fg:"#F5F3EE",label:"Afterpay Day",img:"work/AfterpayDay.jpg",aspect:"1/1"},
+  {title:"Constantinople", meta:"CREATIVE · DESIGN · SOCIAL",  cat:"SOCIAL",     bg:"#FF4500",fg:"#F5F3EE",label:"Constantinople",img:"work/Constantinople.png",aspect:"1008/1360"},
+  {title:"Airwallex x Dijitally",    meta:"PERFORMANCE · 2024 · DATA",   cat:"DATA",       bg:"#0a0a1e",fg:"#B6F4C9",label:"Airwallex",img:"work/AWXxAirwallex.png",aspect:"1008/1230"},
 ];
 const CATS = ["ALL","PERFORMANCE","CREATIVE","SOCIAL","DATA"];
 
@@ -989,7 +1219,7 @@ function DitherCanvas({ dark }) {
 
     const PX=8, RADIUS=300, FORCE=6, WOBBLE=5, SPRING=0.06, DAMP=0.5;
     const BR=0.10, CT=2.4, GM=1.13;
-    const LON=[241,242,243], LOFF=[253,254,255];
+    const LON=[237,234,229], LOFF=[245,243,238];
     const DON=[18,16,16],    DOFF=[0,0,0];
     const BAYER=[[0,2,0,2],[3,1,3,1],[0,2,0,2],[3,1,3,1]];
     const R2=RADIUS*RADIUS, IDLE_V=0.3, IDLE_D=(RADIUS+PX*2)**2;
@@ -1124,21 +1354,9 @@ function DitherCanvas({ dark }) {
           const counter = document.getElementById('preloader-counter');
           if (counter) counter.style.display = 'none';
         } else {
-          // Set position immediately — prevents grey flash on first frame
-          gsap.set(wrap, { xPercent:-50, yPercent:-50, y: window.innerHeight*0.5, scale: initialScale });
-          // Hold 1s, then scale+slide to final position over 0.25s
-          gsap.to(wrap, { y:128, scale:1, duration:0.25, ease:'power2.inOut', delay:1 });
-
-          // Counter: 00→99 over 1.25s, then remove
+          gsap.set(wrap, { xPercent:-50, yPercent:-50, y:128, scale:1 });
           const counter = document.getElementById('preloader-counter');
-          if (counter) {
-            const proxy = { v: 0 };
-            gsap.to(proxy, {
-              v: 99, duration: 1.25, ease: 'none',
-              onUpdate: () => { counter.textContent = String(Math.floor(proxy.v)).padStart(2,'0'); },
-              onComplete: () => { counter.style.display = 'none'; }
-            });
-          }
+          if (counter) counter.style.display = 'none';
         }
       }
     }
@@ -1192,7 +1410,7 @@ function MobileDitherVideo({ dark }) {
     const PX    = 8;
     const BAYER = [[0,2,0,2],[3,1,3,1],[0,2,0,2],[3,1,3,1]];
     const GM=1.13, CT=2.4, BR=0.10;
-    const LON=[241,242,243], LOFF=[253,254,255];
+    const LON=[237,234,229], LOFF=[245,243,238];
     const DON=[18,16,16],    DOFF=[0,0,0];
 
     let cols=0, rows=0, raf;
@@ -1217,16 +1435,7 @@ function MobileDitherVideo({ dark }) {
       canvas.style.height = canvas.height + 'px';
       build();
 
-      // Intro animation — matches DitherCanvas desktop logic
-      const initialScale = Math.min(196 / canvas.width, 196 / canvas.height);
-      gsap.set(wrap, { xPercent:-50, yPercent:-50,
-        x: window.innerWidth * 0.5,
-        y: window.innerHeight * 0.5,
-        scale: initialScale });
-      gsap.to(wrap, { x: window.innerWidth * 0.5, y: 128, scale: 1,
-        duration: 0.2, ease: 'power2.inOut', delay: 1 });
-
-      // Preloader counter — disabled on mobile
+      gsap.set(wrap, { xPercent:-50, yPercent:-50, x: window.innerWidth * 0.5, y: 128, scale: 1 });
       const counter = document.getElementById('preloader-counter');
       if (counter) counter.style.display = 'none';
     }
@@ -1236,7 +1445,7 @@ function MobileDitherVideo({ dark }) {
       if (!outBuf || video.readyState < 2) return;
 
       // Fill with solid background before compositing video — eliminates transparency checkerboard artifacts
-      sctx.fillStyle = darkRef.current ? '#121010' : '#FDFEFF';
+      sctx.fillStyle = darkRef.current ? '#121010' : '#F5F3EE';
       sctx.fillRect(0, 0, cols, rows);
       sctx.drawImage(video, 0, 0, cols, rows);
       const id = sctx.getImageData(0, 0, cols, rows);
@@ -1475,7 +1684,7 @@ function SvcFooterRow({ isMobile, dark }) {
           </span>
         </div>
       )}
-      <div ref={footerLogoRef} style={{width:"100%",overflow:"hidden",filter:dark?"invert(1)":"none",transition:"filter 0.3s ease"}} />
+      <div ref={footerLogoRef} style={{width:"100%",overflow:"hidden",filter:dark?"url(#to-warm-white)":"none",transition:"filter 0.3s ease"}} />
     </footer>
   );
 }
@@ -1645,7 +1854,7 @@ function ServicesPage({ dark, isMobile, setPage }) {
         }}>
           {MODELS.map((m,i)=>(
             <div key={m.name} style={{
-              flex:1, background:dark?"#1A1A1A":"#F6F6F6",
+              flex:1, background:dark?"#1A1A1A":"#EDEAE5",
               borderRadius:4, padding:"var(--s24)",
               display:"flex", flexDirection:"column", gap:16,
             }}>
@@ -1671,7 +1880,7 @@ function ServicesPage({ dark, isMobile, setPage }) {
         display:"flex", flexDirection:"column", alignItems:"center", gap:82, overflow:"hidden",
       }}>
         {/* Centred headline */}
-        <div style={{...body22, fontSize:isMobile?15:22, color:"#FDFEFF", textAlign:"center", maxWidth:486}}>
+        <div style={{...body22, fontSize:isMobile?15:22, color:"#F5F3EE", textAlign:"center", maxWidth:486}}>
           High-impact capability, delivered fast, without the overhead of permanent hires.
         </div>
 
@@ -1689,15 +1898,15 @@ function ServicesPage({ dark, isMobile, setPage }) {
               padding:"32px 64px",
               display:"flex", flexDirection:"column", gap:32, alignItems:"center", justifyContent:"center",
             }}>
-              <div style={{fontFamily:"var(--sans)",fontSize:24,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.48px",color:"#FDFEFF",width:"100%",maxWidth:265}}>{cap.title}</div>
+              <div style={{fontFamily:"var(--sans)",fontSize:24,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.48px",color:"#F5F3EE",width:"100%",maxWidth:265}}>{cap.title}</div>
               <div style={{display:"flex",flexDirection:"column",gap:14,width:"100%",maxWidth:265}}>
                 {cap.items.map((item,idx)=>(
                   <div key={item} style={{
                     display:"flex", gap:10, alignItems:"center", paddingBottom:8,
                     borderBottom: idx < cap.items.length-1 ? "1px solid rgba(222,222,222,0.25)" : "none",
                   }}>
-                    <span style={{width:4,height:4,background:"#FDFEFF",flexShrink:0,display:"inline-block"}}/>
-                    <span style={{fontFamily:"var(--sans)",fontSize:16,fontWeight:350,lineHeight:1.2,color:"#FDFEFF"}}>{item}</span>
+                    <span style={{width:4,height:4,background:"#F5F3EE",flexShrink:0,display:"inline-block"}}/>
+                    <span style={{fontFamily:"var(--sans)",fontSize:16,fontWeight:350,lineHeight:1.2,color:"#F5F3EE"}}>{item}</span>
                   </div>
                 ))}
               </div>
@@ -1745,7 +1954,7 @@ function ServicesPage({ dark, isMobile, setPage }) {
                   width:"100%",background:"none",border:"none",cursor:"pointer",padding:0,
                   gap:10,
                 }}>
-                  <span style={{fontFamily:"var(--sans)",fontSize:22,fontWeight:350,lineHeight:1.1,color:"var(--secondary)",textAlign:"left"}}>{item.label}</span>
+                  <span style={{fontFamily:"var(--sans)",fontSize:32,fontWeight:350,lineHeight:1.1,color:"var(--secondary)",textAlign:"left"}}>{item.label}</span>
                   {/* + / – icon */}
                   <span style={{
                     position:"relative",width:21,height:21,flexShrink:0,
@@ -1767,7 +1976,7 @@ function ServicesPage({ dark, isMobile, setPage }) {
       {/* ══ CONTACT ══ */}
       <section ref={contactSectionRef} style={{
         ...divider,
-        background:dark?"#1A1A1A":"var(--grey)",
+        background:dark?"#1A1A1A":"#EDEAE5",
         padding:isMobile?"48px 16px":"var(--s96) var(--s64)",
         minHeight:isMobile?(contactHeight?`${contactHeight}px`:"66svh"):"auto",
         display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",gap:"var(--s24)",
@@ -1889,7 +2098,7 @@ function Page() {
       renderer: "svg",
       loop: false,
       autoplay: true,
-      path: "json/Dijitally-Alternate.json?v=3",
+      path: "json/Dijitally-Logo.json",
       rendererSettings: { preserveAspectRatio:"xMidYMid meet" },
     });
     return () => {
@@ -2006,13 +2215,12 @@ function Page() {
 
 
 
-  // Hide hero elements before first paint — skip if returning from a secondary page
+  // Hide nav + hero body before first paint — skip if returning from a secondary page
   useLayoutEffect(()=>{
     if (typeof gsap === "undefined") return;
     if (sessionStorage.getItem('skipIntro')) return;
-    if (heroBodyRef.current)  gsap.set(heroBodyRef.current, { opacity:0, y:16 });
-    if (heroThumbRef.current) gsap.set(heroThumbRef.current, { opacity:0, x:24 });
-    if (navRef.current)       gsap.set(navRef.current,      { y:"-100%" });
+    if (navRef.current)     gsap.set(navRef.current,     { y:"-100%" });
+    if (heroBodyRef.current) gsap.set(heroBodyRef.current, { opacity:0, y:16 });
   }, []);
 
   // Lottie + hero entrance sequence
@@ -2024,59 +2232,107 @@ function Page() {
     const skipIntro = !!sessionStorage.getItem('skipIntro');
     if (skipIntro) sessionStorage.removeItem('skipIntro');
 
-    const anim = lottie.loadAnimation({
-      container: el,
-      renderer: "svg",
-      loop: false,
-      autoplay: false,
-      path: "json/Dijitally-Alternate.json?v=3",
-      rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
-    });
+    const isDark = localStorage.getItem('dijitally-theme') === 'dark';
 
-    anim.addEventListener("DOMLoaded", () => {
-      captureRect();
-      if (skipIntro) {
+    const doEntrance = () => {
+      // Animate nav in
+      gsap.to(navRef.current, { y:"0%", duration:0.55, ease:"power2.out",
+        onComplete: () => { if (smootherRef.current) smootherRef.current.paused(false); }
+      });
+      // Animate hero body text
+      if (typeof SplitText !== "undefined" && heroBodyRef.current) {
+        const heroSpan = heroBodyRef.current.querySelector("[data-split-entrance]");
+        if (heroSpan) {
+          const split = new SplitText(heroSpan, { type:"lines", linesClass:"split-line" });
+          split.lines.forEach(line => {
+            const w = document.createElement("div");
+            w.style.overflow = "hidden"; w.style.display = "block";
+            line.parentNode.insertBefore(w, line); w.appendChild(line);
+          });
+          gsap.set(split.lines, { y:"110%" });
+          gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out", delay:0.2,
+            onComplete: () => gsap.to(split.lines, { y:"0%", duration:0.7, ease:"power3.out", stagger:0.08 })
+          });
+        } else {
+          gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out", delay:0.2 });
+        }
+      } else {
+        gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out", delay:0.2 });
+      }
+    };
+
+    // ── Skip intro: show hero logo at final frame immediately ──
+    if (skipIntro) {
+      const anim = lottie.loadAnimation({
+        container: el, renderer:"svg", loop:false, autoplay:false,
+        path:"json/Dijitally-Logo.json",
+        rendererSettings: { preserveAspectRatio:"xMidYMid meet" },
+      });
+      anim.addEventListener("DOMLoaded", () => {
+        captureRect();
         anim.goToAndStop(anim.totalFrames - 1, true);
         if (smootherRef.current) smootherRef.current.paused(false);
-        return;
-      }
-      setTimeout(() => {
-        anim.play();
-        setTimeout(() => {
-          if (typeof SplitText !== "undefined" && heroBodyRef.current) {
-            const heroSpan = heroBodyRef.current.querySelector("[data-split-entrance]");
-            if (heroSpan) {
-              const split = new SplitText(heroSpan, { type:"lines", linesClass:"split-line" });
-              split.lines.forEach(line => {
-                const w = document.createElement("div");
-                w.style.overflow = "hidden";
-                w.style.display = "block";
-                line.parentNode.insertBefore(w, line);
-                w.appendChild(line);
-              });
-              gsap.set(split.lines, { y:"110%" });
-              gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out",
-                onComplete: () => gsap.to(split.lines, { y:"0%", duration:0.7, ease:"power3.out", stagger:0.08 })
-              });
-            } else {
-              gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out" });
-            }
-          } else {
-            gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out" });
-          }
-          gsap.to(heroThumbRef.current, { opacity:1, x:0, duration:0.5, ease:"power2.out", delay:0.5,
-            onComplete: () => {
-              if (heroThumbRef.current) initThumbRect.current = heroThumbRef.current.getBoundingClientRect();
-            }
-          });
-          gsap.to(navRef.current, { y:"0%", duration:0.55, ease:"power2.out", delay:0.85,
-            onComplete: () => { if (smootherRef.current) smootherRef.current.paused(false); }
-          });
-        }, 375);
-      }, isMobile ? 1500 : 1500);
+      });
+      return () => anim.destroy();
+    }
+
+    // ── Full intro: logo plays above overlay, then triggers glitch ──
+    const introEl = document.getElementById('intro-logo-overlay');
+
+    // Adjust position for mobile
+    if (introEl) {
+      if (isMobile) { introEl.style.top = '72px'; introEl.style.transform = 'none'; }
+      introEl.style.display = 'block';
+      // SVG mask: strips will paint black rects here as they exit, masking Logo A strip-by-strip
+      introEl.style.webkitMask = 'url(#logo-a-mask)';
+      introEl.style.mask = 'url(#logo-a-mask)';
+    }
+
+    // Load intro animation into fixed overlay
+    const introAnim = lottie.loadAnimation({
+      container: introEl || el,
+      renderer:"svg", loop:false, autoplay:false,
+      path:"json/Dijitally-Logo.json",
+      rendererSettings: { preserveAspectRatio:"xMidYMid meet" },
     });
 
-    return () => anim.destroy();
+    // Load hero logo at final frame in background (hidden behind overlay)
+    let heroAnim = null;
+    heroAnim = lottie.loadAnimation({
+      container: el,
+      renderer:"svg", loop:false, autoplay:false,
+      path:"json/Dijitally-Logo.json",
+      rendererSettings: { preserveAspectRatio:"xMidYMid meet" },
+    });
+    heroAnim.addEventListener("DOMLoaded", () => {
+      captureRect();
+      heroAnim.goToAndStop(heroAnim.totalFrames - 1, true);
+    });
+
+    // Logo A = contrast colour: SVG feColorMatrix filter inverts black → #F5F3EE exactly (no per-frame DOM patching)
+    // Light mode: black logo paths → #F5F3EE via url(#to-warm-white)
+    // Dark mode: logo stays dark (off-black against off-white overlay) — no filter
+    if (introEl) introEl.style.filter = isDark ? 'none' : 'url(#to-warm-white)';
+
+    introAnim.addEventListener("DOMLoaded", () => {
+      introAnim.play();
+    });
+
+    introAnim.addEventListener("complete", () => {
+      // Logo done — trigger the glitch transition
+      if (window.__beginGlitchTransition) window.__beginGlitchTransition();
+
+      // After glitch completes: fade out Logo A (now invisible against page), animate nav + body
+      window.__onGlitchDone = () => {
+        if (introEl) gsap.to(introEl, { opacity:0, duration:0.4, onComplete:() => { introEl.style.display='none'; } });
+        setTimeout(doEntrance, 94);
+      };
+    });
+
+    return () => {
+      introAnim.destroy();
+      if (heroAnim) heroAnim.destroy();
+    };
   }, []);
 
 
@@ -2229,13 +2485,59 @@ function Page() {
   }, [activeModel]);
 
 
+  // Magnetic hover on work cards — image + text attract to cursor within 60px
+  useEffect(() => {
+    if (isMobile || typeof gsap === 'undefined') return;
+    const PULL   = 60;  // max translation px
+    const MARGIN = 60;  // attraction zone outside card edge
+    const nearState = new Map();
+
+    const isNear = (rect, x, y) =>
+      x >= rect.left - MARGIN && x <= rect.right  + MARGIN &&
+      y >= rect.top  - MARGIN && y <= rect.bottom + MARGIN;
+
+    const onMove = (e) => {
+      const cards = document.querySelectorAll('#work .wc');
+      let anyNear = false;
+      cards.forEach(card => {
+        const rect = card.getBoundingClientRect();
+        const near = isNear(rect, e.clientX, e.clientY);
+        const was  = nearState.get(card);
+        if (near) anyNear = true;
+        if (near) {
+          nearState.set(card, true);
+          const cx = rect.left + rect.width  / 2;
+          const cy = rect.top  + rect.height / 2;
+          const dx = Math.max(-1, Math.min(1, (e.clientX - cx) / (rect.width  / 2)));
+          const dy = Math.max(-1, Math.min(1, (e.clientY - cy) / (rect.height / 2)));
+          gsap.to(card, { x: dx * PULL, y: dy * PULL, filter: 'blur(0px)', duration: 0.4, ease: 'power2.out', overwrite: 'auto' });
+        } else if (was) {
+          nearState.set(card, false);
+          gsap.to(card, { x: 0, y: 0, filter: 'blur(0px)', duration: 0.7, ease: 'elastic.out(1, 0.5)', overwrite: 'auto' });
+        }
+      });
+      // Blur/dim cards that aren't being hovered when any card is active
+      cards.forEach(card => {
+        const near = nearState.get(card);
+        if (anyNear && !near) {
+          gsap.to(card, { filter: 'blur(15px)', duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
+        } else if (!anyNear) {
+          gsap.to(card, { filter: 'blur(0px)', duration: 0.45, ease: 'power2.out', overwrite: 'auto' });
+        }
+      });
+    };
+
+    document.addEventListener('mousemove', onMove);
+    return () => document.removeEventListener('mousemove', onMove);
+  }, [isMobile]);
+
   // Trigger all carousel images when section enters viewport
   useEffect(()=>{
     const el = carouselSectionRef.current;
     if (!el) return;
     const obs = new IntersectionObserver(([e])=>{
       if (e.isIntersecting) { setCarouselVisible(true); obs.disconnect(); }
-    }, { threshold: 0.5 });
+    }, { threshold: 0.1 });
     obs.observe(el);
     return ()=> obs.disconnect();
   }, []);
@@ -2356,10 +2658,12 @@ function Page() {
           renderer: "svg",
           loop: false,
           autoplay: true,
-          path: "json/Dijitally-Alternate.json?v=3",
+          path: "json/Dijitally-Logo.json",
           rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
         });
-        // Dark mode handled by parent div's filter — no need to set inline SVG filter
+        anim.addEventListener("DOMLoaded", () => {
+          if (typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh();
+        });
         obs.disconnect();
       }
     }, { threshold: 0.2 });
@@ -2599,7 +2903,7 @@ function Page() {
               style={{
                 width:"100%",
                 aspectRatio:"1604/223",
-                filter:dark?"invert(1)":"none",
+                filter:dark?"url(#to-warm-white)":"none",
                 transition:"filter 0.3s ease",
               }}
             />
@@ -2619,10 +2923,10 @@ function Page() {
               <span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--static)"}}>·</span>
               <span ref={heroTextRef} data-split-entrance="" className="hero-body-text" style={{
                   fontFamily:"var(--sans)",
-                  fontSize: isMobile ? "var(--h1)" : "var(--h2)", fontWeight:350,
+                  fontSize: isMobile ? "var(--h1)" : 38, fontWeight:350,
                   lineHeight:"var(--h2-lh)", letterSpacing:"var(--h2-ls)",
                   color:"var(--secondary)",
-                  maxWidth:680,
+                  maxWidth:560,
                   display:"block",
                 }}>Through flexible, built-for-scale models, we connect creative, marketing, and technology to drive measurable impact for our allies.</span>
             </div>
@@ -2632,7 +2936,7 @@ function Page() {
             <div
               ref={heroThumbRef}
               onClick={()=>setReelOpen(true)}
-              onMouseEnter={()=>setThumbHover(true)}
+              onMouseEnter={()=>{setThumbHover(true);const t=heroThumbRef.current?.querySelector('.play-reel-text');if(t&&typeof gsap!=='undefined'){if(!t.style.width){t.style.display='inline-block';t.style.whiteSpace='nowrap';t.style.width=t.offsetWidth+'px';t.style.overflow='hidden';}gsap.to(t,{duration:0.4,ease:'none',scrambleText:{text:'PLAY REEL',chars:'upperCase',revealDelay:0.1,speed:0.8}});}}}
               onMouseLeave={()=>setThumbHover(false)}
               style={{
                 position:"relative",
@@ -2655,6 +2959,23 @@ function Page() {
                     externalTrigger={true}
                     videoProps={{autoPlay:true,muted:true,loop:true,playsInline:true,style:{width:"100%",height:"100%",objectFit:"contain",display:"block"}}}
                   />
+                </div>
+                {/* PLAY REEL CTA — slides up on hover */}
+                <div style={{
+                  position:"absolute",bottom:8,right:8,
+                  display:"inline-flex",alignItems:"center",
+                  padding:"6px 10px",
+                  background:"var(--tech)",
+                  transform: thumbHover ? "translateY(0)" : "translateY(calc(100% + 8px))",
+                  transition:"transform 0.3s ease",
+                  gap:6,
+                  pointerEvents:"none",
+                }}>
+                  {/* Play icon */}
+                  <svg width="7" height="8" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 0L7 4L0 8V0Z" fill="#121010"/>
+                  </svg>
+                  <span className="play-reel-text" style={{fontFamily:"var(--mono)",fontSize:11,fontWeight:400,color:"#121010",letterSpacing:0}}>PLAY REEL</span>
                 </div>
               </div>
             </div>
@@ -2748,7 +3069,7 @@ function Page() {
       <section id="services" style={{...divider, minHeight: isMobile ? 0 : 1000}}>
 
         {/* Text header */}
-        <div style={{padding: isMobile ? "var(--s42) var(--s42) var(--s32)" : "var(--s42) var(--s42) var(--s32) calc(400px + var(--s42) * 2)",display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
+        <div style={{padding: isMobile ? "var(--s42) var(--s42) 64px" : "var(--s42) var(--s42) 64px calc(400px + var(--s42) * 2)",display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
           <Eyebrow center={false}>++ HOW WE OPERATE ++</Eyebrow>
 
           <div data-split="" role="heading" aria-level="2" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:720}}>
@@ -2775,7 +3096,7 @@ function Page() {
                 {i===activeModel ? (
                   /* Active — full grey card containing heading + content */
                   <div style={{
-                    background:dark?"#1A1A1A":"#F6F6F6",
+                    background:dark?"#1A1A1A":"#EDEAE5",
                     borderRadius:4,
                     padding:"24px",
                   }}>
@@ -2791,7 +3112,7 @@ function Page() {
                     )}
                     <span style={{
                       fontFamily:"var(--sans)",
-                      fontSize:"var(--h2)", fontWeight:350,
+                      fontSize:32, fontWeight:350,
                       lineHeight:"var(--h2-lh)", letterSpacing:"var(--h2-ls)",
                       color:"var(--secondary)",
                       display:"block", marginBottom:16,
@@ -2846,14 +3167,14 @@ function Page() {
                       display:"flex", alignItems:"center", justifyContent:"space-between",
                       width:"100%",
                       padding:"16px 24px",
-                      background: (isMobile || hoverModel===i) ? (dark?"#1A1A1A":"#F6F6F6") : "none",
+                      background: (isMobile || hoverModel===i) ? (dark?"#1A1A1A":"#EDEAE5") : "none",
                       borderRadius:4, border:"none",
                       cursor:"pointer", textAlign:"left",
                     }}
                   >
                     <span style={{
                       fontFamily:"var(--sans)",
-                      fontSize:"var(--h2)", fontWeight:350,
+                      fontSize:32, fontWeight:350,
                       lineHeight:"var(--h2-lh)", letterSpacing:"var(--h2-ls)",
                       color: (isMobile || hoverModel===i) ? "var(--secondary)" : "var(--static)",
                       transition:"color 0.2s ease",
@@ -2881,7 +3202,7 @@ function Page() {
             alignSelf:"flex-start",
             aspectRatio:"16/9",
             overflow:"hidden",
-            background:"#FDFEFF",
+            background:"#F5F3EE",
             borderRadius:4,
           }}>
             {MODELS.map((m, i) => (
@@ -2927,12 +3248,12 @@ function Page() {
 
       {/* ══════════════════════════════════════
           WORK / MAIN FRAME
-          padding: 128px 64px, bg #FDFEFF, gap 24px
+          padding: 128px 64px, bg #F5F3EE, gap 24px
       ══════════════════════════════════════ */}
       <section id="work" ref={carouselSectionRef} style={{
         ...divider,
-        paddingTop: isMobile ? 96 : "var(--s128)", paddingBottom:"var(--s128)",
-        display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s24)",
+        paddingTop: 256, paddingBottom:0,
+        display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s64)",
       }}>
         {/* Header + filters */}
         <div style={{
@@ -2942,8 +3263,8 @@ function Page() {
           justifyContent:"space-between",
           width:"100%",
           gap:"var(--s42)",
-          paddingLeft:"var(--s64)",
-          paddingRight:"var(--s64)",
+          paddingLeft: isMobile ? "var(--s42)" : "var(--s64)",
+          paddingRight: isMobile ? "var(--s42)" : "var(--s64)",
         }}>
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
             <Eyebrow center={false}>++ OUR WORK ++</Eyebrow>
@@ -2951,69 +3272,61 @@ function Page() {
               Creative that converts. Data that performs. Systems that support. Production that moves.
             </div>
           </div>
-          {!isMobile && (
-            <a href="#work" className="cta-btn" style={{
-              display:"inline-flex", alignItems:"center", justifyContent:"center", gap:10,
-              padding:"18px 24px",
-              background:"var(--tech)",
-              border:"none", borderRadius:0,
-              fontFamily:"var(--sans)", fontSize:16, fontWeight:500, letterSpacing:0,
-              color:"#121010",
-              textDecoration:"none", whiteSpace:"nowrap",
-              flexShrink:0,
-            }}><span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span></a>
-          )}
         </div>
 
-        {/* Cards — staggered 2-col grid (desktop) / scroll stack (mobile) */}
-        {isMobile ? (
-          <div ref={carouselRef} data-carousel=""
-            style={{display:"flex",gap:24,overflowX:"auto",width:"100%",paddingLeft:"var(--s42)",paddingRight:"var(--s42)",paddingBottom:"var(--s16)",boxSizing:"border-box",WebkitOverflowScrolling:"touch",touchAction:"pan-x pan-y"}}>
-            {filtered.map((w,i)=>(
-              <div key={i} className="wc" style={{flexShrink:0,width:"calc(100vw - 96px)"}}>
-                <div style={{position:"relative",overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,aspectRatio:w.aspect||"3/4"}}>
-                  {w.img ? <PixelRevealImg src={w.img} alt={w.title} externalTrigger={carouselVisible} delay={i*0.2}/> : <div style={{display:"flex",alignItems:"center",justifyContent:"center",height:"100%"}}><span style={{fontFamily:"var(--sans)",fontSize:22,fontWeight:900,color:w.fg}}>{w.label}</span></div>}
-                  <a href="#" className="cta-btn work-card-cta" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"12px 18px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:14,fontWeight:500,color:"#121010",textDecoration:"none",whiteSpace:"nowrap"}}>
-                    <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View project</span>
-                  </a>
-                </div>
-                <div style={{padding:"16px 0 0",display:"flex",flexDirection:"column",gap:4}}>
-                  <p style={{fontFamily:"var(--sans)",fontSize:"var(--card)",fontWeight:350,lineHeight:"var(--card-lh)",color:"var(--secondary)"}}>{w.title}</p>
-                  <span style={{fontFamily:"var(--mono)",fontSize:"var(--meta)",fontWeight:400,letterSpacing:"var(--meta-ls)",color:"var(--static)"}}>{w.meta}</span>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (() => {
+        {/* Cards — staggered 2-col grid (shared between mobile + desktop) */}
+        {(()=>{
           const cardCta = (label) => (
             <a href="#" className="cta-btn work-card-cta" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"14px 20px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:14,fontWeight:500,color:"#121010",textDecoration:"none",whiteSpace:"nowrap"}}
               onMouseEnter={e=>{const t=e.currentTarget.querySelector('.cta-text');if(!t||typeof gsap==='undefined')return;if(!t.style.width){t.style.display='inline-block';t.style.whiteSpace='nowrap';t.style.width=t.offsetWidth+'px';t.style.overflow='hidden';}gsap.to(t,{duration:0.4,ease:'none',scrambleText:{text:label,chars:'upperCase',revealDelay:0.1,speed:0.8}});}}>
               <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">{label}</span>
             </a>
           );
-          const cardMeta = (w) => (
-            <div style={{padding:"20px 0 0",display:"flex",flexDirection:"column",gap:6}}>
+          const cardMeta = (w, mobile) => (
+            <div style={{padding: mobile ? "12px 0 0" : "20px 0 0",display:"flex",flexDirection:"column",gap: mobile ? 2 : 6}}>
               <p style={{fontFamily:"var(--sans)",fontSize:"var(--card)",fontWeight:350,lineHeight:"var(--card-lh)",color:"var(--secondary)"}}>{w.title}</p>
               <span style={{fontFamily:"var(--mono)",fontSize:"var(--meta)",fontWeight:400,letterSpacing:"var(--meta-ls)",color:"var(--static)"}}>{w.meta}</span>
             </div>
           );
+          if (isMobile) return (
+            <div ref={el => {
+              if (!el) return;
+              requestAnimationFrame(() => {
+                const cs = getComputedStyle(el);
+                const w = el.offsetWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+                Array.from(el.children).forEach(c => { if (c.classList.contains('wc')) c.style.width = w + 'px'; });
+              });
+            }} style={{width:"100%",paddingLeft:"var(--s42)",paddingRight:"var(--s42)",boxSizing:"border-box"}}>
+              {filtered.map((w,i) => (
+                <div key={i} className="wc" style={{marginBottom: i < filtered.length-1 ? 32 : 0}}>
+                  <div style={{position:"relative",width:"100%",paddingBottom:"64.58%",overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg}}>
+                    <div style={{position:"absolute",top:0,left:0,width:"100%",height:"100%"}}>
+                      {w.img && <PixelResolveImg src={w.img} alt={w.title} delay={i*0.1}/>}
+                      {cardCta('View project')}
+                    </div>
+                  </div>
+                  {cardMeta(w, true)}
+                </div>
+              ))}
+            </div>
+          );
           return (
-            <div style={{width:"100%",paddingLeft:"var(--s64)",paddingRight:"var(--s64)",display:"flex",flexDirection:"column",gap:0}}>
+            <div style={{width:"100%",paddingLeft:"var(--s64)",paddingRight:"var(--s64)",display:"flex",flexDirection:"column",gap:0,alignItems:"center"}}>
               {/* Row 1: large left + small right offset down */}
-              <div style={{display:"flex",gap:48,alignItems:"flex-start"}}>
+              <div style={{display:"flex",gap:128,alignItems:"flex-start"}}>
                 {filtered[0] && (
-                  <div className="wc" style={{width:960,flexShrink:0}}>
-                    <div className="work-grid-thumb" style={{height:620,background:filtered[0].img?(dark?"#121010":"#1A1A1A"):filtered[0].bg}}>
-                      {filtered[0].img && <PixelRevealImg src={filtered[0].img} alt={filtered[0].title} externalTrigger={carouselVisible} delay={0}/>}
+                  <div className="wc" style={{width:720,flexShrink:0}}>
+                    <div className="work-grid-thumb" style={{height:465,background:filtered[0].img?(dark?"#121010":"#1A1A1A"):filtered[0].bg}}>
+                      {filtered[0].img && <PixelResolveImg src={filtered[0].img} alt={filtered[0].title} delay={0}/>}
                       {cardCta('View project')}
                     </div>
                     {cardMeta(filtered[0])}
                   </div>
                 )}
                 {filtered[1] && (
-                  <div className="wc" style={{flex:"1 0 0",minWidth:0,paddingTop:252}}>
-                    <div className="work-grid-thumb" style={{height:504,background:filtered[1].img?(dark?"#121010":"#1A1A1A"):filtered[1].bg}}>
-                      {filtered[1].img && <PixelRevealImg src={filtered[1].img} alt={filtered[1].title} externalTrigger={carouselVisible} delay={0.2}/>}
+                  <div className="wc" style={{width:378,flexShrink:0,paddingTop:252}}>
+                    <div className="work-grid-thumb" style={{height:378,background:filtered[1].img?(dark?"#121010":"#1A1A1A"):filtered[1].bg}}>
+                      {filtered[1].img && <PixelResolveImg src={filtered[1].img} alt={filtered[1].title} delay={0.2}/>}
                       {cardCta('View project')}
                     </div>
                     {cardMeta(filtered[1])}
@@ -3021,20 +3334,20 @@ function Page() {
                 )}
               </div>
               {/* Row 2: small left + large right offset down */}
-              <div style={{display:"flex",gap:48,alignItems:"flex-start",paddingBottom:96}}>
+              <div style={{display:"flex",gap:128,alignItems:"flex-start",paddingBottom:96}}>
                 {filtered[2] && (
-                  <div className="wc" style={{flex:"1 0 0",minWidth:0,paddingBottom:320}}>
-                    <div className="work-grid-thumb" style={{height:504,background:filtered[2].img?(dark?"#121010":"#1A1A1A"):filtered[2].bg}}>
-                      {filtered[2].img && <PixelRevealImg src={filtered[2].img} alt={filtered[2].title} externalTrigger={carouselVisible} delay={0.1}/>}
+                  <div className="wc" style={{width:378,flexShrink:0,paddingBottom:320}}>
+                    <div className="work-grid-thumb" style={{height:378,background:filtered[2].img?(dark?"#121010":"#1A1A1A"):filtered[2].bg}}>
+                      {filtered[2].img && <PixelResolveImg src={filtered[2].img} alt={filtered[2].title} delay={0.1}/>}
                       {cardCta('View project')}
                     </div>
                     {cardMeta(filtered[2])}
                   </div>
                 )}
                 {filtered[3] && (
-                  <div className="wc" style={{width:960,flexShrink:0,paddingTop:252}}>
-                    <div className="work-grid-thumb" style={{height:620,background:filtered[3].img?(dark?"#121010":"#1A1A1A"):filtered[3].bg}}>
-                      {filtered[3].img && <PixelRevealImg src={filtered[3].img} alt={filtered[3].title} externalTrigger={carouselVisible} delay={0.3}/>}
+                  <div className="wc" style={{width:720,flexShrink:0,paddingTop:252}}>
+                    <div className="work-grid-thumb" style={{height:465,background:filtered[3].img?(dark?"#121010":"#1A1A1A"):filtered[3].bg}}>
+                      {filtered[3].img && <PixelResolveImg src={filtered[3].img} alt={filtered[3].title} delay={0.3}/>}
                       {cardCta('View project')}
                     </div>
                     {cardMeta(filtered[3])}
@@ -3045,14 +3358,12 @@ function Page() {
           );
         })()}
 
-        {/* View all CTA — mobile only */}
-        {isMobile && (
-          <div style={{paddingLeft:"var(--s42)",paddingRight:"var(--s42)",paddingTop:24}}>
-            <a href="#work" className="cta-btn" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"18px 24px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,color:"#121010",textDecoration:"none",whiteSpace:"nowrap"}}>
-              <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span>
-            </a>
-          </div>
-        )}
+        {/* View all CTA — below thumbnails, centred */}
+        <div style={{width:"100%",display:"flex",justifyContent:"center",paddingTop:isMobile?24:0,paddingBottom:256,paddingLeft:"var(--s42)",paddingRight:"var(--s42)"}}>
+          <a href="#work" className="cta-btn" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"18px 24px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,color:"#121010",textDecoration:"none",whiteSpace:"nowrap"}}>
+            <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span>
+          </a>
+        </div>
 
       </section>
 
@@ -3061,7 +3372,7 @@ function Page() {
       ══════════════════════════════════════ */}
       <section ref={contactSectionRef} style={{
         ...divider,
-        background: dark ? "#1A1A1A" : "var(--grey)",
+        background: dark ? "#1A1A1A" : "#EDEAE5",
         padding: isMobile ? "48px 16px" : "var(--s96) var(--s64)",
         minHeight: isMobile ? (contactHeight ? `${contactHeight}px` : "66svh") : "auto",
         display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", gap:"var(--s24)",
@@ -3070,7 +3381,7 @@ function Page() {
         {/* Corner pixel effects — interactive, light/dark-aware */}
         <ContactPixels dark={dark} mobile={isMobile} />
 
-        {/* Inner contact card — 720×409px, bg #FDFEFF, br 4px */}
+        {/* Inner contact card — 720×409px, bg #F5F3EE, br 4px */}
         <div ref={contactCardRef} className="contact-card-inner" style={{
           background: dark ? "#121010" : "var(--primary)",
           borderRadius:4,
@@ -3078,55 +3389,30 @@ function Page() {
           height: isMobile ? (contactCardHeight ? contactCardHeight : "auto") : 416,
           position:"relative",
           zIndex:1,
-          display:"flex", alignItems: isMobile ? "stretch" : "center",
-          paddingLeft: isMobile ? 24 : 176,
+          display:"flex", alignItems:"center", justifyContent:"center",
+          paddingLeft: isMobile ? 24 : "var(--s64)",
           paddingRight: isMobile ? 24 : "var(--s64)",
           paddingTop: isMobile ? 32 : 0,
           paddingBottom: isMobile ? 32 : 0,
           overflow:"hidden",
           flexShrink:0,
         }}>
-          {/* Video — 150×150, 8px off top-left — hidden on mobile to avoid overlay mess */}
-          <div style={{
-            position:"absolute", top:8, left:8,
-            width:150, height:150,
-            flexShrink:0,
-            clipPath:"inset(0 round 2px)",
-            transform:"translateZ(0)",
-            display: isMobile ? "none" : "block",
-          }}>
-            <video
-              src="videos/thumbnail_02.mp4?v=3"
-              autoPlay muted loop playsInline
-              style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}}
-            />
-            {/* Dark mode overlay — same logic as DitherCanvas: multiply #121010 darkens video to match dark palette */}
-            <div style={{
-              position:"absolute",inset:0,
-              background:"#121010",
-              mixBlendMode:"multiply",
-              opacity: dark ? 1 : 0,
-              transition:"opacity 0.3s ease",
-              pointerEvents:"none",
-            }}/>
-          </div>
-
-          {/* Right: form */}
-          <div style={{flex:1,display:"flex",flexDirection:"column",gap:"var(--s24)",justifyContent: isMobile ? "center" : "flex-start"}}>
+          {/* Form — centred */}
+          <div style={{width:"100%",display:"flex",flexDirection:"column",gap:"var(--s24)",alignItems:"center",textAlign:"center"}}>
             <Eyebrow center={false} style={{letterSpacing:"0.08em"}}>LET'S CHAT</Eyebrow>
 
             {/* Heading always full width; input+button row below on mobile, inline on desktop */}
             <div role="heading" aria-level="2" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",color:"var(--secondary)"}}>
-              Looking for an ally on your next project?
+              Looking for an ally<br/>on your next project?
             </div>
-            <div style={{display:"flex",gap:12,alignItems:"flex-end",flexDirection: isMobile ? "column" : "row"}}>
+            <div style={{display:"flex",gap:12,alignItems:"stretch",flexDirection: isMobile ? "column" : "row"}}>
               <input
                 type="email" placeholder="Your contact email"
                 value={email} onChange={e=>setEmail(e.target.value)}
                 style={{
-                  flex:1,width:"100%",padding:"18px 14px",fontFamily:"var(--sans)",fontSize:13,
+                  width:240,flexShrink:0,padding:"18px 14px",fontFamily:"var(--sans)",fontSize:16,fontWeight:500,
                   border:"1px solid var(--grey)",outline:"none",
-                  background:"var(--bg)",color:"var(--secondary)",
+                  background:"var(--bg)",color:"#878787",
                   boxSizing:"border-box",
                 }}
               />
@@ -3138,7 +3424,6 @@ function Page() {
                 fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,
                 color:"#121010",
                 cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,
-                alignSelf: isMobile ? "flex-end" : "auto",
               }}>
                 <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/>
                 <span className="cta-text">Submit</span>
@@ -3222,7 +3507,7 @@ function Page() {
         )}
 
         {/* Footer DIJITALLY™ logo — Lottie, plays once on enter */}
-        <div ref={footerLogoRef} style={{width:"100%",overflow:"hidden",filter:dark?"invert(1)":"none",transition:"filter 0.3s ease"}} />
+        <div ref={footerLogoRef} style={{width:"100%",overflow:"hidden",filter:dark?"url(#to-warm-white)":"none",transition:"filter 0.3s ease"}} />
 
       </footer>
 
@@ -3255,8 +3540,8 @@ function Page() {
               width:28,height:19,flexShrink:0,
             }}>
               <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                <div style={{width:30,height:2,background:"#FDFEFF",transform:"rotate(-30deg)",position:"absolute",opacity:0.6}}/>
-                <div style={{width:30,height:2,background:"#FDFEFF",transform:"rotate(-150deg)",position:"absolute",opacity:0.6}}/>
+                <div style={{width:30,height:2,background:"#F5F3EE",transform:"rotate(-30deg)",position:"absolute",opacity:0.6}}/>
+                <div style={{width:30,height:2,background:"#F5F3EE",transform:"rotate(-150deg)",position:"absolute",opacity:0.6}}/>
               </div>
             </button>
           </div>
@@ -3294,8 +3579,8 @@ function Page() {
                 aria-label="Close menu"
                 style={{ background:"none", border:"none", cursor:"pointer", width:24, height:10, position:"absolute", right:16, top:"50%", transform:"translateY(-50%)", padding:0 }}
               >
-                <div style={{ position:"absolute", top:"50%", left:"50%", width:30, height:2, background:"#FDFEFF", transform:"translate(-50%,-50%) rotate(-30deg)" }} />
-                <div style={{ position:"absolute", top:"50%", left:"50%", width:30, height:2, background:"#FDFEFF", transform:"translate(-50%,-50%) rotate(-150deg)" }} />
+                <div style={{ position:"absolute", top:"50%", left:"50%", width:30, height:2, background:"#F5F3EE", transform:"translate(-50%,-50%) rotate(-30deg)" }} />
+                <div style={{ position:"absolute", top:"50%", left:"50%", width:30, height:2, background:"#F5F3EE", transform:"translate(-50%,-50%) rotate(-150deg)" }} />
               </button>
             </div>
 
@@ -3318,7 +3603,7 @@ function Page() {
                     style={{
                       fontFamily:"var(--sans)", fontSize:26, fontWeight:350,
                       lineHeight:"120%", letterSpacing:"0.26px",
-                      color:"#FDFEFF", textDecoration:"none",
+                      color:"#F5F3EE", textDecoration:"none",
                       display:"block", opacity:0,
                     }}
                   >{label}</a>
@@ -3335,10 +3620,10 @@ function Page() {
                     background:"none", border:"none", cursor:"pointer", padding:0,
                     fontFamily:"var(--sans)", fontSize:26, fontWeight:500,
                     lineHeight:"120%", letterSpacing:"0.26px",
-                    color:"#FDFEFF", opacity:0,
+                    color:"#F5F3EE", opacity:0,
                   }}
                 >
-                  <span style={{ width:4, height:4, background:"#FDFEFF", flexShrink:0, display:"inline-block" }} />
+                  <span style={{ width:4, height:4, background:"#F5F3EE", flexShrink:0, display:"inline-block" }} />
                   <span>Get in touch</span>
                 </button>
               </div>
