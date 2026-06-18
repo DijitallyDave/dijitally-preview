@@ -694,23 +694,6 @@ function IntroPanelContent({ activePanel, onPillClick, isMobile }) {
         <AllyWordmark size={isMobile?56:80} color="var(--secondary)" />
       </div>
 
-      {/* Bottom-left nav pills (all inactive on intro) */}
-      {!isMobile && (
-        <div style={{
-          position:"absolute", top:587, left:114,
-          display:"flex", flexDirection:"column", gap:8, zIndex:3,
-        }}>
-          {SVC_ROWS.map((row, i) => (
-            <SvcPill
-              key={row.slug}
-              label={row.bracket + ".ally"}
-              active={false}
-              panelColor="var(--bg)"
-              onClick={() => onPillClick(i + 1)}
-            />
-          ))}
-        </div>
-      )}
     </div>
   );
 }
