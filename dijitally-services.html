@@ -462,14 +462,22 @@ const MODELS = [
 ];
 
 /* ── Bracket SVG ── */
-const BracketOpen = ({size=80, color="currentColor"}) => (
-  <svg viewBox="0 0 20 80" width={20} height={size} aria-hidden="true" style={{flexShrink:0}}>
-    <path d={`M18 0 L4 0 L4 80 L18 80`} stroke={color} strokeWidth="3" fill="none"/>
+const BracketClose = ({size=102, color="currentColor"}) => (
+  <svg width={27*(size/102)} height={size} viewBox="0 0 27 102" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{flexShrink:0,color}}>
+    <path d="M0 91.7705H14.9664V9.39749H0V0H26.4522V101.168H0V91.7705Z" fill="currentColor"/>
   </svg>
 );
-const BracketClose = ({size=80, color="currentColor"}) => (
-  <svg viewBox="0 0 20 80" width={20} height={size} aria-hidden="true" style={{flexShrink:0}}>
-    <path d={`M2 0 L16 0 L16 80 L2 80`} stroke={color} strokeWidth="3" fill="none"/>
+const BracketOpen = ({size=102, color="currentColor"}) => (
+  <svg width={27*(size/102)} height={size} viewBox="0 0 27 102" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{flexShrink:0,color,transform:"scaleX(-1)"}}>
+    <path d="M0 91.7705H14.9664V9.39749H0V0H26.4522V101.168H0V91.7705Z" fill="currentColor"/>
+  </svg>
+);
+const AllyWordmark = ({size=102, color="currentColor"}) => (
+  <svg width={369*(size/102)} height={size} viewBox="0 0 369 102" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{flexShrink:0,color}}>
+    <path fillRule="evenodd" clipRule="evenodd" d="M107.03 101.44H83.3966V77.807H39.6756L26.4048 101.44H-0.000488281L56.9913 0H107.03V101.44ZM52.9919 54.174H83.4421V23.633H70.1713L52.9919 54.2195V54.174Z" fill="currentColor"/>
+    <path d="M143.834 77.807H192.463V101.44H120.201V0H143.834V77.807Z" fill="currentColor"/>
+    <path d="M229.267 77.807H277.897V101.44H205.634V0H229.267V77.807Z" fill="currentColor"/>
+    <path d="M319.463 39.5852L341.687 0H368.092L311.1 101.44H284.695L306.238 63.0819L270.833 0H297.239L319.463 39.5852Z" fill="currentColor"/>
   </svg>
 );
 
@@ -596,18 +604,14 @@ function ServicePanel({ svc, index, activePanel, onPillClick, isMobile }) {
         display:"flex", alignItems:"center", gap:12,
         zIndex:3,
       }}>
-        <BracketOpen size={96} color="var(--secondary)" />
+        <BracketOpen size={isMobile?56:96} color="var(--secondary)" />
         <span style={{
           fontFamily:"var(--sans)", fontSize:isMobile?"7vw":"clamp(48px, 6.5vw, 96px)", fontWeight:500,
           lineHeight:1, letterSpacing:"-0.02em", color:"var(--secondary)",
           whiteSpace:"nowrap",
         }}>{svc.bracket}</span>
-        <BracketClose size={96} color="var(--secondary)" />
-        <span style={{
-          fontFamily:"var(--sans)", fontSize:isMobile?"7vw":"clamp(48px, 6.5vw, 96px)", fontWeight:500,
-          lineHeight:1, letterSpacing:"-0.02em", color:"var(--secondary)",
-          marginLeft:4,
-        }}>ALLY</span>
+        <BracketClose size={isMobile?56:96} color="var(--secondary)" />
+        <AllyWordmark size={isMobile?56:96} color="var(--secondary)" />
       </div>
 
       {/* Bottom-right copy block */}
@@ -687,11 +691,7 @@ function IntroPanelContent({ activePanel, onPillClick, isMobile }) {
           lineHeight:1, letterSpacing:"-0.02em", color:"var(--secondary)", whiteSpace:"nowrap",
         }}>point of scale</span>
         <BracketClose size={isMobile?56:80} color="var(--secondary)" />
-        <span style={{
-          fontFamily:"var(--sans)", fontSize:isMobile?"6vw":"clamp(36px, 5vw, 72px)", fontWeight:500,
-          lineHeight:1, letterSpacing:"-0.02em", color:"var(--secondary)", whiteSpace:"nowrap",
-          marginLeft:4,
-        }}>ALLY</span>
+        <AllyWordmark size={isMobile?56:80} color="var(--secondary)" />
       </div>
 
       {/* Bottom-left nav pills (all inactive on intro) */}
