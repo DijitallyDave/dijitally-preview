@@ -1,0 +1,1243 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dijitally – Services</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ── NeuSans Trial @font-face ── */
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Light.otf") format("opentype"); font-weight:300; font-style:normal; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-LightItalic.otf") format("opentype"); font-weight:300; font-style:italic; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Book.otf") format("opentype"); font-weight:350; font-style:normal; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-BookItalic.otf") format("opentype"); font-weight:350; font-style:italic; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Regular.otf") format("opentype"); font-weight:400; font-style:normal; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-RegularItalic.otf") format("opentype"); font-weight:400; font-style:italic; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Medium.otf") format("opentype"); font-weight:500; font-style:normal; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-MediumItalic.otf") format("opentype"); font-weight:500; font-style:italic; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Bold.otf") format("opentype"); font-weight:700; font-style:normal; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-BoldItalic.otf") format("opentype"); font-weight:700; font-style:italic; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Black.otf") format("opentype"); font-weight:900; font-style:normal; }
+    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-BlackItalic.otf") format("opentype"); font-weight:900; font-style:italic; }
+  </style>
+  <!-- GSAP -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/gsap/dist/ScrollSmoother.min.js"></script>
+  <script src="https://unpkg.com/gsap/dist/ScrambleTextPlugin.min.js"></script>
+  <script src="https://unpkg.com/gsap/dist/SplitText.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.development.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone@7/babel.min.js"></script>
+  <style>
+    /* ── Design Tokens ── */
+    :root {
+      --primary:   #FDFEFF;
+      --secondary: #121010;
+      --static:    #878787;
+      --grey:      #DEDEDE;
+      --tech:      #B6F4C9;
+      --bg:        #FDFEFF;
+      --electric:  #c9cec3;
+      --stream:    #b8dbd8;
+
+      --sans: "NeuSans Trial", "Helvetica Neue", Arial, sans-serif;
+      --mono: "JetBrains Mono", monospace;
+
+      --h1: 48px; --h1-w: 500; --h1-lh: 100%; --h1-ls: -0.96px;
+      --h2: 32px; --h2-w: 500; --h2-lh: 110%; --h2-ls: -0.64px;
+      --nav-size: 19px; --nav-w: 600; --nav-ls: -0.38px;
+      --eyebrow: 12px; --eyebrow-ls: -0.24px;
+      --card: 24px; --card-lh: 120%;
+      --meta: 10px; --meta-ls: -0.2px;
+      --acc-body: 17px; --acc-body-lh: 120%;
+
+      --s4:4px; --s6:6px; --s8:8px; --s10:10px; --s12:12px;
+      --s16:16px; --s24:24px; --s32:32px; --s42:42px;
+      --s48:48px; --s64:64px; --s82:82px; --s96:96px; --s128:128px;
+
+      --nav-h: 126px;
+      --frame: 1690px;
+      --content: 1606px;
+
+      --scrollbar-thumb: #EDEAE5;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html {
+      scroll-behavior: smooth;
+      scrollbar-gutter: stable;
+    }
+    body {
+      font-family: var(--sans);
+      background: var(--bg);
+      color: var(--secondary);
+      -webkit-font-smoothing: antialiased;
+      min-width: 320px;
+    }
+
+    ::-webkit-scrollbar { height: 10px; width: 10px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb {
+      background: var(--scrollbar-thumb);
+      border: 2px solid transparent;
+      background-clip: padding-box;
+      border-radius: 5px;
+    }
+
+    @keyframes ticker {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-inner {
+      display: flex;
+      width: max-content;
+      animation: ticker 30s linear infinite;
+      will-change: transform;
+    }
+
+    .dot-grid {
+      position:absolute; inset:0; pointer-events:none;
+      background-image: radial-gradient(circle, rgba(0,0,0,0.06) 1px, transparent 1px);
+      background-size: 20px 20px;
+    }
+
+    .acc-body { overflow:hidden; max-height:0; transition:max-height 0.4s cubic-bezier(0.4,0,0.2,1); }
+    .acc-body.open { max-height:600px; }
+
+    /* Nav item hover */
+    .nav-item { transition: background 0.2s ease, color 0.2s ease; }
+    .nav-item:hover { background: var(--secondary) !important; color: var(--bg) !important; }
+    .nav-item:hover .nav-dot { background: var(--bg) !important; }
+
+    /* CTA button hover */
+    .cta-btn { transition: background 0.2s ease, color 0.2s ease; }
+    .cta-btn:hover { background: #121010 !important; color: #B6F4C9 !important; }
+    .dark .cta-btn:hover { background: #FDFEFF !important; color: #121010 !important; }
+
+    /* Dark mode overrides */
+    .dark {
+      --primary:   #1a1a1a;
+      --secondary: #FDFEFF;
+      --static:    #666666;
+      --grey:      #2a2a2a;
+      --bg:        #121010;
+    }
+    .dark .dot-grid {
+      background-image: radial-gradient(circle, rgba(255,255,255,0.05) 1px, transparent 1px);
+    }
+
+    /* Services hero scroll panel */
+    .svc-panel {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* Scroll snap */
+    html { scroll-snap-type: y proximity; }
+    #services-hero-scroll > * { scroll-snap-align: start; }
+
+    /* Services page: disable fixed scroll wrapper — sticky panels need native scroll */
+    #smooth-wrapper { position: static !important; overflow: visible !important; height: auto !important; }
+    #smooth-content { will-change: auto !important; transform: none !important; }
+
+    /* Mobile breakpoint */
+    @media(max-width:768px) {
+      :root{ --h1:30px; --h2:22px; --nav-size:13px; --s64:24px; --s42:16px; }
+      .mobile-nav-links { display: none !important; }
+      .contact-card-inner { width: calc(100% - 32px) !important; padding: 24px !important; }
+      .footer-row { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
+    }
+
+    @media(max-width:900px) {
+      :root{ --h1:32px; --h2:22px; --nav-size:14px; }
+    }
+
+    /* CTA slide panel */
+    #cta-panel {
+      transform: translateX(661px);
+      transition: transform 0.7s cubic-bezier(0.76, 0, 0.24, 1);
+    }
+    #cta-panel.open { transform: translateX(0); }
+    @media(max-width:768px){ #cta-panel { transform: translateX(100vw); } }
+    #cta-overlay {
+      opacity: 0; pointer-events: none;
+      background: #1A1A1A; mix-blend-mode: multiply;
+      transition: opacity 0.4s ease;
+    }
+    #cta-overlay.open { opacity: 0.75; pointer-events: auto; }
+  </style>
+</head>
+<body>
+<div id="dj-cursor"></div>
+<div id="nav-portal"></div>
+<div id="cta-overlay" style="position:fixed;inset:0;z-index:199;"></div>
+<div id="cta-panel" style="position:fixed;top:0;right:0;bottom:0;width:661px;background:var(--bg);z-index:200;padding:64px 48px;display:flex;flex-direction:column;gap:32px;overflow-y:auto;">
+  <button id="cta-close" style="background:none;border:none;cursor:pointer;align-self:flex-end;font-family:var(--mono);font-size:12px;color:var(--secondary);">✕ CLOSE</button>
+  <div id="cta-heading" style="font-family:var(--sans);font-size:42px;font-weight:350;line-height:1.1;letter-spacing:-0.84px;color:var(--secondary);">Let's build something remarkable together.</div>
+  <p style="font-family:var(--sans);font-size:19px;font-weight:350;color:var(--static);line-height:1.3;">Drop us a line and we'll get back to you shortly.</p>
+  <input type="email" placeholder="Your contact email" style="padding:18px 14px;font-family:var(--sans);font-size:13px;border:1px solid var(--grey);outline:none;background:var(--bg);color:var(--secondary);" />
+  <button class="cta-btn" style="display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:18px 24px;background:var(--tech);border:none;border-radius:0;font-family:var(--sans);font-size:16px;font-weight:500;color:#121010;cursor:pointer;">
+    <span style="display:inline-block;width:4px;height:4px;background:currentColor;flex-shrink:0;"></span>
+    <span class="cta-text">Submit</span>
+  </button>
+</div>
+<div id="smooth-wrapper" style="overflow:hidden;position:fixed;height:100%;width:100%;top:0;left:0;right:0;bottom:0;">
+  <div id="smooth-content" style="overflow:visible;width:100%;will-change:transform;">
+    <div id="root"></div>
+  </div>
+</div>
+<script type="text/babel">
+const { useState, useEffect, useLayoutEffect, useRef } = React;
+
+if (typeof gsap !== 'undefined') {
+  if (typeof ScrollTrigger !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.config({ ignoreMobileResize: true, autoRefreshEvents: "visibilitychange,DOMContentLoaded,load" });
+  }
+  if (typeof SplitText !== 'undefined') gsap.registerPlugin(SplitText);
+  if (typeof ScrambleTextPlugin !== 'undefined') gsap.registerPlugin(ScrambleTextPlugin);
+}
+
+/* ── ScrambleSpan ── */
+function ScrambleSpan({children, style={}, tag='span'}) {
+  const ref = useRef(null);
+  useEffect(()=>{
+    const el = ref.current;
+    if (!el || typeof gsap==='undefined' || typeof ScrambleTextPlugin==='undefined') return;
+    const text = String(children||'');
+    const obs = new IntersectionObserver(([e])=>{
+      if (!e.isIntersecting) return;
+      obs.disconnect();
+      gsap.to(el, { duration:1.5, ease:'none', scrambleText:{ text, chars:'upperCase', revealDelay:0.3, speed:0.6 } });
+    },{ threshold:0.5 });
+    obs.observe(el);
+    const lockAndScramble = () => {
+      el.style.display='inline-block'; el.style.whiteSpace='nowrap';
+      if (!el.style.width) el.style.width=el.offsetWidth+'px';
+      el.style.overflow='hidden';
+      gsap.to(el, { duration:0.5, ease:'none', scrambleText:{ text, chars:'upperCase', revealDelay:0.1, speed:0.8 } });
+    };
+    el.addEventListener('mouseenter', lockAndScramble);
+    return ()=>{ obs.disconnect(); el.removeEventListener('mouseenter', lockAndScramble); };
+  },[]);
+  const Tag = tag;
+  return React.createElement(Tag, { ref, dangerouslySetInnerHTML:{__html: String(children||'')}, style });
+}
+
+/* ── Eyebrow ── */
+function Eyebrow({children, style={}, center=true}) {
+  const ref = useRef(null);
+  useEffect(()=>{
+    const el = ref.current;
+    if (!el || typeof gsap==='undefined' || typeof ScrambleTextPlugin==='undefined') return;
+    const text = String(children||'');
+    const obs = new IntersectionObserver(([e])=>{
+      if (!e.isIntersecting) return;
+      obs.disconnect();
+      gsap.to(el, { duration:1.5, ease:'none', scrambleText:{ text, chars:'upperCase', revealDelay:0.3, speed:0.6 } });
+    },{ threshold:0.5 });
+    obs.observe(el);
+    return ()=> obs.disconnect();
+  },[]);
+  return (
+    <span ref={ref} dangerouslySetInnerHTML={{__html: String(children||'')}}
+      style={{fontFamily:"var(--mono)",fontSize:"var(--eyebrow)",fontWeight:400,lineHeight:"100%",
+        letterSpacing:"var(--eyebrow-ls)",color:"var(--static)",textAlign:center?"center":"left",...style}}/>
+  );
+}
+
+/* ── BackToTopButton ── */
+function BackToTopButton({ dark }) {
+  const [hov, setHov] = useState(false);
+  const bg    = hov ? (dark ? "#FDFEFF" : "#1A1818") : "var(--tech)";
+  const color = hov ? (dark ? "#121010" : "#FDFEFF") : "#121010";
+  const dot   = hov ? (dark ? "#121010" : "#FDFEFF") : "var(--static)";
+  return (
+    <button
+      onClick={()=>{ window.scrollTo({top:0,behavior:"smooth"}); }}
+      onMouseEnter={()=>setHov(true)}
+      onMouseLeave={()=>setHov(false)}
+      style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,
+        width:"100%",height:42,background:bg,border:"none",cursor:"pointer",padding:0,margin:0,flexShrink:0}}
+    >
+      <span style={{width:3,height:3,borderRadius:"50%",background:dot,flexShrink:0,display:"block",transition:"background 0.2s ease"}}/>
+      <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"-0.24px",color,lineHeight:1}}>BACK TO TOP</ScrambleSpan>
+    </button>
+  );
+}
+
+/* ── ContactPixels ── */
+const SVG_LOGOS = ['svgs/pattern_01.svg','svgs/pattern_02.svg','svgs/pattern_03.svg'];
+const PATTERN_IMGS = SVG_LOGOS.map(src => { const img = new Image(); img.src = src; return img; });
+
+function ContactPixels({ dark, mobile }) {
+  const canvasRef     = useRef(null);
+  const darkRef       = useRef(dark);
+  const scrollProgRef = useRef(0);
+  useEffect(()=>{ darkRef.current = dark; }, [dark]);
+
+  useEffect(()=>{
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const CELL = mobile ? Math.round(32*0.66) : 32;
+    let W=0, H=0, particles=[], raf;
+    let svgImgs=[];
+    Promise.all(SVG_LOGOS.map(src=>new Promise(res=>{ const img=new Image(); img.onload=img.onerror=()=>res(img); img.src=src; }))).then(imgs=>{ svgImgs=imgs; });
+    const hash=(col,row)=>{ let h=(col*2654435761^row*2246822519)>>>0; h^=h>>>16; h=Math.imul(h,0x45d9f3b); h^=h>>>16; return (h>>>0)/0xFFFFFFFF; };
+    const init=()=>{
+      particles=[];
+      const reach=mobile?Math.min(W,H)*0.50:H*0.67;
+      const cols=Math.ceil(reach/CELL), rows=Math.ceil(reach/CELL);
+      const maxDist=Math.sqrt(cols*cols+rows*rows);
+      ['tl','br'].forEach(corner=>{
+        for(let ci=0;ci<cols;ci++) for(let ri=0;ri<rows;ri++){
+          const dist=Math.sqrt(ci*ci+ri*ri);
+          const invDist=(maxDist-dist)/maxDist;
+          const prob=Math.min(Math.pow(invDist,mobile?2.2:1.6)*(mobile?1.2:1.6),1);
+          const h1=hash(ci+(corner==='br'?1000:0),ri+(corner==='br'?1000:0));
+          if(h1>prob) continue;
+          const totalCols=Math.floor(W/CELL), totalRows=Math.floor(H/CELL);
+          const hcol=corner==='tl'?ci:totalCols-ci;
+          const hrow=corner==='tl'?ri:totalRows-ri;
+          const h2=hash(ci+(corner==='br'?2000:500),ri+(corner==='br'?2000:500));
+          const isSvg=h2<(corner==='tl'?0.38:0.18);
+          const svgIdx=isSvg?Math.floor(hash(ci+(corner==='br'?5000:3000),ri+(corner==='br'?5000:3000))*SVG_LOGOS.length):-1;
+          const revealAt=hash(ci+(corner==='br'?6000:8000),ri+(corner==='br'?6000:8000))*0.95;
+          particles.push({hcol,hrow,col:hcol,row:hrow,cL:'#FDFEFF',cD:'#121010',isSvg,svgIdx,revealAt});
+        }
+      });
+    };
+    const setSize=()=>{ W=canvas.offsetWidth; H=canvas.offsetHeight; if(!W||!H) return; canvas.width=W; canvas.height=H; init(); };
+    let st;
+    if(typeof gsap!=='undefined'&&typeof ScrollTrigger!=='undefined'){
+      const section=canvas.parentElement;
+      st=ScrollTrigger.create({ trigger:section, start:'top bottom', end:'top top', onUpdate:self=>{ scrollProgRef.current=self.progress; } });
+    }
+    const loop=()=>{
+      if(W&&H){
+        const ctx=canvas.getContext('2d');
+        const isDark=darkRef.current, progress=scrollProgRef.current;
+        ctx.clearRect(0,0,W,H);
+        for(const p of particles){
+          if(progress<p.revealAt) continue;
+          const x=p.col*CELL, y=p.row*CELL;
+          if(p.isSvg&&svgImgs[p.svgIdx]?.complete) ctx.drawImage(svgImgs[p.svgIdx],x,y,CELL,CELL);
+          else if(!p.isSvg){ ctx.fillStyle=isDark?p.cD:p.cL; ctx.fillRect(x,y,CELL,CELL); }
+        }
+      }
+      raf=requestAnimationFrame(loop);
+    };
+    const ro=new ResizeObserver(setSize); ro.observe(canvas); setSize(); raf=requestAnimationFrame(loop);
+    return ()=>{ cancelAnimationFrame(raf); ro.disconnect(); if(st) st.kill(); };
+  },[]);
+
+  return <canvas ref={canvasRef} style={{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:0}}/>;
+}
+
+/* ── PixelResolveImg ── */
+function PixelResolveImg({ src, alt, style={}, delay=0 }) {
+  const containerRef=useRef(null), imgElRef=useRef(null), canvasRef=useRef(null), rafRef=useRef(null), timerRef=useRef(null);
+  const [ready,setReady]=useState(false), [inView,setInView]=useState(false);
+  const PX=16, RAMP=1200;
+  useEffect(()=>{ const img=imgElRef.current; if(!img) return; if(img.complete&&img.naturalWidth){setReady(true);return;} const h=()=>setReady(true); img.addEventListener('load',h); return()=>img.removeEventListener('load',h); },[]);
+  useEffect(()=>{ const el=containerRef.current; if(!el) return; const obs=new IntersectionObserver(([e])=>{ if(e.isIntersecting){setInView(true);obs.disconnect();} },{threshold:0.2}); obs.observe(el); return()=>obs.disconnect(); },[]);
+  const drawAt=(ctx,W,H,curPX)=>{ const img=imgElRef.current; if(!img||!img.complete||!img.naturalWidth) return; ctx.clearRect(0,0,W,H); ctx.imageSmoothingEnabled=false; const smpl=document.createElement('canvas'); smpl.width=Math.max(1,Math.ceil(W/curPX)); smpl.height=Math.max(1,Math.ceil(H/curPX)); const sctx=smpl.getContext('2d'); const vW=img.naturalWidth,vH=img.naturalHeight; const scale=Math.max(W/vW,H/vH); const sx=((vW*scale-W)/2)/scale; const sy=((vH*scale-H)/2)/scale; sctx.drawImage(img,sx,sy,W/scale,H/scale,0,0,smpl.width,smpl.height); ctx.drawImage(smpl,0,0,smpl.width,smpl.height,0,0,W,H); };
+  const getDims=()=>{ const c=containerRef.current; return c?{W:c.offsetWidth,H:c.offsetHeight}:{W:0,H:0}; };
+  useEffect(()=>{ if(!ready||inView) return; cancelAnimationFrame(rafRef.current); const canvas=canvasRef.current; if(!canvas) return; const{W,H}=getDims(); if(!W||!H) return; canvas.width=W; canvas.height=H; const ctx=canvas.getContext('2d'); drawAt(ctx,W,H,PX); },[ready,inView]);
+  useEffect(()=>{ if(!inView||!ready) return; clearTimeout(timerRef.current); timerRef.current=setTimeout(()=>{ cancelAnimationFrame(rafRef.current); const canvas=canvasRef.current; if(!canvas) return; const{W,H}=getDims(); if(!W||!H) return; canvas.width=W; canvas.height=H; const ctx=canvas.getContext('2d'); const ease=t=>t<0.5?2*t*t:-1+(4-2*t)*t; let start=null; const tick=(now)=>{ if(!start) start=now; const tp=Math.min((now-start)/RAMP,1); const curPX=Math.max(1,Math.round(1+(PX-1)*ease(1-tp))); drawAt(ctx,W,H,curPX); if(tp<1) rafRef.current=requestAnimationFrame(tick); else ctx.clearRect(0,0,W,H); }; rafRef.current=requestAnimationFrame(tick); },delay*1000); return()=>{ clearTimeout(timerRef.current); cancelAnimationFrame(rafRef.current); }; },[inView,ready]);
+  return (
+    <div ref={containerRef} style={{position:'relative',width:'100%',height:'100%',...style}}>
+      <img ref={imgElRef} src={src} alt={alt||''} style={{display:'block',width:'100%',height:'100%',objectFit:'cover'}}/>
+      <canvas ref={canvasRef} style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none'}}/>
+    </div>
+  );
+}
+
+/* ── SvcFooterRow ── */
+function SvcFooterRow({ isMobile, dark }) {
+  const footerLogoRef = useRef(null);
+  useEffect(()=>{
+    const el = footerLogoRef.current;
+    if (!el) return;
+    const instance = lottie.loadAnimation({ container:el, renderer:"svg", loop:false, autoplay:false, path:"dijitally-logo-footer.json" });
+    const obs = new IntersectionObserver(([e])=>{ if(e.isIntersecting){ instance.play(); obs.disconnect(); }},{threshold:0.3});
+    obs.observe(el);
+    return ()=>{ instance.destroy(); obs.disconnect(); };
+  },[]);
+  return (
+    <footer style={{borderTop:"1px solid var(--grey)", minHeight:isMobile?"auto":447, padding:isMobile?"64px 24px 24px":"var(--s64)", display:"flex", flexDirection:"column", alignItems:isMobile?"flex-start":"flex-end", gap:isMobile?24:0, background:"var(--bg)"}}>
+      {isMobile ? (
+        <div style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          {["WORK","SERVICES","ABOUT","BLOG"].map(l=>(
+            <span key={l} style={{display:"flex",alignItems:"center",gap:6}}>
+              <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
+              <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>{l}</ScrambleSpan>
+            </span>
+          ))}
+          <a href="#" aria-label="LinkedIn" style={{display:"flex",alignItems:"center",justifyContent:"center",width:24,height:24,flexShrink:0}}>
+            <img src="dijitally-footer.svg" alt="LinkedIn" style={{width:24,height:24,display:"block"}}/>
+          </a>
+        </div>
+      ) : (
+        <div className="footer-row" style={{width:"100%",paddingTop:"var(--s32)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <div style={{display:"flex",alignItems:"center",gap:"var(--s12)",flexWrap:"wrap"}}>
+            {["WORK","SERVICES","ABOUT","BLOG"].map(l=>(
+              <span key={l} style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
+                <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
+                <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>{l}</ScrambleSpan>
+              </span>
+            ))}
+          </div>
+          <span style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
+            <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
+            <a href="#" style={{textDecoration:"none"}}><ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>PRIVACY POLICY</ScrambleSpan></a>
+          </span>
+        </div>
+      )}
+      {isMobile ? (
+        <div style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <span style={{display:"flex",alignItems:"center",gap:6}}>
+            <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
+            <a href="#" style={{textDecoration:"none"}}><ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>PRIVACY POLICY</ScrambleSpan></a>
+          </span>
+          <span style={{display:"flex",alignItems:"center",gap:6}}>
+            <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
+            <a href="#" style={{textDecoration:"none"}}><ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>TERMS + CONDITIONS</ScrambleSpan></a>
+          </span>
+        </div>
+      ) : (
+        <div className="footer-row" style={{width:"100%",padding:"var(--s12) 0 var(--s32) 0",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+          <a href="#" aria-label="LinkedIn" style={{display:"flex",alignItems:"center",justifyContent:"center",width:24,height:24,flexShrink:0}}>
+            <img src="dijitally-footer.svg" alt="LinkedIn" style={{width:24,height:24,display:"block"}}/>
+          </a>
+          <span style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
+            <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
+            <a href="#" style={{textDecoration:"none"}}><ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>TERMS + CONDITIONS</ScrambleSpan></a>
+          </span>
+        </div>
+      )}
+      <div ref={footerLogoRef} style={{width:"100%",overflow:"hidden",filter:dark?"invert(1)":"none",transition:"filter 0.3s ease"}} />
+    </footer>
+  );
+}
+
+/* ── Data ── */
+const SVC_ROWS = [
+  { slug:"Strategic.ally",    bracket:"Strategic",    headline:"Go-to-market through to market fit.",        body:"From market entry and audience strategy to channel prioritisation, we map out the smartest way to grow. Every move is intentional, with a clear definition of success.", bg:"electric" },
+  { slug:"Organisation.ally", bracket:"Organisation", headline:"In-house modelling.",                        body:"We scale your capability, not just your output. That means designing operating models, resourcing plans, and workflows that help you move faster without over-hiring.", bg:"stream" },
+  { slug:"Systematic.ally",   bracket:"Systematic",   headline:"Brand-world development.",                   body:"We build the systems that keep your brand consistent at speed. From design systems to messaging frameworks, everything works together so you show up with confidence.", bg:"electric" },
+  { slug:"Commerci.ally",     bracket:"Commerci",     headline:"Commerce modelling & data mapping.",         body:"We dig into the numbers to understand where growth is slipping and where it can accelerate. Then we bring your teams together around what matters most.", bg:"stream" },
+  { slug:"Technologic.ally",  bracket:"Technologic",  headline:"Platforms & experience.",                    body:"From web and commerce to analytics and testing, we engineer flexible, high-performing platforms that keep up with your growth and adapt as you scale.", bg:"electric" },
+  { slug:"Tactic.ally",       bracket:"Tactic",       headline:"Brand execution.",                           body:"Campaigns and launches to content and always-on activity, we deliver at speed with precision, ensuring everything ladders up to the broader growth strategy.", bg:"stream" },
+];
+
+const SVC_CAPS = [
+  { title:"Strategy, media + performance", items:["Media planning","CRM","Paid media","SEO + content","Data + insights","Commerce","CRO"] },
+  { title:"Platforms + experience",        items:["UX","Product strategy","Platform development","Technology integration","AI readiness","Customer experience","CRM"] },
+  { title:"Creative + production",         items:["Platform design","Media production","Brand strategy","Experiential","Brand activations","Content production","Advertising"] },
+];
+
+const SVC_ACCORDION = [
+  { label:"Creative & Design",        body:"We build brands, campaigns, and content that is bold enough to stand out and structured enough to stand the test of time. Consider us the creative ally that makes your brand commercially powerful." },
+  { label:"Performance Marketing",    body:"Data-led strategies that don't just drive traffic — they drive conversion. We connect media, analytics, and creative to build performance engines that scale." },
+  { label:"Platforms + Experience",   body:"End-to-end digital platforms built for growth: from UX strategy and product development to technology integration and ongoing optimisation." },
+];
+
+const SVC_CASES = [
+  { title:"Afterpay x Dijitally", meta:"PARTNERSHIP · 2024 · DIGITAL", label:"DIJITALLY × afterpay", img:"work/AfterpayxDijitally.jpg", desc:"We've helped Afterpay build and scale their partnership marketing globally." },
+  { title:"Airwallex Global",     meta:"PERFORMANCE · 2024 · DATA",    label:"Airwallex",             img:"work/AWX.png",                desc:"We've helped Airwallex scale internal teams globally, at pace." },
+  { title:"Procore SURE",         meta:"CREATIVE · DESIGN · SOCIAL",   label:"ProSURE",               img:"work/ProcoreSURE.png",        desc:"We've helped Procore deliver creative social strategy." },
+];
+
+const MODELS = [
+  { name:"Integrated", body:"We bring high-impact capabilities together into one connected way of working.", areas:["Strategy + Media + Performance","Platforms + Experience","Creative + Production"] },
+  { name:"In-house",   body:"We embed within your team, operating as a true extension of your business.",   areas:["Embedded Expertise","Team Augmentation","Internal Capability Building"] },
+  { name:"Embedded",   body:"A dedicated squad that lives inside your organisation, fully aligned to your goals.", areas:["Dedicated Squad","Full Alignment","Continuous Delivery"] },
+];
+
+/* ── Bracket SVG ── */
+const BracketOpen = ({size=80, color="currentColor"}) => (
+  <svg viewBox="0 0 20 80" width={20} height={size} aria-hidden="true" style={{flexShrink:0}}>
+    <path d={`M18 0 L4 0 L4 80 L18 80`} stroke={color} strokeWidth="3" fill="none"/>
+  </svg>
+);
+const BracketClose = ({size=80, color="currentColor"}) => (
+  <svg viewBox="0 0 20 80" width={20} height={size} aria-hidden="true" style={{flexShrink:0}}>
+    <path d={`M2 0 L16 0 L16 80 L2 80`} stroke={color} strokeWidth="3" fill="none"/>
+  </svg>
+);
+
+/* ── MenuGlitch ── */
+function MenuGlitch({ onComplete, onMidpoint }) {
+  const ref = useRef(null);
+  useEffect(() => {
+    const el = ref.current;
+    if (!el) return;
+    const H = window.innerHeight;
+    const sliceH = 2;
+    const total = Math.ceil(H / sliceH);
+    const speed = 0.04, spread = 0.04, stagger = 0.00025, bellStrength = 0.1;
+    const ordered = Array.from({length: total}, (_,i)=>i).sort(()=>Math.random()-0.5);
+    const stripData = ordered.map((sliceIdx, i) => {
+      const duration = speed*(0.2+Math.random()*1.6);
+      const t = sliceIdx/Math.max(total-1,1);
+      const norm = t*2-1;
+      const bellDelay = Math.exp(-norm*norm*3.5)*bellStrength;
+      const delay = stagger*i+bellDelay+Math.random()*spread;
+      return {sliceIdx, duration, delay};
+    });
+    const maxEnd = Math.max(...stripData.map(d=>(d.delay+d.duration)*1000));
+    const slices = [];
+    for(let i=0;i<total;i++){
+      const div=document.createElement('div');
+      div.style.cssText=`position:absolute;left:0;width:100%;top:${i*sliceH}px;height:${sliceH}px;background:#121010;will-change:transform;transform:translateX(100%);`;
+      el.appendChild(div); slices.push(div);
+    }
+    let midpointFired = false;
+    const midTimer = setTimeout(()=>{ if(!midpointFired){midpointFired=true;onMidpoint?.();} }, maxEnd*0.85);
+    stripData.forEach(({sliceIdx, duration, delay})=>{
+      setTimeout(()=>{ slices[sliceIdx].style.transition=`transform ${duration.toFixed(3)}s linear`; slices[sliceIdx].style.transform='translateX(0)'; }, delay*1000);
+    });
+    const doneTimer = setTimeout(()=>onComplete(), maxEnd+100);
+    return ()=>{ clearTimeout(midTimer); clearTimeout(doneTimer); };
+  }, []);
+  return <div ref={ref} style={{position:"fixed",inset:0,zIndex:210,pointerEvents:"none",overflow:"hidden"}}/>;
+}
+
+/* ════════════════════════════════════════════════════════
+   SERVICES HERO — scroll-jacked panels
+════════════════════════════════════════════════════════ */
+const BG_MAP = { electric: "var(--electric)", stream: "var(--stream)" };
+
+function SvcPill({ label, active, panelColor, onClick }) {
+  return (
+    <button
+      onClick={onClick}
+      style={{
+        display:"flex", alignItems:"center",
+        padding:"10px",
+        background: active ? "var(--secondary)" : "transparent",
+        border: "none",
+        borderRadius:0,
+        cursor:"pointer",
+        fontFamily:"var(--mono)", fontSize:12, fontWeight:400, letterSpacing:"-0.24px",
+        color: active ? (panelColor||"var(--bg)") : "var(--secondary)",
+        transition:"background 0.2s ease, color 0.2s ease",
+        whiteSpace:"nowrap",
+        lineHeight:1.4,
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+function ServicePanel({ svc, index, activePanel, onPillClick, isMobile }) {
+  const panelRef = useRef(null);
+  const nameRef  = useRef(null);
+  const bodyRef  = useRef(null);
+  const bgColor  = BG_MAP[svc.bg] || "var(--electric)";
+
+  // Animate content in when this panel becomes active
+  useEffect(() => {
+    if (activePanel !== index + 1) return;
+    if (typeof gsap === 'undefined') return;
+    if (nameRef.current)  gsap.fromTo(nameRef.current,  { y:40, opacity:0 }, { y:0, opacity:1, duration:0.7, ease:"power2.out" });
+    if (bodyRef.current)  gsap.fromTo(bodyRef.current,  { y:30, opacity:0 }, { y:0, opacity:1, duration:0.6, ease:"power2.out", delay:0.1 });
+  }, [activePanel, index]);
+
+  const vpH = typeof window !== 'undefined' ? window.innerHeight : 800;
+
+  return (
+    <div
+      ref={panelRef}
+      className="svc-panel"
+      style={{
+        background: bgColor,
+        position:"sticky", top:0, height:"100vh", overflow:"hidden",
+      }}
+    >
+      {/* Top gradient fade (soft fade from transparent to panel bg) */}
+      <div style={{
+        position:"absolute", top:0, left:0, right:0, height:80,
+        background:`linear-gradient(to bottom, transparent, ${bgColor})`,
+        zIndex:2, pointerEvents:"none",
+      }}/>
+
+      {/* Eyebrow top-right */}
+      <div style={{
+        position:"absolute", top:42, right:64,
+        fontFamily:"var(--mono)", fontSize:12, fontWeight:400, letterSpacing:"-0.24px",
+        color:"var(--secondary)", opacity:0.5, textAlign:"right", lineHeight:1.4,
+        zIndex:3,
+      }}>
+        ++ From engineering<br/>to execution ++
+      </div>
+
+      {/* Video placeholder top-left */}
+      <div style={{
+        position:"absolute", top:64, left:64,
+        width:296, height:296,
+        borderRadius:4, background:"rgba(0,0,0,0.08)",
+        zIndex:3,
+      }}/>
+
+      {/* Center typographic treatment */}
+      <div ref={nameRef} style={{
+        position:"absolute",
+        top:"50%", left:"50%",
+        transform:"translate(-50%, -50%)",
+        display:"flex", alignItems:"center", gap:12,
+        zIndex:3,
+      }}>
+        <BracketOpen size={96} color="var(--secondary)" />
+        <span style={{
+          fontFamily:"var(--sans)", fontSize:isMobile?"7vw":"clamp(48px, 6.5vw, 96px)", fontWeight:500,
+          lineHeight:1, letterSpacing:"-0.02em", color:"var(--secondary)",
+          whiteSpace:"nowrap",
+        }}>{svc.bracket}</span>
+        <BracketClose size={96} color="var(--secondary)" />
+        <span style={{
+          fontFamily:"var(--sans)", fontSize:isMobile?"7vw":"clamp(48px, 6.5vw, 96px)", fontWeight:500,
+          lineHeight:1, letterSpacing:"-0.02em", color:"var(--secondary)",
+          marginLeft:4,
+        }}>ALLY</span>
+      </div>
+
+      {/* Bottom-right copy block */}
+      <div ref={bodyRef} style={{
+        position:"absolute", bottom:64, right:64,
+        width:368, zIndex:3,
+        display:"flex", flexDirection:"column", gap:16,
+      }}>
+        <div style={{
+          fontFamily:"var(--sans)", fontSize:26, fontWeight:500,
+          lineHeight:1.1, letterSpacing:"-0.52px", color:"var(--secondary)",
+        }}>{svc.headline}</div>
+        <div style={{
+          fontFamily:"var(--sans)", fontSize:19, fontWeight:350,
+          lineHeight:1.3, letterSpacing:"0.19px", color:"var(--secondary)", opacity:0.75,
+        }}>{svc.body}</div>
+      </div>
+
+      {/* Bottom-left nav pills (inside panel) */}
+      {!isMobile && (
+        <div style={{
+          position:"absolute", top:587, left:114,
+          display:"flex", flexDirection:"column", gap:8, zIndex:3,
+        }}>
+          {SVC_ROWS.map((row, i) => (
+            <SvcPill
+              key={row.slug}
+              label={row.bracket + ".ally"}
+              active={activePanel === i + 1}
+              panelColor={bgColor}
+              onClick={() => onPillClick(i + 1)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function IntroPanelContent({ activePanel, onPillClick, isMobile }) {
+  return (
+    <div style={{
+      position:"sticky", top:0, height:"100vh", overflow:"hidden",
+      background:"var(--bg)",
+    }}>
+      {/* Top-left text block */}
+      <div style={{
+        position:"absolute", top:isMobile?80:120, left:isMobile?24:64,
+        maxWidth:520, zIndex:3,
+        display:"flex", flexDirection:"column", gap:24,
+      }}>
+        <Eyebrow center={false} style={{color:"var(--static)"}}>++ OUR SERVICES ++</Eyebrow>
+        <div style={{
+          fontFamily:"var(--sans)", fontSize:isMobile?26:42, fontWeight:350,
+          lineHeight:1.1, letterSpacing:"-0.84px", color:"var(--secondary)",
+        }}>From engineering to execution and everything in between.</div>
+        <div style={{
+          fontFamily:"var(--sans)", fontSize:isMobile?15:19, fontWeight:350,
+          lineHeight:1.3, color:"var(--static)", maxWidth:420,
+        }}>Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.</div>
+      </div>
+
+      {/* Center typographic treatment — Your [point of scale] ALLY */}
+      <div style={{
+        position:"absolute", top:"50%", left:"50%",
+        transform:"translate(-50%, -50%)",
+        display:"flex", alignItems:"center", gap:isMobile?8:12, zIndex:3,
+        flexWrap:"nowrap",
+      }}>
+        <span style={{
+          fontFamily:"var(--sans)", fontSize:isMobile?"6vw":"clamp(36px, 5vw, 72px)", fontWeight:350,
+          color:"var(--static)", lineHeight:1, whiteSpace:"nowrap", marginRight:8,
+        }}>Your</span>
+        <BracketOpen size={isMobile?56:80} color="var(--secondary)" />
+        <span style={{
+          fontFamily:"var(--sans)", fontSize:isMobile?"6vw":"clamp(36px, 5vw, 72px)", fontWeight:500,
+          lineHeight:1, letterSpacing:"-0.02em", color:"var(--secondary)", whiteSpace:"nowrap",
+        }}>point of scale</span>
+        <BracketClose size={isMobile?56:80} color="var(--secondary)" />
+        <span style={{
+          fontFamily:"var(--sans)", fontSize:isMobile?"6vw":"clamp(36px, 5vw, 72px)", fontWeight:500,
+          lineHeight:1, letterSpacing:"-0.02em", color:"var(--secondary)", whiteSpace:"nowrap",
+          marginLeft:4,
+        }}>ALLY</span>
+      </div>
+
+      {/* Bottom-left nav pills (all inactive on intro) */}
+      {!isMobile && (
+        <div style={{
+          position:"absolute", top:587, left:114,
+          display:"flex", flexDirection:"column", gap:8, zIndex:3,
+        }}>
+          {SVC_ROWS.map((row, i) => (
+            <SvcPill
+              key={row.slug}
+              label={row.bracket + ".ally"}
+              active={false}
+              panelColor="var(--bg)"
+              onClick={() => onPillClick(i + 1)}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
+function ServicesHero({ isMobile }) {
+  const [activePanel, setActivePanel] = useState(0);
+  const scrollerRef = useRef(null);
+
+  const handlePillClick = (panelIdx) => {
+    // panelIdx 1-6 → scroll to that panel's position in the 700vh container
+    // Panel 0 = intro at 0, Panel 1 at 100vh, etc.
+    const vpH = window.innerHeight;
+    const target = panelIdx * vpH;
+    window.scrollTo({ top: target, behavior: 'smooth' });
+  };
+
+  // Track which panel is in view via ScrollTrigger
+  useEffect(() => {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    const el = scrollerRef.current;
+    if (!el) return;
+
+    const triggers = [];
+    const panels = el.querySelectorAll('.svc-panel, .svc-intro-panel');
+
+    panels.forEach((panel, i) => {
+      const t = ScrollTrigger.create({
+        trigger: panel,
+        start: 'top center',
+        end: 'bottom center',
+        onToggle: self => {
+          if (self.isActive) setActivePanel(i);
+        },
+      });
+      triggers.push(t);
+    });
+
+    return () => triggers.forEach(t => t.kill());
+  }, []);
+
+  return (
+    <div ref={scrollerRef} id="services-hero-scroll" style={{ height:"700vh", position:"relative" }}>
+
+      {/* Panel 0: Intro */}
+      <div className="svc-intro-panel">
+        <IntroPanelContent activePanel={activePanel} onPillClick={handlePillClick} isMobile={isMobile} />
+      </div>
+
+      {/* Panels 1–6: Service panels */}
+      {SVC_ROWS.map((svc, i) => (
+        <div key={svc.slug}>
+          <ServicePanel
+            svc={svc}
+            index={i}
+            activePanel={activePanel}
+            onPillClick={handlePillClick}
+            isMobile={isMobile}
+          />
+        </div>
+      ))}
+    </div>
+  );
+}
+
+/* ════════════════════════════════════════════════════════
+   MAIN PAGE COMPONENT
+════════════════════════════════════════════════════════ */
+function Page() {
+  const [dark,     setDark]     = useState(()=> localStorage.getItem("dijitally-theme") === "dark");
+  const [isMobile, setIsMobile] = useState(()=> window.innerWidth <= 768);
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuReady,   setMenuReady]   = useState(false);
+  const [menuItemsReady, setMenuItemsReady] = useState(false);
+  const [ctaOpen,  setCtaOpen]  = useState(false);
+  const [openAccordion, setOpenAccordion] = useState(0);
+  const [email, setEmail] = useState('');
+  const [contactHeight, setContactHeight] = useState(null);
+  const [contactCardHeight, setContactCardHeight] = useState(null);
+
+  const navRef         = useRef(null);
+  const smootherRef    = useRef(null);
+  const menuLogoRef    = useRef(null);
+  const menuContentRef = useRef(null);
+  const menuScrollRef  = useRef(0);
+  const contactCardRef = useRef(null);
+  const scrolledRef    = useRef(false);
+  const prevScrollRef  = useRef(0);
+  const navHiddenRef   = useRef(false);
+  const navDeltaHistory = useRef([]);
+
+  // Dark mode
+  useEffect(()=>{
+    localStorage.setItem("dijitally-theme", dark ? "dark" : "light");
+    document.body.classList.toggle("dark", dark);
+    document.documentElement.style.setProperty('--scrollbar-thumb', dark ? '#1A1A1A' : '#EDEAE5');
+  }, [dark]);
+
+  // Resize
+  useEffect(()=>{
+    let lastWidth = window.innerWidth;
+    const onResize = () => { const w=window.innerWidth; if(w!==lastWidth){lastWidth=w;setIsMobile(w<=768);} };
+    window.addEventListener('resize', onResize, {passive:true});
+    return ()=> window.removeEventListener('resize', onResize);
+  }, []);
+
+  // Contact heights mobile
+  useLayoutEffect(()=>{
+    if (!isMobile) return;
+    const CELL = Math.round(32*0.66);
+    const target = window.innerHeight*0.66;
+    setContactHeight(Math.ceil(target/CELL)*CELL);
+    if (contactCardRef.current) {
+      const cardH = contactCardRef.current.getBoundingClientRect().height;
+      setContactCardHeight(Math.ceil(cardH/CELL)*CELL);
+    }
+  },[isMobile]);
+
+  // Scroll tracker + nav hide/show
+  useEffect(()=>{
+    const tick = () => {
+      const current = window.scrollY;
+      const newScrolled = current > 60;
+      if (newScrolled !== scrolledRef.current) { setScrolled(newScrolled); scrolledRef.current = newScrolled; }
+      const delta = current - prevScrollRef.current;
+      prevScrollRef.current = current;
+      const hist = navDeltaHistory.current;
+      hist.push(delta); if(hist.length>5) hist.shift();
+      const avg = hist.reduce((a,b)=>a+b,0)/hist.length;
+      const nav = navRef.current;
+      if (nav && !isMobile) {
+        if (avg>0.4 && current>120 && !navHiddenRef.current) { gsap.to(nav,{y:"-100%",duration:0.4,ease:"power2.in",overwrite:"auto"}); navHiddenRef.current=true; }
+        else if (avg<-0.4 && navHiddenRef.current) { gsap.to(nav,{y:"0%",duration:0.4,ease:"power2.out",overwrite:"auto"}); navHiddenRef.current=false; }
+      }
+    };
+    if (typeof gsap !== 'undefined') gsap.ticker.add(tick);
+    return () => { if (typeof gsap !== 'undefined') gsap.ticker.remove(tick); };
+  },[isMobile]);
+
+  // CTA panel
+  useEffect(()=>{
+    const panel   = document.getElementById("cta-panel");
+    const overlay = document.getElementById("cta-overlay");
+    const wrapper = document.getElementById("smooth-wrapper");
+    if (!panel || !overlay) return;
+    if (ctaOpen) {
+      panel.classList.add("open"); overlay.classList.add("open");
+      if(wrapper) wrapper.classList.add("cta-open");
+    } else {
+      panel.classList.remove("open"); overlay.classList.remove("open");
+      if(wrapper) wrapper.classList.remove("cta-open");
+    }
+  }, [ctaOpen]);
+
+  // CTA close button
+  useEffect(()=>{
+    const closeBtn = document.getElementById("cta-close");
+    if (!closeBtn) return;
+    const handler = () => setCtaOpen(false);
+    closeBtn.addEventListener('click', handler);
+    return () => closeBtn.removeEventListener('click', handler);
+  }, []);
+
+  // CTA overlay click to close
+  useEffect(()=>{
+    const overlay = document.getElementById("cta-overlay");
+    if (!overlay) return;
+    const handler = () => setCtaOpen(false);
+    overlay.addEventListener('click', handler);
+    return () => overlay.removeEventListener('click', handler);
+  }, []);
+
+  // Mobile menu lock
+  useLayoutEffect(()=>{
+    if (!isMobile) return;
+    const wrapper = document.getElementById("smooth-wrapper");
+    if (menuOpen) {
+      const scrollY = menuScrollRef.current;
+      document.body.style.position='fixed'; document.body.style.top=`-${scrollY}px`;
+      document.body.style.left='0'; document.body.style.right='0'; document.body.style.overflowY='scroll';
+      wrapper?.classList.add("cta-open");
+    } else {
+      const scrollY = parseInt(document.body.style.top||'0')*-1;
+      document.body.style.position=''; document.body.style.top=''; document.body.style.left=''; document.body.style.right=''; document.body.style.overflowY='';
+      window.scrollTo(0, scrollY);
+      wrapper?.classList.remove("cta-open");
+      setMenuReady(false); setMenuItemsReady(false);
+    }
+  }, [menuOpen, isMobile]);
+
+  // Menu logo lottie
+  useEffect(()=>{
+    if (!menuReady || typeof lottie === "undefined") return;
+    const el = menuLogoRef.current;
+    if (!el || el._menuAnim) return;
+    el._menuAnim = lottie.loadAnimation({ container:el, renderer:"svg", loop:false, autoplay:true, path:"json/Dijitally-Logo.json", rendererSettings:{preserveAspectRatio:"xMidYMid meet"} });
+    return () => { if(el._menuAnim){el._menuAnim.destroy();el._menuAnim=null;} };
+  }, [menuReady]);
+
+  // Menu items animate in
+  useEffect(()=>{
+    if (!menuReady || !menuContentRef.current) return;
+    const items = menuContentRef.current.querySelectorAll('.menu-nav-item');
+    if (!items.length) return;
+    gsap.fromTo(items, {y:"110%",opacity:0}, {y:"0%",opacity:1,duration:0.75,ease:"power2.out",stagger:0.06,delay:0.05});
+  }, [menuReady]);
+
+  // CTA scramble
+  useEffect(()=>{
+    if (typeof gsap==='undefined'||typeof ScrambleTextPlugin==='undefined') return;
+    const handlers=[];
+    document.querySelectorAll('.cta-btn .cta-text').forEach(el=>{
+      el.style.display='inline-block'; el.style.whiteSpace='nowrap';
+      el.style.width=el.offsetWidth+'px'; el.style.overflow='hidden'; el.style.textAlign='left';
+      const original=el.textContent;
+      const handler=()=>gsap.to(el,{duration:0.5,ease:'none',scrambleText:{text:original,chars:'upperCase',revealDelay:0.1,speed:0.8}});
+      el.closest('.cta-btn').addEventListener('mouseenter',handler);
+      handlers.push({btn:el.closest('.cta-btn'),handler});
+    });
+    return ()=>handlers.forEach(({btn,handler})=>btn.removeEventListener('mouseenter',handler));
+  }, []);
+
+  const h1s = {fontFamily:"var(--sans)",fontSize:isMobile?"var(--h1)":48,fontWeight:350,lineHeight:1,letterSpacing:"-0.96px",color:"var(--secondary)"};
+  const h2s = {fontFamily:"var(--sans)",fontSize:isMobile?"var(--h2)":32,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.64px",color:"var(--secondary)"};
+  const body22 = {fontFamily:"var(--sans)",fontSize:isMobile?15:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.22px",color:"var(--static)"};
+
+  return (
+    <div className={dark ? "dark" : ""} style={{background:"var(--bg)",color:"var(--secondary)",minHeight:"100vh",transition:"background 0.3s ease, color 0.3s ease"}}>
+
+      {/* ══ NAV ══ */}
+      {ReactDOM.createPortal(
+        <header ref={navRef} className={dark?"dark":""} style={{
+          position:"fixed",top:0,left:0,right:0,zIndex:100,
+          height: isMobile ? 64 : (scrolled ? "auto" : "var(--nav-h)"),
+          padding: isMobile ? "0 16px" : (scrolled ? "var(--s32) var(--s42)" : "0 var(--s42)"),
+          display:"flex", alignItems:"center", justifyContent:"space-between",
+          background: scrolled ? "var(--bg)" : "transparent",
+          borderBottom: scrolled ? "1px solid var(--grey)" : "none",
+          transition:"padding 0.35s ease, background 0.3s ease, border-color 0.3s ease",
+          boxSizing:"border-box",
+        }}>
+          <a href="dijitally-revised.html" style={{display:"flex",alignItems:"center",flexShrink:0,textDecoration:"none"}}>
+            <img src="dijitally-heading.svg" alt="DIJITALLY™" style={{height:isMobile?19:"var(--nav-size)",width:"auto",display:"block",filter:dark?"invert(1)":"none",transition:"filter 0.3s ease"}}/>
+          </a>
+
+          <nav style={{display:"flex",alignItems:"center",gap:isMobile?12:42}}>
+            {["Work","Services","About","Blog"].map(l=>(
+              <span key={l} className="mobile-nav-links nav-item" style={{
+                display:"flex",alignItems:"center",gap:4,padding:6,
+                background: l==="Services" ? "var(--secondary)" : "var(--bg)",
+                fontFamily:"var(--sans)",fontSize:"var(--nav-size)",fontWeight:"var(--nav-w)",letterSpacing:0,
+                color: l==="Services" ? "var(--bg)" : "var(--secondary)",
+                cursor:"pointer",userSelect:"none",
+              }}
+              onClick={()=>{ if(l==="Work") window.location.href='dijitally-revised.html'; }}
+              onMouseEnter={e=>{
+                const textNode=e.currentTarget.querySelector('.nav-text');
+                if(!textNode||typeof gsap==='undefined') return;
+                if(!textNode.dataset.wLocked){textNode.style.display='inline-block';textNode.style.whiteSpace='nowrap';textNode.style.overflow='hidden';textNode.style.width=textNode.offsetWidth+'px';textNode.dataset.wLocked='1';}
+                gsap.to(textNode,{duration:0.4,ease:'none',scrambleText:{text:l,chars:'upperCase',revealDelay:0.1,speed:0.9}});
+              }}>
+                <span className="nav-dot" style={{width:3,height:3,background:l==="Services"?"var(--bg)":"var(--secondary)",display:"inline-block",flexShrink:0}}/>
+                <span className="nav-text">{l}</span>
+              </span>
+            ))}
+
+            <button onClick={()=>setCtaOpen(true)} className="mobile-nav-links cta-btn" style={{
+              display:"flex",alignItems:"center",gap:4,padding:6,
+              background:"var(--tech)",border:"none",borderRadius:0,
+              fontFamily:"var(--sans)",fontSize:"var(--nav-size)",fontWeight:"var(--nav-w)",letterSpacing:0,
+              color:"#121010",cursor:"pointer",flexShrink:0,
+            }}>
+              <span style={{width:3,height:3,background:"currentColor",display:"inline-block",flexShrink:0}}/>
+              <span className="cta-text">Get in touch</span>
+            </button>
+
+            <button onClick={()=>setDark(d=>!d)} aria-label="Toggle theme" style={{
+              width:29,height:19,borderRadius:256,background:"none",border:"1px solid var(--secondary)",
+              cursor:"pointer",position:"relative",flexShrink:0,padding:3,display:"flex",alignItems:"center",transition:"border-color 0.3s",
+            }}>
+              <span style={{width:11,height:11,borderRadius:"50%",background:"var(--secondary)",display:"block",flexShrink:0,transition:"transform 0.3s ease",transform:dark?"translateX(10px)":"translateX(0px)"}}/>
+            </button>
+
+            {isMobile && (
+              <button onClick={()=>{ menuScrollRef.current=window.scrollY; setMenuOpen(true); }} aria-label="Open menu" style={{
+                background:"none",border:"none",cursor:"pointer",
+                display:"flex",flexDirection:"column",justifyContent:"flex-start",gap:6,
+                width:24,height:10,padding:0,flexShrink:0,
+              }}>
+                <span style={{display:"block",width:24,height:2,background:"var(--secondary)"}}/>
+                <span style={{display:"block",width:24,height:2,background:"var(--secondary)"}}/>
+              </button>
+            )}
+          </nav>
+        </header>,
+        document.getElementById('nav-portal')
+      )}
+
+      {/* Mobile menu */}
+      {menuOpen && isMobile && (
+        <div style={{position:"fixed",inset:0,zIndex:200,background:"#121010",display:"flex",flexDirection:"column",padding:"24px 24px 32px"}}>
+          {!menuReady && (
+            <MenuGlitch
+              onComplete={()=>setMenuReady(true)}
+              onMidpoint={()=>setMenuItemsReady(true)}
+            />
+          )}
+          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:48,position:"relative",zIndex:1}}>
+            <div ref={menuLogoRef} style={{width:160,height:24,overflow:"hidden"}}/>
+            <button onClick={()=>setMenuOpen(false)} style={{background:"none",border:"none",cursor:"pointer",display:"flex",gap:6,flexDirection:"column",padding:0}}>
+              <span style={{display:"block",width:24,height:2,background:"#FDFEFF",transform:"rotate(45deg) translate(3px,3px)"}}/>
+              <span style={{display:"block",width:24,height:2,background:"#FDFEFF",transform:"rotate(-45deg) translate(3px,-3px)"}}/>
+            </button>
+          </div>
+          <div ref={menuContentRef} style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",gap:8,overflow:"hidden",position:"relative",zIndex:1}}>
+            {["Work","Services","About","Blog"].map(l=>(
+              <div key={l} style={{overflow:"hidden"}}>
+                <div className="menu-nav-item" onClick={()=>setMenuOpen(false)} style={{
+                  fontFamily:"var(--sans)",fontSize:42,fontWeight:350,lineHeight:1.1,
+                  letterSpacing:"-0.84px",color:"#FDFEFF",cursor:"pointer",
+                  borderBottom:"1px solid rgba(255,255,255,0.12)",paddingBottom:16,marginBottom:8,
+                }}>{l}</div>
+              </div>
+            ))}
+          </div>
+          <div style={{position:"relative",zIndex:1}}>
+            <button onClick={()=>{ setMenuOpen(false); setCtaOpen(true); }} className="cta-btn" style={{
+              display:"flex",alignItems:"center",gap:8,padding:"16px 20px",
+              background:"var(--tech)",border:"none",fontFamily:"var(--sans)",
+              fontSize:16,fontWeight:500,color:"#121010",cursor:"pointer",width:"100%",
+            }}>
+              <span style={{width:4,height:4,background:"currentColor"}}/>
+              <span className="cta-text">Get in touch</span>
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* ══ SERVICES HERO SCROLL ══ */}
+      <ServicesHero isMobile={isMobile} />
+
+      {/* ══ OPERATING MODELS CALLOUT ══ */}
+      <section style={{borderTop:"1px solid var(--grey)",padding:isMobile?"64px 24px":"var(--s128) var(--s64) var(--s32)",display:"flex",flexDirection:"column",gap:"var(--s24)",background:"var(--bg)"}}>
+        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?26:48,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.26px",color:"var(--secondary)",maxWidth:570}}>Our operating models enable scale through the right allies.</div>
+        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?19:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.19px",color:"var(--static)",maxWidth:480}}>We help brands scale by enabling their product, brand + marketing teams to deliver results, fast.</div>
+      </section>
+
+      {/* ══ MODELS TABS ══ */}
+      <section style={{padding:isMobile?"0 var(--s42) var(--s64)":"0 var(--s64) var(--s64)",background:"var(--bg)"}}>
+        <div style={{display:"flex",gap:12,alignItems:"center",marginBottom:32,flexWrap:"wrap"}}>
+          {["Integrated","In-house","Embedded"].map((t,i)=>(
+            <button key={t} style={{
+              padding:"16px 20px",borderRadius:2,border:"none",cursor:"pointer",
+              background:i===0?"var(--secondary)":"var(--bg)",
+              fontFamily:"var(--sans)",fontSize:16,fontWeight:350,
+              color:i===0?"var(--primary)":"var(--secondary)",
+              letterSpacing:"-0.32px",
+            }}>{t}</button>
+          ))}
+        </div>
+        <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:"var(--s42)"}}>
+          {MODELS.map((m)=>(
+            <div key={m.name} style={{
+              flex:1, background:dark?"#1A1A1A":"#F6F6F6",
+              borderRadius:4, padding:"var(--s24)",
+              display:"flex",flexDirection:"column",gap:16,
+            }}>
+              <span style={{...h2s,fontSize:isMobile?"var(--h2)":24}}>{m.name}</span>
+              <p style={{...body22,fontSize:15,margin:0}}>{m.body}</p>
+              <ul style={{listStyle:"none",padding:0,margin:0,display:"flex",flexDirection:"column",gap:4}}>
+                {m.areas.map(a=>(
+                  <li key={a} style={{fontFamily:"var(--sans)",fontSize:15,fontWeight:350,display:"flex",alignItems:"center",gap:8,color:"var(--secondary)"}}>
+                    <span style={{color:"var(--secondary)"}}>·</span>{a}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ══ TICKER ══ */}
+      <div style={{borderTop:"1px solid var(--grey)",borderBottom:"1px solid var(--grey)",overflow:"hidden",background:"var(--bg)"}}>
+        <div style={{padding:"18px 0",whiteSpace:"nowrap"}}>
+          <div className="ticker-inner">
+            {[...Array(12)].map((_,i)=>(
+              <span key={i} style={{display:"inline-flex",alignItems:"center",paddingRight:64,flexShrink:0,fontFamily:"var(--mono)",fontSize:11,fontWeight:400,letterSpacing:"0.1em",textTransform:"uppercase",color:"var(--static)",whiteSpace:"nowrap"}}>
+                Strategic.ally &nbsp;·&nbsp; Organisation.ally &nbsp;·&nbsp; Systematic.ally &nbsp;·&nbsp; Commerci.ally &nbsp;·&nbsp; Technologic.ally &nbsp;·&nbsp; Tactic.ally
+              </span>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* ══ CAPABILITIES GRID ══ */}
+      <section style={{
+        borderTop:"1px solid var(--grey)",
+        background:"#121010",
+        padding:isMobile?"var(--s64) var(--s42)":"var(--s64) 88px",
+        display:"flex",flexDirection:"column",alignItems:"center",gap:82,overflow:"hidden",
+      }}>
+        <div style={{...body22,fontSize:isMobile?15:22,color:"#FDFEFF",textAlign:"center",maxWidth:486}}>
+          High-impact capability, delivered fast, without the overhead of permanent hires.
+        </div>
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:24,width:"100%"}}>
+          {SVC_CAPS.map(cap=>(
+            <div key={cap.title} style={{
+              background:"rgba(255,255,255,0.05)",
+              backdropFilter:"blur(21px)",WebkitBackdropFilter:"blur(21px)",
+              borderRadius:4, padding:"32px 64px",
+              display:"flex",flexDirection:"column",gap:32,alignItems:"center",justifyContent:"center",
+            }}>
+              <div style={{fontFamily:"var(--sans)",fontSize:24,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.48px",color:"#FDFEFF",width:"100%",maxWidth:265}}>{cap.title}</div>
+              <div style={{display:"flex",flexDirection:"column",gap:14,width:"100%",maxWidth:265}}>
+                {cap.items.map((item,idx)=>(
+                  <div key={item} style={{display:"flex",gap:10,alignItems:"center",paddingBottom:8,borderBottom:idx<cap.items.length-1?"1px solid rgba(222,222,222,0.25)":"none"}}>
+                    <span style={{width:4,height:4,background:"#FDFEFF",flexShrink:0,display:"inline-block"}}/>
+                    <span style={{fontFamily:"var(--sans)",fontSize:16,fontWeight:350,lineHeight:1.2,color:"#FDFEFF"}}>{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* ══ CASE STUDIES + ACCORDION ══ */}
+      <section style={{
+        borderTop:"1px solid var(--grey)",
+        padding:isMobile?"var(--s64) var(--s42)":"var(--s128) var(--s64)",
+        display:"flex",
+        flexDirection:isMobile?"column":"row",
+        gap:isMobile?"var(--s42)":219,
+        alignItems:"flex-start",
+        background:"var(--bg)",
+      }}>
+        {/* Left: case study stack */}
+        <div style={{display:"flex",flexDirection:"column",gap:"var(--s42)",flexShrink:0}}>
+          {SVC_CASES.map((c,i)=>(
+            <div key={c.title} style={{display:"flex",gap:"var(--s42)",alignItems:"flex-end"}}>
+              <div style={{width:190,height:190,flexShrink:0,overflow:"hidden",borderRadius:4}}>
+                <PixelResolveImg src={c.img} alt={c.title} delay={i*0.15} style={{width:"100%",height:"100%"}}/>
+              </div>
+              <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
+                <span style={{fontFamily:"var(--sans)",fontSize:13,fontWeight:350,letterSpacing:"var(--eyebrow-ls)",color:"var(--static)",textTransform:"uppercase"}}>{c.label||c.title}</span>
+                <div style={{fontFamily:"var(--sans)",fontSize:19,fontWeight:350,lineHeight:1.2,letterSpacing:"0.19px",color:"var(--static)",maxWidth:270}}>{c.desc}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* Right: heading + accordion */}
+        <div style={{flex:1,display:"flex",flexDirection:"column",gap:"var(--s128)"}}>
+          <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
+            <div style={{...h1s}}>Helping product, brand and marketing teams deliver results. Fast.</div>
+            <div style={{...body22,maxWidth:483}}>We partner with brands at the points where growth needs to be engineered, not just executed.</div>
+          </div>
+
+          <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
+            {SVC_ACCORDION.map((item,i)=>(
+              <div key={item.label} style={{borderBottom:"1px solid var(--grey)",paddingBottom:24}}>
+                <button onClick={()=>setOpenAccordion(openAccordion===i?-1:i)} style={{
+                  display:"flex",alignItems:"center",justifyContent:"space-between",
+                  width:"100%",background:"none",border:"none",cursor:"pointer",padding:0,gap:10,
+                }}>
+                  <span style={{fontFamily:"var(--sans)",fontSize:isMobile?22:32,fontWeight:350,lineHeight:1.1,color:"var(--secondary)",textAlign:"left"}}>{item.label}</span>
+                  <span style={{position:"relative",width:21,height:21,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                    <span style={{position:"absolute",width:3,height:21,background:"var(--secondary)",borderRadius:0,opacity:openAccordion===i?0:1,transition:"opacity 0.2s"}}/>
+                    <span style={{position:"absolute",width:21,height:3,background:"var(--secondary)",borderRadius:0}}/>
+                  </span>
+                </button>
+                {openAccordion===i && item.body && (
+                  <div style={{...body22,marginTop:16,maxWidth:670}}>{item.body}</div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* ══ CONTACT ══ */}
+      <section style={{
+        borderTop:"1px solid var(--grey)",
+        background:dark?"#1A1A1A":"var(--grey)",
+        padding:isMobile?"48px 16px":"var(--s96) var(--s64)",
+        minHeight:isMobile?(contactHeight?`${contactHeight}px`:"66svh"):"auto",
+        display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",gap:"var(--s24)",
+        position:"relative",overflow:"hidden",
+      }}>
+        <ContactPixels dark={dark} mobile={isMobile}/>
+        <div ref={contactCardRef} className="contact-card-inner" style={{
+          background:dark?"#121010":"var(--primary)",
+          borderRadius:4,
+          width:isMobile?"calc(100% - 32px)":736,
+          height:isMobile?(contactCardHeight?contactCardHeight:"auto"):416,
+          position:"relative",zIndex:1,
+          display:"flex",alignItems:isMobile?"stretch":"center",
+          paddingLeft:isMobile?24:176, paddingRight:isMobile?24:"var(--s64)",
+          paddingTop:isMobile?32:0, paddingBottom:isMobile?32:0,
+          overflow:"hidden",flexShrink:0,
+        }}>
+          <div style={{position:"absolute",top:8,left:8,width:150,height:150,flexShrink:0,clipPath:"inset(0 round 2px)",transform:"translateZ(0)",display:isMobile?"none":"block"}}>
+            <video src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+            <div style={{position:"absolute",inset:0,background:"#121010",mixBlendMode:"multiply",opacity:dark?1:0,transition:"opacity 0.3s ease",pointerEvents:"none"}}/>
+          </div>
+          <div style={{flex:1,display:"flex",flexDirection:"column",gap:"var(--s24)",justifyContent:isMobile?"center":"flex-start"}}>
+            <Eyebrow center={false} style={{letterSpacing:"0.08em"}}>LET'S CHAT</Eyebrow>
+            <div role="heading" aria-level="2" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",color:"var(--secondary)"}}>Looking for an ally on your next project?</div>
+            <div style={{display:"flex",gap:12,alignItems:"flex-end",flexDirection:isMobile?"column":"row"}}>
+              <input type="email" placeholder="Your contact email" value={email} onChange={e=>setEmail(e.target.value)} style={{flex:1,width:"100%",padding:"18px 14px",fontFamily:"var(--sans)",fontSize:13,border:"1px solid var(--grey)",outline:"none",background:"var(--bg)",color:"var(--secondary)",boxSizing:"border-box"}}/>
+              <button className="cta-btn" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"18px 24px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,color:"#121010",cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,alignSelf:isMobile?"flex-end":"auto"}}>
+                <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/>
+                <span className="cta-text">Submit</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <SvcFooterRow isMobile={isMobile} dark={dark}/>
+      <BackToTopButton dark={dark}/>
+
+    </div>
+  );
+}
+
+ReactDOM.createRoot(document.getElementById('root')).render(<Page/>);
+</script>
+</body>
+</html>
