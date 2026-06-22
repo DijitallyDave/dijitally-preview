@@ -148,7 +148,7 @@
 
     /* Mobile breakpoint */
     @media(max-width:768px) {
-      :root{ --h1:30px; --h2:22px; --nav-size:13px; --s64:24px; --s42:16px; }
+      :root{ --h1:30px; --h2:30px; --nav-size:13px; --s64:24px; --s42:20px; }
       .mobile-nav-links { display: none !important; }
       .contact-card-inner { width: calc(100% - 32px) !important; padding: 24px !important; }
       .footer-row { flex-direction: column !important; align-items: flex-start !important; gap: 12px !important; }
@@ -1494,43 +1494,34 @@ function ServicesHero({ isMobile, dark }) {
         </div>
       </div>
 
-      {/* ── ALLY container — scrolls into centre, then pins ── */}
-      <div ref={allyContainerRef} style={{ height:"100vh", position:"relative", overflow:"hidden" }}>
+      {/* ── ALLY container — desktop: scrolls into centre then pins; mobile: static headline ── */}
+      <div ref={allyContainerRef} style={{ height: isMobile ? "auto" : "100vh", position:"relative", overflow: isMobile ? "visible" : "hidden" }}>
 
-        <div style={{ position:"absolute", inset:0, background:"var(--bg)", zIndex:0 }} />
+        {!isMobile && <div style={{ position:"absolute", inset:0, background:"var(--bg)", zIndex:0 }} />}
 
-        {/* Circle orbit images — sit behind text (zIndex 1 vs text at 5) */}
-        <div ref={circleWrapRef} style={{
-          position:"absolute", left:0, top:0,
-          width:0, height:0, zIndex:1, pointerEvents:"none",
-        }}>
-          {CIRCLE_IMGS.map((src, i) => (
-            i === 9
-              ? <video key={i} ref={el => circleImgRefs.current[i] = el}
-                  src={CIRCLE_VIDEO_SRC}
-                  autoPlay muted loop playsInline
-                  style={{
-                    position:"absolute",
-                    width:200, height:200,
-                    left:-100, top:-100,
-                    objectFit:"cover", borderRadius:6,
-                    opacity:0,
-                  }}
-                />
-              : <img key={i} ref={el => circleImgRefs.current[i] = el}
-                  src={src} alt=""
-                  style={{
-                    position:"absolute",
-                    width:200, height:200,
-                    left:-100, top:-100,
-                    objectFit:"cover", borderRadius:6,
-                    opacity:0,
-                  }}
-                />
-          ))}
-        </div>
+        {/* Circle orbit images — desktop only */}
+        {!isMobile && (
+          <div ref={circleWrapRef} style={{
+            position:"absolute", left:0, top:0,
+            width:0, height:0, zIndex:1, pointerEvents:"none",
+          }}>
+            {CIRCLE_IMGS.map((src, i) => (
+              i === 9
+                ? <video key={i} ref={el => circleImgRefs.current[i] = el}
+                    src={CIRCLE_VIDEO_SRC}
+                    autoPlay muted loop playsInline
+                    style={{ position:"absolute", width:200, height:200, left:-100, top:-100, objectFit:"cover", borderRadius:6, opacity:0 }}
+                  />
+                : <img key={i} ref={el => circleImgRefs.current[i] = el}
+                    src={src} alt=""
+                    style={{ position:"absolute", width:200, height:200, left:-100, top:-100, objectFit:"cover", borderRadius:6, opacity:0 }}
+                  />
+            ))}
+          </div>
+        )}
 
-        {SVC_ROWS.map((svc, i) => (
+        {/* Section videos — desktop only */}
+        {!isMobile && SVC_ROWS.map((svc, i) => (
           <video key={i}
             ref={el => videoRefs.current[i] = el}
             src={svc.video}
@@ -1546,14 +1537,17 @@ function ServicesHero({ isMobile, dark }) {
           />
         ))}
 
-        {/* ALLY treatment — right-anchored */}
-        <div style={{
+        {/* ALLY treatment — desktop: right-anchored absolute; mobile: static centred */}
+        <div style={isMobile ? {
+          padding:"64px 24px 48px",
+          display:"flex", alignItems:"center", justifyContent:"center",
+          background:"var(--bg)",
+        } : {
           position:"absolute", top:"50%", right:allyRowRight,
           transform:"translateY(-50%)",
           display:"flex", alignItems:"center", gap:12,
           zIndex:5, flexWrap:"nowrap",
         }}>
-          {/* "Your" — overflow:hidden wrapper so SplitText y-animation clips */}
           <div ref={yourWrapRef} style={{ overflow:"hidden", display:"inline-flex" }}>
             <span ref={yourInnerRef} style={{
               fontFamily:"var(--sans)", fontSize:fs, fontWeight:350,
@@ -1566,19 +1560,11 @@ function ServicesHero({ isMobile, dark }) {
             <BracketOpen size={bsz} color="var(--secondary)" />
           </div>
 
-          {/* Word slot — width driven by GSAP; overflow:hidden clips y-translate.
-              paddingBlock gives descenders room so text isn't visually clipped. */}
           <div ref={wordSlotRef} style={{ position:"relative", display:"inline-flex", alignItems:"center", overflow:"hidden", paddingBlock:8, paddingInline:6, boxSizing:"content-box" }}>
-            {/* "point of scale" — SplitText splits into word spans */}
             <span ref={posRef} style={wordStyle}>point of scale</span>
-
-            {/* Service words — chars hidden via opacity:0 so no overflow:hidden needed here,
-                which eliminates horizontal clipping at the slot edges. */}
-            {SVC_ROWS.map((svc, i) => (
-              <div key={i} style={{
-                position:"absolute", inset:0,
-                display:"flex", alignItems:"center", justifyContent:"center",
-              }}>
+            {/* Service words — desktop animation only; hidden on mobile */}
+            {!isMobile && SVC_ROWS.map((svc, i) => (
+              <div key={i} style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
                 <span ref={el => svcWordRefs.current[i] = el} style={wordStyle}>{svc.bracket}</span>
               </div>
             ))}
@@ -1593,8 +1579,8 @@ function ServicesHero({ isMobile, dark }) {
           </div>
         </div>
 
-        {/* Body copy — bottom right */}
-        {SVC_ROWS.map((svc, i) => (
+        {/* Body copy — desktop only (absolute positioned inside pin) */}
+        {!isMobile && SVC_ROWS.map((svc, i) => (
           <div key={i} ref={el => bodyRefs.current[i] = el} style={{
             position:"absolute", bottom:64, right:64,
             width:368, zIndex:5,
@@ -1611,7 +1597,7 @@ function ServicesHero({ isMobile, dark }) {
           </div>
         ))}
 
-        {/* Nav pills — bottom left */}
+        {/* Nav pills — desktop only */}
         {!isMobile && (
           <div ref={pillsRef} style={{
             position:"absolute", top:"50%", left:384,
@@ -1619,7 +1605,6 @@ function ServicesHero({ isMobile, dark }) {
             display:"flex", flexDirection:"column", alignItems:"flex-start", gap:8, zIndex:5,
             opacity:0,
           }}>
-            {/* Sliding highlight box */}
             <div ref={pillBoxRef} style={{
               position:"absolute", left:0, top:0,
               background:"var(--secondary)", borderRadius:4,
@@ -1631,6 +1616,33 @@ function ServicesHero({ isMobile, dark }) {
           </div>
         )}
       </div>
+
+      {/* ── Mobile service list — replaces scroll-jacked pin ── */}
+      {isMobile && (
+        <div style={{ background:"var(--bg)", borderTop:"1px solid var(--grey)" }}>
+          {SVC_ROWS.map((svc, i) => (
+            <div key={i} style={{
+              padding:"32px 24px",
+              borderBottom:"1px solid var(--grey)",
+              display:"flex", flexDirection:"column", gap:12,
+            }}>
+              <span style={{
+                fontFamily:"var(--mono)", fontSize:11, fontWeight:400,
+                letterSpacing:"var(--eyebrow-ls)", color:"var(--static)",
+                textTransform:"uppercase",
+              }}>{svc.slug}</span>
+              <div style={{
+                fontFamily:"var(--sans)", fontSize:22, fontWeight:350,
+                lineHeight:1.1, letterSpacing:"-0.44px", color:"var(--secondary)",
+              }}>{svc.headline}</div>
+              <div style={{
+                fontFamily:"var(--sans)", fontSize:15, fontWeight:350,
+                lineHeight:1.4, color:"var(--static)",
+              }}>{svc.body}</div>
+            </div>
+          ))}
+        </div>
+      )}
     </>
   );
 }
