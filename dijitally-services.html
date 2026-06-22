@@ -35,12 +35,12 @@
   <style>
     /* ── Design Tokens ── */
     :root {
-      --primary:   #FDFEFF;
+      --primary:   #F5F3EE;
       --secondary: #121010;
       --static:    #878787;
       --grey:      #DEDEDE;
       --tech:      #B6F4C9;
-      --bg:        #FDFEFF;
+      --bg:        #F5F3EE;
       --electric:  #c9cec3;
       --stream:    #b8dbd8;
 
@@ -116,12 +116,12 @@
     /* CTA button hover */
     .cta-btn { transition: background 0.2s ease, color 0.2s ease; }
     .cta-btn:hover { background: #121010 !important; color: #B6F4C9 !important; }
-    .dark .cta-btn:hover { background: #FDFEFF !important; color: #121010 !important; }
+    .dark .cta-btn:hover { background: #F5F3EE !important; color: #121010 !important; }
 
     /* Dark mode overrides */
     .dark {
       --primary:   #1a1a1a;
-      --secondary: #FDFEFF;
+      --secondary: #F5F3EE;
       --static:    #666666;
       --grey:      #2a2a2a;
       --bg:        #121010;
@@ -138,9 +138,9 @@
       overflow: hidden;
     }
 
-    /* Scroll snap */
-    html { scroll-snap-type: y proximity; }
-    #services-hero-scroll > * { scroll-snap-align: start; }
+
+    /* SplitText line-clip wrapper */
+    .st-line { overflow: hidden; display: block; }
 
     /* Services page: disable fixed scroll wrapper — sticky panels need native scroll */
     #smooth-wrapper { position: static !important; overflow: visible !important; height: auto !important; }
@@ -160,11 +160,11 @@
 
     /* CTA slide panel */
     #cta-panel {
-      transform: translateX(661px);
+      transform: translateX(100%);
       transition: transform 0.7s cubic-bezier(0.76, 0, 0.24, 1);
     }
     #cta-panel.open { transform: translateX(0); }
-    @media(max-width:768px){ #cta-panel { transform: translateX(100vw); } }
+    @media(max-width:768px){ #cta-panel { width: 100vw; } }
     #cta-overlay {
       opacity: 0; pointer-events: none;
       background: #1A1A1A; mix-blend-mode: multiply;
@@ -176,6 +176,13 @@
 <body>
 <div id="dj-cursor"></div>
 <div id="nav-portal"></div>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <filter id="to-warm-white" color-interpolation-filters="sRGB">
+      <feColorMatrix type="matrix" values="-1 0 0 0 0.961  0 -1 0 0 0.953  0 0 -1 0 0.933  0 0 0 1 0"/>
+    </filter>
+  </defs>
+</svg>
 <div id="cta-overlay" style="position:fixed;inset:0;z-index:199;"></div>
 <div id="cta-panel" style="position:fixed;top:0;right:0;bottom:0;width:661px;background:var(--bg);z-index:200;padding:64px 48px;display:flex;flex-direction:column;gap:32px;overflow-y:auto;">
   <button id="cta-close" style="background:none;border:none;cursor:pointer;align-self:flex-end;font-family:var(--mono);font-size:12px;color:var(--secondary);">✕ CLOSE</button>
@@ -255,12 +262,12 @@ function Eyebrow({children, style={}, center=true}) {
 /* ── BackToTopButton ── */
 function BackToTopButton({ dark }) {
   const [hov, setHov] = useState(false);
-  const bg    = hov ? (dark ? "#FDFEFF" : "#1A1818") : "var(--tech)";
-  const color = hov ? (dark ? "#121010" : "#FDFEFF") : "#121010";
-  const dot   = hov ? (dark ? "#121010" : "#FDFEFF") : "var(--static)";
+  const bg    = hov ? (dark ? "#F5F3EE" : "#1A1818") : "var(--tech)";
+  const color = hov ? (dark ? "#121010" : "#F5F3EE") : "#121010";
+  const dot   = hov ? (dark ? "#121010" : "#F5F3EE") : "var(--static)";
   return (
     <button
-      onClick={()=>{ window.scrollTo({top:0,behavior:"smooth"}); }}
+      onClick={()=>{ window.scrollTo({top:0,behavior:"instant"}); requestAnimationFrame(function(){ if(typeof ScrollTrigger!=="undefined") ScrollTrigger.refresh(); }); }}
       onMouseEnter={()=>setHov(true)}
       onMouseLeave={()=>setHov(false)}
       style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,
@@ -309,7 +316,7 @@ function ContactPixels({ dark, mobile }) {
           const isSvg=h2<(corner==='tl'?0.38:0.18);
           const svgIdx=isSvg?Math.floor(hash(ci+(corner==='br'?5000:3000),ri+(corner==='br'?5000:3000))*SVG_LOGOS.length):-1;
           const revealAt=hash(ci+(corner==='br'?6000:8000),ri+(corner==='br'?6000:8000))*0.95;
-          particles.push({hcol,hrow,col:hcol,row:hrow,cL:'#FDFEFF',cD:'#121010',isSvg,svgIdx,revealAt});
+          particles.push({hcol,hrow,col:hcol,row:hrow,cL:'#F5F3EE',cD:'#121010',isSvg,svgIdx,revealAt});
         }
       });
     };
@@ -374,7 +381,7 @@ function SvcFooterRow({ isMobile, dark }) {
     <footer style={{borderTop:"1px solid var(--grey)", minHeight:isMobile?"auto":447, padding:isMobile?"64px 24px 24px":"var(--s64)", display:"flex", flexDirection:"column", alignItems:isMobile?"flex-start":"flex-end", gap:isMobile?24:0, background:"var(--bg)"}}>
       {isMobile ? (
         <div style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          {["WORK","SERVICES","ABOUT","BLOG"].map(l=>(
+          {["WORK","SERVICES","ABOUT"].map(l=>(
             <span key={l} style={{display:"flex",alignItems:"center",gap:6}}>
               <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
               <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>{l}</ScrambleSpan>
@@ -387,7 +394,7 @@ function SvcFooterRow({ isMobile, dark }) {
       ) : (
         <div className="footer-row" style={{width:"100%",paddingTop:"var(--s32)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <div style={{display:"flex",alignItems:"center",gap:"var(--s12)",flexWrap:"wrap"}}>
-            {["WORK","SERVICES","ABOUT","BLOG"].map(l=>(
+            {["WORK","SERVICES","ABOUT"].map(l=>(
               <span key={l} style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
                 <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
                 <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>{l}</ScrambleSpan>
@@ -422,19 +429,19 @@ function SvcFooterRow({ isMobile, dark }) {
           </span>
         </div>
       )}
-      <div ref={footerLogoRef} style={{width:"100%",overflow:"hidden",filter:dark?"invert(1)":"none",transition:"filter 0.3s ease"}} />
+      <div ref={footerLogoRef} style={{width:"100%",overflow:"hidden",filter:dark?"url(#to-warm-white)":"none",transition:"filter 0.3s ease"}} />
     </footer>
   );
 }
 
 /* ── Data ── */
 const SVC_ROWS = [
-  { slug:"Strategic.ally",    bracket:"Strategic",    headline:"Go-to-market through to market fit.",        body:"From market entry and audience strategy to channel prioritisation, we map out the smartest way to grow. Every move is intentional, with a clear definition of success.", bg:"electric" },
-  { slug:"Organisation.ally", bracket:"Organisation", headline:"In-house modelling.",                        body:"We scale your capability, not just your output. That means designing operating models, resourcing plans, and workflows that help you move faster without over-hiring.", bg:"stream" },
-  { slug:"Systematic.ally",   bracket:"Systematic",   headline:"Brand-world development.",                   body:"We build the systems that keep your brand consistent at speed. From design systems to messaging frameworks, everything works together so you show up with confidence.", bg:"electric" },
-  { slug:"Commerci.ally",     bracket:"Commerci",     headline:"Commerce modelling & data mapping.",         body:"We dig into the numbers to understand where growth is slipping and where it can accelerate. Then we bring your teams together around what matters most.", bg:"stream" },
-  { slug:"Technologic.ally",  bracket:"Technologic",  headline:"Platforms & experience.",                    body:"From web and commerce to analytics and testing, we engineer flexible, high-performing platforms that keep up with your growth and adapt as you scale.", bg:"electric" },
-  { slug:"Tactic.ally",       bracket:"Tactic",       headline:"Brand execution.",                           body:"Campaigns and launches to content and always-on activity, we deliver at speed with precision, ensuring everything ladders up to the broader growth strategy.", bg:"stream" },
+  { slug:"Strategically",    bracket:"strategic",    headline:"Go-to-market through to market fit.",        body:"From market entry and audience strategy to channel prioritisation, we map out the smartest way to grow. Every move is intentional, with a clear definition of success.", bg:"electric", video:"videos/Services/strategy.mp4" },
+  { slug:"Organisationally", bracket:"organisation", headline:"In-house modelling.",                        body:"We scale your capability, not just your output. That means designing operating models, resourcing plans, and workflows that help you move faster without over-hiring.", bg:"stream",    video:"videos/Services/organisation.mp4" },
+  { slug:"Systematically",   bracket:"systematic",   headline:"Brand-world development.",                   body:"We build the systems that keep your brand consistent at speed. From design systems to messaging frameworks, everything works together so you show up with confidence.", bg:"electric", video:"videos/Services/systems.mp4" },
+  { slug:"Commercially",     bracket:"commerci",     headline:"Commerce modelling & data mapping.",         body:"We dig into the numbers to understand where growth is slipping and where it can accelerate. Then we bring your teams together around what matters most.", bg:"stream",    video:"videos/Services/commercial.mp4" },
+  { slug:"Technologically",  bracket:"technologic",  headline:"Platforms & experience.",                    body:"From web and commerce to analytics and testing, we engineer flexible, high-performing platforms that keep up with your growth and adapt as you scale.", bg:"electric", video:"videos/Services/tech.mp4" },
+  { slug:"Tactically",       bracket:"tactic",       headline:"Brand execution.",                           body:"Campaigns and launches to content and always-on activity, we deliver at speed with precision, ensuring everything ladders up to the broader growth strategy.", bg:"page",      video:"videos/Services/tactic.mp4" },
 ];
 
 const SVC_CAPS = [
@@ -444,15 +451,20 @@ const SVC_CAPS = [
 ];
 
 const SVC_ACCORDION = [
-  { label:"Creative & Design",        body:"We build brands, campaigns, and content that is bold enough to stand out and structured enough to stand the test of time. Consider us the creative ally that makes your brand commercially powerful." },
-  { label:"Performance Marketing",    body:"Data-led strategies that don't just drive traffic — they drive conversion. We connect media, analytics, and creative to build performance engines that scale." },
-  { label:"Platforms + Experience",   body:"End-to-end digital platforms built for growth: from UX strategy and product development to technology integration and ongoing optimisation." },
+  { label:"Creative + Design",        body:"We build brands, campaigns, and content that is bold enough to stand out and structured enough to stand the test of time. Consider us the creative ally that makes your brand commercially powerful.", img:"services/creative+design.png" },
+  { label:"Performance Marketing",    body:"Data-led strategies that don't just drive traffic — they drive conversion. We connect media, analytics, and creative to build performance engines that scale.", img:"services/creative+design.png" },
+  { label:"Platforms + Experience",   body:"End-to-end digital platforms built for growth: from UX strategy and product development to technology integration and ongoing optimisation.", img:"services/creative+design.png" },
+  { label:"Data + Insights",          body:"We turn data into decisions. From attribution and analytics to customer segmentation and reporting, we build the insight layer that keeps your strategy honest and your teams aligned.", img:"services/creative+design.png" },
 ];
 
+const CIRCLE_IMGS = ["circle/01.png","circle/02.png","circle/03.png","circle/04.png","circle/05.png","circle/06.png","circle/07.png","circle/08.png","circle/09.png","circle/10.png"];
+const CIRCLE_VIDEOS = ["videos/Services/commercial.mp4","videos/Services/organisation.mp4","videos/Services/strategy.mp4","videos/Services/systems.mp4","videos/Services/tactic.mp4","videos/Services/tech.mp4"];
+const CIRCLE_VIDEO_SRC = CIRCLE_VIDEOS[Math.floor(Math.random() * CIRCLE_VIDEOS.length)];
+
 const SVC_CASES = [
-  { title:"Afterpay x Dijitally", meta:"PARTNERSHIP · 2024 · DIGITAL", label:"DIJITALLY × afterpay", img:"work/AfterpayxDijitally.jpg", desc:"We've helped Afterpay build and scale their partnership marketing globally." },
-  { title:"Airwallex Global",     meta:"PERFORMANCE · 2024 · DATA",    label:"Airwallex",             img:"work/AWX.png",                desc:"We've helped Airwallex scale internal teams globally, at pace." },
-  { title:"Procore SURE",         meta:"CREATIVE · DESIGN · SOCIAL",   label:"ProSURE",               img:"work/ProcoreSURE.png",        desc:"We've helped Procore deliver creative social strategy." },
+  { title:"Afterpay x Dijitally", meta:"PARTNERSHIP · 2024 · DIGITAL", logo:"clients/Afterpay.svg", logoH:40, img:"work/AfterpayxDijitally.jpg", desc:"We've helped Afterpay build and scale their partnership marketing globally." },
+  { title:"Airwallex Global",     meta:"PERFORMANCE · 2024 · DATA",    logo:"clients/Airwallex.svg", img:"work/AWX.png",                desc:"We've helped Airwallex scale internal teams globally, at pace." },
+  { title:"Procore SURE",         meta:"CREATIVE · DESIGN · SOCIAL",   logo:"clients/Procore.svg",   img:"work/ProcoreSURE.png",        desc:"We've helped Procore deliver creative social strategy." },
 ];
 
 const MODELS = [
@@ -521,24 +533,42 @@ function MenuGlitch({ onComplete, onMidpoint }) {
 /* ════════════════════════════════════════════════════════
    SERVICES HERO — scroll-jacked panels
 ════════════════════════════════════════════════════════ */
-const BG_MAP = { electric: "var(--electric)", stream: "var(--stream)" };
+const BG_MAP = { electric: "var(--electric)", stream: "var(--stream)", page: "var(--bg)" };
 
-function SvcPill({ label, active, panelColor, onClick }) {
+function scrambleHover(el) {
+  if (!el || typeof gsap === 'undefined' || typeof ScrambleTextPlugin === 'undefined') return;
+  if (!el.dataset.wLocked) {
+    el.dataset.originalText = el.textContent;
+    el.style.display = 'inline-block';
+    el.style.whiteSpace = 'nowrap';
+    el.style.lineHeight = '1';
+    el.style.width = el.offsetWidth + 'px';
+    el.style.overflow = 'hidden';
+    el.dataset.wLocked = '1';
+  }
+  const text = el.dataset.originalText;
+  gsap.to(el, { duration: 0.5, ease: 'none', scrambleText: { text, chars: 'upperCase', revealDelay: 0.1, speed: 0.8 } });
+}
+
+function SvcPill({ label, buttonRef, onClick, dark, active }) {
+  const [hov, setHov] = React.useState(false);
   return (
     <button
+      ref={buttonRef}
       onClick={onClick}
+      onMouseEnter={()=>setHov(true)}
+      onMouseLeave={()=>setHov(false)}
       style={{
         display:"flex", alignItems:"center",
         padding:"10px",
-        background: active ? "var(--secondary)" : "transparent",
-        border: "none",
-        borderRadius:0,
+        background: (!active && hov) ? (dark ? "#1a1a1a" : "#edeae6") : "transparent",
+        border:"none", borderRadius:4,
         cursor:"pointer",
         fontFamily:"var(--mono)", fontSize:12, fontWeight:400, letterSpacing:"-0.24px",
-        color: active ? (panelColor||"var(--bg)") : "var(--secondary)",
-        transition:"background 0.2s ease, color 0.2s ease",
-        whiteSpace:"nowrap",
-        lineHeight:1.4,
+        color:"var(--secondary)",
+        whiteSpace:"nowrap", lineHeight:1.4,
+        position:"relative", zIndex:1,
+        transition:"background 0.15s ease",
       }}
     >
       {label}
@@ -546,215 +576,1062 @@ function SvcPill({ label, active, panelColor, onClick }) {
   );
 }
 
-function ServicePanel({ svc, index, activePanel, onPillClick, isMobile }) {
-  const panelRef = useRef(null);
-  const nameRef  = useRef(null);
-  const bodyRef  = useRef(null);
-  const bgColor  = BG_MAP[svc.bg] || "var(--electric)";
-
-  // Animate content in when this panel becomes active
-  useEffect(() => {
-    if (activePanel !== index + 1) return;
-    if (typeof gsap === 'undefined') return;
-    if (nameRef.current)  gsap.fromTo(nameRef.current,  { y:40, opacity:0 }, { y:0, opacity:1, duration:0.7, ease:"power2.out" });
-    if (bodyRef.current)  gsap.fromTo(bodyRef.current,  { y:30, opacity:0 }, { y:0, opacity:1, duration:0.6, ease:"power2.out", delay:0.1 });
-  }, [activePanel, index]);
-
-  const vpH = typeof window !== 'undefined' ? window.innerHeight : 800;
-
+function ModelTab({ label, active, dark }) {
+  const [hov, setHov] = React.useState(false);
   return (
-    <div
-      ref={panelRef}
-      className="svc-panel"
+    <button
+      onMouseEnter={()=>setHov(true)}
+      onMouseLeave={()=>setHov(false)}
       style={{
-        background: bgColor,
-        position:"sticky", top:0, height:"100vh", overflow:"hidden",
+        padding:"16px 20px", borderRadius:2, border:"none", cursor:"pointer",
+        background: active ? "var(--secondary)" : (hov ? (dark ? "#1a1a1a" : "#edeae6") : "var(--bg)"),
+        fontFamily:"var(--sans)", fontSize:16, fontWeight:350,
+        color: active ? "var(--primary)" : "var(--secondary)",
+        letterSpacing:"-0.32px",
+        transition:"background 0.15s ease",
       }}
-    >
-      {/* Top gradient fade (soft fade from transparent to panel bg) */}
-      <div style={{
-        position:"absolute", top:0, left:0, right:0, height:80,
-        background:`linear-gradient(to bottom, transparent, ${bgColor})`,
-        zIndex:2, pointerEvents:"none",
-      }}/>
-
-      {/* Eyebrow top-right */}
-      <div style={{
-        position:"absolute", top:42, right:64,
-        fontFamily:"var(--mono)", fontSize:12, fontWeight:400, letterSpacing:"-0.24px",
-        color:"var(--secondary)", opacity:0.5, textAlign:"right", lineHeight:1.4,
-        zIndex:3,
-      }}>
-        ++ From engineering<br/>to execution ++
-      </div>
-
-      {/* Video placeholder top-left */}
-      <div style={{
-        position:"absolute", top:64, left:64,
-        width:296, height:296,
-        borderRadius:4, background:"rgba(0,0,0,0.08)",
-        zIndex:3,
-      }}/>
-
-      {/* Center typographic treatment */}
-      <div ref={nameRef} style={{
-        position:"absolute",
-        top:"50%", left:"50%",
-        transform:"translate(-50%, -50%)",
-        display:"flex", alignItems:"center", gap:12,
-        zIndex:3,
-      }}>
-        <BracketOpen size={isMobile?56:96} color="var(--secondary)" />
-        <span style={{
-          fontFamily:"var(--sans)", fontSize:isMobile?"7vw":"clamp(48px, 6.5vw, 96px)", fontWeight:500,
-          lineHeight:1, letterSpacing:"-0.02em", color:"var(--secondary)",
-          whiteSpace:"nowrap",
-        }}>{svc.bracket}</span>
-        <BracketClose size={isMobile?56:96} color="var(--secondary)" />
-        <AllyWordmark size={isMobile?56:96} color="var(--secondary)" />
-      </div>
-
-      {/* Bottom-right copy block */}
-      <div ref={bodyRef} style={{
-        position:"absolute", bottom:64, right:64,
-        width:368, zIndex:3,
-        display:"flex", flexDirection:"column", gap:16,
-      }}>
-        <div style={{
-          fontFamily:"var(--sans)", fontSize:26, fontWeight:500,
-          lineHeight:1.1, letterSpacing:"-0.52px", color:"var(--secondary)",
-        }}>{svc.headline}</div>
-        <div style={{
-          fontFamily:"var(--sans)", fontSize:19, fontWeight:350,
-          lineHeight:1.3, letterSpacing:"0.19px", color:"var(--secondary)", opacity:0.75,
-        }}>{svc.body}</div>
-      </div>
-
-      {/* Bottom-left nav pills (inside panel) */}
-      {!isMobile && (
-        <div style={{
-          position:"absolute", top:587, left:114,
-          display:"flex", flexDirection:"column", gap:8, zIndex:3,
-        }}>
-          {SVC_ROWS.map((row, i) => (
-            <SvcPill
-              key={row.slug}
-              label={row.bracket + ".ally"}
-              active={activePanel === i + 1}
-              panelColor={bgColor}
-              onClick={() => onPillClick(i + 1)}
-            />
-          ))}
-        </div>
-      )}
-    </div>
+    ><span style={{display:"inline-block",whiteSpace:"nowrap",overflow:"hidden",verticalAlign:"middle"}}>{label}</span></button>
   );
 }
 
-function IntroPanelContent({ activePanel, onPillClick, isMobile }) {
+/* ═══════════════════════════════════════════════════
+   DITHER CANVAS — intro hero background
+═══════════════════════════════════════════════════ */
+function DitherCanvas({ dark }) {
+  const canvasRef = React.useRef(null);
+  const wrapRef   = React.useRef(null);
+  const videoRef  = React.useRef(null);
+  const darkRef   = React.useRef(dark);
+  React.useEffect(()=>{ darkRef.current = dark; }, [dark]);
+
+  React.useEffect(()=>{
+    const canvas = canvasRef.current;
+    const video  = videoRef.current;
+    if (!canvas || !video) return;
+
+    const ctx  = canvas.getContext('2d');
+    const smpl = document.createElement('canvas');
+    const sctx = smpl.getContext('2d', { willReadFrequently:true });
+
+    const PX=8, RADIUS=300, FORCE=6, WOBBLE=5, SPRING=0.06, DAMP=0.5;
+    const BR=0.10, CT=2.4, GM=1.13;
+    const LON=[237,234,229], LOFF=[245,243,238];
+    const DON=[18,16,16],    DOFF=[0,0,0];
+    const BAYER=[[0,2,0,2],[3,1,3,1],[0,2,0,2],[3,1,3,1]];
+    const R2=RADIUS*RADIUS, IDLE_V=0.3, IDLE_D=(RADIUS+PX*2)**2;
+
+    let particles=[], cols=0, rows=0, time=0, raf;
+    let outBuf=null, outImageData=null;
+    let frameCount=0, cachedId=null;
+    const mouse={ x:-9999, y:-9999 };
+
+    class P {
+      constructor(col,row){
+        this.col=col; this.row=row;
+        this.hx=(col+0.5)*PX; this.hy=(row+0.5)*PX;
+        this.x=this.hx; this.y=this.hy;
+        this.vx=0; this.vy=0;
+        this.phase=Math.random()*Math.PI*2;
+        this.r=255; this.g=255; this.b=255;
+      }
+      sample(id){
+        const idx=(this.row*cols+this.col)*4;
+        let lum=(0.299*id.data[idx]+0.587*id.data[idx+1]+0.114*id.data[idx+2])/255;
+        lum=Math.pow(Math.max(0,lum),GM);
+        lum=(lum-0.5)*CT+0.5;
+        lum=Math.max(0,Math.min(1,lum+BR));
+        const bl=darkRef.current?1-lum:lum;
+        const thr=(BAYER[this.row&3][this.col&3]+0.5)/4;
+        const ch=(bl<=thr)?(darkRef.current?DON:LON):(darkRef.current?DOFF:LOFF);
+        this.r=ch[0]; this.g=ch[1]; this.b=ch[2];
+      }
+      update(){
+        const dx=this.x-mouse.x, dy=this.y-mouse.y;
+        const d2=dx*dx+dy*dy;
+        if(d2>IDLE_D && Math.abs(this.vx)<IDLE_V && Math.abs(this.vy)<IDLE_V){
+          this.x=this.hx; this.y=this.hy; this.vx=0; this.vy=0; return;
+        }
+        if(d2<R2&&d2>0.01){
+          const d=Math.sqrt(d2), prx=1-d/RADIUS;
+          this.vx+=(dx/d)*prx*FORCE;
+          this.vy+=(dy/d)*prx*FORCE;
+          const w=prx*prx*WOBBLE;
+          this.vx+=Math.cos(time+this.phase)*w;
+          this.vy+=Math.sin(time+this.phase*1.3)*w;
+        }
+        this.vx+=(this.hx-this.x)*SPRING;
+        this.vy+=(this.hy-this.y)*SPRING;
+        this.vx*=DAMP; this.vy*=DAMP;
+        this.x+=this.vx; this.y+=this.vy;
+      }
+      paint(W){
+        const gx=Math.floor(this.x/PX)*PX, gy=Math.floor(this.y/PX)*PX;
+        const r=this.r, g=this.g, b=this.b;
+        for(let dy=0;dy<PX;dy++){
+          let base=((gy+dy)*W+gx)*4;
+          for(let dx=0;dx<PX;dx++){
+            outBuf[base]=r; outBuf[base+1]=g; outBuf[base+2]=b; outBuf[base+3]=255;
+            base+=4;
+          }
+        }
+      }
+    }
+
+    function build(){
+      cols=Math.floor(canvas.width/PX);
+      rows=Math.floor(canvas.height/PX);
+      smpl.width=cols; smpl.height=rows;
+      outBuf=new Uint8ClampedArray(canvas.width*canvas.height*4);
+      outImageData=ctx.createImageData(canvas.width, canvas.height);
+      particles=[];
+      for(let r=0;r<rows;r++) for(let c=0;c<cols;c++) particles.push(new P(c,r));
+    }
+
+    function setSize(){
+      const vw=video.videoWidth||640, vh=video.videoHeight||360;
+      canvas.width =Math.floor(vw*2/PX)*PX;
+      canvas.height=Math.floor(vh*2/PX)*PX;
+      canvas.style.width =canvas.width+'px';
+      canvas.style.height=canvas.height+'px';
+      build();
+    }
+
+    function loop(){
+      raf=requestAnimationFrame(loop);
+      time+=0.06; frameCount++;
+      if(!outBuf||video.readyState<2) return;
+      if(frameCount%2===0){
+        sctx.drawImage(video,0,0,cols,rows);
+        cachedId=sctx.getImageData(0,0,cols,rows);
+      }
+      if(!cachedId) return;
+      outBuf.fill(0);
+      const W=canvas.width;
+      for(const p of particles){ p.sample(cachedId); p.update(); p.paint(W); }
+      outImageData.data.set(outBuf);
+      ctx.putImageData(outImageData, 0, 0);
+    }
+
+    const onMove = e=>{
+      const r=canvas.getBoundingClientRect();
+      const x=e.clientX-r.left, y=e.clientY-r.top;
+      const over=document.elementFromPoint(e.clientX,e.clientY);
+      const inNav=over&&over.closest('header');
+      if(!inNav && x>=0 && x<=r.width && y>=0 && y<=r.height){ mouse.x=x; mouse.y=y; }
+      else { mouse.x=-9999; mouse.y=-9999; }
+    };
+    window.addEventListener('mousemove', onMove, {passive:true});
+    video.addEventListener('loadedmetadata', setSize);
+    setSize();
+    gsap.set(wrapRef.current, { xPercent:-50, yPercent:-50, y:128, scale:1 });
+    video.play().catch(()=>{});
+    loop();
+    return ()=>{ cancelAnimationFrame(raf); window.removeEventListener('mousemove', onMove); };
+  },[]);
+
   return (
-    <div style={{
-      position:"sticky", top:0, height:"100vh", overflow:"hidden",
-      background:"var(--bg)",
-    }}>
-      {/* Top-left text block */}
-      <div style={{
-        position:"absolute", top:isMobile?80:120, left:isMobile?24:64,
-        maxWidth:520, zIndex:3,
-        display:"flex", flexDirection:"column", gap:24,
-      }}>
-        <Eyebrow center={false} style={{color:"var(--static)"}}>++ OUR SERVICES ++</Eyebrow>
-        <div style={{
-          fontFamily:"var(--sans)", fontSize:isMobile?26:42, fontWeight:350,
-          lineHeight:1.1, letterSpacing:"-0.84px", color:"var(--secondary)",
-        }}>From engineering to execution and everything in between.</div>
-        <div style={{
-          fontFamily:"var(--sans)", fontSize:isMobile?15:19, fontWeight:350,
-          lineHeight:1.3, color:"var(--static)", maxWidth:420,
-        }}>Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.</div>
+    <>
+      <video ref={videoRef} src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline
+        crossOrigin="anonymous"
+        style={{position:'absolute',opacity:0,width:1,height:1,pointerEvents:'none'}}
+      />
+      <div ref={wrapRef} style={{position:'absolute',left:'50%',top:0,zIndex:0,pointerEvents:'none'}}>
+        <canvas ref={canvasRef} style={{display:'block',opacity:0.9}}/>
       </div>
-
-      {/* Center typographic treatment — Your [point of scale] ALLY */}
-      <div style={{
-        position:"absolute", top:"50%", left:"50%",
-        transform:"translate(-50%, -50%)",
-        display:"flex", alignItems:"center", gap:isMobile?8:12, zIndex:3,
-        flexWrap:"nowrap",
-      }}>
-        <span style={{
-          fontFamily:"var(--sans)", fontSize:isMobile?"6vw":"clamp(36px, 5vw, 72px)", fontWeight:350,
-          color:"var(--static)", lineHeight:1, whiteSpace:"nowrap", marginRight:8,
-        }}>Your</span>
-        <BracketOpen size={isMobile?56:80} color="var(--secondary)" />
-        <span style={{
-          fontFamily:"var(--sans)", fontSize:isMobile?"6vw":"clamp(36px, 5vw, 72px)", fontWeight:500,
-          lineHeight:1, letterSpacing:"-0.02em", color:"var(--secondary)", whiteSpace:"nowrap",
-        }}>point of scale</span>
-        <BracketClose size={isMobile?56:80} color="var(--secondary)" />
-        <AllyWordmark size={isMobile?56:80} color="var(--secondary)" />
-      </div>
-
-    </div>
+    </>
   );
 }
 
-function ServicesHero({ isMobile }) {
-  const [activePanel, setActivePanel] = useState(0);
-  const scrollerRef = useRef(null);
+function MobileDitherVideo({ dark }) {
+  const canvasRef = React.useRef(null);
+  const wrapRef   = React.useRef(null);
+  const videoRef  = React.useRef(null);
+  const darkRef   = React.useRef(dark);
+  React.useEffect(()=>{ darkRef.current = dark; }, [dark]);
 
-  const handlePillClick = (panelIdx) => {
-    // panelIdx 1-6 → scroll to that panel's position in the 700vh container
-    // Panel 0 = intro at 0, Panel 1 at 100vh, etc.
-    const vpH = window.innerHeight;
-    const target = panelIdx * vpH;
-    window.scrollTo({ top: target, behavior: 'smooth' });
-  };
+  React.useEffect(()=>{
+    const canvas = canvasRef.current;
+    const video  = videoRef.current;
+    const wrap   = wrapRef.current;
+    if (!canvas || !video || !wrap) return;
 
-  // Track which panel is in view via ScrollTrigger
+    const ctx  = canvas.getContext('2d');
+    const smpl = document.createElement('canvas');
+    const sctx = smpl.getContext('2d', { willReadFrequently: true });
+
+    const PX=8;
+    const BAYER=[[0,2,0,2],[3,1,3,1],[0,2,0,2],[3,1,3,1]];
+    const GM=1.13, CT=2.4, BR=0.10;
+    const LON=[237,234,229], LOFF=[245,243,238];
+    const DON=[18,16,16],    DOFF=[0,0,0];
+
+    let cols=0, rows=0, raf;
+    let outBuf=null, outImageData=null;
+
+    function build(){
+      cols=Math.floor(canvas.width/PX);
+      rows=Math.floor(canvas.height/PX);
+      smpl.width=cols; smpl.height=rows;
+      outBuf=new Uint8ClampedArray(canvas.width*canvas.height*4);
+      outImageData=ctx.createImageData(canvas.width, canvas.height);
+    }
+
+    function setSize(){
+      const vw=video.videoWidth||640, vh=video.videoHeight||360;
+      const s=(window.innerWidth/vw)*2;
+      canvas.width =Math.floor(vw*s/PX)*PX;
+      canvas.height=Math.floor(vh*s/PX)*PX;
+      canvas.style.width =canvas.width+'px';
+      canvas.style.height=canvas.height+'px';
+      build();
+      gsap.set(wrap, { xPercent:-50, yPercent:-50, x:window.innerWidth*0.5, y:128, scale:1 });
+    }
+
+    function loop(){
+      raf=requestAnimationFrame(loop);
+      if(!outBuf||video.readyState<2) return;
+      sctx.fillStyle=darkRef.current?'#121010':'#F5F3EE';
+      sctx.fillRect(0,0,cols,rows);
+      sctx.drawImage(video,0,0,cols,rows);
+      const id=sctx.getImageData(0,0,cols,rows);
+      outBuf.fill(0);
+      const W=canvas.width;
+      for(let r=0;r<rows;r++){
+        for(let c=0;c<cols;c++){
+          const idx=(r*cols+c)*4;
+          let lum=(0.299*id.data[idx]+0.587*id.data[idx+1]+0.114*id.data[idx+2])/255;
+          lum=Math.pow(Math.max(0,lum),GM);
+          lum=(lum-0.5)*CT+0.5;
+          lum=Math.max(0,Math.min(1,lum+BR));
+          const bl=darkRef.current?1-lum:lum;
+          const thr=(BAYER[r&3][c&3]+0.5)/4;
+          const ch=(bl<=thr)?(darkRef.current?DON:LON):(darkRef.current?DOFF:LOFF);
+          for(let dy=0;dy<PX;dy++){
+            let base=((r*PX+dy)*W+c*PX)*4;
+            for(let dx=0;dx<PX;dx++){
+              outBuf[base]=ch[0]; outBuf[base+1]=ch[1]; outBuf[base+2]=ch[2]; outBuf[base+3]=255;
+              base+=4;
+            }
+          }
+        }
+      }
+      outImageData.data.set(outBuf);
+      ctx.putImageData(outImageData, 0, 0);
+    }
+
+    if(video.videoWidth>0){ setSize(); } else { video.addEventListener('loadedmetadata',setSize,{once:true}); }
+    video.play().catch(()=>{});
+    loop();
+    return ()=>{ cancelAnimationFrame(raf); };
+  },[]);
+
+  return (
+    <>
+      <video ref={videoRef} src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline
+        crossOrigin="anonymous"
+        style={{position:'absolute',opacity:0,width:1,height:1,pointerEvents:'none'}}
+      />
+      <div ref={wrapRef} style={{position:'absolute',left:0,top:0,zIndex:0,pointerEvents:'none'}}>
+        <canvas ref={canvasRef} style={{display:'block',opacity:0.9}}/>
+      </div>
+    </>
+  );
+}
+
+function ServicesHero({ isMobile, dark }) {
+  const [activeStep, setActiveStep] = React.useState(0);
+  const allyContainerRef = useRef(null);
+  const bgRefs           = useRef([]);
+  const yourInnerRef     = useRef(null);
+  const yourWrapRef      = useRef(null);
+  const bracketOpenRef   = useRef(null);
+  const posRef           = useRef(null);    // "point of scale" span — SplitText'd into words
+  const svcWordRefs      = useRef([]);      // one span per service, pre-rendered + SplitText'd
+  const bracketCloseRef  = useRef(null);
+  const allyMarkRef      = useRef(null);
+  const wordSlotRef      = useRef(null);
+  const pillsRef         = useRef(null);
+  const pillBoxRef       = useRef(null);
+  const pillTextRefs     = useRef([]);
+  const bodyRefs         = useRef([]);
+  const videoRefs        = useRef([]);
+  const introHeadingRef  = useRef(null);
+  const introBodyRef     = useRef(null);
+  const goToStepRef      = useRef(null);
+  const circleWrapRef    = useRef(null);
+  const circleImgRefs    = useRef([]);
+
+  // Intro heading + body SplitText reveal — runs on mount regardless of mobile
   useEffect(() => {
-    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
-    const el = scrollerRef.current;
+    if (typeof gsap === 'undefined' || typeof SplitText === 'undefined') return;
+    const el = introHeadingRef.current;
+    const bodyEl = introBodyRef.current;
     if (!el) return;
 
-    const triggers = [];
-    const panels = el.querySelectorAll('.svc-panel, .svc-intro-panel');
+    const headingSplit = new SplitText(el, { type: "lines,words", linesClass: "st-line" });
+    gsap.set(headingSplit.words, { y: "110%" });
+    gsap.to(headingSplit.words, { y: "0%", duration: 0.9, stagger: 0.045, ease: "power2.out", delay: 0.4 });
 
-    panels.forEach((panel, i) => {
-      const t = ScrollTrigger.create({
-        trigger: panel,
-        start: 'top center',
-        end: 'bottom center',
-        onToggle: self => {
-          if (self.isActive) setActivePanel(i);
-        },
-      });
-      triggers.push(t);
-    });
+    // Heading finishes at: 0.4 + 0.9 + (wordCount-1)*0.045 ≈ 1.55s — add ~0.2s gap
+    let bodySplit = null;
+    if (bodyEl) {
+      bodySplit = new SplitText(bodyEl, { type: "lines,words", linesClass: "st-line" });
+      gsap.set(bodySplit.words, { y: "110%" });
+      gsap.to(bodySplit.words, { y: "0%", duration: 0.7, stagger: 0.03, ease: "power2.out", delay: 1.1 });
+    }
 
-    return () => triggers.forEach(t => t.kill());
+    return () => {
+      headingSplit.revert();
+      if (bodySplit) bodySplit.revert();
+    };
   }, []);
 
-  return (
-    <div ref={scrollerRef} id="services-hero-scroll" style={{ height:"700vh", position:"relative" }}>
+  // Scrubbed pin animation — desktop only
+  useEffect(() => {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    if (typeof SplitText === 'undefined') return;
+    if (isMobile) return;
+    const el = allyContainerRef.current;
+    if (!el) return;
 
-      {/* Panel 0: Intro */}
-      <div className="svc-intro-panel">
-        <IntroPanelContent activePanel={activePanel} onPillClick={handlePillClick} isMobile={isMobile} />
+    const N = 7;
+    const STEP = 1 / N;
+
+    // Measure natural word widths BEFORE SplitText mangles the DOM.
+    // Use getBoundingClientRect for sub-pixel accuracy, then ceil to avoid fractional clipping.
+    const posNaturalW  = posRef.current ? Math.ceil(posRef.current.getBoundingClientRect().width) : 0;
+    const svcNaturalWs = svcWordRefs.current.map(el => el ? Math.ceil(el.getBoundingClientRect().width) : 0);
+
+    // Initialise slot to "point of scale" width
+    if (wordSlotRef.current) gsap.set(wordSlotRef.current, { width: posNaturalW });
+
+    // SplitText "Your"
+    const yourSplit = new SplitText(yourInnerRef.current, { type: "words" });
+    gsap.set(yourSplit.words, { y: "0%" });
+
+    // SplitText "point of scale"
+    const posSplit = new SplitText(posRef.current, { type: "words" });
+    gsap.set(posSplit.words, { y: "0%" });
+
+    // SplitText each service word
+    const svcSplits = svcWordRefs.current.map(el => {
+      if (!el) return null;
+      const s = new SplitText(el, { type: "chars" });
+      gsap.set(s.chars, { y: "110%", opacity: 0 });
+      return s;
+    });
+
+    // Cascade: animate each element so words rise visibly from below
+    var cascadeEls = [
+      yourWrapRef.current,
+      bracketOpenRef.current,
+      posRef.current,
+      bracketCloseRef.current,
+      allyMarkRef.current,
+    ];
+    gsap.set(cascadeEls, { y: 60, opacity: 0 });
+    // wordSlot stays in place; posRef rises inside it (overflow set to visible during cascade)
+    gsap.set(pillsRef.current, { opacity: 0 });
+    videoRefs.current.forEach(v => v && gsap.set(v, { opacity: 0 }));
+    bodyRefs.current.forEach(b => b && gsap.set(b, { opacity: 0 }));
+
+    // Measure pill pitch (height + gap) and each pill's natural width after layout
+    const pillPitch  = pillTextRefs.current[0] ? pillTextRefs.current[0].offsetHeight + 8 : 45;
+    const pillWidths = pillTextRefs.current.map(el => el ? Math.ceil(el.getBoundingClientRect().width) : 0);
+    if (pillBoxRef.current) gsap.set(pillBoxRef.current, { y: 0, width: 0, height: pillTextRefs.current[0]?.offsetHeight || 37, opacity: 0 });
+
+    const tl = gsap.timeline({ paused: true });
+
+    // ── STEPS 1–6: Background crossfades + SplitText word transitions ──
+    SVC_ROWS.forEach((svc, i) => {
+      const s = (i + 1) * STEP;
+
+      // BG crossfades — finish AT s so the new bg is fully in when tweenTo(s) completes
+      // Videos are managed in handleSectionChange for reliability — tl.tweenTo(s) never
+      // reaches s+offset, so video tweens positioned after the snap point are never played.
+
+      // Exit previous content — well before snap boundary
+      if (i === 0) {
+        tl.to(posSplit.words, {
+          y: "-110%", opacity: 0, duration: STEP * 0.12, ease: "power2.in",
+          stagger: { each: STEP * 0.04, from: "end" },
+        }, s - STEP * 0.25);
+        if (yourWrapRef.current) tl.to(yourWrapRef.current, {
+          opacity: 0, width: 0, duration: STEP * 0.15, ease: "power2.in",
+        }, s - STEP * 0.25);
+      }
+      // Note: char exits and body exits are handled exclusively by onSnapComplete
+      // to avoid scrub/standalone tween conflicts
+
+      // Slot width is driven as a standalone tween in goToStep so multi-step
+      // pill jumps don't scrub through intermediate widths and glitch the brackets.
+
+      // Pills — all before snap boundary
+      if (i === 0) {
+        tl.to(pillsRef.current,   { opacity: 1, duration: STEP * 0.15 }, s - STEP * 0.3);
+        tl.to(pillBoxRef.current, { opacity: 1, duration: STEP * 0.15 }, s - STEP * 0.3);
+      }
+      // y position is handled as a standalone lagged animation in goToStep, not the timeline
+      if (pillTextRefs.current[i]) {
+        tl.to(pillTextRefs.current[i], { color: "var(--bg)", duration: STEP * 0.1 }, s - STEP * 0.45);
+      }
+      if (i > 0 && pillTextRefs.current[i - 1]) {
+        tl.to(pillTextRefs.current[i - 1], { color: "var(--secondary)", duration: STEP * 0.1 }, s - STEP * 0.45);
+      }
+    });
+
+    var currentStep = 0;
+    var cascadeDone = false;
+    var animating = false;
+    var sectionActive = false;
+    var pinST = null;
+    var cascadeHasPlayed = false;
+
+    // SplitText each body copy block (headline + paragraph words)
+    var bodySplits = bodyRefs.current.map(function(el) {
+      if (!el) return null;
+      var s = new SplitText(el, { type: "words" });
+      gsap.set(s.words, { y: "18px", opacity: 0 });
+      return s;
+    });
+
+    // ── Circle orbit animation ──────────────────────────────
+    var CIRCLE_R = 270, CIRCLE_IMG_SIZE = 100;
+    var circleAnimDone = false;
+    // Pre-compute random stack offsets + per-image tilts so they stay consistent on re-entry
+    var circleLayout = CIRCLE_IMGS.map(function(_, i) {
+      var baseAngle = (i / CIRCLE_IMGS.length) * Math.PI * 2 - Math.PI / 2;
+      return {
+        baseAngle: baseAngle,
+        stackX:  (Math.random() - 0.5) * 28,
+        stackY:  110 + (Math.random() - 0.5) * 18,
+        stackR:  (Math.random() - 0.5) * 32,
+        fanX:    Math.cos(baseAngle) * CIRCLE_R,
+        fanY:    Math.sin(baseAngle) * CIRCLE_R,
+      };
+    });
+
+    function positionCircleCenter() {
+      var wrap = circleWrapRef.current;
+      var slot = wordSlotRef.current;
+      var container = allyContainerRef.current;
+      if (!wrap || !slot || !container) return;
+      var slotRect = slot.getBoundingClientRect();
+      var cRect   = container.getBoundingClientRect();
+      gsap.set(wrap, {
+        left: 0,
+        top:  slotRect.top + slotRect.height / 2 - cRect.top,
+      });
+    }
+    positionCircleCenter();
+
+    function setCircleStack() {
+      circleLayout.forEach(function(d, i) {
+        var img = circleImgRefs.current[i];
+        if (!img) return;
+        gsap.set(img, { x: d.stackX, y: d.stackY, rotation: d.stackR, opacity: 0 });
+      });
+    }
+
+    var orbitAngle = 0;
+    var orbitTicker = null;
+    var circleRotateTween = null;
+    var circleSlideX = 0;  // how many pixels the wrapper has moved from its off-screen start
+    var circleSlideStart = 0; // total travel distance, set on entry
+
+    function startOrbitTicker() {
+      if (orbitTicker) return;
+      orbitTicker = function() {
+        orbitAngle += (Math.PI * 2) / (30 * 60); // full revolution in 30s at 60fps
+        circleLayout.forEach(function(d, i) {
+          var img = circleImgRefs.current[i];
+          if (!img) return;
+          var a = d.baseAngle + orbitAngle;
+          gsap.set(img, { x: Math.cos(a) * CIRCLE_R, y: Math.sin(a) * CIRCLE_R });
+        });
+      };
+      gsap.ticker.add(orbitTicker);
+    }
+
+    function stopOrbitTicker() {
+      if (orbitTicker) { gsap.ticker.remove(orbitTicker); orbitTicker = null; }
+    }
+
+    // Start orbit and position the wrapper off-screen to the left, ready for scroll-driven slide-in
+    function initCircleSlide() {
+      circleSlideStart = CIRCLE_R * 2 + 60; // enough to be fully off the left edge
+      circleSlideX = 0;
+      circleAnimDone = false;
+      // Show all images in orbit positions, opacity 1 — wrapper position hides them off-screen
+      circleLayout.forEach(function(d, i) {
+        var img = circleImgRefs.current[i];
+        if (!img) return;
+        var a = d.baseAngle + orbitAngle;
+        gsap.set(img, { x: Math.cos(a) * CIRCLE_R, y: Math.sin(a) * CIRCLE_R, opacity: 1 });
+      });
+      // Place wrapper off-screen left
+      gsap.set(circleWrapRef.current, { left: -circleSlideStart });
+      startOrbitTicker();
+    }
+
+    // Slide the circle wrapper one step toward its locked position (left: 0)
+    function slideCircleStep() {
+      var step = circleSlideStart / 4; // 4 gestures to lock in
+      circleSlideX = Math.min(circleSlideX + step, circleSlideStart);
+      var targetLeft = -circleSlideStart + circleSlideX;
+      gsap.to(circleWrapRef.current, { left: targetLeft, duration: 0.6, ease: "power3.out",
+        onComplete: function() {
+          if (targetLeft >= 0) {
+            circleAnimDone = true;
+          }
+        }
+      });
+    }
+
+    function showCircleOrbit() {
+      gsap.set(circleWrapRef.current, { left: 0 });
+      circleAnimDone = true;
+      circleLayout.forEach(function(d, i) {
+        var img = circleImgRefs.current[i];
+        if (!img) return;
+        var a = d.baseAngle + orbitAngle;
+        gsap.set(img, { x: Math.cos(a) * CIRCLE_R, y: Math.sin(a) * CIRCLE_R, rotation: 0, opacity: 1 });
+      });
+      startOrbitTicker();
+    }
+    // Rotate the orbit so slot 9 (video) lands at 3 o'clock (most visible from left edge).
+    // The video src is swapped only once the slot rotates off-screen left (x < 0).
+    function rotateCircleToVideoSlot(pi) {
+      var newSrc = (pi >= 0 && SVC_ROWS[pi]) ? SVC_ROWS[pi].video : CIRCLE_VIDEO_SRC;
+      // Compute forward rotation to put image 9 at angle 0 (3 o'clock)
+      var d9 = circleLayout[9];
+      var TWO_PI = Math.PI * 2;
+      var currentAbs = d9.baseAngle + orbitAngle;
+      var normalised = ((currentAbs % TWO_PI) + TWO_PI) % TWO_PI;
+      var forward = (TWO_PI - normalised) % TWO_PI;
+      if (forward < 0.15) forward += TWO_PI; // ensure visible spin
+      var targetOrbit = orbitAngle + forward;
+      stopOrbitTicker();
+      if (circleRotateTween) { circleRotateTween.kill(); circleRotateTween = null; }
+      var proxy = { v: orbitAngle };
+      var srcSwapped = false;
+      circleRotateTween = gsap.to(proxy, {
+        v: targetOrbit,
+        duration: 1.4,
+        ease: "power2.inOut",
+        onUpdate: function() {
+          orbitAngle = proxy.v;
+          circleLayout.forEach(function(d, i) {
+            var img = circleImgRefs.current[i];
+            if (!img) return;
+            var a = d.baseAngle + orbitAngle;
+            gsap.set(img, { x: Math.cos(a) * CIRCLE_R, y: Math.sin(a) * CIRCLE_R });
+          });
+          // Swap src once slot 9 has rotated off-screen left (x negative)
+          if (!srcSwapped) {
+            var a9 = d9.baseAngle + orbitAngle;
+            if (Math.cos(a9) < 0) {
+              srcSwapped = true;
+              var videoEl = circleImgRefs.current[9];
+              if (videoEl) {
+                videoEl.src = newSrc;
+                videoEl.load();
+                videoEl.play().catch(function(){});
+              }
+            }
+          }
+        },
+        onComplete: function() { circleRotateTween = null; if (pi < 0) startOrbitTicker(); },
+      });
+    }
+    // ────────────────────────────────────────────────────────
+
+    function handleSectionChange(step) {
+      setActiveStep(step);
+      var pi = step - 1; // service index (0–5), -1 = initial "Your [point of scale]" state
+
+      // Section videos are replaced by the circle — keep them hidden always
+      videoRefs.current.forEach(function(v) { if (v) gsap.set(v, { opacity: 0 }); });
+
+      // Reset all service word chars
+      svcSplits.forEach(function(split) {
+        if (!split || !split.chars) return;
+        gsap.killTweensOf(split.chars);
+        gsap.set(split.chars, { y: "110%", opacity: 0 });
+      });
+
+      // Reset all body copy
+      bodyRefs.current.forEach(function(bel, idx) {
+        if (!bel) return;
+        gsap.set(bel, { opacity: 0 });
+        if (bodySplits[idx] && bodySplits[idx].words) {
+          gsap.killTweensOf(bodySplits[idx].words);
+          gsap.set(bodySplits[idx].words, { y: "18px", opacity: 0 });
+        }
+      });
+
+      // Circle: stay visible on all steps; rotate video slot to section video on service steps
+      if (circleAnimDone) {
+        gsap.to(circleImgRefs.current.filter(Boolean), { opacity: 1, duration: 0.3, ease: "power2.out" });
+        rotateCircleToVideoSlot(pi);
+      }
+
+      if (pi >= 0) {
+        // Hard-hide the "point of scale" text whenever a service section is active.
+        // tl.tweenTo going backward can reverse the posSplit exit tween and briefly
+        // bring these words back into view; killing and setting prevents that.
+        if (posSplit && posSplit.words) {
+          gsap.killTweensOf(posSplit.words);
+          gsap.set(posSplit.words, { y: "-110%", opacity: 0 });
+        }
+        if (yourWrapRef.current) {
+          gsap.killTweensOf(yourWrapRef.current);
+          gsap.set(yourWrapRef.current, { opacity: 0, width: 0 });
+        }
+
+        // Snap slot to exact word width before chars appear — the timeline width tween
+        // may be mid-transition when tweenTo(s) completes, leaving the slot too narrow.
+        if (wordSlotRef.current && svcNaturalWs[pi]) {
+          gsap.set(wordSlotRef.current, { width: svcNaturalWs[pi] });
+        }
+        // Snap pill box width and y (y may have been mid-tween on pill-click jumps)
+        if (pillBoxRef.current && pillWidths[pi]) {
+          gsap.set(pillBoxRef.current, { width: pillWidths[pi], y: pi * pillPitch });
+        }
+        // Sync pill text colours: active = section bg colour, rest = default
+        pillTextRefs.current.forEach(function(pel, idx) {
+          if (!pel) return;
+          gsap.set(pel, { color: idx === pi ? "var(--bg)" : "var(--secondary)" });
+        });
+        // Animate service word chars in
+        if (svcSplits[pi] && svcSplits[pi].chars) {
+          gsap.to(svcSplits[pi].chars, { y: "0%", opacity: 1, duration: 0.375, ease: "power2.out", stagger: { each: 0.0225 } });
+        }
+        // Show body container and stagger-animate words in
+        if (bodyRefs.current[pi]) {
+          gsap.set(bodyRefs.current[pi], { opacity: 1 });
+          if (bodySplits[pi] && bodySplits[pi].words) {
+            gsap.to(bodySplits[pi].words, {
+              y: "0px", opacity: 1, duration: 0.5, ease: "power2.out",
+              stagger: { each: 0.02 }, delay: 0.1,
+            });
+          }
+        }
+      }
+    }
+
+    var tlTween = null;
+    var lastStepTime = 0;
+    var STEP_COOLDOWN = 750; // ms — tween is 700ms; accumulation handles momentum
+    var wheelAcc = 0;
+    var wheelAccTimer = null;
+
+    function goToStep(next) {
+      // Also called from pill click handlers via goToStepRef
+      var now = Date.now();
+      if (!cascadeDone || animating || next === currentStep) return;
+      if (now - lastStepTime < STEP_COOLDOWN) return;
+      if (next < 0 || next >= N) return;
+      animating = true;
+      lastStepTime = now;
+      var prevStep = currentStep;
+      currentStep = next;
+
+      if (tlTween) tlTween.kill();
+
+      // Animate the leaving section's chars + body out before the transition starts
+      var prevPi = prevStep - 1;
+
+      // Returning to step 0: hard-hide all service chars BEFORE seeking the timeline so
+      // posSplit words and service chars are never simultaneously visible in the same frame.
+      if (next === 0) {
+        svcSplits.forEach(function(split) {
+          if (!split || !split.chars) return;
+          gsap.killTweensOf(split.chars);
+          gsap.set(split.chars, { y: "110%", opacity: 0 });
+        });
+        bodyRefs.current.forEach(function(b) { if (b) gsap.set(b, { opacity: 0 }); });
+        tl.seek(0, true);
+        gsap.set(wordSlotRef.current, { width: posNaturalW });
+        gsap.killTweensOf(posSplit.words);
+        gsap.set(posSplit.words, { y: "0%", opacity: 1 });
+        if (pillBoxRef.current) gsap.set(pillBoxRef.current, { y: 0 });
+        handleSectionChange(0);
+        setTimeout(function() { animating = false; }, 420);
+        return;
+      }
+
+      if (prevPi >= 0) {
+        if (svcSplits[prevPi] && svcSplits[prevPi].chars) {
+          gsap.killTweensOf(svcSplits[prevPi].chars);
+          gsap.to(svcSplits[prevPi].chars, {
+            y: "-110%", opacity: 0,
+            duration: 0.28, ease: "power2.in",
+            stagger: { each: 0.014, from: "end" },
+          });
+        }
+        if (bodyRefs.current[prevPi]) {
+          gsap.to(bodyRefs.current[prevPi], { opacity: 0, duration: 0.2, ease: "power1.in" });
+        }
+      }
+
+      // All three pill + section animations run in parallel — no sequential blocking
+      var pi = next - 1;
+      if (pillBoxRef.current && pillWidths[pi]) {
+        // Width snaps to destination label as section starts
+        gsap.to(pillBoxRef.current, { width: pillWidths[pi], duration: 0.22, ease: "power2.inOut" });
+        // Y slides with a slight lag for a trailing feel
+        gsap.to(pillBoxRef.current, { y: pi * pillPitch, duration: 0.6, ease: "back.out(1.2)", delay: 0.08, overwrite: "auto" });
+      }
+      // Slot width as standalone tween — keeps brackets smooth on multi-step pill jumps
+      if (wordSlotRef.current && svcNaturalWs[pi]) {
+        gsap.killTweensOf(wordSlotRef.current);
+        gsap.to(wordSlotRef.current, { width: svcNaturalWs[pi], duration: 0.15, ease: "power2.inOut" });
+      }
+      tlTween = tl.tweenTo(next / N, {
+        duration: 0.7,
+        ease: "power2.inOut",
+        onComplete: function() {
+          animating = false;
+          handleSectionChange(next);
+        },
+      });
+    }
+
+    // Expose to pill click handlers (defined in JSX, outside this effect)
+    goToStepRef.current = goToStep;
+
+    var wheelHandler = function(e) {
+      if (!sectionActive) return;
+      if (!cascadeDone) { e.preventDefault(); return; }
+      e.preventDefault();
+      var dir = e.deltaY > 0 ? 1 : -1;
+
+      // Block boundary exits and new goToStep calls while a section tween is running
+      if (animating) return;
+
+      // ── Circle slide-in phase ─────────────────────────────────────────────
+      // While at step 0 and circle hasn't locked in, each scroll gesture
+      // slides the circle one step toward left: 0. Once locked, the next
+      // down scroll advances to the strategy section.
+      if (currentStep === 0 && !circleAnimDone) {
+        if (dir < 0) {
+          // Scroll up while sliding — exit section upward
+          sectionActive = false; animating = false; wheelAcc = 0;
+          if (pinST) window.scrollTo(0, Math.max(0, pinST.start - 10));
+          return;
+        }
+        wheelAcc += e.deltaY;
+        clearTimeout(wheelAccTimer);
+        wheelAccTimer = setTimeout(function() { wheelAcc = 0; }, 150);
+        if (Math.abs(wheelAcc) < 60) return;
+        wheelAcc = 0;
+        slideCircleStep();
+        return;
+      }
+      // ─────────────────────────────────────────────────────────────────────
+
+      if (dir > 0 && currentStep >= N - 1) {
+        sectionActive = false;
+        animating = false;
+        wheelAcc = 0;
+        if (tlTween) { tlTween.kill(); tlTween = null; }
+        if (pinST) window.scrollTo(0, pinST.end + 10);
+        return;
+      }
+      if (dir < 0 && currentStep <= 0) {
+        sectionActive = false;
+        animating = false;
+        wheelAcc = 0;
+        if (tlTween) { tlTween.kill(); tlTween = null; }
+        if (pinST) window.scrollTo(0, Math.max(0, pinST.start - 10));
+        return;
+      }
+      // Accumulate delta — reset on idle so momentum tail doesn't stack across pauses
+      wheelAcc += e.deltaY;
+      clearTimeout(wheelAccTimer);
+      wheelAccTimer = setTimeout(function() { wheelAcc = 0; }, 150);
+      // Only advance once the gesture has enough weight; reset so momentum can't re-trigger
+      if (Math.abs(wheelAcc) < 60) return;
+      wheelAcc = 0;
+      goToStep(currentStep + dir);
+    };
+    window.addEventListener('wheel', wheelHandler, { passive: false });
+
+    // Touch support
+    var touchStartY = 0;
+    var touchHandler = function(e) {
+      if (!sectionActive || !cascadeDone) return;
+      if (e.type === "touchstart") { touchStartY = e.touches[0].clientY; return; }
+      var dy = touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(dy) < 30) return;
+      var dir = dy > 0 ? 1 : -1;
+      // Circle slide-in phase on touch
+      if (currentStep === 0 && !circleAnimDone) {
+        if (dir < 0) { sectionActive = false; if (pinST) window.scrollTo(0, Math.max(0, pinST.start - 10)); return; }
+        slideCircleStep();
+        return;
+      }
+      if (dir > 0 && currentStep >= N - 1) return;
+      if (dir < 0 && currentStep <= 0) return;
+      e.preventDefault();
+      goToStep(currentStep + dir);
+    };
+    window.addEventListener('touchstart', touchHandler, { passive: true });
+    window.addEventListener('touchend', touchHandler, { passive: false });
+
+    pinST = ScrollTrigger.create({
+      trigger: el,
+      start: "top top",
+      end: "+=" + ((N - 1) * window.innerHeight),
+      pin: true,
+      onEnter: function() {
+        sectionActive = true;
+        currentStep = 0;
+        cascadeDone = false;
+        animating = false;
+
+        // Reset timeline and all timeline-driven state so re-entry is always clean.
+        tl.seek(0, true);
+        videoRefs.current.forEach(function(v) { if (v) gsap.set(v, { opacity: 0 }); });
+        gsap.set(pillsRef.current, { opacity: 0 });
+        if (pillBoxRef.current) gsap.set(pillBoxRef.current, { y: 0, opacity: 0 });
+        svcSplits.forEach(function(split) {
+          if (split && split.chars) gsap.set(split.chars, { y: "110%" });
+        });
+        bodyRefs.current.forEach(function(b) { if (b) gsap.set(b, { opacity: 0 }); });
+        gsap.set(wordSlotRef.current, { width: posNaturalW });
+        if (posSplit && posSplit.words) gsap.set(posSplit.words, { y: "0%", opacity: 1 });
+        setActiveStep(0);
+
+        if (cascadeHasPlayed) {
+          // Already played once — snap to final position and allow interaction immediately.
+          gsap.set([yourWrapRef.current, bracketOpenRef.current, posRef.current, bracketCloseRef.current, allyMarkRef.current], { y: 0, opacity: 1 });
+          cascadeDone = true;
+          showCircleOrbit();
+          return;
+        }
+
+        // First-time entry: position images in stack (hidden) ready for fan animation.
+        // First-time entry: animate the cascade in.
+        gsap.set([yourWrapRef.current, bracketOpenRef.current, posRef.current, bracketCloseRef.current, allyMarkRef.current], { y: 60, opacity: 0 });
+        var dur = 0.5, ease = "power2.out", stagger = 0.12;
+        var t = gsap.timeline({
+          delay: 0.2,
+          onComplete: function() {
+            cascadeDone = true;
+            cascadeHasPlayed = true;
+            initCircleSlide();
+          },
+        });
+        [yourWrapRef.current, bracketOpenRef.current, posRef.current, bracketCloseRef.current, allyMarkRef.current].forEach(function(cel, idx) {
+          t.to(cel, { y: 0, opacity: 1, duration: dur, ease: ease }, idx * stagger);
+        });
+      },
+      onLeave: function() {
+        sectionActive = false;
+        animating = false;
+        if (tlTween) { tlTween.kill(); tlTween = null; }
+      },
+      onEnterBack: function() {
+        // Returning from below — restore section to wherever the user left off.
+        sectionActive = true;
+        tl.seek(currentStep / N, true);
+        var pi = currentStep - 1;
+        if (pillBoxRef.current && pi >= 0) gsap.set(pillBoxRef.current, { y: pi * pillPitch });
+        handleSectionChange(currentStep);
+      },
+      onLeaveBack: function() { sectionActive = false; },
+    });
+
+    return () => {
+      window.removeEventListener('wheel', wheelHandler);
+      window.removeEventListener('touchstart', touchHandler);
+      window.removeEventListener('touchend', touchHandler);
+      goToStepRef.current = null;
+      stopOrbitTicker();
+      ScrollTrigger.getAll().forEach(t => t.kill());
+      yourSplit.revert();
+      posSplit.revert();
+      svcSplits.forEach(s => s && s.revert());
+      bodySplits.forEach(s => s && s.revert());
+    };
+  }, [isMobile]);
+
+  const fs  = "clamp(36px,5vw,72px)";
+  const bsz = isMobile ? 56 : 80;
+  const allyW = Math.round(369 * bsz / 102); // px width of AllyWordmark SVG at current bsz
+  const allyRowRight = 64 + 368 - allyW;     // aligns ALLY left edge with body copy left edge
+  const wordStyle = {
+    display:"inline-block",
+    fontFamily:"var(--sans)", fontSize:fs, fontWeight:500,
+    lineHeight:1, letterSpacing:"-0.02em",
+    color:"var(--secondary)", whiteSpace:"nowrap",
+  };
+
+  return (
+    <>
+      {/* ── Intro section — scrolls naturally off the top ── */}
+      <div style={{ height:"100vh", position:"relative", background:"var(--bg)", overflow:"hidden" }}>
+        {!isMobile && <DitherCanvas dark={dark} />}
+        {isMobile && <MobileDitherVideo dark={dark} />}
+        <div style={{
+          position:"absolute", bottom:isMobile?24:64, left:isMobile?24:64,
+          maxWidth:520, zIndex:5,
+          display:"flex", flexDirection:"column", gap:24,
+        }}>
+          <Eyebrow center={false}>++ OUR SERVICES ++</Eyebrow>
+          <div ref={introHeadingRef} style={{
+            fontFamily:"var(--sans)", fontSize:isMobile?26:42, fontWeight:350,
+            lineHeight:1.15, letterSpacing:"-0.84px", color:"var(--secondary)",
+            overflow:"hidden", maxWidth:isMobile?undefined:490,
+          }}>From engineering to execution and everything in between.</div>
+          <div ref={introBodyRef} style={{
+            fontFamily:"var(--sans)", fontSize:isMobile?15:19, fontWeight:350,
+            lineHeight:1.3, color:"var(--static)", maxWidth:420,
+            overflow:"hidden",
+          }}>Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.</div>
+        </div>
       </div>
 
-      {/* Panels 1–6: Service panels */}
-      {SVC_ROWS.map((svc, i) => (
-        <div key={svc.slug}>
-          <ServicePanel
-            svc={svc}
-            index={i}
-            activePanel={activePanel}
-            onPillClick={handlePillClick}
-            isMobile={isMobile}
-          />
+      {/* ── ALLY container — scrolls into centre, then pins ── */}
+      <div ref={allyContainerRef} style={{ height:"100vh", position:"relative", overflow:"hidden" }}>
+
+        <div style={{ position:"absolute", inset:0, background:"var(--bg)", zIndex:0 }} />
+
+        {/* Circle orbit images — sit behind text (zIndex 1 vs text at 5) */}
+        <div ref={circleWrapRef} style={{
+          position:"absolute", left:0, top:0,
+          width:0, height:0, zIndex:1, pointerEvents:"none",
+        }}>
+          {CIRCLE_IMGS.map((src, i) => (
+            i === 9
+              ? <video key={i} ref={el => circleImgRefs.current[i] = el}
+                  src={CIRCLE_VIDEO_SRC}
+                  autoPlay muted loop playsInline
+                  style={{
+                    position:"absolute",
+                    width:200, height:200,
+                    left:-100, top:-100,
+                    objectFit:"cover", borderRadius:6,
+                    opacity:0,
+                  }}
+                />
+              : <img key={i} ref={el => circleImgRefs.current[i] = el}
+                  src={src} alt=""
+                  style={{
+                    position:"absolute",
+                    width:200, height:200,
+                    left:-100, top:-100,
+                    objectFit:"cover", borderRadius:6,
+                    opacity:0,
+                  }}
+                />
+          ))}
         </div>
-      ))}
-    </div>
+
+        {SVC_ROWS.map((svc, i) => (
+          <video key={i}
+            ref={el => videoRefs.current[i] = el}
+            src={svc.video}
+            autoPlay muted loop playsInline
+            style={{
+              position:"absolute", top:64, left:64,
+              width:296, height:296,
+              objectFit:"cover", borderRadius:4,
+              opacity:0, zIndex:5,
+              mixBlendMode: dark ? "screen" : "multiply",
+              filter: dark ? "invert(1) opacity(0.85)" : "none",
+            }}
+          />
+        ))}
+
+        {/* ALLY treatment — right-anchored */}
+        <div style={{
+          position:"absolute", top:"50%", right:allyRowRight,
+          transform:"translateY(-50%)",
+          display:"flex", alignItems:"center", gap:12,
+          zIndex:5, flexWrap:"nowrap",
+        }}>
+          {/* "Your" — overflow:hidden wrapper so SplitText y-animation clips */}
+          <div ref={yourWrapRef} style={{ overflow:"hidden", display:"inline-flex" }}>
+            <span ref={yourInnerRef} style={{
+              fontFamily:"var(--sans)", fontSize:fs, fontWeight:350,
+              lineHeight:1, color:"var(--secondary)", whiteSpace:"nowrap",
+              display:"inline-block", marginRight:4,
+            }}>Your</span>
+          </div>
+
+          <div ref={bracketOpenRef} style={{ flexShrink:0, display:"flex" }}>
+            <BracketOpen size={bsz} color="var(--secondary)" />
+          </div>
+
+          {/* Word slot — width driven by GSAP; overflow:hidden clips y-translate.
+              paddingBlock gives descenders room so text isn't visually clipped. */}
+          <div ref={wordSlotRef} style={{ position:"relative", display:"inline-flex", alignItems:"center", overflow:"hidden", paddingBlock:8, paddingInline:6, boxSizing:"content-box" }}>
+            {/* "point of scale" — SplitText splits into word spans */}
+            <span ref={posRef} style={wordStyle}>point of scale</span>
+
+            {/* Service words — chars hidden via opacity:0 so no overflow:hidden needed here,
+                which eliminates horizontal clipping at the slot edges. */}
+            {SVC_ROWS.map((svc, i) => (
+              <div key={i} style={{
+                position:"absolute", inset:0,
+                display:"flex", alignItems:"center", justifyContent:"center",
+              }}>
+                <span ref={el => svcWordRefs.current[i] = el} style={wordStyle}>{svc.bracket}</span>
+              </div>
+            ))}
+          </div>
+
+          <div ref={bracketCloseRef} style={{ flexShrink:0, display:"flex" }}>
+            <BracketClose size={bsz} color="var(--secondary)" />
+          </div>
+
+          <div ref={allyMarkRef} style={{ flexShrink:0, display:"flex" }}>
+            <AllyWordmark size={bsz} color="var(--secondary)" />
+          </div>
+        </div>
+
+        {/* Body copy — bottom right */}
+        {SVC_ROWS.map((svc, i) => (
+          <div key={i} ref={el => bodyRefs.current[i] = el} style={{
+            position:"absolute", bottom:64, right:64,
+            width:368, zIndex:5,
+            display:"flex", flexDirection:"column", gap:16,
+          }}>
+            <div style={{
+              fontFamily:"var(--sans)", fontSize:26, fontWeight:500,
+              lineHeight:1.1, letterSpacing:"-0.52px", color:"var(--secondary)",
+            }}>{svc.headline}</div>
+            <div style={{
+              fontFamily:"var(--sans)", fontSize:19, fontWeight:350,
+              lineHeight:1.3, letterSpacing:"0.19px", color:"var(--secondary)", opacity:0.75,
+            }}>{svc.body}</div>
+          </div>
+        ))}
+
+        {/* Nav pills — bottom left */}
+        {!isMobile && (
+          <div ref={pillsRef} style={{
+            position:"absolute", top:"50%", left:384,
+            transform:"translateY(-50%)",
+            display:"flex", flexDirection:"column", alignItems:"flex-start", gap:8, zIndex:5,
+            opacity:0,
+          }}>
+            {/* Sliding highlight box */}
+            <div ref={pillBoxRef} style={{
+              position:"absolute", left:0, top:0,
+              background:"var(--secondary)", borderRadius:4,
+              pointerEvents:"none", zIndex:0,
+            }} />
+            {SVC_ROWS.map((row, i) => (
+              <SvcPill key={row.slug} label={row.slug} buttonRef={el => pillTextRefs.current[i] = el} onClick={() => goToStepRef.current && goToStepRef.current(i + 1)} dark={dark} active={activeStep === i + 1} />
+            ))}
+          </div>
+        )}
+      </div>
+    </>
   );
 }
 
@@ -769,6 +1646,7 @@ function Page() {
   const [menuReady,   setMenuReady]   = useState(false);
   const [menuItemsReady, setMenuItemsReady] = useState(false);
   const [ctaOpen,  setCtaOpen]  = useState(false);
+  const CTA_W = isMobile ? window.innerWidth : 661;
   const [openAccordion, setOpenAccordion] = useState(0);
   const [email, setEmail] = useState('');
   const [contactHeight, setContactHeight] = useState(null);
@@ -780,6 +1658,7 @@ function Page() {
   const menuContentRef = useRef(null);
   const menuScrollRef  = useRef(0);
   const contactCardRef = useRef(null);
+  const footerLogoRef  = useRef(null);
   const scrolledRef    = useRef(false);
   const prevScrollRef  = useRef(0);
   const navHiddenRef   = useRef(false);
@@ -795,7 +1674,7 @@ function Page() {
   // Resize
   useEffect(()=>{
     let lastWidth = window.innerWidth;
-    const onResize = () => { const w=window.innerWidth; if(w!==lastWidth){lastWidth=w;setIsMobile(w<=768);} };
+    const onResize = () => { const w=window.innerWidth; if(w!==lastWidth){lastWidth=w;setIsMobile(w<=768);} positionCircleCenter(); };
     window.addEventListener('resize', onResize, {passive:true});
     return ()=> window.removeEventListener('resize', onResize);
   }, []);
@@ -811,6 +1690,27 @@ function Page() {
       setContactCardHeight(Math.ceil(cardH/CELL)*CELL);
     }
   },[isMobile]);
+
+  // Footer Lottie — load and play once when footer enters view
+  useEffect(()=>{
+    if (typeof lottie === 'undefined') return;
+    const el = footerLogoRef.current;
+    if (!el) return;
+    let anim = null;
+    const obs = new IntersectionObserver(([e])=>{
+      if (e.isIntersecting && !anim) {
+        anim = lottie.loadAnimation({
+          container: el, renderer: 'svg', loop: false, autoplay: true,
+          path: 'json/Dijitally-Logo.json',
+          rendererSettings: { preserveAspectRatio: 'xMidYMid meet' },
+        });
+        anim.addEventListener('DOMLoaded', ()=>{ if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh(); });
+        obs.disconnect();
+      }
+    });
+    obs.observe(el.closest('footer') || el);
+    return ()=>{ obs.disconnect(); if (anim) anim.destroy(); };
+  },[]);
 
   // Scroll tracker + nav hide/show
   useEffect(()=>{
@@ -833,18 +1733,42 @@ function Page() {
     return () => { if (typeof gsap !== 'undefined') gsap.ticker.remove(tick); };
   },[isMobile]);
 
-  // CTA panel
+  // CTA panel — slide wrapper, animate heading, toggle cursor
+  const ctaInitRef = useRef(false);
   useEffect(()=>{
+    if (!ctaInitRef.current) { ctaInitRef.current = true; return; }
+    const wrapper = document.getElementById("smooth-wrapper");
     const panel   = document.getElementById("cta-panel");
     const overlay = document.getElementById("cta-overlay");
-    const wrapper = document.getElementById("smooth-wrapper");
-    if (!panel || !overlay) return;
+    if (!wrapper || !panel || !overlay) return;
+    const cursor  = document.getElementById("dj-cursor");
+    const heading = document.getElementById("cta-heading");
+    const slideTarget = isMobile ? document.getElementById("smooth-content") || wrapper : wrapper;
     if (ctaOpen) {
-      panel.classList.add("open"); overlay.classList.add("open");
-      if(wrapper) wrapper.classList.add("cta-open");
+      gsap.to(slideTarget, { x: -CTA_W, duration: 0.7, ease: "power3.inOut" });
+      panel.classList.add("open");
+      overlay.classList.add("open");
+      wrapper.classList.add("cta-open");
+      if (cursor) cursor.classList.add("cta-open");
+      if (heading && typeof SplitText !== "undefined") {
+        heading._ctaSplit && heading._ctaSplit.revert();
+        const split = new SplitText(heading, { type:"lines", linesClass:"split-line" });
+        heading._ctaSplit = split;
+        split.lines.forEach(line => {
+          const wrap = document.createElement("div");
+          wrap.style.overflow = "hidden";
+          wrap.style.display = "block";
+          line.parentNode.insertBefore(wrap, line);
+          wrap.appendChild(line);
+        });
+        gsap.from(split.lines, { y:"110%", duration:0.75, ease:"power3.out", stagger:0.08, delay:0.35 });
+      }
     } else {
-      panel.classList.remove("open"); overlay.classList.remove("open");
-      if(wrapper) wrapper.classList.remove("cta-open");
+      gsap.to(slideTarget, { x: 0, duration: 0.7, ease: "power3.inOut" });
+      panel.classList.remove("open");
+      overlay.classList.remove("open");
+      wrapper.classList.remove("cta-open");
+      if (cursor) cursor.classList.remove("cta-open");
     }
   }, [ctaOpen]);
 
@@ -940,23 +1864,26 @@ function Page() {
           </a>
 
           <nav style={{display:"flex",alignItems:"center",gap:isMobile?12:42}}>
-            {["Work","Services","About","Blog"].map(l=>(
+            {["Work","Services","About"].map(l=>(
               <span key={l} className="mobile-nav-links nav-item" style={{
                 display:"flex",alignItems:"center",gap:4,padding:6,
                 background: l==="Services" ? "var(--secondary)" : "var(--bg)",
                 fontFamily:"var(--sans)",fontSize:"var(--nav-size)",fontWeight:"var(--nav-w)",letterSpacing:0,
                 color: l==="Services" ? "var(--bg)" : "var(--secondary)",
                 cursor:"pointer",userSelect:"none",
+                transition:"background 0.15s ease",
               }}
               onClick={()=>{ if(l==="Work") window.location.href='dijitally-revised.html'; }}
               onMouseEnter={e=>{
+                if(l!=="Services") e.currentTarget.style.background=dark?"#1a1a1a":"#edeae6";
                 const textNode=e.currentTarget.querySelector('.nav-text');
-                if(!textNode||typeof gsap==='undefined') return;
-                if(!textNode.dataset.wLocked){textNode.style.display='inline-block';textNode.style.whiteSpace='nowrap';textNode.style.overflow='hidden';textNode.style.width=textNode.offsetWidth+'px';textNode.dataset.wLocked='1';}
-                gsap.to(textNode,{duration:0.4,ease:'none',scrambleText:{text:l,chars:'upperCase',revealDelay:0.1,speed:0.9}});
+                if(textNode) scrambleHover(textNode);
+              }}
+              onMouseLeave={e=>{
+                if(l!=="Services") e.currentTarget.style.background="var(--bg)";
               }}>
                 <span className="nav-dot" style={{width:3,height:3,background:l==="Services"?"var(--bg)":"var(--secondary)",display:"inline-block",flexShrink:0}}/>
-                <span className="nav-text">{l}</span>
+                <span className="nav-text" style={{display:"inline-block",whiteSpace:"nowrap",overflow:"hidden",verticalAlign:"middle"}}>{l}</span>
               </span>
             ))}
 
@@ -1004,16 +1931,16 @@ function Page() {
           <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:48,position:"relative",zIndex:1}}>
             <div ref={menuLogoRef} style={{width:160,height:24,overflow:"hidden"}}/>
             <button onClick={()=>setMenuOpen(false)} style={{background:"none",border:"none",cursor:"pointer",display:"flex",gap:6,flexDirection:"column",padding:0}}>
-              <span style={{display:"block",width:24,height:2,background:"#FDFEFF",transform:"rotate(45deg) translate(3px,3px)"}}/>
-              <span style={{display:"block",width:24,height:2,background:"#FDFEFF",transform:"rotate(-45deg) translate(3px,-3px)"}}/>
+              <span style={{display:"block",width:24,height:2,background:"#F5F3EE",transform:"rotate(45deg) translate(3px,3px)"}}/>
+              <span style={{display:"block",width:24,height:2,background:"#F5F3EE",transform:"rotate(-45deg) translate(3px,-3px)"}}/>
             </button>
           </div>
           <div ref={menuContentRef} style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",gap:8,overflow:"hidden",position:"relative",zIndex:1}}>
-            {["Work","Services","About","Blog"].map(l=>(
+            {["Work","Services","About"].map(l=>(
               <div key={l} style={{overflow:"hidden"}}>
                 <div className="menu-nav-item" onClick={()=>setMenuOpen(false)} style={{
                   fontFamily:"var(--sans)",fontSize:42,fontWeight:350,lineHeight:1.1,
-                  letterSpacing:"-0.84px",color:"#FDFEFF",cursor:"pointer",
+                  letterSpacing:"-0.84px",color:"#F5F3EE",cursor:"pointer",
                   borderBottom:"1px solid rgba(255,255,255,0.12)",paddingBottom:16,marginBottom:8,
                 }}>{l}</div>
               </div>
@@ -1033,69 +1960,30 @@ function Page() {
       )}
 
       {/* ══ SERVICES HERO SCROLL ══ */}
-      <ServicesHero isMobile={isMobile} />
+      <ServicesHero isMobile={isMobile} dark={dark} />
 
       {/* ══ OPERATING MODELS CALLOUT ══ */}
-      <section style={{borderTop:"1px solid var(--grey)",padding:isMobile?"64px 24px":"var(--s128) var(--s64) var(--s32)",display:"flex",flexDirection:"column",gap:"var(--s24)",background:"var(--bg)"}}>
-        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?26:48,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.26px",color:"var(--secondary)",maxWidth:570}}>Our operating models enable scale through the right allies.</div>
-        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?19:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.19px",color:"var(--static)",maxWidth:480}}>We help brands scale by enabling their product, brand + marketing teams to deliver results, fast.</div>
+      <section style={{padding:isMobile?"64px 24px":"256px var(--s64) var(--s64)",display:"flex",flexDirection:"column",gap:"var(--s24)",background:"var(--bg)"}}>
+        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?26:48,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.96px",color:"var(--secondary)",maxWidth:570}}>Our operating models enable scale through the right allies.</div>
+        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?19:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.22px",color:"var(--static)",maxWidth:480}}>We help brands scale by enabling their product, brand + marketing teams to deliver results, fast.</div>
       </section>
 
       {/* ══ MODELS TABS ══ */}
-      <section style={{padding:isMobile?"0 var(--s42) var(--s64)":"0 var(--s64) var(--s64)",background:"var(--bg)"}}>
-        <div style={{display:"flex",gap:12,alignItems:"center",marginBottom:32,flexWrap:"wrap"}}>
+      <section style={{padding:isMobile?"0 var(--s42) var(--s42)":"0 var(--s64) var(--s42)",background:"var(--bg)"}}>
+        <div style={{display:"flex",gap:12,alignItems:"center",justifyContent:"center",flexWrap:"wrap"}}>
           {["Integrated","In-house","Embedded"].map((t,i)=>(
-            <button key={t} style={{
-              padding:"16px 20px",borderRadius:2,border:"none",cursor:"pointer",
-              background:i===0?"var(--secondary)":"var(--bg)",
-              fontFamily:"var(--sans)",fontSize:16,fontWeight:350,
-              color:i===0?"var(--primary)":"var(--secondary)",
-              letterSpacing:"-0.32px",
-            }}>{t}</button>
-          ))}
-        </div>
-        <div style={{display:"flex",flexDirection:isMobile?"column":"row",gap:"var(--s42)"}}>
-          {MODELS.map((m)=>(
-            <div key={m.name} style={{
-              flex:1, background:dark?"#1A1A1A":"#F6F6F6",
-              borderRadius:4, padding:"var(--s24)",
-              display:"flex",flexDirection:"column",gap:16,
-            }}>
-              <span style={{...h2s,fontSize:isMobile?"var(--h2)":24}}>{m.name}</span>
-              <p style={{...body22,fontSize:15,margin:0}}>{m.body}</p>
-              <ul style={{listStyle:"none",padding:0,margin:0,display:"flex",flexDirection:"column",gap:4}}>
-                {m.areas.map(a=>(
-                  <li key={a} style={{fontFamily:"var(--sans)",fontSize:15,fontWeight:350,display:"flex",alignItems:"center",gap:8,color:"var(--secondary)"}}>
-                    <span style={{color:"var(--secondary)"}}>·</span>{a}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <ModelTab key={t} label={t} active={i===0} dark={dark} />
           ))}
         </div>
       </section>
 
-      {/* ══ TICKER ══ */}
-      <div style={{borderTop:"1px solid var(--grey)",borderBottom:"1px solid var(--grey)",overflow:"hidden",background:"var(--bg)"}}>
-        <div style={{padding:"18px 0",whiteSpace:"nowrap"}}>
-          <div className="ticker-inner">
-            {[...Array(12)].map((_,i)=>(
-              <span key={i} style={{display:"inline-flex",alignItems:"center",paddingRight:64,flexShrink:0,fontFamily:"var(--mono)",fontSize:11,fontWeight:400,letterSpacing:"0.1em",textTransform:"uppercase",color:"var(--static)",whiteSpace:"nowrap"}}>
-                Strategic.ally &nbsp;·&nbsp; Organisation.ally &nbsp;·&nbsp; Systematic.ally &nbsp;·&nbsp; Commerci.ally &nbsp;·&nbsp; Technologic.ally &nbsp;·&nbsp; Tactic.ally
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
-
       {/* ══ CAPABILITIES GRID ══ */}
       <section style={{
-        borderTop:"1px solid var(--grey)",
         background:"#121010",
         padding:isMobile?"var(--s64) var(--s42)":"var(--s64) 88px",
         display:"flex",flexDirection:"column",alignItems:"center",gap:82,overflow:"hidden",
       }}>
-        <div style={{...body22,fontSize:isMobile?15:22,color:"#FDFEFF",textAlign:"center",maxWidth:486}}>
+        <div style={{...body22,fontSize:isMobile?15:22,color:"#F5F3EE",textAlign:"center",maxWidth:486}}>
           High-impact capability, delivered fast, without the overhead of permanent hires.
         </div>
         <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:24,width:"100%"}}>
@@ -1106,12 +1994,12 @@ function Page() {
               borderRadius:4, padding:"32px 64px",
               display:"flex",flexDirection:"column",gap:32,alignItems:"center",justifyContent:"center",
             }}>
-              <div style={{fontFamily:"var(--sans)",fontSize:24,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.48px",color:"#FDFEFF",width:"100%",maxWidth:265}}>{cap.title}</div>
+              <div style={{fontFamily:"var(--sans)",fontSize:24,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.48px",color:"#F5F3EE",width:"100%",maxWidth:265}}>{cap.title}</div>
               <div style={{display:"flex",flexDirection:"column",gap:14,width:"100%",maxWidth:265}}>
                 {cap.items.map((item,idx)=>(
                   <div key={item} style={{display:"flex",gap:10,alignItems:"center",paddingBottom:8,borderBottom:idx<cap.items.length-1?"1px solid rgba(222,222,222,0.25)":"none"}}>
-                    <span style={{width:4,height:4,background:"#FDFEFF",flexShrink:0,display:"inline-block"}}/>
-                    <span style={{fontFamily:"var(--sans)",fontSize:16,fontWeight:350,lineHeight:1.2,color:"#FDFEFF"}}>{item}</span>
+                    <span style={{width:4,height:4,background:"#F5F3EE",flexShrink:0,display:"inline-block"}}/>
+                    <span style={{fontFamily:"var(--sans)",fontSize:16,fontWeight:350,lineHeight:1.2,color:"#F5F3EE"}}>{item}</span>
                   </div>
                 ))}
               </div>
@@ -1138,7 +2026,10 @@ function Page() {
                 <PixelResolveImg src={c.img} alt={c.title} delay={i*0.15} style={{width:"100%",height:"100%"}}/>
               </div>
               <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
-                <span style={{fontFamily:"var(--sans)",fontSize:13,fontWeight:350,letterSpacing:"var(--eyebrow-ls)",color:"var(--static)",textTransform:"uppercase"}}>{c.label||c.title}</span>
+                {c.logo
+                  ? <img src={c.logo} alt={c.title} style={{height:c.logoH||20,width:"auto",display:"block",alignSelf:"flex-start",filter:dark?"invert(1)":"none"}} />
+                  : <span style={{fontFamily:"var(--sans)",fontSize:13,fontWeight:350,letterSpacing:"var(--eyebrow-ls)",color:"var(--static)",textTransform:"uppercase"}}>{c.label||c.title}</span>
+                }
                 <div style={{fontFamily:"var(--sans)",fontSize:19,fontWeight:350,lineHeight:1.2,letterSpacing:"0.19px",color:"var(--static)",maxWidth:270}}>{c.desc}</div>
               </div>
             </div>
@@ -1148,7 +2039,7 @@ function Page() {
         {/* Right: heading + accordion */}
         <div style={{flex:1,display:"flex",flexDirection:"column",gap:"var(--s128)"}}>
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
-            <div style={{...h1s}}>Helping product, brand and marketing teams deliver results. Fast.</div>
+            <div style={{...h1s,maxWidth:483}}>Helping product, brand and marketing teams deliver results. Fast.</div>
             <div style={{...body22,maxWidth:483}}>We partner with brands at the points where growth needs to be engineered, not just executed.</div>
           </div>
 
@@ -1159,14 +2050,19 @@ function Page() {
                   display:"flex",alignItems:"center",justifyContent:"space-between",
                   width:"100%",background:"none",border:"none",cursor:"pointer",padding:0,gap:10,
                 }}>
-                  <span style={{fontFamily:"var(--sans)",fontSize:isMobile?22:32,fontWeight:350,lineHeight:1.1,color:"var(--secondary)",textAlign:"left"}}>{item.label}</span>
+                  <span style={{fontFamily:"var(--sans)",fontSize:22,fontWeight:350,lineHeight:1.1,color:"var(--secondary)",textAlign:"left"}}>{item.label}</span>
                   <span style={{position:"relative",width:21,height:21,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
                     <span style={{position:"absolute",width:3,height:21,background:"var(--secondary)",borderRadius:0,opacity:openAccordion===i?0:1,transition:"opacity 0.2s"}}/>
                     <span style={{position:"absolute",width:21,height:3,background:"var(--secondary)",borderRadius:0}}/>
                   </span>
                 </button>
-                {openAccordion===i && item.body && (
-                  <div style={{...body22,marginTop:16,maxWidth:670}}>{item.body}</div>
+                {openAccordion===i && (
+                  <div style={{marginTop:16,display:"flex",flexDirection:"column",gap:24}}>
+                    {item.body && <div style={{...body22,maxWidth:670}}>{item.body}</div>}
+                    {item.img && (
+                      <img src={item.img} alt={item.label} style={{width:842,height:378,objectFit:"cover",borderRadius:4,display:"block"}} />
+                    )}
+                  </div>
                 )}
               </div>
             ))}
@@ -1175,36 +2071,35 @@ function Page() {
       </section>
 
       {/* ══ CONTACT ══ */}
-      <section style={{
+      <section ref={contactCardRef} style={{
         borderTop:"1px solid var(--grey)",
-        background:dark?"#1A1A1A":"var(--grey)",
+        background:dark?"#1A1A1A":"#EDEAE5",
         padding:isMobile?"48px 16px":"var(--s96) var(--s64)",
         minHeight:isMobile?(contactHeight?`${contactHeight}px`:"66svh"):"auto",
         display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",gap:"var(--s24)",
         position:"relative",overflow:"hidden",
       }}>
         <ContactPixels dark={dark} mobile={isMobile}/>
-        <div ref={contactCardRef} className="contact-card-inner" style={{
+        <div className="contact-card-inner" style={{
           background:dark?"#121010":"var(--primary)",
           borderRadius:4,
           width:isMobile?"calc(100% - 32px)":736,
           height:isMobile?(contactCardHeight?contactCardHeight:"auto"):416,
           position:"relative",zIndex:1,
-          display:"flex",alignItems:isMobile?"stretch":"center",
-          paddingLeft:isMobile?24:176, paddingRight:isMobile?24:"var(--s64)",
+          display:"flex",alignItems:"center",justifyContent:"center",
+          paddingLeft:isMobile?24:"var(--s64)",
+          paddingRight:isMobile?24:"var(--s64)",
           paddingTop:isMobile?32:0, paddingBottom:isMobile?32:0,
           overflow:"hidden",flexShrink:0,
         }}>
-          <div style={{position:"absolute",top:8,left:8,width:150,height:150,flexShrink:0,clipPath:"inset(0 round 2px)",transform:"translateZ(0)",display:isMobile?"none":"block"}}>
-            <video src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
-            <div style={{position:"absolute",inset:0,background:"#121010",mixBlendMode:"multiply",opacity:dark?1:0,transition:"opacity 0.3s ease",pointerEvents:"none"}}/>
-          </div>
-          <div style={{flex:1,display:"flex",flexDirection:"column",gap:"var(--s24)",justifyContent:isMobile?"center":"flex-start"}}>
+          <div style={{width:"100%",display:"flex",flexDirection:"column",gap:"var(--s24)",alignItems:"center",textAlign:"center"}}>
             <Eyebrow center={false} style={{letterSpacing:"0.08em"}}>LET'S CHAT</Eyebrow>
-            <div role="heading" aria-level="2" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",color:"var(--secondary)"}}>Looking for an ally on your next project?</div>
-            <div style={{display:"flex",gap:12,alignItems:"flex-end",flexDirection:isMobile?"column":"row"}}>
-              <input type="email" placeholder="Your contact email" value={email} onChange={e=>setEmail(e.target.value)} style={{flex:1,width:"100%",padding:"18px 14px",fontFamily:"var(--sans)",fontSize:13,border:"1px solid var(--grey)",outline:"none",background:"var(--bg)",color:"var(--secondary)",boxSizing:"border-box"}}/>
-              <button className="cta-btn" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"18px 24px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,color:"#121010",cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,alignSelf:isMobile?"flex-end":"auto"}}>
+            <div role="heading" aria-level="2" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",color:"var(--secondary)"}}>
+              Looking for an ally<br/>on your next project?
+            </div>
+            <div style={{display:"flex",gap:12,alignItems:"stretch",flexDirection:isMobile?"column":"row"}}>
+              <input type="email" placeholder="Your contact email" value={email} onChange={e=>setEmail(e.target.value)} style={{width:240,flexShrink:0,padding:"18px 14px",fontFamily:"var(--sans)",fontSize:16,fontWeight:500,border:"1px solid var(--grey)",outline:"none",background:"var(--bg)",color:"#878787",boxSizing:"border-box"}}/>
+              <button className="cta-btn" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"18px 24px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,color:"#121010",cursor:"pointer",whiteSpace:"nowrap",flexShrink:0}}>
                 <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/>
                 <span className="cta-text">Submit</span>
               </button>
@@ -1213,7 +2108,69 @@ function Page() {
         </div>
       </section>
 
-      <SvcFooterRow isMobile={isMobile} dark={dark}/>
+      {/* ══ FOOTER ══ */}
+      <footer style={{
+        borderTop:"1px solid var(--grey)",
+        minHeight:"auto",
+        padding:isMobile?"64px 24px 24px":"var(--s64) var(--s64) 0",
+        display:"flex",flexDirection:"column",alignItems:isMobile?"flex-start":"flex-end",
+        gap:isMobile?24:0,
+        background:"var(--bg)",
+      }}>
+        {isMobile ? (
+          <div style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            {["WORK","SERVICES","ABOUT"].map(l=>(
+              <span key={l} style={{display:"flex",alignItems:"center",gap:6}}>
+                <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
+                <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>{l}</ScrambleSpan>
+              </span>
+            ))}
+            <a href="#" aria-label="LinkedIn" style={{display:"flex",alignItems:"center",justifyContent:"center",width:24,height:24,flexShrink:0}}>
+              <img src="dijitally-footer.svg" alt="LinkedIn" style={{width:24,height:24,display:"block"}}/>
+            </a>
+          </div>
+        ) : (
+          <div className="footer-row" style={{width:"100%",paddingTop:"var(--s32)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <div style={{display:"flex",alignItems:"center",gap:"var(--s12)",flexWrap:"wrap"}}>
+              {["WORK","SERVICES","ABOUT"].map(l=>(
+                <span key={l} style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
+                  <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
+                  <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>{l}</ScrambleSpan>
+                </span>
+              ))}
+            </div>
+            <span style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
+              <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
+              <a href="#" style={{textDecoration:"none"}}><ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>PRIVACY POLICY</ScrambleSpan></a>
+            </span>
+          </div>
+        )}
+        {isMobile ? (
+          <div style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <span style={{display:"flex",alignItems:"center",gap:6}}>
+              <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
+              <a href="#" style={{textDecoration:"none"}}><ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>PRIVACY POLICY</ScrambleSpan></a>
+            </span>
+            <span style={{display:"flex",alignItems:"center",gap:6}}>
+              <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
+              <a href="#" style={{textDecoration:"none"}}><ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>TERMS + CONDITIONS</ScrambleSpan></a>
+            </span>
+          </div>
+        ) : (
+          <div className="footer-row" style={{width:"100%",padding:"var(--s12) 0 var(--s32) 0",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+            <a href="#" aria-label="LinkedIn" style={{display:"flex",alignItems:"center",justifyContent:"center",width:24,height:24,flexShrink:0}}>
+              <img src="dijitally-footer.svg" alt="LinkedIn" style={{width:24,height:24,display:"block"}}/>
+            </a>
+            <span style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
+              <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
+              <a href="#" style={{textDecoration:"none"}}><ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>TERMS + CONDITIONS</ScrambleSpan></a>
+            </span>
+          </div>
+        )}
+        <div ref={footerLogoRef} style={{width:"100%",overflow:"hidden",filter:dark?"url(#to-warm-white)":"none",transition:"filter 0.3s ease"}} />
+      </footer>
+
+      <div style={{height:32}}/>
       <BackToTopButton dark={dark}/>
 
     </div>

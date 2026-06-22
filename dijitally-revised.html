@@ -1594,7 +1594,7 @@ function SvcFooterRow({ isMobile, dark }) {
     <footer style={{...divider, minHeight:isMobile?"auto":447, padding:isMobile?"64px 24px 24px":"var(--s64)", display:"flex", flexDirection:"column", alignItems:isMobile?"flex-start":"flex-end", gap:isMobile?24:0, background:"var(--bg)"}}>
       {isMobile ? (
         <div style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          {["WORK","SERVICES","ABOUT","BLOG"].map(l=>(
+          {["WORK","SERVICES","ABOUT"].map(l=>(
             <span key={l} style={{display:"flex",alignItems:"center",gap:6}}>
               <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
               <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>{l}</ScrambleSpan>
@@ -1607,7 +1607,7 @@ function SvcFooterRow({ isMobile, dark }) {
       ) : (
         <div className="footer-row" style={{width:"100%",paddingTop:"var(--s32)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <div style={{display:"flex",alignItems:"center",gap:"var(--s12)",flexWrap:"wrap"}}>
-            {["WORK","SERVICES","ABOUT","BLOG"].map(l=>(
+            {["WORK","SERVICES","ABOUT"].map(l=>(
               <span key={l} style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
                 <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
                 <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>{l}</ScrambleSpan>
@@ -2746,7 +2746,7 @@ function Page() {
         {/* Nav links — 19px, weight 600, ls -0.38px */}
         <nav style={{display:"flex", alignItems:"center", gap: isMobile ? 12 : 42}}>
           {/* Nav items — dot + label, padding 6px, gap 4px, letter-spacing -0.38px */}
-          {["Work","Services","About","Blog"].map(l=>(
+          {["Work","Services","About"].map(l=>(
             <span key={l} className="mobile-nav-links nav-item" style={{
               display:"flex", alignItems:"center", gap:4,
               padding:6,
@@ -3430,7 +3430,7 @@ function Page() {
         {/* Mobile Row 1 — nav links spread + LinkedIn icon right | Desktop Row 1 — nav links + Privacy Policy */}
         {isMobile ? (
           <div style={{width:"100%", display:"flex", alignItems:"center", justifyContent:"space-between"}}>
-            {["WORK","SERVICES","ABOUT","BLOG"].map(l=>(
+            {["WORK","SERVICES","ABOUT"].map(l=>(
               <span key={l} style={{display:"flex",alignItems:"center",gap:6}}>
                 <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
                 <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)",}}>{l}</ScrambleSpan>
@@ -3443,7 +3443,7 @@ function Page() {
         ) : (
           <div className="footer-row" style={{width:"100%", paddingTop:"var(--s32)", display:"flex", alignItems:"center", justifyContent:"space-between"}}>
             <div style={{display:"flex",alignItems:"center",gap:"var(--s12)",flexWrap:"wrap"}}>
-              {["WORK","SERVICES","ABOUT","BLOG"].map(l=>(
+              {["WORK","SERVICES","ABOUT"].map(l=>(
                 <span key={l} style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
                   <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
                   <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)",}}>{l}</ScrambleSpan>
@@ -3577,7 +3577,7 @@ function Page() {
               }}
             >
               {/* Work, Services, About, Blog */}
-              {["Work","Services","About","Blog"].map(label => (
+              {["Work","Services","About"].map(label => (
                 <div key={label} style={{ overflow:"hidden" }}>
                   <a
                     href="#"
