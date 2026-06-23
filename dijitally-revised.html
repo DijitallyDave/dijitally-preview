@@ -840,15 +840,18 @@ function PixelResolveImg({ src, alt, style={}, delay=0 }) {
     return () => obs.disconnect();
   }, []);
 
+  const smplRef = useRef(null);
+  const smplCtxRef = useRef(null);
+  if (!smplRef.current) { smplRef.current = document.createElement('canvas'); smplCtxRef.current = smplRef.current.getContext('2d'); }
+
   const drawAt = (ctx, W, H, curPX) => {
     const img = imgElRef.current;
     if (!img || !img.complete || !img.naturalWidth) return;
     ctx.clearRect(0, 0, W, H);
     ctx.imageSmoothingEnabled = false;
-    const smpl = document.createElement('canvas');
+    const smpl = smplRef.current, sctx = smplCtxRef.current;
     smpl.width  = Math.max(1, Math.ceil(W / curPX));
     smpl.height = Math.max(1, Math.ceil(H / curPX));
-    const sctx = smpl.getContext('2d');
     const vW = img.naturalWidth, vH = img.naturalHeight;
     const scale = Math.max(W / vW, H / vH);
     const sx = ((vW * scale - W) / 2) / scale;
@@ -935,6 +938,15 @@ function InViewAscii({ text, style, getColor=null }) {
     </span>
   );
 }
+
+const AllyWordmark = ({size=102, color="currentColor"}) => (
+  <svg width={369*(size/102)} height={size} viewBox="0 0 369 102" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{flexShrink:0,display:"inline-block",verticalAlign:"baseline"}}>
+    <path fillRule="evenodd" clipRule="evenodd" d="M107.03 101.44H83.3966V77.807H39.6756L26.4048 101.44H-0.000488281L56.9913 0H107.03V101.44ZM52.9919 54.174H83.4421V23.633H70.1713L52.9919 54.2195V54.174Z" fill={color}/>
+    <path d="M143.834 77.807H192.463V101.44H120.201V0H143.834V77.807Z" fill={color}/>
+    <path d="M229.267 77.807H277.897V101.44H205.634V0H229.267V77.807Z" fill={color}/>
+    <path d="M319.463 39.5852L341.687 0H368.092L311.1 101.44H284.695L306.238 63.0819L270.833 0H297.239L319.463 39.5852Z" fill={color}/>
+  </svg>
+);
 
 /* ── Eyebrow label (JetBrains Mono 12px) ── */
 function Eyebrow({children,style={},center=true}) {
@@ -1979,6 +1991,42 @@ function ServicesPage({ dark, isMobile, setPage }) {
 /* ═══════════════════════════════════════════════════
    PAGE
 ═══════════════════════════════════════════════════ */
+function goToServices() {
+  sessionStorage.setItem('skipIntro', '1');
+  const isDark = localStorage.getItem('dijitally-theme') === 'dark';
+  const overlayColor = isDark ? '#121010' : '#F5F3EE';
+  const sliceH = 2;
+  const W = window.innerWidth, H = window.innerHeight;
+  const total = Math.ceil(H / sliceH);
+
+  const overlay = document.createElement('div');
+  overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;';
+  for (var i = 0; i < total; i++) {
+    var s = document.createElement('div');
+    s.style.cssText = 'position:absolute;left:0;width:100%;top:' + (i * sliceH) + 'px;height:' + (sliceH + 1) + 'px;background:' + overlayColor + ';transform:translateX(-100%);will-change:transform;';
+    overlay.appendChild(s);
+  }
+  document.body.appendChild(overlay);
+
+  var slices = Array.from(overlay.children);
+  var maxEnd = 0;
+  slices.forEach(function(sl, i) {
+    var frac = i / Math.max(total - 1, 1);
+    var delay = frac * 0.5 + (Math.random() * 0.05);
+    var dur = 0.18 + Math.random() * 0.12;
+    var end = delay + dur;
+    if (end > maxEnd) maxEnd = end;
+    setTimeout(function() {
+      sl.style.transition = 'transform ' + dur.toFixed(3) + 's linear';
+      sl.style.transform = 'translateX(0)';
+    }, delay * 1000);
+  });
+
+  setTimeout(function() {
+    window.location.href = 'dijitally-services.html';
+  }, maxEnd * 1000 + 50);
+}
+
 function Page() {
   const [dark,        setDark]        = useState(()=> localStorage.getItem("dijitally-theme") === "dark");
   const [page,        setPage]        = useState('home');
@@ -2153,6 +2201,9 @@ function Page() {
   const philoCardRef      = useRef(null);
   const philoSlideRef     = useRef(null);
   const philoTextRef      = useRef(null);
+  const philoLeftTextRef  = useRef(null);
+  const [philoResolved, setPhiloResolved] = useState(false);
+  const [heroThumbResolved, setHeroThumbResolved] = useState(false);
   const philoRevealedRef  = useRef(false);
   const philoMouseRef     = useRef({ targetX:0, currentX:0, targetRotY:0, currentRotY:0, targetY:0, currentY:0, targetRotX:0, currentRotX:0 });
   const carouselRef       = useRef(null);
@@ -2195,6 +2246,7 @@ function Page() {
     const isDark = localStorage.getItem('dijitally-theme') === 'dark';
 
     const doEntrance = () => {
+      setHeroThumbResolved(true);
       // Animate nav in
       gsap.to(navRef.current, { y:"0%", duration:0.55, ease:"power2.out",
         onComplete: () => { if (smootherRef.current) smootherRef.current.paused(false); }
@@ -2237,6 +2289,7 @@ function Page() {
         captureRect();
         anim.goToAndStop(anim.totalFrames - 1, true);
         if (smootherRef.current) smootherRef.current.paused(false);
+        setHeroThumbResolved(true);
       });
       return () => anim.destroy();
     }
@@ -2331,51 +2384,36 @@ function Page() {
   useLayoutEffect(()=>{
     if (isMobile || typeof ScrollTrigger === "undefined") return;
     const ctx = gsap.context(()=>{
-      // --- hero thumb: slides down on scroll, reverses on scroll back up ---
-      if (heroViewportRef.current && thumbSlideRef.current) {
-        gsap.set(thumbSlideRef.current, { yPercent: 0 });
-        ScrollTrigger.create({
-          trigger: heroViewportRef.current,
-          start: "top top-=1",
-          onEnter:     () => gsap.to(thumbSlideRef.current, { yPercent: 110, duration: 1, ease: "power2.out" }),
-          onLeaveBack: () => gsap.to(thumbSlideRef.current, { yPercent: 0,   duration: 1, ease: "power2.out" }),
-        });
-      }
-      // --- philosophy card: slides up on enter, reverses on scroll back up ---
-      if (philoCardRef.current && philoSlideRef.current) {
-        gsap.set(philoSlideRef.current, { yPercent: 110 });
+      // --- philosophy card: fade in shadow + right caption on enter ---
+      if (philoCardRef.current) {
         if (philoTextRef.current) gsap.set(philoTextRef.current, { opacity: 0 });
+        if (philoLeftTextRef.current) gsap.set(philoLeftTextRef.current, { opacity: 0 });
         ScrollTrigger.create({
           trigger: philoCardRef.current,
           start: "top 85%",
           onEnter: () => {
-            gsap.to(philoSlideRef.current, {
-              yPercent: 0, duration: 0.5, ease: "power2.in",
-              onComplete: () => {
-                // Reset mouse state so card starts from centre
-                philoMouseRef.current.targetX = philoMouseRef.current.currentX = 0;
-                philoMouseRef.current.targetRotY = philoMouseRef.current.currentRotY = 0;
-                philoMouseRef.current.targetY = philoMouseRef.current.currentY = 0;
-                philoMouseRef.current.targetRotX = philoMouseRef.current.currentRotX = 0;
-                philoRevealedRef.current = true;
-                gsap.to(philoCardRef.current, { boxShadow: "0px 63px 100px 0px rgba(0,0,0,0.11)", duration: 0.6, ease: "power2.out" });
-                gsap.to(philoTextRef.current,  { opacity: 1, duration: 0.6, ease: "power2.out" });
-              },
-            });
+            philoMouseRef.current.targetX = philoMouseRef.current.currentX = 0;
+            philoMouseRef.current.targetRotY = philoMouseRef.current.currentRotY = 0;
+            philoMouseRef.current.targetY = philoMouseRef.current.currentY = 0;
+            philoMouseRef.current.targetRotX = philoMouseRef.current.currentRotX = 0;
+            philoRevealedRef.current = true;
+            setPhiloResolved(true);
+            gsap.to(philoCardRef.current, { boxShadow: "0px 63px 100px 0px rgba(0,0,0,0.11)", duration: 0.6, ease: "power2.out" });
+            gsap.to(philoTextRef.current,     { opacity: 1, duration: 0.6, ease: "power2.out" });
+            gsap.to(philoLeftTextRef.current, { opacity: 1, duration: 0.6, ease: "power2.out" });
           },
           onLeaveBack: () => {
             philoRevealedRef.current = false;
-            // Snap card back to centre before hiding
             gsap.to(philoCardRef.current, { x: 0, y: 0, rotateY: 0, rotateX: 0, boxShadow: "0px 63px 100px 0px rgba(0,0,0,0)", duration: 0.3, ease: "power2.in" });
-            gsap.to(philoTextRef.current,  { x: 0, y: 0, opacity: 0, duration: 0.3, ease: "power2.in",
+            gsap.to(philoTextRef.current,     { x: 0, y: 0, opacity: 0, duration: 0.3, ease: "power2.in",
               onComplete: () => {
                 philoMouseRef.current.targetX = philoMouseRef.current.currentX = 0;
                 philoMouseRef.current.targetRotY = philoMouseRef.current.currentRotY = 0;
                 philoMouseRef.current.targetY = philoMouseRef.current.currentY = 0;
                 philoMouseRef.current.targetRotX = philoMouseRef.current.currentRotX = 0;
-                gsap.to(philoSlideRef.current, { yPercent: 110, duration: 0.5, ease: "power2.in" });
               },
             });
+            gsap.to(philoLeftTextRef.current, { x: 0, y: 0, opacity: 0, duration: 0.3, ease: "power2.in" });
           },
         });
       }
@@ -2416,6 +2454,9 @@ function Page() {
           transformPerspective: 900,
         });
         if (philoTextRef.current) gsap.set(philoTextRef.current, {
+          x: m.currentX, y: m.currentY,
+        });
+        if (philoLeftTextRef.current) gsap.set(philoLeftTextRef.current, {
           x: m.currentX, y: m.currentY,
         });
       }
@@ -2772,7 +2813,7 @@ function Page() {
               cursor:"pointer",
               userSelect:"none",
             }}
-            onClick={()=>{ if(l==="Services"){ sessionStorage.setItem('skipIntro','1'); window.location.href='dijitally-services.html'; } else if(l==="Work"){ setPage('home'); window.scrollTo(0,0); } }}
+            onClick={()=>{ if(l==="Services"){ goToServices(); } else if(l==="Work"){ setPage('home'); window.scrollTo(0,0); } }}
             onMouseEnter={e=>{
               const el = e.currentTarget;
               const textNode = el.querySelector('.nav-text');
@@ -2901,7 +2942,6 @@ function Page() {
             zIndex:1,
           }}>
             <div style={{flexShrink:0,display:"flex",flexDirection:"column",gap:"var(--s10)"}}>
-              <span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--static)"}}>·</span>
               <span ref={heroTextRef} data-split-entrance="" className="hero-body-text" style={{
                   fontFamily:"var(--sans)",
                   fontSize: isMobile ? "var(--h1)" : 38, fontWeight:350,
@@ -2933,16 +2973,13 @@ function Page() {
                 transformOrigin:"bottom right",
                 transition:"transform 0.3s ease, box-shadow 0.3s ease",
               }}>
-              {/* Clip mask — overflow:hidden here keeps slide-down animation contained */}
-              <div style={{position:"absolute",inset:0,overflow:"hidden",borderRadius:4,transform:"translateZ(0)"}}>
-                {/* thumbSlideRef — animates yPercent downward on first scroll */}
-                <div ref={thumbSlideRef} style={{position:"absolute",inset:0}}>
+              <div style={{position:"absolute",inset:0}}>
                   <PixelResolveVideo
                     src="videos/thumbnail.mp4?v=2"
-                    externalTrigger={true}
+                    externalTrigger={heroThumbResolved}
                     videoProps={{autoPlay:true,muted:true,loop:true,playsInline:true,style:{width:"100%",height:"100%",objectFit:"cover",display:"block"}}}
                   />
-                </div>
+              </div>
                 {/* PLAY REEL CTA — slides up on hover */}
                 <div style={{
                   position:"absolute",bottom:8,right:8,
@@ -2960,7 +2997,6 @@ function Page() {
                   </svg>
                   <span className="play-reel-text" style={{fontFamily:"var(--mono)",fontSize:11,fontWeight:400,color:"#121010",letterSpacing:0}}>PLAY REEL</span>
                 </div>
-              </div>
             </div>
           </div>
         </div>
@@ -2983,10 +3019,12 @@ function Page() {
               lineHeight:1,
               letterSpacing: isMobile ? "-0.6px" : "-2.22px",
               textAlign:"center",
-              maxWidth: isMobile ? "100%" : 966,
+              maxWidth: isMobile ? "100%" : 1040,
               color:"var(--secondary)",
             }}>
-              Growth doesn't come from going it alone. It comes from having the right ally beside you. One who sees the big picture.
+              Growth doesn't come from going it alone. It comes from having the right{" "}
+              <AllyWordmark size={isMobile ? 20 : 50} color="var(--secondary)" />{" "}
+              beside you.
             </div>
           </div>
 
@@ -3013,7 +3051,7 @@ function Page() {
             <div ref={philoCardRef} style={{
               position:"absolute",
               left: "calc(50% - 190px)",
-              top: 509,
+              top: 497,
               width: 381,
               height: 242,
               borderRadius: 4,
@@ -3022,14 +3060,37 @@ function Page() {
               pointerEvents:"none",
               zIndex: 2,
             }}>
-              <div ref={philoSlideRef} style={{position:"absolute",inset:0}}>
-                <PixelResolveVideo
-                  src="videos/thumbnail.mp4?v=2"
-                  externalTrigger={true}
-                  videoProps={{autoPlay:true,muted:true,loop:true,playsInline:true,style:{width:"100%",height:"100%",objectFit:"cover",display:"block"}}}
-                />
-              </div>
+              <PixelResolveVideo
+                src="videos/thumbnail.mp4?v=2"
+                externalTrigger={philoResolved}
+                videoProps={{autoPlay:true,muted:true,loop:true,playsInline:true,style:{width:"100%",height:"100%",objectFit:"cover",display:"block"}}}
+              />
             </div>
+          )}
+
+          {/* Caption text — left of the card */}
+          {!isMobile && (
+            <p ref={philoLeftTextRef} style={{
+              position:"absolute",
+              right: "calc(50% + 215px)",
+              top: 497,
+              height: 242,
+              width: 260,
+              display:"flex",
+              alignItems:"center",
+              justifyContent:"flex-end",
+              textAlign:"right",
+              margin:0,
+              fontFamily:"var(--sans)",
+              fontSize: 18,
+              fontWeight: 350,
+              lineHeight: 1.2,
+              letterSpacing: 0,
+              color:"#878787",
+              zIndex: 2,
+            }}>
+              One who sees<br/>the big picture.
+            </p>
           )}
 
           {/* Caption text — right of the card, vertically centred with it */}
@@ -3037,7 +3098,7 @@ function Page() {
             <p ref={philoTextRef} style={{
               position:"absolute",
               left: "calc(50% + 215px)",
-              top: 509,
+              top: 497,
               height: 242,
               width: 260,
               display:"flex",
@@ -3595,7 +3656,7 @@ function Page() {
                   <a
                     href="#"
                     className="menu-nav-item"
-                    onClick={e=>{ e.preventDefault(); setMenuOpen(false); if(label==="Services"){ sessionStorage.setItem('skipIntro','1'); setTimeout(()=>{ window.location.href='dijitally-services.html'; },300); } else if(label==="Work"){ setTimeout(()=>{ setPage('home'); window.scrollTo(0,0); },300); } }}
+                    onClick={e=>{ e.preventDefault(); if(label==="Services"){ goToServices(); } else if(label==="Work"){ setMenuOpen(false); setTimeout(()=>{ setPage('home'); window.scrollTo(0,0); },300); } else { setMenuOpen(false); } }}
                     style={{
                       fontFamily:"var(--sans)", fontSize:26, fontWeight:350,
                       lineHeight:"120%", letterSpacing:"0.26px",
