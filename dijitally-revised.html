@@ -2154,7 +2154,7 @@ function Page() {
   const philoSlideRef     = useRef(null);
   const philoTextRef      = useRef(null);
   const philoRevealedRef  = useRef(false);
-  const philoMouseRef     = useRef({ targetX:0, currentX:0, targetRotY:0, currentRotY:0 });
+  const philoMouseRef     = useRef({ targetX:0, currentX:0, targetRotY:0, currentRotY:0, targetY:0, currentY:0, targetRotX:0, currentRotX:0 });
   const carouselRef       = useRef(null);
   const carouselSectionRef  = useRef(null);
   const contactSectionRef   = useRef(null);
@@ -2353,6 +2353,8 @@ function Page() {
                 // Reset mouse state so card starts from centre
                 philoMouseRef.current.targetX = philoMouseRef.current.currentX = 0;
                 philoMouseRef.current.targetRotY = philoMouseRef.current.currentRotY = 0;
+                philoMouseRef.current.targetY = philoMouseRef.current.currentY = 0;
+                philoMouseRef.current.targetRotX = philoMouseRef.current.currentRotX = 0;
                 philoRevealedRef.current = true;
                 gsap.to(philoCardRef.current, { boxShadow: "0px 63px 100px 0px rgba(0,0,0,0.11)", duration: 0.6, ease: "power2.out" });
                 gsap.to(philoTextRef.current,  { opacity: 1, duration: 0.6, ease: "power2.out" });
@@ -2362,11 +2364,13 @@ function Page() {
           onLeaveBack: () => {
             philoRevealedRef.current = false;
             // Snap card back to centre before hiding
-            gsap.to(philoCardRef.current, { x: 0, rotateY: 0, boxShadow: "0px 63px 100px 0px rgba(0,0,0,0)", duration: 0.3, ease: "power2.in" });
-            gsap.to(philoTextRef.current,  { x: 0, opacity: 0, duration: 0.3, ease: "power2.in",
+            gsap.to(philoCardRef.current, { x: 0, y: 0, rotateY: 0, rotateX: 0, boxShadow: "0px 63px 100px 0px rgba(0,0,0,0)", duration: 0.3, ease: "power2.in" });
+            gsap.to(philoTextRef.current,  { x: 0, y: 0, opacity: 0, duration: 0.3, ease: "power2.in",
               onComplete: () => {
                 philoMouseRef.current.targetX = philoMouseRef.current.currentX = 0;
                 philoMouseRef.current.targetRotY = philoMouseRef.current.currentRotY = 0;
+                philoMouseRef.current.targetY = philoMouseRef.current.currentY = 0;
+                philoMouseRef.current.targetRotX = philoMouseRef.current.currentRotX = 0;
                 gsap.to(philoSlideRef.current, { yPercent: 110, duration: 0.5, ease: "power2.in" });
               },
             });
@@ -2388,23 +2392,29 @@ function Page() {
       if (!philoRevealedRef.current) return;
       const cx = window.innerWidth / 2;
       const norm = (e.clientX - cx) / cx; // -1 to +1
-      philoMouseRef.current.targetX    =  norm * 40;   // ±40px
-      philoMouseRef.current.targetRotY = -norm * 14;   // ±14° opposite direction
+      const cy = window.innerHeight / 2;
+      const normY = (e.clientY - cy) / cy; // -1 to +1
+      philoMouseRef.current.targetX    =  norm  * 40;
+      philoMouseRef.current.targetRotY = -norm  * 14;
+      philoMouseRef.current.targetY    =  normY * 40;
+      philoMouseRef.current.targetRotX =  normY * 14;
     };
 
     const tick = () => {
       const m = philoMouseRef.current;
       m.currentX    = lerp(m.currentX,    m.targetX,    0.07);
       m.currentRotY = lerp(m.currentRotY, m.targetRotY, 0.07);
+      m.currentY    = lerp(m.currentY,    m.targetY,    0.07);
+      m.currentRotX = lerp(m.currentRotX, m.targetRotX, 0.07);
 
       if (philoRevealedRef.current) {
         if (philoCardRef.current) gsap.set(philoCardRef.current, {
-          x: m.currentX,
-          rotateY: m.currentRotY,
+          x: m.currentX, y: m.currentY,
+          rotateY: m.currentRotY, rotateX: m.currentRotX,
           transformPerspective: 900,
         });
         if (philoTextRef.current) gsap.set(philoTextRef.current, {
-          x: m.currentX,
+          x: m.currentX, y: m.currentY,
         });
       }
       raf = requestAnimationFrame(tick);
