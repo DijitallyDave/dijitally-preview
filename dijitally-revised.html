@@ -2291,10 +2291,12 @@ function Page() {
       // Logo done — trigger the glitch transition
       if (window.__beginGlitchTransition) window.__beginGlitchTransition();
 
-      // After glitch completes: fade out Logo A (now invisible against page), animate nav + body
+      // Start hero entrance while strips are still sliding
+      setTimeout(doEntrance, 300);
+
+      // After glitch fully completes: fade out Logo A overlay
       window.__onGlitchDone = () => {
         if (introEl) gsap.to(introEl, { opacity:0, duration:0.4, onComplete:() => { introEl.style.display='none'; } });
-        setTimeout(doEntrance, 94);
       };
     });
 
