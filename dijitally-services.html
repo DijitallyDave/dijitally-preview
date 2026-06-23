@@ -1660,11 +1660,14 @@ function ServicesHero({ isMobile, dark }) {
           </div>
         )}
 
-        {/* ALLY treatment — mobile: two-line text; desktop: right-anchored SVG row */}
+        {/* ALLY treatment — mobile: inline row; desktop: right-anchored SVG row */}
         {isMobile ? (
-          <div style={{ padding:"48px 24px", display:"flex", flexDirection:"column", alignItems:"center", gap:12, background:"var(--bg)" }}>
-            <span style={{ fontFamily:"var(--sans)", fontSize:13, fontWeight:350, letterSpacing:"0.06em", color:"var(--static)" }}>Your [point of scale]</span>
-            <AllyWordmark size={48} color="var(--secondary)" />
+          <div style={{ padding:"42px 24px", display:"flex", alignItems:"center", flexWrap:"nowrap", gap:3, background:"var(--bg)" }}>
+            <span style={{ fontFamily:"var(--sans)", fontSize:22, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.22px", color:"var(--secondary)", whiteSpace:"nowrap" }}>Your</span>
+            <BracketOpen size={23} color="var(--secondary)" />
+            <span style={{ fontFamily:"var(--sans)", fontSize:22, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.22px", color:"var(--secondary)", whiteSpace:"nowrap" }}>point of scale</span>
+            <BracketClose size={23} color="var(--secondary)" />
+            <AllyWordmark size={23} color="var(--secondary)" />
           </div>
         ) : (
           <div style={{
@@ -1741,28 +1744,35 @@ function ServicesHero({ isMobile, dark }) {
         )}
       </div>
 
-      {/* ── Mobile service list — replaces scroll-jacked pin ── */}
+      {/* ── Mobile service carousel ── */}
       {isMobile && (
-        <div style={{ background:"var(--bg)", borderTop:"1px solid var(--grey)" }}>
+        <div data-carousel style={{
+          background:"var(--bg)",
+          display:"flex", flexDirection:"row",
+          overflowX:"auto", overflowY:"hidden",
+          scrollSnapType:"x mandatory",
+          WebkitOverflowScrolling:"touch",
+        }}>
           {SVC_ROWS.map((svc, i) => (
             <div key={i} style={{
-              padding:"32px 24px",
-              borderBottom:"1px solid var(--grey)",
-              display:"flex", flexDirection:"column", gap:12,
+              width:360, flexShrink:0,
+              borderTop:"1px solid var(--grey)",
+              padding:"48px 32px",
+              display:"flex", flexDirection:"column", gap:32,
+              scrollSnapAlign:"start",
+              boxSizing:"border-box",
             }}>
-              <span style={{
-                fontFamily:"var(--mono)", fontSize:10, fontWeight:400,
-                letterSpacing:"var(--eyebrow-ls)", color:"var(--static)",
-                textTransform:"uppercase",
-              }}>{svc.slug}</span>
-              <div style={{
-                fontFamily:"var(--sans)", fontSize:26, fontWeight:350,
-                lineHeight:1.1, letterSpacing:"-0.44px", color:"var(--secondary)",
-              }}>{svc.headline}</div>
-              <div style={{
-                fontFamily:"var(--sans)", fontSize:19, fontWeight:350,
-                lineHeight:1.4, color:"var(--static)",
-              }}>{svc.body}</div>
+              <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                <span style={{ fontFamily:"var(--mono)", fontSize:10, fontWeight:400, letterSpacing:"-0.2px", color:"#878787" }}>0{i+1}.</span>
+                <span style={{ fontFamily:"var(--mono)", fontSize:10, fontWeight:400, letterSpacing:"0.06em", color:"#878787", textTransform:"uppercase" }}>{svc.slug}</span>
+              </div>
+              <div style={{ width:223, height:223, alignSelf:"center", flexShrink:0, overflow:"hidden", borderRadius:4 }}>
+                <video src={svc.video} autoPlay muted loop playsInline style={{ width:"100%", height:"100%", objectFit:"cover" }} />
+              </div>
+              <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
+                <div style={{ fontFamily:"var(--sans)", fontSize:26, fontWeight:500, lineHeight:1.1, letterSpacing:"-0.26px", color:"var(--secondary)" }}>{svc.headline}</div>
+                <div style={{ fontFamily:"var(--sans)", fontSize:19, fontWeight:350, lineHeight:1.2, letterSpacing:"0.19px", color:"#878787" }}>{svc.body}</div>
+              </div>
             </div>
           ))}
         </div>
