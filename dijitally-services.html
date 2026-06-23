@@ -81,6 +81,8 @@
     }
 
     ::-webkit-scrollbar { height: 10px; width: 10px; }
+    [data-carousel]::-webkit-scrollbar { display: none; }
+    [data-carousel] { scrollbar-width: none; -ms-overflow-style: none; }
     ::-webkit-scrollbar-track { background: transparent; }
     ::-webkit-scrollbar-thumb {
       background: var(--scrollbar-thumb);
@@ -972,6 +974,8 @@ function ServicesHero({ isMobile, dark }) {
   const bodyRefs         = useRef([]);
   const videoRefs        = useRef([]);
   const ditherBgRefs     = useRef([]);
+  const carouselRef      = useRef(null);
+  const carouselThumbRef = useRef(null);
   const introHeadingRef  = useRef(null);
   const introBodyRef     = useRef(null);
   const goToStepRef      = useRef(null);
@@ -1581,6 +1585,24 @@ function ServicesHero({ isMobile, dark }) {
     };
   }, [isMobile]);
 
+  // Carousel scroll progress bar
+  useEffect(()=>{
+    if (!isMobile) return;
+    const el = carouselRef.current;
+    const thumb = carouselThumbRef.current;
+    if (!el || !thumb) return;
+    const onScroll = () => {
+      const max = el.scrollWidth - el.clientWidth;
+      if (max <= 0) return;
+      const pct = el.scrollLeft / max;
+      const trackW = thumb.parentElement.offsetWidth;
+      const thumbW = thumb.offsetWidth;
+      thumb.style.transform = `translateX(${pct * (trackW - thumbW)}px)`;
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [isMobile]);
+
   const fs  = "clamp(36px,5vw,72px)";
   const bsz = isMobile ? 56 : 80;
   const allyW = Math.round(369 * bsz / 102); // px width of AllyWordmark SVG at current bsz
@@ -1595,7 +1617,7 @@ function ServicesHero({ isMobile, dark }) {
   return (
     <>
       {/* ── Intro section — scrolls naturally off the top ── */}
-      <div style={{ height:"100vh", position:"relative", background:"var(--bg)", overflow:"hidden" }}>
+      <div style={{ height:isMobile?"100dvh":"100vh", position:"relative", background:"var(--bg)", overflow:"hidden" }}>
         {!isMobile && <DitherCanvas dark={dark} />}
         {isMobile && <MobileDitherVideo dark={dark} />}
         <div style={{
@@ -1746,7 +1768,7 @@ function ServicesHero({ isMobile, dark }) {
 
       {/* ── Mobile service carousel ── */}
       {isMobile && (
-        <div data-carousel style={{
+        <div data-carousel ref={carouselRef} style={{
           background:"var(--bg)",
           display:"flex", flexDirection:"row",
           overflowX:"auto", overflowY:"hidden",
@@ -1775,6 +1797,16 @@ function ServicesHero({ isMobile, dark }) {
               </div>
             </div>
           ))}
+        </div>
+      )}
+      {isMobile && (
+        <div style={{ margin:"16px 24px 48px", position:"relative", height:1, background:"var(--grey)" }}>
+          <div ref={carouselThumbRef} style={{
+            position:"absolute", top:-1, left:0,
+            width:`${100/SVC_ROWS.length}%`, height:3,
+            background:"var(--secondary)", borderRadius:2,
+            transition:"transform 0.05s linear",
+          }} />
         </div>
       )}
     </>
