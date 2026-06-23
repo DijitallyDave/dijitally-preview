@@ -1600,12 +1600,13 @@ function ServicesHero({ isMobile, dark }) {
         {isMobile && <MobileDitherVideo dark={dark} />}
         <div style={{
           position:"absolute", bottom:isMobile?24:64, left:isMobile?24:64,
-          maxWidth:520, zIndex:5,
+          right:isMobile?24:undefined,
+          maxWidth:isMobile?undefined:520, zIndex:5,
           display:"flex", flexDirection:"column", gap:24,
         }}>
           <Eyebrow center={false}>++ OUR SERVICES ++</Eyebrow>
           <div ref={introHeadingRef} style={{
-            fontFamily:"var(--sans)", fontSize:isMobile?26:42, fontWeight:350,
+            fontFamily:"var(--sans)", fontSize:isMobile?"var(--h1)":42, fontWeight:350,
             lineHeight:1.15, letterSpacing:"-0.84px", color:"var(--secondary)",
             overflow:"hidden", maxWidth:isMobile?undefined:490,
           }}>From engineering to execution and everything in between.</div>
