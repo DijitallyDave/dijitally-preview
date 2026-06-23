@@ -2759,7 +2759,7 @@ function Page() {
               cursor:"pointer",
               userSelect:"none",
             }}
-            onClick={()=>{ if(l==="Services"){ window.location.href='dijitally-services.html'; } else if(l==="Work"){ setPage('home'); window.scrollTo(0,0); } }}
+            onClick={()=>{ if(l==="Services"){ sessionStorage.setItem('skipIntro','1'); window.location.href='dijitally-services.html'; } else if(l==="Work"){ setPage('home'); window.scrollTo(0,0); } }}
             onMouseEnter={e=>{
               const el = e.currentTarget;
               const textNode = el.querySelector('.nav-text');
@@ -3582,7 +3582,7 @@ function Page() {
                   <a
                     href="#"
                     className="menu-nav-item"
-                    onClick={e=>{ e.preventDefault(); setMenuOpen(false); if(label==="Services"){ setTimeout(()=>{ window.location.href='dijitally-services.html'; },300); } else if(label==="Work"){ setTimeout(()=>{ setPage('home'); window.scrollTo(0,0); },300); } }}
+                    onClick={e=>{ e.preventDefault(); setMenuOpen(false); if(label==="Services"){ sessionStorage.setItem('skipIntro','1'); setTimeout(()=>{ window.location.href='dijitally-services.html'; },300); } else if(label==="Work"){ setTimeout(()=>{ setPage('home'); window.scrollTo(0,0); },300); } }}
                     style={{
                       fontFamily:"var(--sans)", fontSize:26, fontWeight:350,
                       lineHeight:"120%", letterSpacing:"0.26px",

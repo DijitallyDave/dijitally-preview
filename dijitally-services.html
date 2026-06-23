@@ -1308,16 +1308,21 @@ function ServicesHero({ isMobile, dark }) {
       e.preventDefault();
       var dir = e.deltaY > 0 ? 1 : -1;
 
-      // Block boundary exits and new goToStep calls while a section tween is running
+      // Allow immediate exit from the last section — don't gate behind animating
+      if (dir > 0 && currentStep >= N - 1) {
+        sectionActive = false;
+        animating = false;
+        wheelAcc = 0;
+        if (tlTween) { tlTween.kill(); tlTween = null; }
+        if (pinST) window.scrollTo(0, pinST.end + 10);
+        return;
+      }
+
       if (animating) return;
 
       // ── Circle slide-in phase ─────────────────────────────────────────────
-      // While at step 0 and circle hasn't locked in, each scroll gesture
-      // slides the circle one step toward left: 0. Once locked, the next
-      // down scroll advances to the strategy section.
       if (currentStep === 0 && !circleAnimDone) {
         if (dir < 0) {
-          // Scroll up while sliding — exit section upward
           sectionActive = false; animating = false; wheelAcc = 0;
           if (pinST) window.scrollTo(0, Math.max(0, pinST.start - 10));
           return;
@@ -1330,16 +1335,7 @@ function ServicesHero({ isMobile, dark }) {
         slideCircleStep();
         return;
       }
-      // ─────────────────────────────────────────────────────────────────────
 
-      if (dir > 0 && currentStep >= N - 1) {
-        sectionActive = false;
-        animating = false;
-        wheelAcc = 0;
-        if (tlTween) { tlTween.kill(); tlTween = null; }
-        if (pinST) window.scrollTo(0, pinST.end + 10);
-        return;
-      }
       if (dir < 0 && currentStep <= 0) {
         sectionActive = false;
         animating = false;
@@ -1874,7 +1870,7 @@ function Page() {
           transition:"padding 0.35s ease, background 0.3s ease, border-color 0.3s ease",
           boxSizing:"border-box",
         }}>
-          <a href="dijitally-revised.html" style={{display:"flex",alignItems:"center",flexShrink:0,textDecoration:"none"}}>
+          <a href="dijitally-revised.html" onClick={()=>sessionStorage.setItem('skipIntro','1')} style={{display:"flex",alignItems:"center",flexShrink:0,textDecoration:"none"}}>
             <img src="dijitally-heading.svg" alt="DIJITALLY™" style={{height:isMobile?19:"var(--nav-size)",width:"auto",display:"block",filter:dark?"invert(1)":"none",transition:"filter 0.3s ease"}}/>
           </a>
 
@@ -1888,7 +1884,7 @@ function Page() {
                 cursor:"pointer",userSelect:"none",
                 transition:"background 0.15s ease",
               }}
-              onClick={()=>{ if(l==="Work") window.location.href='dijitally-revised.html'; }}
+              onClick={()=>{ if(l==="Work"){ sessionStorage.setItem('skipIntro','1'); window.location.href='dijitally-revised.html'; } }}
               onMouseEnter={e=>{
                 if(l!=="Services") e.currentTarget.style.background=dark?"#1a1a1a":"#edeae6";
                 const textNode=e.currentTarget.querySelector('.nav-text');
