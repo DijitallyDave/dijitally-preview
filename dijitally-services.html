@@ -177,7 +177,7 @@
   </style>
 </head>
 <body>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build b2dd692</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 0400247</div>
 <div id="dj-cursor"></div>
 <div id="nav-portal"></div>
 <svg width="0" height="0" style="position:absolute">
@@ -958,6 +958,7 @@ function MobileDitherVideo({ dark }) {
 
 function ServicesHero({ isMobile, dark }) {
   const [activeStep, setActiveStep] = React.useState(0);
+  const [carouselIndex, setCarouselIndex] = React.useState(0);
   const allyContainerRef = useRef(null);
   const bgRefs           = useRef([]);
   const yourInnerRef     = useRef(null);
@@ -1601,6 +1602,8 @@ function ServicesHero({ isMobile, dark }) {
       const trackW = thumb.parentElement.offsetWidth;
       const thumbW = thumb.offsetWidth;
       thumb.style.transform = `translateX(${pct * (trackW - thumbW)}px)`;
+      const idx = Math.round(pct * (SVC_ROWS.length - 1));
+      setCarouselIndex(idx);
     };
     el.addEventListener('scroll', onScroll, { passive: true });
     return () => el.removeEventListener('scroll', onScroll);
@@ -1687,10 +1690,10 @@ function ServicesHero({ isMobile, dark }) {
 
         {/* ALLY treatment — mobile: inline row; desktop: right-anchored SVG row */}
         {isMobile ? (
-          <div style={{ padding:"42px 24px", display:"flex", alignItems:"center", flexWrap:"nowrap", gap:3, background:"var(--bg)" }}>
+          <div style={{ padding:"42px 24px", display:"flex", alignItems:"center", justifyContent:"center", flexWrap:"nowrap", gap:3, background:"var(--bg)" }}>
             <span style={{ fontFamily:"var(--sans)", fontSize:22, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.22px", color:"var(--secondary)", whiteSpace:"nowrap" }}>Your</span>
             <BracketOpen size={23} color="var(--secondary)" />
-            <span style={{ fontFamily:"var(--sans)", fontSize:22, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.22px", color:"var(--secondary)", whiteSpace:"nowrap" }}>point of scale</span>
+            <span style={{ fontFamily:"var(--sans)", fontSize:22, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.22px", color:"var(--secondary)", whiteSpace:"nowrap", transition:"opacity 0.2s" }}>{SVC_ROWS[carouselIndex].bracket}</span>
             <BracketClose size={23} color="var(--secondary)" />
             <AllyWordmark size={23} color="var(--secondary)" />
           </div>
