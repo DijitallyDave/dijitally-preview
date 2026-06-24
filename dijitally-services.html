@@ -177,7 +177,7 @@
   </style>
 </head>
 <body>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build ff86425</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build bdcc128</div>
 <div id="dj-cursor"></div>
 <div id="nav-portal"></div>
 <svg width="0" height="0" style="position:absolute">
@@ -369,15 +369,87 @@ function ContactPixels({ dark, mobile }) {
 
 /* ── PixelResolveImg ── */
 function PixelResolveImg({ src, alt, style={}, delay=0 }) {
-  const containerRef=useRef(null), imgElRef=useRef(null), canvasRef=useRef(null), rafRef=useRef(null), timerRef=useRef(null);
-  const [ready,setReady]=useState(false), [inView,setInView]=useState(false);
-  const PX=16, RAMP=1200;
-  useEffect(()=>{ const img=imgElRef.current; if(!img) return; if(img.complete&&img.naturalWidth){setReady(true);return;} const h=()=>setReady(true); img.addEventListener('load',h); return()=>img.removeEventListener('load',h); },[]);
-  useEffect(()=>{ const el=containerRef.current; if(!el) return; const obs=new IntersectionObserver(([e])=>{ if(e.isIntersecting){setInView(true);obs.disconnect();} },{threshold:0.2}); obs.observe(el); return()=>obs.disconnect(); },[]);
-  const drawAt=(ctx,W,H,curPX)=>{ const img=imgElRef.current; if(!img||!img.complete||!img.naturalWidth) return; ctx.clearRect(0,0,W,H); ctx.imageSmoothingEnabled=false; const smpl=document.createElement('canvas'); smpl.width=Math.max(1,Math.ceil(W/curPX)); smpl.height=Math.max(1,Math.ceil(H/curPX)); const sctx=smpl.getContext('2d'); const vW=img.naturalWidth,vH=img.naturalHeight; const scale=Math.max(W/vW,H/vH); const sx=((vW*scale-W)/2)/scale; const sy=((vH*scale-H)/2)/scale; sctx.drawImage(img,sx,sy,W/scale,H/scale,0,0,smpl.width,smpl.height); ctx.drawImage(smpl,0,0,smpl.width,smpl.height,0,0,W,H); };
-  const getDims=()=>{ const c=containerRef.current; return c?{W:c.offsetWidth,H:c.offsetHeight}:{W:0,H:0}; };
-  useEffect(()=>{ if(!ready||inView) return; cancelAnimationFrame(rafRef.current); const canvas=canvasRef.current; if(!canvas) return; const{W,H}=getDims(); if(!W||!H) return; canvas.width=W; canvas.height=H; const ctx=canvas.getContext('2d'); drawAt(ctx,W,H,PX); },[ready,inView]);
-  useEffect(()=>{ if(!inView||!ready) return; clearTimeout(timerRef.current); timerRef.current=setTimeout(()=>{ cancelAnimationFrame(rafRef.current); const canvas=canvasRef.current; if(!canvas) return; const{W,H}=getDims(); if(!W||!H) return; canvas.width=W; canvas.height=H; const ctx=canvas.getContext('2d'); const ease=t=>t<0.5?2*t*t:-1+(4-2*t)*t; let start=null; const tick=(now)=>{ if(!start) start=now; const tp=Math.min((now-start)/RAMP,1); const curPX=Math.max(1,Math.round(1+(PX-1)*ease(1-tp))); drawAt(ctx,W,H,curPX); if(tp<1) rafRef.current=requestAnimationFrame(tick); else ctx.clearRect(0,0,W,H); }; rafRef.current=requestAnimationFrame(tick); },delay*1000); return()=>{ clearTimeout(timerRef.current); cancelAnimationFrame(rafRef.current); }; },[inView,ready]);
+  const containerRef = useRef(null), imgElRef = useRef(null), canvasRef = useRef(null);
+  const timerRef = useRef(null);
+  const [ready, setReady] = useState(false), [inView, setInView] = useState(false);
+  const PX = 16, RAMP = 1200;
+  // Persistent offscreen canvas — never reallocated
+  const smplRef = useRef(document.createElement('canvas'));
+  const sctxRef = useRef(smplRef.current.getContext('2d'));
+
+  useEffect(() => {
+    const img = imgElRef.current;
+    if (!img) return;
+    if (img.complete && img.naturalWidth) { setReady(true); return; }
+    const h = () => setReady(true);
+    img.addEventListener('load', h);
+    return () => img.removeEventListener('load', h);
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setInView(true); obs.disconnect(); }
+    }, { threshold: 0.2 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const drawAt = (ctx, W, H, curPX, img) => {
+    ctx.clearRect(0, 0, W, H);
+    ctx.imageSmoothingEnabled = false;
+    const smpl = smplRef.current, sctx = sctxRef.current;
+    const sw = Math.max(1, Math.ceil(W / curPX)), sh = Math.max(1, Math.ceil(H / curPX));
+    if (smpl.width !== sw)  smpl.width  = sw;
+    if (smpl.height !== sh) smpl.height = sh;
+    const vW = img.naturalWidth, vH = img.naturalHeight;
+    const scale = Math.max(W / vW, H / vH);
+    const sx = ((vW * scale - W) / 2) / scale, sy = ((vH * scale - H) / 2) / scale;
+    sctx.drawImage(img, sx, sy, W / scale, H / scale, 0, 0, sw, sh);
+    ctx.drawImage(smpl, 0, 0, sw, sh, 0, 0, W, H);
+  };
+
+  // Show fully pixelated while waiting for in-view
+  useEffect(() => {
+    if (!ready || inView) return;
+    const canvas = canvasRef.current, img = imgElRef.current;
+    if (!canvas || !img) return;
+    const W = containerRef.current?.offsetWidth, H = containerRef.current?.offsetHeight;
+    if (!W || !H) return;
+    canvas.width = W; canvas.height = H;
+    drawAt(canvas.getContext('2d'), W, H, PX, img);
+  }, [ready, inView]);
+
+  // Resolve via discrete pixel steps — no per-frame rAF
+  useEffect(() => {
+    if (!inView || !ready) return;
+    const timers = [];
+    timerRef.current = setTimeout(() => {
+      const canvas = canvasRef.current, img = imgElRef.current;
+      if (!canvas || !img) return;
+      const W = containerRef.current?.offsetWidth, H = containerRef.current?.offsetHeight;
+      if (!W || !H) return;
+      canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext('2d');
+      const ease = t => t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+      const steps = new Set();
+      for (let i = 0; i <= 60; i++) {
+        const t = i / 60;
+        steps.add(Math.max(1, Math.round(1 + (PX - 1) * ease(1 - t))));
+      }
+      Array.from(steps).sort((a,b) => b-a).forEach(px => {
+        const t = 1 - (px - 1) / (PX - 1);
+        const id = setTimeout(() => {
+          if (px === 1) ctx.clearRect(0, 0, W, H);
+          else          drawAt(ctx, W, H, px, img);
+        }, ease(t) * RAMP);
+        timers.push(id);
+      });
+    }, delay * 1000);
+    return () => { clearTimeout(timerRef.current); timers.forEach(clearTimeout); };
+  }, [inView, ready]);
+
   return (
     <div ref={containerRef} style={{position:'relative',width:'100%',height:'100%',...style}}>
       <img ref={imgElRef} src={src} alt={alt||''} style={{display:'block',width:'100%',height:'100%',objectFit:'cover'}}/>
