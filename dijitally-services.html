@@ -177,7 +177,7 @@
   </style>
 </head>
 <body>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build e0eb044</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 9498695</div>
 <div id="dj-cursor"></div>
 <div id="nav-portal"></div>
 <svg width="0" height="0" style="position:absolute">
@@ -1845,10 +1845,6 @@ function goToHome() {
   const sliceH = 2;
   const H = window.innerHeight;
   const total = Math.ceil(H / sliceH);
-
-  const base = document.createElement('div');
-  base.style.cssText = 'position:fixed;inset:0;z-index:9998;background:' + overlayColor + ';';
-  document.body.appendChild(base);
 
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;';
