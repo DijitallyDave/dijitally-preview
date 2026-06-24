@@ -177,7 +177,7 @@
   </style>
 </head>
 <body>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 0597c1c</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 4b3184b</div>
 <div id="dj-cursor"></div>
 <div id="nav-portal"></div>
 <svg width="0" height="0" style="position:absolute">
@@ -765,7 +765,7 @@ function DitherCanvas({ dark }) {
 /* ═══════════════════════════════════════════════════
    DITHER BG — per-section background, no mouse interaction
 ═══════════════════════════════════════════════════ */
-function DitherBg({ src, dark, active }) {
+function DitherBg({ src, dark, active, px=8 }) {
   const canvasRef  = React.useRef(null);
   const videoRef   = React.useRef(null);
   const darkRef    = React.useRef(dark);
@@ -782,7 +782,7 @@ function DitherBg({ src, dark, active }) {
     const smpl = document.createElement('canvas');
     const sctx = smpl.getContext('2d', { willReadFrequently: true });
 
-    const PX=8;
+    const PX=px;
     const BR=0.10, CT=2.4, GM=1.13;
     const LON=[237,234,229], LOFF=[245,243,238];
     const DON=[18,16,16],    DOFF=[0,0,0];
@@ -975,6 +975,7 @@ function MobileDitherVideo({ dark }) {
 function ServicesHero({ isMobile, dark }) {
   const [activeStep, setActiveStep] = React.useState(0);
   const [carouselIndex, setCarouselIndex] = React.useState(0);
+  const [carouselEngaged, setCarouselEngaged] = React.useState(false);
   const allyContainerRef = useRef(null);
   const bgRefs           = useRef([]);
   const yourInnerRef     = useRef(null);
@@ -1618,6 +1619,8 @@ function ServicesHero({ isMobile, dark }) {
       const trackW = thumb.parentElement.offsetWidth;
       const thumbW = thumb.offsetWidth;
       thumb.style.transform = `translateX(${pct * (trackW - thumbW)}px)`;
+      const cardW = el.scrollWidth / SVC_ROWS.length;
+      if (el.scrollLeft >= cardW * 0.5) setCarouselEngaged(true);
       const idx = Math.round(pct * (SVC_ROWS.length - 1));
       setCarouselIndex(idx);
     };
@@ -1707,9 +1710,9 @@ function ServicesHero({ isMobile, dark }) {
         {/* ALLY treatment — mobile: inline row; desktop: right-anchored SVG row */}
         {isMobile ? (
           <div style={{ padding:"42px 24px", display:"flex", alignItems:"center", justifyContent:"center", flexWrap:"nowrap", gap:3, background:"var(--bg)" }}>
-            <span style={{ fontFamily:"var(--sans)", fontSize:22, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.22px", color:"var(--secondary)", whiteSpace:"nowrap" }}>Your</span>
+            {!carouselEngaged && <span style={{ fontFamily:"var(--sans)", fontSize:22, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.22px", color:"var(--secondary)", whiteSpace:"nowrap" }}>Your</span>}
             <BracketOpen size={23} color="var(--secondary)" />
-            <span style={{ fontFamily:"var(--sans)", fontSize:22, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.22px", color:"var(--secondary)", whiteSpace:"nowrap", transition:"opacity 0.2s" }}>{SVC_ROWS[carouselIndex].bracket}</span>
+            <span style={{ fontFamily:"var(--sans)", fontSize:22, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.22px", color:"var(--secondary)", whiteSpace:"nowrap", transition:"opacity 0.2s" }}>{carouselEngaged ? SVC_ROWS[carouselIndex].bracket : "point of scale"}</span>
             <BracketClose size={23} color="var(--secondary)" />
             <AllyWordmark size={23} color="var(--secondary)" />
           </div>
@@ -1811,10 +1814,10 @@ function ServicesHero({ isMobile, dark }) {
                 <span style={{ fontFamily:"var(--mono)", fontSize:10, fontWeight:400, letterSpacing:"0.06em", color:"#878787", textTransform:"uppercase" }}>{svc.slug}</span>
               </div>
               <div style={{ width:223, height:223, alignSelf:"flex-start", flexShrink:0, overflow:"hidden", borderRadius:4, position:"relative" }}>
-                <DitherBg src={svc.video} dark={dark} active={true} />
+                <DitherBg src={svc.video} dark={dark} active={true} px={4} />
               </div>
               <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
-                <div style={{ fontFamily:"var(--sans)", fontSize:26, fontWeight:500, lineHeight:1.1, letterSpacing:"-0.26px", color:"var(--secondary)" }}>{svc.headline}</div>
+                <div style={{ fontFamily:"var(--sans)", fontSize:26, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.26px", color:"var(--secondary)" }}>{svc.headline}</div>
                 <div style={{ fontFamily:"var(--sans)", fontSize:19, fontWeight:350, lineHeight:1.2, letterSpacing:"0.19px", color:"#878787" }}>{svc.body}</div>
               </div>
             </div>
@@ -2252,8 +2255,8 @@ function Page() {
       </section>
 
       {/* ══ MODELS TABS ══ */}
-      <section style={{padding:isMobile?"0 var(--s42) var(--s42)":"0 var(--s64) var(--s42)",background:"var(--bg)"}}>
-        <div style={{display:"flex",gap:12,alignItems:"center",justifyContent:"center",flexWrap:"wrap"}}>
+      <section style={{padding:isMobile?"0 var(--s42) var(--s42)":"0 var(--s64) var(--s42)",background:"var(--bg)",position:isMobile?"sticky":"static",top:isMobile?0:undefined,zIndex:isMobile?10:undefined}}>
+        <div style={{display:"flex",gap:12,alignItems:"center",justifyContent:"center",flexWrap:"wrap",paddingTop:isMobile?16:undefined,paddingBottom:isMobile?16:undefined,background:isMobile?"var(--bg)":undefined}}>
           {["Integrated","In-house","Embedded"].map((t,i)=>(
             <ModelTab key={t} label={t} active={i===0} dark={dark} />
           ))}
@@ -2263,10 +2266,10 @@ function Page() {
       {/* ══ CAPABILITIES GRID ══ */}
       <section style={{
         background:"#121010",
-        padding:isMobile?"var(--s64) var(--s42)":"var(--s64) 88px",
+        padding:isMobile?"var(--s64) var(--s42) 64px":"var(--s64) 88px",
         display:"flex",flexDirection:"column",alignItems:"center",gap:82,overflow:"hidden",
       }}>
-        <div style={{...body22,fontSize:isMobile?19:22,color:"#F5F3EE",textAlign:"center",maxWidth:486}}>
+        <div style={{...body22,fontSize:isMobile?19:22,color:"#F5F3EE",textAlign:"center",maxWidth:486,paddingTop:isMobile?42:undefined}}>
           High-impact capability, delivered fast, without the overhead of permanent hires.
         </div>
         <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:24,width:"100%"}}>
@@ -2305,7 +2308,7 @@ function Page() {
         <div style={{display:"flex",flexDirection:"column",gap:"var(--s42)",flexShrink:0}}>
           {SVC_CASES.map((c,i)=>(
             <div key={c.title} style={{display:"flex",gap:"var(--s42)",alignItems:"flex-end",flexWrap:isMobile?"wrap":"nowrap"}}>
-              <div style={{width:isMobile?"100%":150,height:isMobile?undefined:150,aspectRatio:isMobile?"1/1":undefined,flexShrink:0,overflow:"hidden",borderRadius:4}}>
+              <div style={{width:isMobile?82:150,height:isMobile?82:150,flexShrink:0,overflow:"hidden",borderRadius:4}}>
                 <PixelResolveImg src={c.img} alt={c.title} delay={i*0.15} style={{width:"100%",height:"100%"}}/>
               </div>
               <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
@@ -2323,7 +2326,7 @@ function Page() {
         <div style={{flex:1,maxWidth:842,display:"flex",flexDirection:"column",gap:"var(--s128)"}}>
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
             <div style={{...h1s,maxWidth:483}}>Helping product, brand and marketing teams deliver results. Fast.</div>
-            <div style={{...body22,maxWidth:483}}>We partner with brands at the points where growth needs to be engineered, not just executed.</div>
+            <div style={{...body22,fontSize:isMobile?19:22,maxWidth:483}}>We partner with brands at the points where growth needs to be engineered, not just executed.</div>
           </div>
 
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
@@ -2341,7 +2344,7 @@ function Page() {
                 </button>
                 {openAccordion===i && (
                   <div style={{marginTop:16,display:"flex",flexDirection:"column",gap:24}}>
-                    {item.body && <div style={{...body22,maxWidth:670}}>{item.body}</div>}
+                    {item.body && <div style={{...body22,fontSize:isMobile?19:22,maxWidth:670}}>{item.body}</div>}
                     {item.img && (
                       <img src={item.img} alt={item.label} style={{width:"100%",maxWidth:842,height:"auto",aspectRatio:"842/378",objectFit:"cover",borderRadius:4,display:"block"}} />
                     )}
