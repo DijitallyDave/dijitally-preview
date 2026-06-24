@@ -177,7 +177,7 @@
   </style>
 </head>
 <body>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 83498b0</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 4d12e20</div>
 <div id="dj-cursor"></div>
 <div id="nav-portal"></div>
 <svg width="0" height="0" style="position:absolute">
@@ -188,15 +188,31 @@
   </defs>
 </svg>
 <div id="cta-overlay" style="position:fixed;inset:0;z-index:199;"></div>
-<div id="cta-panel" style="position:fixed;top:0;right:0;bottom:0;width:661px;background:var(--bg);z-index:200;padding:64px 48px;display:flex;flex-direction:column;gap:32px;overflow-y:auto;">
-  <button id="cta-close" style="background:none;border:none;cursor:pointer;align-self:flex-end;font-family:var(--mono);font-size:12px;color:var(--secondary);">✕ CLOSE</button>
-  <div id="cta-heading" style="font-family:var(--sans);font-size:42px;font-weight:350;line-height:1.1;letter-spacing:-0.84px;color:var(--secondary);">Let's build something remarkable together.</div>
-  <p style="font-family:var(--sans);font-size:19px;font-weight:350;color:var(--static);line-height:1.3;">Drop us a line and we'll get back to you shortly.</p>
-  <input type="email" placeholder="Your contact email" style="padding:18px 14px;font-family:var(--sans);font-size:13px;border:1px solid var(--grey);outline:none;background:var(--bg);color:var(--secondary);" />
-  <button class="cta-btn" style="display:inline-flex;align-items:center;justify-content:center;gap:10px;padding:18px 24px;background:var(--tech);border:none;border-radius:0;font-family:var(--sans);font-size:16px;font-weight:500;color:#121010;cursor:pointer;">
-    <span style="display:inline-block;width:4px;height:4px;background:currentColor;flex-shrink:0;"></span>
-    <span class="cta-text">Submit</span>
-  </button>
+<div id="cta-panel" style="position:fixed;top:0;right:0;bottom:0;width:661px;background:var(--primary);z-index:200;display:flex;flex-direction:column;padding:32px 24px;overflow-y:auto;">
+  <div style="display:flex;justify-content:flex-end;margin-bottom:42px;">
+    <button id="cta-close" style="background:none;border:none;cursor:pointer;width:28px;height:19px;position:relative;flex-shrink:0;">
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
+        <div style="width:30px;height:2px;background:var(--secondary);transform:rotate(-30deg);position:absolute;"></div>
+        <div style="width:30px;height:2px;background:var(--secondary);transform:rotate(-150deg);position:absolute;"></div>
+      </div>
+    </button>
+  </div>
+  <div style="display:flex;flex-direction:column;gap:42px;flex:1;justify-content:center;">
+    <div id="cta-heading" style="font-family:var(--sans);font-size:32px;font-weight:350;line-height:110%;letter-spacing:-0.64px;">
+      <span style="color:var(--static);">Need an ally? </span><span style="color:var(--secondary);">Let's start</span><br/><span style="color:var(--secondary);">a project together.</span>
+    </div>
+    <div style="display:flex;flex-direction:column;width:100%;">
+      <input placeholder="Your name" type="text" style="padding:16px;font-family:var(--sans);font-size:16px;font-weight:350;border:1px solid var(--grey);outline:none;background:var(--primary);color:var(--secondary);letter-spacing:0.16px;" />
+      <input placeholder="Your email" type="email" style="padding:16px;font-family:var(--sans);font-size:16px;font-weight:350;border:1px solid var(--grey);border-top:none;outline:none;background:var(--primary);color:var(--secondary);letter-spacing:0.16px;" />
+      <textarea placeholder="Add any notes, if desired." style="padding:16px;font-family:var(--sans);font-size:16px;font-weight:350;border:1px solid var(--grey);border-top:none;outline:none;background:var(--primary);color:var(--static);resize:none;height:186px;letter-spacing:0.16px;"></textarea>
+      <div style="display:flex;justify-content:flex-end;margin-top:10px;">
+        <button class="cta-btn" style="background:var(--tech);color:#121010;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:6px;font-family:var(--sans);font-size:19px;font-weight:500;letter-spacing:0;line-height:1;">
+          <span style="width:3px;height:3px;background:currentColor;display:inline-block;flex-shrink:0;"></span>
+          <span class="cta-text">Submit</span>
+        </button>
+      </div>
+    </div>
+  </div>
 </div>
 <div id="smooth-wrapper" style="overflow:hidden;position:fixed;height:100%;width:100%;top:0;left:0;right:0;bottom:0;">
   <div id="smooth-content" style="overflow:visible;width:100%;will-change:transform;">
