@@ -67,7 +67,7 @@
     }
 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; scrollbar-gutter: stable; }
+    html { scrollbar-gutter: stable; }
     body {
       font-family: var(--sans);
       background: var(--bg);
@@ -371,7 +371,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 4b3184b</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build ff86425</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -1522,7 +1522,7 @@ function MenuGlitch({ onComplete, onMidpoint }) {
     const el = ref.current;
     if (!el) return;
     const H = window.innerHeight;
-    const sliceH = 2;
+    const sliceH = isMobile ? 4 : 2;
     const total = Math.ceil(H / sliceH);
     const speed = 0.04, spread = 0.04, stagger = 0.00025, bellStrength = 0.1;
 
@@ -1669,10 +1669,10 @@ function ServicesPage({ dark, isMobile, setPage }) {
   const [contactCardHeight, setContactCardHeight] = useState(null);
   const svcCardRefs = useRef([]);
 
-  const divider = {borderTop:"1px solid var(--border)"};
-  const h1 = {fontFamily:"var(--sans)",fontSize:isMobile?"var(--h1)":48,fontWeight:350,lineHeight:1,letterSpacing:"-0.96px",color:"var(--secondary)"};
-  const h2 = {fontFamily:"var(--sans)",fontSize:isMobile?"var(--h2)":42,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.84px",color:"var(--secondary)"};
-  const body22 = {fontFamily:"var(--sans)",fontSize:isMobile?15:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.22px",color:"var(--static)"};
+  const divider = React.useMemo(()=>({borderTop:"1px solid var(--border)"}), []);
+  const h1      = React.useMemo(()=>({fontFamily:"var(--sans)",fontSize:isMobile?"var(--h1)":48,fontWeight:350,lineHeight:1,letterSpacing:"-0.96px",color:"var(--secondary)"}), [isMobile]);
+  const h2      = React.useMemo(()=>({fontFamily:"var(--sans)",fontSize:isMobile?"var(--h2)":42,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.84px",color:"var(--secondary)"}), [isMobile]);
+  const body22  = React.useMemo(()=>({fontFamily:"var(--sans)",fontSize:isMobile?15:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.22px",color:"var(--static)"}), [isMobile]);
 
   useLayoutEffect(()=>{
     if (!isMobile) return;
@@ -2221,7 +2221,6 @@ function Page() {
   const heroTextRef       = useRef(null);
 
   // Capture the hero logo's initial bounding rect (once, before any scroll)
-  const captureRect = () => {};
 
 
 
@@ -2286,7 +2285,6 @@ function Page() {
         rendererSettings: { preserveAspectRatio:"xMidYMid meet" },
       });
       anim.addEventListener("DOMLoaded", () => {
-        captureRect();
         anim.goToAndStop(anim.totalFrames - 1, true);
         if (smootherRef.current) smootherRef.current.paused(false);
         setHeroThumbResolved(true);
@@ -2327,7 +2325,6 @@ function Page() {
       rendererSettings: { preserveAspectRatio:"xMidYMid meet" },
     });
     heroAnim.addEventListener("DOMLoaded", () => {
-      captureRect();
       heroAnim.goToAndStop(heroAnim.totalFrames - 1, true);
     });
 
@@ -2463,7 +2460,7 @@ function Page() {
       raf = requestAnimationFrame(tick);
     };
 
-    window.addEventListener('mousemove', onMouseMove);
+    window.addEventListener('mousemove', onMouseMove, {passive:true});
     raf = requestAnimationFrame(tick);
     return () => {
       window.removeEventListener('mousemove', onMouseMove);
@@ -2518,8 +2515,8 @@ function Page() {
       x >= rect.left - MARGIN && x <= rect.right  + MARGIN &&
       y >= rect.top  - MARGIN && y <= rect.bottom + MARGIN;
 
+    const cards = Array.from(document.querySelectorAll('#work .wc'));
     const onMove = (e) => {
-      const cards = document.querySelectorAll('#work .wc');
       let anyNear = false;
       cards.forEach(card => {
         const rect = card.getBoundingClientRect();
@@ -2549,7 +2546,7 @@ function Page() {
       });
     };
 
-    document.addEventListener('mousemove', onMove);
+    document.addEventListener('mousemove', onMove, {passive:true});
     return () => document.removeEventListener('mousemove', onMove);
   }, [isMobile]);
 
@@ -3028,16 +3025,6 @@ function Page() {
             </div>
           </div>
 
-          {/* Thumbnail — mobile only, square, above ticker */}
-          {isMobile && (
-            <div style={{ width:"100%", aspectRatio:"1/1", borderRadius:4, overflow:"hidden", alignSelf:"stretch" }}>
-              <PixelResolveVideo
-                src="videos/thumbnail.mp4?v=2"
-                externalTrigger={philoResolved}
-                videoProps={{autoPlay:true, muted:true, loop:true, playsInline:true, style:{width:"100%",height:"100%",objectFit:"cover",display:"block"}}}
-              />
-            </div>
-          )}
 
           {/* Client logos ticker — pushed down to clear the floating video card */}
           <div style={{alignSelf:"flex-start", width:"calc(100% + 84px)", marginLeft:-42, marginTop: isMobile ? 0 : 244}}>
@@ -3053,7 +3040,7 @@ function Page() {
               lineHeight: 1.2, letterSpacing: 0,
               color:"#878787",
             }}>
-              And the small details<br/>that put it into action.
+              One who sees the big picture.<br/>And the small details<br/>that put it into action.
             </p>
           )}
 
@@ -3070,6 +3057,7 @@ function Page() {
               boxShadow:"0px 63px 100px 0px rgba(0,0,0,0)",
               pointerEvents:"none",
               zIndex: 2,
+              willChange:"transform",
             }}>
               <PixelResolveVideo
                 src="videos/thumbnail.mp4?v=2"
