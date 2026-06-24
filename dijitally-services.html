@@ -177,7 +177,7 @@
   </style>
 </head>
 <body>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 0400247</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 83498b0</div>
 <div id="dj-cursor"></div>
 <div id="nav-portal"></div>
 <svg width="0" height="0" style="position:absolute">
@@ -2235,7 +2235,7 @@ function Page() {
 
       {/* ══ OPERATING MODELS CALLOUT ══ */}
       <section style={{padding:isMobile?"64px 24px":"256px var(--s64) var(--s64)",display:"flex",flexDirection:"column",gap:"var(--s24)",background:"var(--bg)"}}>
-        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?26:48,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.96px",color:"var(--secondary)",maxWidth:570}}>Our operating models enable scale through the right allies.</div>
+        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?"var(--h1)":48,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.96px",color:"var(--secondary)",maxWidth:570}}>Our operating models enable scale through the right allies.</div>
         <div style={{fontFamily:"var(--sans)",fontSize:isMobile?19:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.22px",color:"var(--static)",maxWidth:480}}>We help brands scale by enabling their product, brand + marketing teams to deliver results, fast.</div>
       </section>
 
@@ -2254,7 +2254,7 @@ function Page() {
         padding:isMobile?"var(--s64) var(--s42)":"var(--s64) 88px",
         display:"flex",flexDirection:"column",alignItems:"center",gap:82,overflow:"hidden",
       }}>
-        <div style={{...body22,fontSize:isMobile?15:22,color:"#F5F3EE",textAlign:"center",maxWidth:486}}>
+        <div style={{...body22,fontSize:isMobile?19:22,color:"#F5F3EE",textAlign:"center",maxWidth:486}}>
           High-impact capability, delivered fast, without the overhead of permanent hires.
         </div>
         <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:24,width:"100%"}}>
@@ -2284,7 +2284,7 @@ function Page() {
         padding:isMobile?"var(--s64) var(--s42)":"var(--s128) var(--s64)",
         display:"flex",
         flexDirection:isMobile?"column":"row",
-        gap:isMobile?"var(--s42)":"var(--s64)",
+        gap:isMobile?64:"var(--s64)",
         justifyContent:isMobile?"flex-start":"space-between",
         alignItems:"flex-start",
         background:"var(--bg)",

@@ -371,7 +371,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build b2dd692</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 83498b0</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -3031,6 +3031,17 @@ function Page() {
               beside you.
             </div>
           </div>
+
+          {/* Thumbnail — mobile only, square, above ticker */}
+          {isMobile && (
+            <div style={{ width:"100%", aspectRatio:"1/1", borderRadius:4, overflow:"hidden", alignSelf:"stretch" }}>
+              <PixelResolveVideo
+                src="videos/thumbnail.mp4?v=2"
+                externalTrigger={philoResolved}
+                videoProps={{autoPlay:true, muted:true, loop:true, playsInline:true, style:{width:"100%",height:"100%",objectFit:"cover",display:"block"}}}
+              />
+            </div>
+          )}
 
           {/* Client logos ticker — pushed down to clear the floating video card */}
           <div style={{alignSelf:"flex-start", width:"calc(100% + 84px)", marginLeft:-42, marginTop: isMobile ? 0 : 244}}>
