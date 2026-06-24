@@ -1999,6 +1999,10 @@ function goToServices() {
   const W = window.innerWidth, H = window.innerHeight;
   const total = Math.ceil(H / sliceH);
 
+  const base = document.createElement('div');
+  base.style.cssText = 'position:fixed;inset:0;z-index:9998;background:' + overlayColor + ';';
+  document.body.appendChild(base);
+
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;';
   for (var i = 0; i < total; i++) {

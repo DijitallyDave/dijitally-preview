@@ -1632,7 +1632,7 @@ function ServicesHero({ isMobile, dark }) {
   return (
     <>
       {/* ── Intro section — scrolls naturally off the top ── */}
-      <div style={{ height:isMobile?"100dvh":"100vh", position:"relative", background:"var(--bg)", overflow:"hidden" }}>
+      <div style={{ height:isMobile?"100svh":"100vh", position:"relative", background:"var(--bg)", overflow:"hidden" }}>
         {!isMobile && <DitherCanvas dark={dark} />}
         {isMobile && <MobileDitherVideo dark={dark} />}
         <div style={{
@@ -1838,6 +1838,10 @@ function goToHome() {
   const sliceH = 2;
   const H = window.innerHeight;
   const total = Math.ceil(H / sliceH);
+
+  const base = document.createElement('div');
+  base.style.cssText = 'position:fixed;inset:0;z-index:9998;background:' + overlayColor + ';';
+  document.body.appendChild(base);
 
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;';
