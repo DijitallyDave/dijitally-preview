@@ -371,7 +371,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build b7347b0</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 468b231</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -498,199 +498,6 @@ function Ticker({dark}) {
 }
 
 
-/* ── PixelRevealImg — digitising pixel reveal animation ── */
-function PixelRevealImg({ src, alt, style = {}, externalTrigger = false, delay = 0 }) {
-  const containerRef = useRef(null);
-  const imgRef       = useRef(null);
-  const revealRef    = useRef(null);  // reveal canvas
-  const hoverRef     = useRef(null);  // hover pixel canvas
-  const mouseRef     = useRef({ x: -9999, y: -9999 });
-  const hoveredRef   = useRef(false);
-  const hoverRafRef  = useRef(null);
-  const [ready,  setReady]  = useState(false);
-  const [inView, setInView] = useState(false);
-
-  const PX = 16;
-
-  // IntersectionObserver — skip if externalTrigger controls inView
-  useEffect(() => {
-    if (externalTrigger) return; // controlled externally
-    const el = containerRef.current;
-    if (!el) return;
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) { setInView(true); obs.disconnect(); }
-    }, { threshold: 0.45 });
-    obs.observe(el);
-    return () => obs.disconnect();
-  }, [externalTrigger]);
-
-  // Accept external trigger
-  useEffect(() => {
-    if (externalTrigger) setInView(true);
-  }, [externalTrigger]);
-
-  // ── Pixel reveal on load + in-view ──
-  useEffect(() => {
-    if (!ready || !inView) return;
-    const img    = imgRef.current;
-    const canvas = revealRef.current;
-    if (!img || !canvas) return;
-    const W = img.offsetWidth, H = img.offsetHeight;
-    if (!W || !H) return;
-    canvas.width = W; canvas.height = H;
-    const ctx = canvas.getContext('2d');
-    const BG = document.body.classList.contains('dark') ? '#121010' : '#1A1A1A';
-    ctx.fillStyle = BG;
-    ctx.fillRect(0, 0, W, H);
-    img.style.opacity = 1;
-    const cols = Math.ceil(W / PX), rows = Math.ceil(H / PX);
-
-    const blocks = [];
-    for (let r = 0; r < rows; r++)
-      for (let cl = 0; cl < cols; cl++)
-        blocks.push({ r, c: cl, d: r + cl });
-    blocks.sort((a, b) => (a.d + (Math.random()-0.5)*4) - (b.d + (Math.random()-0.5)*4));
-    const total = blocks.length, DURATION = 600;
-    const LEAD = 14; // number of blocks in the SVG frontier ahead of the clear wave
-    let next = 0, start = null, raf;
-
-    const drawFrontier = (from, to) => {
-      for (let i = from; i < Math.min(to, total); i++) {
-        const { r, c } = blocks[i];
-        if (Math.random() > 0.25) {
-          const p = PATTERN_IMGS[Math.floor(Math.random() * PATTERN_IMGS.length)];
-          if (p.complete && p.naturalWidth > 0) {
-            ctx.globalAlpha = 0.4 + Math.random() * 0.6;
-            ctx.drawImage(p, c * PX, r * PX, PX, PX);
-            ctx.globalAlpha = 1;
-          }
-        }
-      }
-    };
-
-    const tick = (now) => {
-      if (!start) start = now;
-      const tp = Math.min((now - start) / DURATION, 1);
-      const target = Math.floor(tp * total);
-      // Clear blocks (also wipes previous frontier SVGs)
-      const prevNext = next;
-      while (next < target) { const { r, c } = blocks[next++]; ctx.clearRect(c * PX, r * PX, PX, PX); }
-      // Draw new SVG frontier at the leading edge of the wave
-      if (next < total) drawFrontier(next, next + LEAD);
-      if (tp < 1) raf = requestAnimationFrame(tick);
-      else canvas.style.display = 'none';
-    };
-    const t = setTimeout(() => { raf = requestAnimationFrame(tick); }, delay * 1000);
-    return () => { clearTimeout(t); cancelAnimationFrame(raf); };
-  }, [ready, inView]);
-
-  // ── Hover: pixelation ramp 1→16 over 1s + zoom + cursor displacement ──
-  useEffect(() => {
-    if (!ready) return;
-    const container = containerRef.current;
-    const img    = imgRef.current;
-    const canvas = hoverRef.current;
-    if (!container || !img || !canvas) return;
-
-    const W = img.offsetWidth, H = img.offsetHeight;
-    if (!W || !H) return;
-    canvas.width = W; canvas.height = H;
-
-    const ctx    = canvas.getContext('2d');
-    const smpl   = document.createElement('canvas'); // off-screen sampler
-    const sctx   = smpl.getContext('2d');
-    const RAMP   = 1000; // ms — 1→16 ramp duration
-    const MAX_PX = PX; // 16
-
-    let enterTime = null, leaveTime = null;
-    const ease = t => t < 0.5 ? 2*t*t : -1+(4-2*t)*t; // ease in-out
-    const mounted = { v: true };
-
-    const loop = (now) => {
-      if (!mounted.v) return;
-      const isHov = hoveredRef.current;
-      if (isHov && !enterTime) { enterTime = now; leaveTime = null; }
-      if (!isHov && !leaveTime) { leaveTime = now; enterTime = null; }
-
-      // Pixelation progress: ramp up on enter, ramp down on leave
-      const rampUp   = enterTime ? Math.min((now - enterTime) / RAMP, 1) : 0;
-      const rampDown = leaveTime ? Math.min((now - leaveTime) / (RAMP * 0.5), 1) : 0;
-      const prog     = isHov ? ease(rampUp) : ease(1 - rampDown);
-
-      if (!isHov && prog <= 0) {
-        // Fully de-pixelated — stop
-        ctx.clearRect(0, 0, W, H);
-        img.style.transform = '';
-        img.style.opacity = '1';
-        hoverRafRef.current = null;
-        return;
-      }
-
-      // Current pixel block size: 1 → 16
-      const curPX  = Math.max(1, Math.round(1 + (MAX_PX - 1) * prog));
-      // Zoom proportional to pixelation
-      img.style.transform   = `scale(${1 + prog * 0.06})`;
-      img.style.transition  = 'none';
-
-      ctx.clearRect(0, 0, W, H);
-      ctx.imageSmoothingEnabled = false;
-
-      // Step 1 — draw full pixelated image (fast)
-      const cCols = Math.ceil(W / curPX), cRows = Math.ceil(H / curPX);
-      smpl.width = cCols; smpl.height = cRows;
-      sctx.drawImage(img, 0, 0, cCols, cRows);
-      ctx.imageSmoothingEnabled = false;
-      ctx.drawImage(smpl, 0, 0, cCols, cRows, 0, 0, W, H);
-
-      hoverRafRef.current = requestAnimationFrame(loop);
-    };
-
-    const onEnter = () => {
-      hoveredRef.current = true;
-      img.style.opacity = '0';
-      if (!hoverRafRef.current) hoverRafRef.current = requestAnimationFrame(loop);
-    };
-    const onLeave = (e) => {
-      // Keep effect active if cursor moved to a sibling inside the same .wc card (e.g. the CTA button)
-      const card = container.closest('.wc');
-      if (card && card.contains(e.relatedTarget)) return;
-      hoveredRef.current = false; mouseRef.current = { x:-9999, y:-9999 };
-    };
-    const onMove  = e  => {
-      const r = canvas.getBoundingClientRect();
-      mouseRef.current = { x: e.clientX - r.left, y: e.clientY - r.top };
-    };
-
-    container.addEventListener('mouseenter', onEnter);
-    container.addEventListener('mouseleave', onLeave);
-    container.addEventListener('mousemove',  onMove);
-    return () => {
-      mounted.v = false;
-      container.removeEventListener('mouseenter', onEnter);
-      container.removeEventListener('mouseleave', onLeave);
-      container.removeEventListener('mousemove',  onMove);
-      cancelAnimationFrame(hoverRafRef.current);
-    };
-  }, [ready]);
-
-  return (
-    <div ref={containerRef} style={{ position: 'relative', lineHeight: 0, overflow: 'hidden', borderRadius: 4, background: '#1A1A1A', ...style }}>
-      <img
-        ref={imgRef}
-        src={src}
-        alt={alt}
-        draggable={false}
-        onDragStart={e=>e.preventDefault()}
-        crossOrigin="anonymous"
-        onLoad={() => setReady(true)}
-        style={{ display: 'block', width: '100%', height: 'auto', opacity: 0 }}
-      />
-      <canvas ref={revealRef} style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }} />
-      <canvas ref={hoverRef}  style={{ position: 'absolute', top: 0, left: 0, pointerEvents: 'none' }} />
-    </div>
-  );
-}
-
 /* ── StripRevealVideo — samples average colour from first video frame, uses it as
    the strip base, then wipes strips away to reveal the video on externalTrigger. ── */
 function StripRevealVideo({ src, videoRef: externalVideoRef, videoProps={}, style={}, externalTrigger=false }) {
@@ -797,126 +604,6 @@ function StripRevealVideo({ src, videoRef: externalVideoRef, videoProps={}, styl
         background: '#888', // replaced by sampled colour on canplay
         pointerEvents:'none',
       }} />
-    </div>
-  );
-}
-
-/* ── PixelResolveVideo — reverse hover effect: starts fully pixelated, resolves to clear ── */
-function PixelResolveVideo({ src, videoRef: externalVideoRef, videoProps={}, style={}, externalTrigger=false }) {
-  const containerRef     = useRef(null);
-  const internalVideoRef = useRef(null);
-  const canvasRef        = useRef(null);
-  const rafRef           = useRef(null);
-  const [ready, setReady] = useState(false);
-  const PX   = 16;
-  const RAMP = 1200;
-
-  const setVideoRef = (el) => {
-    internalVideoRef.current = el;
-    if (typeof externalVideoRef === 'function') externalVideoRef(el);
-    else if (externalVideoRef && 'current' in externalVideoRef) externalVideoRef.current = el;
-  };
-
-  const drawAt = (ctx, smpl, sctx, video, W, H, curPX) => {
-    ctx.clearRect(0, 0, W, H);
-    ctx.imageSmoothingEnabled = false;
-    smpl.width  = Math.ceil(W / curPX);
-    smpl.height = Math.ceil(H / curPX);
-
-    // Replicate objectFit:cover — scale to fill, crop centre
-    const vW = video.videoWidth  || W;
-    const vH = video.videoHeight || H;
-    const scale = Math.max(W / vW, H / vH);
-    const dW = vW * scale, dH = vH * scale;
-    const sx = (dW - W) / 2 / scale;   // source x in video coords
-    const sy = (dH - H) / 2 / scale;   // source y in video coords
-    const sw = W / scale;               // visible width  in video coords
-    const sh = H / scale;               // visible height in video coords
-
-    sctx.drawImage(video, sx, sy, sw, sh, 0, 0, smpl.width, smpl.height);
-    ctx.drawImage(smpl, 0, 0, smpl.width, smpl.height, 0, 0, W, H);
-  };
-
-  const visibleRef = useRef(false);
-  const intervalRef = useRef(null);
-
-  // WAITING loop — sample video at 10fps at full pixelation until trigger fires.
-  // 10fps is indistinguishable from 60fps at 16px block size.
-  useEffect(() => {
-    if (!ready || externalTrigger) return;
-    cancelAnimationFrame(rafRef.current);
-    clearInterval(intervalRef.current);
-    const canvas = canvasRef.current;
-    const video  = internalVideoRef.current;
-    if (!canvas || !video) return;
-    const W = canvas.offsetWidth, H = canvas.offsetHeight;
-    if (!W || !H) return;
-    canvas.width = W; canvas.height = H;
-    const ctx  = canvas.getContext('2d');
-    const smpl = document.createElement('canvas');
-    const sctx = smpl.getContext('2d');
-
-    const startLoop = () => {
-      clearInterval(intervalRef.current);
-      drawAt(ctx, smpl, sctx, video, W, H, PX);
-      intervalRef.current = setInterval(() => drawAt(ctx, smpl, sctx, video, W, H, PX), 100);
-    };
-    const stopLoop = () => clearInterval(intervalRef.current);
-
-    const obs = new IntersectionObserver(([entry]) => {
-      visibleRef.current = entry.isIntersecting;
-      if (entry.isIntersecting) startLoop(); else stopLoop();
-    }, { threshold: 0 });
-    if (containerRef.current) obs.observe(containerRef.current);
-    if (visibleRef.current) startLoop();
-
-    return () => { stopLoop(); obs.disconnect(); };
-  }, [ready, externalTrigger]);
-
-  // RESOLVE animation — discrete pixel steps via setTimeout, not per-frame rAF.
-  useEffect(() => {
-    if (!externalTrigger || !ready) return;
-    cancelAnimationFrame(rafRef.current);
-    clearInterval(intervalRef.current);
-    const canvas = canvasRef.current;
-    const video  = internalVideoRef.current;
-    if (!canvas || !video) return;
-    const W = canvas.offsetWidth, H = canvas.offsetHeight;
-    if (!W || !H) return;
-    canvas.width = W; canvas.height = H;
-    const ctx  = canvas.getContext('2d');
-    const smpl = document.createElement('canvas');
-    const sctx = smpl.getContext('2d');
-    const ease = t => t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
-    const steps = new Set();
-    for (let i = 0; i <= 60; i++) {
-      const t = i / 60;
-      steps.add(Math.max(1, Math.round(1 + (PX - 1) * ease(1 - t))));
-    }
-    const pxSteps = Array.from(steps).sort((a, b) => b - a);
-    const timers = [];
-    pxSteps.forEach(px => {
-      const t = 1 - (px - 1) / (PX - 1);
-      const ms = ease(t) * RAMP;
-      const id = setTimeout(() => {
-        if (px === 1) ctx.clearRect(0, 0, W, H);
-        else          drawAt(ctx, smpl, sctx, video, W, H, px);
-      }, ms);
-      timers.push(id);
-    });
-    return () => timers.forEach(clearTimeout);
-  }, [externalTrigger, ready]);
-
-  return (
-    <div ref={containerRef} style={{ position:'relative', width:'100%', height:'100%', ...style }}>
-      <video
-        ref={setVideoRef}
-        src={src}
-        onCanPlay={() => setReady(true)}
-        {...videoProps}
-        style={{ display:'block', width:'100%', height:'100%', ...(videoProps.style||{}) }}
-      />
-      <canvas ref={canvasRef} style={{ position:'absolute', top:0, left:0, width:'100%', height:'100%', pointerEvents:'none' }} />
     </div>
   );
 }
@@ -1146,7 +833,7 @@ const SVG_LOGOS = [
   'svgs/pattern_02.svg',
   'svgs/pattern_03.svg',
 ];
-// Preloaded at module level — shared by PixelRevealImg and ContactPixels
+// Preloaded at module level — used by ContactPixels
 const PATTERN_IMGS = SVG_LOGOS.map(src => {
   const img = new Image(); img.src = src; return img;
 });
@@ -3259,18 +2946,11 @@ function Page() {
                     {/* Video — mobile only, above model name */}
                     {isMobile && (
                       <div style={{aspectRatio:"16/9",overflow:"hidden",borderRadius:4,marginBottom:16}}>
-                        {i === 0
-                          ? <PixelResolveVideo
-                              src={m.video}
-                              externalTrigger={true}
-                              videoProps={{muted:true,playsInline:true,autoPlay:true,loop:true,style:{width:"100%",height:"100%",objectFit:"cover",display:"block"}}}
-                            />
-                          : <StripRevealVideo
-                              src={m.video}
-                              externalTrigger={true}
-                              videoProps={{muted:true,playsInline:true,autoPlay:true,loop:true,style:{width:"100%",height:"100%",objectFit:"cover",display:"block"}}}
-                            />
-                        }
+                        <StripRevealVideo
+                          src={m.video}
+                          externalTrigger={true}
+                          videoProps={{muted:true,playsInline:true,autoPlay:true,loop:true,style:{width:"100%",height:"100%",objectFit:"cover",display:"block"}}}
+                        />
                       </div>
                     )}
                     <span style={{
