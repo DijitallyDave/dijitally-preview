@@ -2147,44 +2147,91 @@ function Page() {
         document.getElementById('nav-portal')
       )}
 
-      {/* Mobile menu */}
-      {menuOpen && isMobile && (
-        <div style={{position:"fixed",inset:0,zIndex:200,background:"#121010",display:"flex",flexDirection:"column",padding:"24px 24px 32px"}}>
+      {isMobile && menuOpen && ReactDOM.createPortal(
+        <>
           {!menuReady && (
-            <MenuGlitch
-              onComplete={()=>setMenuReady(true)}
-              onMidpoint={()=>setMenuItemsReady(true)}
-            />
+            <MenuGlitch onComplete={()=>setMenuReady(true)} />
           )}
-          <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:48,position:"relative",zIndex:1}}>
-            <div ref={menuLogoRef} style={{width:160,height:24,overflow:"hidden"}}/>
-            <button onClick={()=>setMenuOpen(false)} style={{background:"none",border:"none",cursor:"pointer",display:"flex",gap:6,flexDirection:"column",padding:0}}>
-              <span style={{display:"block",width:24,height:2,background:"#F5F3EE",transform:"rotate(45deg) translate(3px,3px)"}}/>
-              <span style={{display:"block",width:24,height:2,background:"#F5F3EE",transform:"rotate(-45deg) translate(3px,-3px)"}}/>
-            </button>
-          </div>
-          <div ref={menuContentRef} style={{flex:1,display:"flex",flexDirection:"column",justifyContent:"center",gap:8,overflow:"hidden",position:"relative",zIndex:1}}>
-            {["Work","Services","About"].map(l=>(
-              <div key={l} style={{overflow:"hidden"}}>
-                <div className="menu-nav-item" onClick={()=>setMenuOpen(false)} style={{
-                  fontFamily:"var(--sans)",fontSize:42,fontWeight:350,lineHeight:1.1,
-                  letterSpacing:"-0.84px",color:"#F5F3EE",cursor:"pointer",
-                  borderBottom:"1px solid rgba(255,255,255,0.12)",paddingBottom:16,marginBottom:8,
-                }}>{l}</div>
+          <div
+            id="menu-panel"
+            className="dark"
+            style={{
+              position:"fixed", inset:0, zIndex:200,
+              background: menuReady ? "#121010" : "transparent",
+              display:"flex", flexDirection:"column",
+              boxSizing:"border-box",
+              overflow:"hidden",
+            }}
+            onClick={e=>e.stopPropagation()}
+          >
+            <div style={{ position:"relative", height:64, flexShrink:0, zIndex:1, visibility: menuReady ? "visible" : "hidden" }}>
+              <button
+                onClick={()=>setMenuOpen(false)}
+                aria-label="Close menu"
+                style={{ background:"none", border:"none", cursor:"pointer", width:24, height:10, position:"absolute", right:16, top:"50%", transform:"translateY(-50%)", padding:0 }}
+              >
+                <div style={{ position:"absolute", top:"50%", left:"50%", width:30, height:2, background:"#F5F3EE", transform:"translate(-50%,-50%) rotate(-30deg)" }} />
+                <div style={{ position:"absolute", top:"50%", left:"50%", width:30, height:2, background:"#F5F3EE", transform:"translate(-50%,-50%) rotate(-150deg)" }} />
+              </button>
+            </div>
+            <div
+              ref={menuContentRef}
+              style={{
+                flex:1, display:"flex", flexDirection:"column", justifyContent:"center",
+                padding:"42px", gap:28,
+              }}
+            >
+              {["Work","Services","About"].map(label => (
+                <div key={label} style={{ overflow:"hidden" }}>
+                  <a
+                    href="#"
+                    className="menu-nav-item"
+                    onClick={e=>{ e.preventDefault(); if(label==="Work"){ goToHome(); } else { setMenuOpen(false); } }}
+                    style={{
+                      fontFamily:"var(--sans)", fontSize:26, fontWeight:350,
+                      lineHeight:"120%", letterSpacing:"0.26px",
+                      color:"#F5F3EE", textDecoration:"none",
+                      display:"block", opacity:0,
+                    }}
+                  >{label}</a>
+                </div>
+              ))}
+              <div style={{ overflow:"hidden" }}>
+                <button
+                  className="menu-nav-item"
+                  onClick={()=>{ setMenuOpen(false); setTimeout(()=>setCtaOpen(true), 400); }}
+                  style={{
+                    display:"flex", alignItems:"center", gap:10,
+                    background:"none", border:"none", cursor:"pointer", padding:0,
+                    fontFamily:"var(--sans)", fontSize:26, fontWeight:500,
+                    lineHeight:"120%", letterSpacing:"0.26px",
+                    color:"#F5F3EE", opacity:0,
+                  }}
+                >
+                  <span style={{ width:4, height:4, background:"#F5F3EE", flexShrink:0, display:"inline-block" }} />
+                  <span>Get in touch</span>
+                </button>
               </div>
-            ))}
+              <div style={{ overflow:"hidden", paddingTop:8 }}>
+                <span
+                  className="menu-nav-item"
+                  style={{
+                    fontFamily:"var(--mono)", fontSize:14, fontWeight:400,
+                    lineHeight:"100%", letterSpacing:"-0.28px",
+                    color:"#878787", display:"block", opacity:0,
+                  }}
+                >hello@dijitally.com</span>
+              </div>
+            </div>
+            <div style={{ flexShrink:0, width:"100%" }}>
+              <div
+                ref={menuLogoRef}
+                style={{ width:"100%", overflow:"hidden", filter:"invert(1)" }}
+              />
+            </div>
           </div>
-          <div style={{position:"relative",zIndex:1}}>
-            <button onClick={()=>{ setMenuOpen(false); setCtaOpen(true); }} className="cta-btn" style={{
-              display:"flex",alignItems:"center",gap:8,padding:"16px 20px",
-              background:"var(--tech)",border:"none",fontFamily:"var(--sans)",
-              fontSize:16,fontWeight:500,color:"#121010",cursor:"pointer",width:"100%",
-            }}>
-              <span style={{width:4,height:4,background:"currentColor"}}/>
-              <span className="cta-text">Get in touch</span>
-            </button>
-          </div>
-        </div>
+        </>,
+        document.getElementById("nav-portal")
       )}
 
       {/* ══ SERVICES HERO SCROLL ══ */}
