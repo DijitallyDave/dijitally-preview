@@ -1592,12 +1592,7 @@ function ServicesHero({ isMobile, dark }) {
   useEffect(()=>{
     if (!isMobile) return;
     const videos = carouselVideoRefs.current.filter(Boolean);
-    if (!videos.length) return;
-    const obs = new IntersectionObserver((entries)=>{
-      entries.forEach(e=>{ if(e.isIntersecting) e.target.play().catch(()=>{}); else e.target.pause(); });
-    }, { threshold: 0.5 });
-    videos.forEach(v=>obs.observe(v));
-    return ()=>obs.disconnect();
+    videos.forEach(v=>v.play().catch(()=>{}));
   }, [isMobile]);
 
   // Carousel scroll progress bar
