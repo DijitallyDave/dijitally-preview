@@ -371,7 +371,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 637f7ab</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 68457f2</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -504,8 +504,9 @@ function StripRevealVideo({ src, videoRef: externalVideoRef, videoProps={}, styl
   const containerRef     = useRef(null);
   const internalVideoRef = useRef(null);
   const overlayRef       = useRef(null);
-  const colorRef         = useRef(null);   // sampled avg colour
-  const doneRef          = useRef(false);  // animation fired once
+  const colorRef         = useRef(null);
+  const doneRef          = useRef(false);
+  const [ready, setReady] = useState(false);
 
   const setVideoRef = (el) => {
     internalVideoRef.current = el;
@@ -513,9 +514,6 @@ function StripRevealVideo({ src, videoRef: externalVideoRef, videoProps={}, styl
     else if (externalVideoRef && 'current' in externalVideoRef) externalVideoRef.current = el;
   };
 
-  // Find the most-used colour in the video frame using histogram bucketing.
-  // Each channel is quantised to 32 levels (8 buckets of 32) — coarse enough
-  // to group near-identical shades, fine enough to stay recognisable.
   const sampleColor = (video) => {
     try {
       const smpl = document.createElement('canvas');
@@ -525,7 +523,7 @@ function StripRevealVideo({ src, videoRef: externalVideoRef, videoProps={}, styl
       const d = ctx.getImageData(0, 0, 64, 64).data;
       const buckets = {};
       for (let i = 0; i < d.length; i += 4) {
-        const r = d[i]   >> 5;  // 0-7
+        const r = d[i]   >> 5;
         const g = d[i+1] >> 5;
         const b = d[i+2] >> 5;
         const key = (r << 6) | (g << 3) | b;
@@ -539,7 +537,7 @@ function StripRevealVideo({ src, videoRef: externalVideoRef, videoProps={}, styl
     } catch(e) { return '#888'; }
   };
 
-  // As soon as the video has a frame, sample the colour and apply to overlay
+  // Wait for first decodable frame, sample colour, mark ready
   useEffect(() => {
     const video = internalVideoRef.current;
     if (!video) return;
@@ -547,15 +545,16 @@ function StripRevealVideo({ src, videoRef: externalVideoRef, videoProps={}, styl
       const color = sampleColor(video);
       colorRef.current = color;
       if (overlayRef.current) overlayRef.current.style.background = color;
+      setReady(true);
     };
     if (video.readyState >= 2) { onReady(); return; }
     video.addEventListener('canplay', onReady, { once: true });
     return () => video.removeEventListener('canplay', onReady);
   }, []);
 
-  // On trigger: build strips from sampled colour and wipe them right
+  // Gate strip animation on BOTH trigger and video ready
   useEffect(() => {
-    if (!externalTrigger || doneRef.current) return;
+    if (!externalTrigger || !ready || doneRef.current) return;
     doneRef.current = true;
     const overlay = overlayRef.current;
     if (!overlay) return;
