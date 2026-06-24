@@ -371,7 +371,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 468b231</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 637f7ab</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -1023,26 +1023,20 @@ function DitherCanvas({ dark }) {
     const smpl = document.createElement('canvas');
     const sctx = smpl.getContext('2d', { willReadFrequently:true });
 
-    const PX=8, RADIUS=300, FORCE=6, WOBBLE=5, SPRING=0.06, DAMP=0.5;
+    const PX=12;
     const BR=0.10, CT=2.4, GM=1.13;
     const LON=[237,234,229], LOFF=[245,243,238];
     const DON=[18,16,16],    DOFF=[0,0,0];
     const BAYER=[[0,2,0,2],[3,1,3,1],[0,2,0,2],[3,1,3,1]];
-    const R2=RADIUS*RADIUS, IDLE_V=0.3, IDLE_D=(RADIUS+PX*2)**2;
 
-    let particles=[], cols=0, rows=0, time=0, raf;
-    let outBuf=null;
-    let outImageData=null;
+    let particles=[], cols=0, rows=0, raf;
+    let outBuf=null, outImageData=null;
     let frameCount=0, cachedId=null;
-    const mouse={ x:-9999, y:-9999 };
 
     class P {
       constructor(col,row){
         this.col=col; this.row=row;
-        this.hx=(col+0.5)*PX; this.hy=(row+0.5)*PX;
-        this.x=this.hx; this.y=this.hy;
-        this.vx=0; this.vy=0;
-        this.phase=Math.random()*Math.PI*2;
+        this.x=(col+0.5)*PX; this.y=(row+0.5)*PX;
         this.r=255; this.g=255; this.b=255;
       }
       sample(id){
@@ -1055,25 +1049,6 @@ function DitherCanvas({ dark }) {
         const thr=(BAYER[this.row&3][this.col&3]+0.5)/4;
         const ch=(bl<=thr)?(darkRef.current?DON:LON):(darkRef.current?DOFF:LOFF);
         this.r=ch[0]; this.g=ch[1]; this.b=ch[2];
-      }
-      update(){
-        const dx=this.x-mouse.x, dy=this.y-mouse.y;
-        const d2=dx*dx+dy*dy;
-        if(d2>IDLE_D && Math.abs(this.vx)<IDLE_V && Math.abs(this.vy)<IDLE_V){
-          this.x=this.hx; this.y=this.hy; this.vx=0; this.vy=0; return;
-        }
-        if(d2<R2&&d2>0.01){
-          const d=Math.sqrt(d2), prx=1-d/RADIUS;
-          this.vx+=(dx/d)*prx*FORCE;
-          this.vy+=(dy/d)*prx*FORCE;
-          const w=prx*prx*WOBBLE;
-          this.vx+=Math.cos(time+this.phase)*w;
-          this.vy+=Math.sin(time+this.phase*1.3)*w;
-        }
-        this.vx+=(this.hx-this.x)*SPRING;
-        this.vy+=(this.hy-this.y)*SPRING;
-        this.vx*=DAMP; this.vy*=DAMP;
-        this.x+=this.vx; this.y+=this.vy;
       }
       paint(W){
         const gx=Math.floor(this.x/PX)*PX, gy=Math.floor(this.y/PX)*PX;
@@ -1109,40 +1084,26 @@ function DitherCanvas({ dark }) {
 
     function loop(){
       raf=requestAnimationFrame(loop);
-      time+=0.06; frameCount++;
+      frameCount++;
       if(!outBuf||video.readyState<2) return;
 
       // Re-sample video every 2 frames
-      if(frameCount%2===0){
+      if(frameCount%4===0){
         sctx.drawImage(video,0,0,cols,rows);
         cachedId=sctx.getImageData(0,0,cols,rows);
       }
       if(!cachedId) return;
 
-      // Fill background with off-colour
-      const bg=darkRef.current?DOFF:LOFF;
       outBuf.fill(0);
       const W=canvas.width;
-
       for(const p of particles){
         p.sample(cachedId);
-        p.update();
         p.paint(W);
       }
-      // Single putImageData instead of thousands of fillRect calls
       outImageData.data.set(outBuf);
       ctx.putImageData(outImageData, 0, 0);
     }
 
-    const onMove = e=>{
-      const r=canvas.getBoundingClientRect();
-      const x=e.clientX-r.left, y=e.clientY-r.top;
-      const over=document.elementFromPoint(e.clientX,e.clientY);
-      const inNav=over&&over.closest('header');
-      if(!inNav && x>=0 && x<=r.width && y>=0 && y<=r.height){ mouse.x=x; mouse.y=y; }
-      else { mouse.x=-9999; mouse.y=-9999; }
-    };
-    window.addEventListener('mousemove', onMove, {passive:true});
     video.addEventListener('loadedmetadata', setSize);
     setSize();
 
@@ -1161,10 +1122,7 @@ function DitherCanvas({ dark }) {
     video.play().catch(()=>{});
     loop();
 
-    return ()=>{
-      cancelAnimationFrame(raf);
-      window.removeEventListener('mousemove', onMove);
-    };
+    return ()=>{ cancelAnimationFrame(raf); };
   },[]);
 
   return (
@@ -1204,7 +1162,7 @@ function MobileDitherVideo({ dark }) {
     const smpl = document.createElement('canvas');
     const sctx = smpl.getContext('2d', { willReadFrequently: true });
 
-    const PX    = 8;
+    const PX    = 12;
     const BAYER = [[0,2,0,2],[3,1,3,1],[0,2,0,2],[3,1,3,1]];
     const GM=1.13, CT=2.4, BR=0.10;
     const LON=[237,234,229], LOFF=[245,243,238];
@@ -1212,6 +1170,7 @@ function MobileDitherVideo({ dark }) {
 
     let cols=0, rows=0, raf;
     let outBuf=null, outImageData=null;
+    let frameCount=0, cachedId=null;
 
     function build() {
       cols = Math.floor(canvas.width  / PX);
@@ -1237,13 +1196,17 @@ function MobileDitherVideo({ dark }) {
 
     function loop() {
       raf = requestAnimationFrame(loop);
+      frameCount++;
       if (!outBuf || video.readyState < 2) return;
 
-      // Fill with solid background before compositing video — eliminates transparency checkerboard artifacts
-      sctx.fillStyle = darkRef.current ? '#121010' : '#F5F3EE';
-      sctx.fillRect(0, 0, cols, rows);
-      sctx.drawImage(video, 0, 0, cols, rows);
-      const id = sctx.getImageData(0, 0, cols, rows);
+      if (frameCount % 4 === 0) {
+        sctx.fillStyle = darkRef.current ? '#121010' : '#F5F3EE';
+        sctx.fillRect(0, 0, cols, rows);
+        sctx.drawImage(video, 0, 0, cols, rows);
+        cachedId = sctx.getImageData(0, 0, cols, rows);
+      }
+      if (!cachedId) return;
+      const id = cachedId;
       outBuf.fill(0);
       const W = canvas.width;
 
