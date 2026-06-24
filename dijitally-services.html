@@ -1627,7 +1627,7 @@ function ServicesHero({ isMobile, dark }) {
   return (
     <>
       {/* ── Intro section — scrolls naturally off the top ── */}
-      <div style={{ height:isMobile?"100svh":"100vh", position:"relative", background:"var(--bg)", overflow:"hidden" }}>
+      <div style={{ height:isMobile?"100svh":"100vh", position:"relative", background:"var(--bg)", overflow:"clip" }}>
         {!isMobile && <DitherCanvas dark={dark} />}
         {isMobile && <MobileDitherVideo dark={dark} />}
         <div style={{
