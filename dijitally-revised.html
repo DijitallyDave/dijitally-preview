@@ -421,7 +421,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build db95276</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 381d4f9</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -1057,6 +1057,10 @@ function ServicesHero({ isMobile, dark }) {
   const mobileBracketRef = useRef(null);
   const mobileCycleRef = useRef(null);
   const mobileSplitRef = useRef(null);
+  const mobileYourRef       = useRef(null);
+  const mobileBracketOpenRef  = useRef(null);
+  const mobileBracketCloseRef = useRef(null);
+  const mobileAllyRef       = useRef(null);
   const allyContainerRef = useRef(null);
   const bgRefs           = useRef([]);
   const yourInnerRef     = useRef(null);
@@ -1510,7 +1514,16 @@ function ServicesHero({ isMobile, dark }) {
     goToStepRef.current = goToStep;
 
     var wheelHandler = function(e) {
-      if (!sectionActive) return;
+      if (!sectionActive) {
+        // Re-activate if we're sitting at the pin start and the user scrolls down again
+        if (pinST && e.deltaY > 0 && cascadeDone && !animating) {
+          var sy = window.pageYOffset || document.documentElement.scrollTop;
+          if (sy >= pinST.start - 2 && sy <= pinST.start + 2) {
+            sectionActive = true;
+          }
+        }
+        if (!sectionActive) return;
+      }
       if (!cascadeDone) { e.preventDefault(); return; }
       e.preventDefault();
       var dir = e.deltaY > 0 ? 1 : -1;
@@ -1633,10 +1646,13 @@ function ServicesHero({ isMobile, dark }) {
       },
       onEnterBack: function() {
         sectionActive = true;
-        if (window.__servicesResetOnEnter) {
-          window.__servicesResetOnEnter = false;
+        // Reset to step 0 when: explicit reset flag OR user has completed the section (currentStep at last step)
+        if (window.__servicesResetOnEnter || currentStep >= N - 1) {
+          if (window.__servicesResetOnEnter) {
+            window.__servicesResetOnEnter = false;
+            cascadeHasPlayed = false;
+          }
           currentStep = 0;
-          cascadeHasPlayed = false;
           cascadeDone = false;
           animating = false;
           tl.seek(0, true);
@@ -1649,13 +1665,21 @@ function ServicesHero({ isMobile, dark }) {
           if (posSplit && posSplit.words) gsap.set(posSplit.words, { y: "0%", opacity: 1 });
           if (wordSlotRef.current) gsap.set(wordSlotRef.current, { width: posNaturalW });
           svcSplits.forEach(function(split) { if (split && split.chars) gsap.set(split.chars, { y: "110%", opacity: 0 }); });
+          ditherBgRefs.current.forEach(function(el) { if (el) gsap.set(el, { opacity: 0 }); });
+          ditherOverlayRefs.current.forEach(function(ov) { resetOverlay(ov); });
           setActiveStep(0);
-          gsap.set([yourWrapRef.current, bracketOpenRef.current, posRef.current, bracketCloseRef.current, allyMarkRef.current], { y: 60, opacity: 0 });
-          var dur = 0.5, ease = "power2.out", stagger = 0.12;
-          var ct = gsap.timeline({ delay: 0.2, onComplete: function() { cascadeDone = true; cascadeHasPlayed = true; handleSectionChange(0); } });
-          [yourWrapRef.current, bracketOpenRef.current, posRef.current, bracketCloseRef.current, allyMarkRef.current].forEach(function(cel, idx) {
-            ct.to(cel, { y: 0, opacity: 1, duration: dur, ease: ease }, idx * stagger);
-          });
+          if (cascadeHasPlayed) {
+            gsap.set([yourWrapRef.current, bracketOpenRef.current, posRef.current, bracketCloseRef.current, allyMarkRef.current], { y: 0, opacity: 1 });
+            cascadeDone = true;
+            handleSectionChange(0);
+          } else {
+            gsap.set([yourWrapRef.current, bracketOpenRef.current, posRef.current, bracketCloseRef.current, allyMarkRef.current], { y: 60, opacity: 0 });
+            var dur = 0.5, ease = "power2.out", stagger = 0.12;
+            var ct = gsap.timeline({ delay: 0.2, onComplete: function() { cascadeDone = true; cascadeHasPlayed = true; handleSectionChange(0); } });
+            [yourWrapRef.current, bracketOpenRef.current, posRef.current, bracketCloseRef.current, allyMarkRef.current].forEach(function(cel, idx) {
+              ct.to(cel, { y: 0, opacity: 1, duration: dur, ease: ease }, idx * stagger);
+            });
+          }
         } else {
           tl.seek(currentStep / N, true);
           var pi = currentStep - 1;
@@ -1683,6 +1707,15 @@ function ServicesHero({ isMobile, dark }) {
   useEffect(()=>{
     if (!isMobile) return;
     if (typeof gsap === 'undefined' || typeof SplitText === 'undefined') return;
+
+    // Cascade entrance — same easing as desktop (power2.out, 0.5s, stagger 0.12)
+    const els = [mobileYourRef.current, mobileBracketOpenRef.current, mobileBracketRef.current, mobileBracketCloseRef.current, mobileAllyRef.current];
+    gsap.set(els, { y: 30, opacity: 0 });
+    const ct = gsap.timeline({ delay: 0.15 });
+    els.forEach(function(el, idx) {
+      if (el) ct.to(el, { y: 0, opacity: 1, duration: 0.5, ease: "power2.out" }, idx * 0.12);
+    });
+
     const words = ["point of scale", ...SVC_ROWS.map(s => s.bracket)];
     let i = 0;
 
@@ -1802,14 +1835,14 @@ function ServicesHero({ isMobile, dark }) {
         {isMobile ? (
           <div style={{ position:"absolute", bottom:0, left:0, right:0, background:"var(--bg)" }}>
             <div style={{ padding:"24px 24px 20px", display:"flex", alignItems:"center", justifyContent:"center", gap:3 }}>
-              <span style={{ fontFamily:"var(--sans)", fontSize:30, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.3px", color:"var(--secondary)", whiteSpace:"nowrap" }}>Your</span>
-              <BracketOpen size={31} color="var(--secondary)" />
+              <span ref={mobileYourRef} style={{ fontFamily:"var(--sans)", fontSize:30, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.3px", color:"var(--secondary)", whiteSpace:"nowrap" }}>Your</span>
+              <span ref={mobileBracketOpenRef} style={{display:"inline-flex",alignItems:"center"}}><BracketOpen size={31} color="var(--secondary)" /></span>
               <div style={{ overflow:"hidden", display:"inline-flex", alignItems:"center" }}>
                 <span ref={mobileBracketRef} style={{ fontFamily:"var(--sans)", fontSize:30, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.3px", color:"var(--secondary)", whiteSpace:"nowrap", display:"inline-block" }}>point of scale</span>
               </div>
-              <BracketClose size={31} color="var(--secondary)" />
+              <span ref={mobileBracketCloseRef} style={{display:"inline-flex",alignItems:"center"}}><BracketClose size={31} color="var(--secondary)" /></span>
             </div>
-            <div style={{ padding:"0 24px" }}>
+            <div ref={mobileAllyRef} style={{ padding:"0 24px" }}>
               <AllyWordmark fillContainer color="var(--secondary)" />
             </div>
             <div style={{ padding:"48px 24px 42px", display:"flex", flexDirection:"column", gap:12 }}>
@@ -1915,7 +1948,7 @@ function ServicesHero({ isMobile, dark }) {
           overflowX:"auto", overflowY:"hidden",
           scrollSnapType:"x mandatory",
           WebkitOverflowScrolling:"touch",
-          touchAction:"pan-x",
+          touchAction:"pan-x pan-y",
         }}>
           {SVC_ROWS.map((svc, i) => (
             <div key={i} style={{
@@ -2219,12 +2252,14 @@ const MODELS = [
 ];
 
 const WORKS = [
-  {title:"Afterpay x Dijitally", meta:"PARTNERSHIP · 2024 · DIGITAL",   cat:"PERFORMANCE",bg:"#000",fg:"#B6F4C9",label:"DIJITALLY × afterpay",img:"work/AfterpayxDijitally.png",aspect:"1008/1360"},
-  {title:"Afterpay Day",         meta:"CREATIVE · DESIGN · SOCIAL",      cat:"CREATIVE",   bg:"#1a1a1a",fg:"#F5F3EE",label:"Afterpay Day",img:"work/AfterpayDay.jpg",aspect:"1/1"},
-  {title:"Constantinople", meta:"CREATIVE · DESIGN · SOCIAL",  cat:"SOCIAL",     bg:"#FF4500",fg:"#F5F3EE",label:"Constantinople",img:"work/Constantinople.png",aspect:"1008/1360"},
-  {title:"Airwallex x Dijitally",    meta:"PERFORMANCE · 2024 · DATA",   cat:"DATA",       bg:"#0a0a1e",fg:"#B6F4C9",label:"Airwallex",img:"work/AWXxAirwallex.png",aspect:"1008/1230"},
+  {title:"Afterpay x Dijitally",  meta:"PARTNERSHIP · 2024 · DIGITAL",  cat:"PARTNERSHIPS", bg:"#000",     fg:"#B6F4C9", label:"DIJITALLY × afterpay", img:"work/AfterpayxDijitally.png", aspect:"1008/1360"},
+  {title:"Afterpay Day",          meta:"CREATIVE · DESIGN · SOCIAL",     cat:"CREATIVE",     bg:"#1a1a1a",  fg:"#F5F3EE", label:"Afterpay Day",         img:"work/AfterpayDay.jpg",         aspect:"1/1"},
+  {title:"Constantinople",        meta:"CREATIVE · DESIGN · SOCIAL",     cat:"SOCIAL",       bg:"#FF4500",  fg:"#F5F3EE", label:"Constantinople",       img:"work/Constantinople.png",      aspect:"1008/1360"},
+  {title:"Airwallex x Dijitally", meta:"PERFORMANCE · 2024 · DATA",      cat:"DATA",         bg:"#0a0a1e",  fg:"#B6F4C9", label:"Airwallex",            img:"work/AWXxAirwallex.png",       aspect:"1008/1230"},
+  {title:"RoomStay Holiday Parks",meta:"CAMPAIGN · EVENT · 2024",        cat:"CREATIVE",     bg:"#1c2419",  fg:"#B6F4C9", label:"RoomStay",             img:null},
+  {title:"Procore ProSURE",       meta:"CREATIVE · DESIGN · SOCIAL",     cat:"SOCIAL",       bg:"#FF7F3F",  fg:"#F5F3EE", label:"Procore",              img:null},
 ];
-const CATS = ["ALL","PERFORMANCE","CREATIVE","SOCIAL","DATA"];
+const CATS = ["ALL","PARTNERSHIPS","CREATIVE","SOCIAL","DATA"];
 
 
 /* ═══════════════════════════════════════════════════
@@ -2590,7 +2625,7 @@ function SiteFooter({ isMobile, dark }) {
   const dot = {width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0};
   const linkStyle = {fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"};
   const navLinks = ["WORK","SERVICES","ABOUT"];
-  const navClick = l => l==="WORK" ? goToHome : l==="SERVICES" ? goToServices : undefined;
+  const navClick = l => l==="WORK" ? goToWork : l==="SERVICES" ? goToServices : undefined;
   return (
     <footer style={{borderTop:"1px solid var(--border)", minHeight:"auto", padding:isMobile?"64px 24px 24px":"var(--s64) var(--s64) 0", display:"flex", flexDirection:"column", alignItems:isMobile?"flex-start":"flex-end", gap:isMobile?24:0, background:"var(--bg)"}}>
       {isMobile ? (
@@ -2766,7 +2801,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
           {SVC_CASES.map((c,i)=>(
             <div key={c.title} style={{display:"flex",gap:"var(--s42)",alignItems:"flex-end",flexWrap:isMobile?"wrap":"nowrap"}}>
               <div style={{width:isMobile?82:150,height:isMobile?82:150,flexShrink:0,overflow:"hidden",borderRadius:4}}>
-                <PixelResolveImg src={c.img} alt={c.title} delay={i*0.15} style={{width:"100%",height:"100%"}}/>
+                <StripRevealImg src={c.img} alt={c.title} delay={i*0.15} style={{width:"100%",height:"100%"}}/>
               </div>
               <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
                 {c.logo
@@ -2830,6 +2865,268 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
 }
 
 /* ═══════════════════════════════════════════════════
+   WORK PAGE
+═══════════════════════════════════════════════════ */
+function WorkPage({ dark, isMobile, setCtaOpen }) {
+  const [cat, setCat] = useState("ALL");
+  const [view, setView] = useState("grid");
+
+  const filtered = cat === "ALL" ? WORKS : WORKS.filter(w => w.cat === cat);
+
+  const cardCta = (label) => (
+    <a href="#" className="cta-btn work-card-cta" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"14px 20px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:14,fontWeight:500,color:"#121010",textDecoration:"none",whiteSpace:"nowrap"}}
+      onMouseEnter={e=>{const t=e.currentTarget.querySelector('.cta-text');if(!t||typeof gsap==='undefined')return;if(!t.style.width){t.style.display='inline-block';t.style.whiteSpace='nowrap';t.style.overflow='hidden';t.style.width=t.offsetWidth+'px';}gsap.to(t,{duration:0.4,ease:'none',scrambleText:{text:label,chars:'upperCase',revealDelay:0.1,speed:0.8}});}}>
+      <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">{label}</span>
+    </a>
+  );
+
+  const cardThumb = (w, width, height) => (
+    <div style={{width,height,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,position:"relative",overflow:"hidden",borderRadius:4,flexShrink:0}}>
+      {w.img
+        ? <StripRevealImg src={w.img} alt={w.title} delay={0} style={{position:"absolute",inset:0,width:"100%",height:"100%"}}/>
+        : <div style={{position:"absolute",inset:0,background:w.bg||"#2a2a2a"}}/>
+      }
+      {cardCta('View project')}
+    </div>
+  );
+
+  const cardMeta = (w) => (
+    <div style={{padding:"20px 0 0",display:"flex",flexDirection:"column",gap:6}}>
+      <p style={{fontFamily:"var(--sans)",fontSize:"var(--card)",fontWeight:350,lineHeight:"var(--card-lh)",color:"var(--secondary)"}}>{w.title}</p>
+      <span style={{fontFamily:"var(--mono)",fontSize:"var(--meta)",fontWeight:400,letterSpacing:"var(--meta-ls)",color:"var(--static)"}}>{w.meta}</span>
+    </div>
+  );
+
+  // View toggle icons
+  const GridIcon = ({active}) => (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <rect x="0" y="0" width="7" height="7" fill={active?"var(--secondary)":"#DEDEDE"}/>
+      <rect x="9" y="0" width="7" height="7" fill={active?"var(--secondary)":"#DEDEDE"}/>
+      <rect x="0" y="9" width="7" height="7" fill={active?"var(--secondary)":"#DEDEDE"}/>
+      <rect x="9" y="9" width="7" height="7" fill={active?"var(--secondary)":"#DEDEDE"}/>
+    </svg>
+  );
+  const ListIcon = ({active}) => (
+    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+      <rect x="0" y="2" width="16" height="3" fill={active?"var(--secondary)":"#DEDEDE"}/>
+      <rect x="0" y="8" width="16" height="3" fill={active?"var(--secondary)":"#DEDEDE"}/>
+      <rect x="0" y="14" width="16" height="3" fill={active?"var(--secondary)":"#DEDEDE"}/>
+    </svg>
+  );
+
+  return (
+    <div style={{background:"var(--bg)",minHeight:"100vh",paddingTop:"var(--nav-h)"}}>
+
+      {/* Header */}
+      <section style={{paddingTop:isMobile?96:256,paddingBottom:0,paddingLeft:isMobile?"var(--s42)":"var(--s64)",paddingRight:isMobile?"var(--s42)":"var(--s64)"}}>
+        <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)",marginBottom:isMobile?48:64}}>
+          <Eyebrow center={false}>++ OUR WORK ++</Eyebrow>
+          <div data-split="" role="heading" aria-level="1" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:620}}>
+            Creative that converts. Data that performs. Systems that support. Production that moves.
+          </div>
+        </div>
+
+        {/* Filter + view toggle row */}
+        <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",flexWrap:"wrap",gap:16,marginBottom:isMobile?64:96}}>
+          {/* Filter pills */}
+          <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
+            {CATS.map(c=>(
+              <button key={c} onClick={()=>setCat(c)} style={{
+                display:"inline-flex",alignItems:"center",gap:4,
+                padding:"6px 12px",
+                background:cat===c?"var(--secondary)":"transparent",
+                border:"1px solid",
+                borderColor:cat===c?"var(--secondary)":"var(--grey)",
+                borderRadius:100,
+                fontFamily:"var(--mono)",fontSize:11,fontWeight:400,
+                letterSpacing:"0.06em",
+                color:cat===c?"var(--bg)":"var(--static)",
+                cursor:"pointer",whiteSpace:"nowrap",
+                transition:"all 0.2s ease",
+              }}>{c}</button>
+            ))}
+          </div>
+
+          {/* View toggle — desktop only */}
+          {!isMobile && (
+            <div style={{display:"flex",alignItems:"center",gap:12}}>
+              <span style={{fontFamily:"var(--mono)",fontSize:11,fontWeight:400,letterSpacing:"0.06em",color:"var(--static)"}}>VIEW</span>
+              <button onClick={()=>setView("grid")} style={{background:"none",border:"none",cursor:"pointer",padding:4,display:"flex",alignItems:"center"}} aria-label="Grid view">
+                <GridIcon active={view==="grid"}/>
+              </button>
+              <button onClick={()=>setView("list")} style={{background:"none",border:"none",cursor:"pointer",padding:4,display:"flex",alignItems:"center"}} aria-label="List view">
+                <ListIcon active={view==="list"}/>
+              </button>
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* Grid view */}
+      {(view === "grid" || isMobile) && (
+        <section style={{paddingBottom:isMobile?96:128,paddingLeft:isMobile?"var(--s42)":"var(--s64)",paddingRight:isMobile?"var(--s42)":"var(--s64)"}}>
+          {isMobile ? (
+            /* Mobile: vertical stack same as homepage */
+            <div ref={el=>{
+              if(!el)return;
+              requestAnimationFrame(()=>{
+                const cs=getComputedStyle(el);
+                const w=el.offsetWidth-parseFloat(cs.paddingLeft)-parseFloat(cs.paddingRight);
+                Array.from(el.children).forEach(c=>{if(c.classList.contains('wc'))c.style.width=w+'px';});
+              });
+            }} style={{width:"100%"}}>
+              {filtered.map((w,i)=>(
+                <div key={i} className="wc" style={{marginBottom:i<filtered.length-1?56:0}}>
+                  <div style={{position:"relative",width:"100%",paddingBottom:"64.58%",overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg}}>
+                    <div style={{position:"absolute",top:0,left:0,width:"100%",height:"100%"}}>
+                      {w.img
+                        ? <StripRevealImg src={w.img} alt={w.title} delay={i*0.1}/>
+                        : <div style={{position:"absolute",inset:0,background:w.bg||"#2a2a2a"}}/>
+                      }
+                      {cardCta('View project')}
+                    </div>
+                  </div>
+                  <div style={{padding:"12px 0 0",display:"flex",flexDirection:"column",gap:2}}>
+                    <p style={{fontFamily:"var(--sans)",fontSize:"var(--card)",fontWeight:350,lineHeight:"var(--card-lh)",color:"var(--secondary)"}}>{w.title}</p>
+                    <span style={{fontFamily:"var(--mono)",fontSize:"var(--meta)",fontWeight:400,letterSpacing:"var(--meta-ls)",color:"var(--static)"}}>{w.meta}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            /* Desktop: staggered 2-col grid */
+            <div style={{display:"flex",flexDirection:"column",gap:0,alignItems:"center"}}>
+              {/* Row 1: large left + small right */}
+              {(filtered[0] || filtered[1]) && (
+                <div style={{display:"flex",gap:128,alignItems:"flex-start"}}>
+                  {filtered[0] && (
+                    <div className="wc" style={{width:720,flexShrink:0}}>
+                      <div className="work-grid-thumb" style={{height:465,background:filtered[0].img?(dark?"#121010":"#1A1A1A"):filtered[0].bg}}>
+                        {filtered[0].img
+                          ? <StripRevealImg src={filtered[0].img} alt={filtered[0].title} delay={0}/>
+                          : <div style={{position:"absolute",inset:0,background:filtered[0].bg||"#2a2a2a"}}/>
+                        }
+                        {cardCta('View project')}
+                      </div>
+                      {cardMeta(filtered[0])}
+                    </div>
+                  )}
+                  {filtered[1] && (
+                    <div className="wc" style={{width:378,flexShrink:0,paddingTop:252}}>
+                      <div className="work-grid-thumb" style={{height:378,background:filtered[1].img?(dark?"#121010":"#1A1A1A"):filtered[1].bg}}>
+                        {filtered[1].img
+                          ? <StripRevealImg src={filtered[1].img} alt={filtered[1].title} delay={0.2}/>
+                          : <div style={{position:"absolute",inset:0,background:filtered[1].bg||"#2a2a2a"}}/>
+                        }
+                        {cardCta('View project')}
+                      </div>
+                      {cardMeta(filtered[1])}
+                    </div>
+                  )}
+                </div>
+              )}
+              {/* Row 2: small left + large right */}
+              {(filtered[2] || filtered[3]) && (
+                <div style={{display:"flex",gap:128,alignItems:"flex-start"}}>
+                  {filtered[2] && (
+                    <div className="wc" style={{width:378,flexShrink:0,paddingBottom:320}}>
+                      <div className="work-grid-thumb" style={{height:378,background:filtered[2].img?(dark?"#121010":"#1A1A1A"):filtered[2].bg}}>
+                        {filtered[2].img
+                          ? <StripRevealImg src={filtered[2].img} alt={filtered[2].title} delay={0.1}/>
+                          : <div style={{position:"absolute",inset:0,background:filtered[2].bg||"#2a2a2a"}}/>
+                        }
+                        {cardCta('View project')}
+                      </div>
+                      {cardMeta(filtered[2])}
+                    </div>
+                  )}
+                  {filtered[3] && (
+                    <div className="wc" style={{width:720,flexShrink:0,paddingTop:252}}>
+                      <div className="work-grid-thumb" style={{height:465,background:filtered[3].img?(dark?"#121010":"#1A1A1A"):filtered[3].bg}}>
+                        {filtered[3].img
+                          ? <StripRevealImg src={filtered[3].img} alt={filtered[3].title} delay={0.3}/>
+                          : <div style={{position:"absolute",inset:0,background:filtered[3].bg||"#2a2a2a"}}/>
+                        }
+                        {cardCta('View project')}
+                      </div>
+                      {cardMeta(filtered[3])}
+                    </div>
+                  )}
+                </div>
+              )}
+              {/* Row 3: two equal small cards */}
+              {(filtered[4] || filtered[5]) && (
+                <div style={{display:"flex",gap:256,alignItems:"flex-start",paddingTop:128,paddingBottom:96}}>
+                  {filtered[4] && (
+                    <div className="wc" style={{width:378,flexShrink:0}}>
+                      <div className="work-grid-thumb" style={{height:378,background:filtered[4].img?(dark?"#121010":"#1A1A1A"):filtered[4].bg}}>
+                        {filtered[4].img
+                          ? <StripRevealImg src={filtered[4].img} alt={filtered[4].title} delay={0.1}/>
+                          : <div style={{position:"absolute",inset:0,background:filtered[4].bg||"#2a2a2a"}}/>
+                        }
+                        {cardCta('View project')}
+                      </div>
+                      {cardMeta(filtered[4])}
+                    </div>
+                  )}
+                  {filtered[5] && (
+                    <div className="wc" style={{width:378,flexShrink:0}}>
+                      <div className="work-grid-thumb" style={{height:378,background:filtered[5].img?(dark?"#121010":"#1A1A1A"):filtered[5].bg}}>
+                        {filtered[5].img
+                          ? <StripRevealImg src={filtered[5].img} alt={filtered[5].title} delay={0.3}/>
+                          : <div style={{position:"absolute",inset:0,background:filtered[5].bg||"#2a2a2a"}}/>
+                        }
+                        {cardCta('View project')}
+                      </div>
+                      {cardMeta(filtered[5])}
+                    </div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
+        </section>
+      )}
+
+      {/* List view placeholder — desktop only, layout TBD */}
+      {view === "list" && !isMobile && (
+        <section style={{paddingBottom:128,paddingLeft:"var(--s64)",paddingRight:"var(--s64)"}}>
+          <div style={{display:"flex",flexDirection:"column",borderTop:"1px solid var(--grey)"}}>
+            {filtered.map((w,i)=>(
+              <div key={i} style={{display:"flex",alignItems:"center",gap:48,padding:"28px 0",borderBottom:"1px solid var(--grey)"}}>
+                <div style={{width:80,height:54,borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,overflow:"hidden",flexShrink:0,position:"relative"}}>
+                  {w.img && <StripRevealImg src={w.img} alt={w.title} delay={i*0.05}/>}
+                </div>
+                <div style={{flex:1,display:"flex",flexDirection:"column",gap:4}}>
+                  <span style={{fontFamily:"var(--sans)",fontSize:22,fontWeight:350,color:"var(--secondary)"}}>{w.title}</span>
+                  <span style={{fontFamily:"var(--mono)",fontSize:10,fontWeight:400,letterSpacing:"0.06em",color:"var(--static)"}}>{w.meta}</span>
+                </div>
+                <span style={{fontFamily:"var(--mono)",fontSize:10,fontWeight:400,letterSpacing:"0.06em",color:"var(--static)",flexShrink:0}}>{w.cat}</span>
+                <a href="#" className="cta-btn" style={{display:"inline-flex",alignItems:"center",gap:8,padding:"12px 16px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:13,fontWeight:500,color:"#121010",textDecoration:"none",whiteSpace:"nowrap",flexShrink:0}}>
+                  <span style={{width:3,height:3,background:"currentColor",flexShrink:0,display:"inline-block"}}/>View project
+                </a>
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      <ContactSection dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />
+      <SiteFooter dark={dark} isMobile={isMobile} />
+
+      <div style={{height:32}}/>
+      <button
+        onClick={()=>{ window.scrollTo({top:0,behavior:"instant"}); }}
+        style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,width:"100%",height:42,background:"var(--tech)",border:"none",cursor:"pointer",padding:0,margin:0,flexShrink:0}}
+      >
+        <span style={{width:3,height:3,borderRadius:"50%",background:"var(--static)",flexShrink:0,display:"block"}}/>
+        <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"-0.24px",color:"#121010",lineHeight:1}}>BACK TO TOP</ScrambleSpan>
+      </button>
+    </div>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
    PAGE
 ═══════════════════════════════════════════════════ */
 function getDefaultDark() {
@@ -2883,6 +3180,7 @@ function _stripTransition(targetPage) {
 }
 
 function goToServices() { _stripTransition('services'); }
+function goToWork()     { _stripTransition('work'); }
 function goToHome()     { _stripTransition('home'); }
 
 function Page() {
@@ -3619,16 +3917,16 @@ function Page() {
             <span key={l} className="mobile-nav-links nav-item" style={{
               display:"flex", alignItems:"center", gap:4,
               padding:6,
-              background: l==="Services" && page==="services" ? "var(--secondary)" : "var(--bg)",
+              background: (l==="Services" && page==="services") || (l==="Work" && page==="work") ? "var(--secondary)" : "var(--bg)",
               fontFamily:"var(--sans)",
               fontSize:"var(--nav-size)",
               fontWeight:"var(--nav-w)",
               letterSpacing:0,
-              color: l==="Services" && page==="services" ? "var(--bg)" : "var(--secondary)",
+              color: (l==="Services" && page==="services") || (l==="Work" && page==="work") ? "var(--bg)" : "var(--secondary)",
               cursor:"pointer",
               userSelect:"none",
             }}
-            onClick={()=>{ if(l==="Services"){ goToServices(); } else if(l==="Work"){ goToHome(); } }}
+            onClick={()=>{ if(l==="Services"){ goToServices(); } else if(l==="Work"){ goToWork(); } }}
             onMouseEnter={e=>{
               const el = e.currentTarget;
               const textNode = el.querySelector('.nav-text');
@@ -3643,7 +3941,7 @@ function Page() {
               gsap.to(textNode,{duration:0.4,ease:'none',
                 scrambleText:{text:l,chars:'upperCase',revealDelay:0.1,speed:0.9}});
             }}>
-              <span className="nav-dot" style={{width:3,height:3,background: l==="Services" && page==="services" ? "var(--bg)" : "var(--secondary)",display:"inline-block",flexShrink:0}}/>
+              <span className="nav-dot" style={{width:3,height:3,background: (l==="Services" && page==="services") || (l==="Work" && page==="work") ? "var(--bg)" : "var(--secondary)",display:"inline-block",flexShrink:0}}/>
               <span className="nav-text">{l}</span>
             </span>
           ))}
@@ -3714,6 +4012,7 @@ function Page() {
       </header>, document.getElementById('nav-portal'))}
 
       {page === 'services' && <ServicesPage dark={dark} isMobile={isMobile} setPage={setPage} setCtaOpen={setCtaOpen} />}
+      {page === 'work'     && <WorkPage dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />}
 
       {page === 'home' && <>
       {/* ══════════════════════════════════════
@@ -4350,7 +4649,7 @@ function Page() {
                   <a
                     href="#"
                     className="menu-nav-item"
-                    onClick={e=>{ e.preventDefault(); if(label==="Services"){ setMenuOpen(false); setTimeout(goToServices,300); } else if(label==="Work"){ setMenuOpen(false); setTimeout(goToHome,300); } else { setMenuOpen(false); } }}
+                    onClick={e=>{ e.preventDefault(); if(label==="Services"){ setMenuOpen(false); setTimeout(goToServices,300); } else if(label==="Work"){ setMenuOpen(false); setTimeout(goToWork,300); } else { setMenuOpen(false); } }}
                     style={{
                       fontFamily:"var(--sans)", fontSize:26, fontWeight:350,
                       lineHeight:"120%", letterSpacing:"0.26px",
