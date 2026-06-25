@@ -179,7 +179,7 @@
   </style>
 </head>
 <body>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 96b1783</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 21239be</div>
 <svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
   <defs>
     <!--
@@ -590,6 +590,8 @@ function SvcFooterRow({ isMobile, dark }) {
 }
 
 /* ── Data ── */
+const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+
 const SVC_ROWS = [
   { slug:"Strategically",    bracket:"strategic",    headline:"Go-to-market through to market fit.",        body:"From market entry and audience strategy to channel prioritisation, we map out the smartest way to grow. Every move is intentional, with a clear definition of success.", bg:"electric", video:"videos/Services/strategy.mp4" },
   { slug:"Organisationally", bracket:"organisation", headline:"In-house modelling.",                        body:"We scale your capability, not just your output. That means designing operating models, resourcing plans, and workflows that help you move faster without over-hiring.", bg:"stream",    video:"videos/Services/organisation.mp4" },
@@ -1808,14 +1810,11 @@ function ServicesHero({ isMobile, dark }) {
       <div ref={allyContainerRef} style={{ height: isMobile ? "auto" : "100vh", position:"relative", overflow: "clip" }}>
 
         {!isMobile && <div style={{ position:"absolute", inset:0, background:"var(--bg)", zIndex:0 }} />}
-        <div ref={ditherHeroRef} style={{position:'absolute',inset:0,zIndex:0,pointerEvents:'none'}}>
-          <video src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline style={{
-            position:"absolute", left:"50%", top:0,
-            transform:"translate(-50%, calc(-50% + 128px))",
-            width:"85%", height:"85%", objectFit:"cover",
+        <div ref={ditherHeroRef} style={{position:'absolute',left:'50%',top:0,transform:'translate(-50%, calc(-50% + 128px))',width:'85%',height:'85%',zIndex:0,pointerEvents:'none'}}>
+          {!isSafari && <video src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline style={{
+            position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover",
             filter: dark ? "url(#duotone-svc-dark)" : "url(#duotone-svc-light)",
-            opacity: 1,
-          }} />
+          }} />}
         </div>
 
         {/* Dither bg per section — desktop only */}
@@ -1823,11 +1822,10 @@ function ServicesHero({ isMobile, dark }) {
           <div key={i} ref={el => ditherBgRefs.current[i] = el} style={{
             position:"absolute", inset:0, opacity:0, zIndex:1, pointerEvents:"none", overflow:"visible",
           }}>
-            <video src={svc.video} autoPlay muted loop playsInline style={{
+            {!isSafari && <video src={svc.video} autoPlay muted loop playsInline style={{
               position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"contain",
               filter: dark ? "url(#duotone-svc-dark)" : "url(#duotone-svc-light)",
-              opacity: 1,
-            }} />
+            }} />}
             {/* Strip reveal overlay — solid bg, animates bottom-to-top on reveal */}
             <div ref={el => ditherOverlayRefs.current[i] = el} style={{
               position:"absolute", inset:0, background:"var(--bg)", overflow:"hidden", pointerEvents:"none",
@@ -1845,7 +1843,7 @@ function ServicesHero({ isMobile, dark }) {
               position:"absolute", bottom:64, left:64,
               width:125, height:125,
               objectFit:"cover", borderRadius:4,
-              opacity:0, zIndex:5,
+              opacity:0, zIndex:5, pointerEvents:"none",
             }}
           />
         )}
