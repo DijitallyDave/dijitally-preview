@@ -421,7 +421,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build c58b217</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 46f0a74</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -3179,6 +3179,7 @@ function _stripTransition(targetPage) {
     }, delay * 1000);
   });
   setTimeout(function() {
+    if (targetPage === 'home') sessionStorage.setItem('skipIntro', '1');
     if (window.__setPage) window.__setPage(targetPage);
     window.scrollTo(0, 0);
     // wipe strips back out
@@ -3402,8 +3403,9 @@ function Page() {
     if (heroBodyRef.current) gsap.set(heroBodyRef.current, { opacity:0, y:16 });
   }, []);
 
-  // Lottie + hero entrance sequence
+  // Lottie + hero entrance sequence — re-runs when navigating back to home
   useEffect(()=>{
+    if (page !== 'home') return;
     if (typeof lottie === "undefined" || typeof gsap === "undefined") return;
     const el = heroLogoRef.current;
     if (!el) return;
@@ -3523,7 +3525,7 @@ function Page() {
       introAnim.destroy();
       if (heroAnim) heroAnim.destroy();
     };
-  }, []);
+  }, [page]);
 
 
   // Capture thumbnail + reel rects once at mount
