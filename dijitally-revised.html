@@ -421,7 +421,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 381d4f9</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build c58b217</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -1520,6 +1520,24 @@ function ServicesHero({ isMobile, dark }) {
           var sy = window.pageYOffset || document.documentElement.scrollTop;
           if (sy >= pinST.start - 2 && sy <= pinST.start + 2) {
             sectionActive = true;
+            // If section was completed, reset so the loop can play again
+            if (currentStep >= N - 1) {
+              currentStep = 0;
+              tl.seek(0, true);
+              gsap.set(pillsRef.current, { opacity: 0 });
+              if (pillBoxRef.current) gsap.set(pillBoxRef.current, { y: 0, opacity: 0 });
+              videoRefs.current.forEach(function(v) { if (v) gsap.set(v, { opacity: 0 }); });
+              bodyRefs.current.forEach(function(b) { if (b) gsap.set(b, { opacity: 0 }); });
+              if (step0BodyRef.current) gsap.set(step0BodyRef.current, { opacity: 0 });
+              if (ditherHeroRef.current) gsap.set(ditherHeroRef.current, { opacity: 1 });
+              if (posSplit && posSplit.words) gsap.set(posSplit.words, { y: "0%", opacity: 1 });
+              if (wordSlotRef.current) gsap.set(wordSlotRef.current, { width: posNaturalW });
+              svcSplits.forEach(function(split) { if (split && split.chars) gsap.set(split.chars, { y: "110%", opacity: 0 }); });
+              ditherBgRefs.current.forEach(function(el) { if (el) gsap.set(el, { opacity: 0 }); });
+              ditherOverlayRefs.current.forEach(function(ov) { resetOverlay(ov); });
+              setActiveStep(0);
+              handleSectionChange(0);
+            }
           }
         }
         if (!sectionActive) return;
@@ -1646,12 +1664,10 @@ function ServicesHero({ isMobile, dark }) {
       },
       onEnterBack: function() {
         sectionActive = true;
-        // Reset to step 0 when: explicit reset flag OR user has completed the section (currentStep at last step)
-        if (window.__servicesResetOnEnter || currentStep >= N - 1) {
-          if (window.__servicesResetOnEnter) {
-            window.__servicesResetOnEnter = false;
-            cascadeHasPlayed = false;
-          }
+        // Only full-reset when explicitly requested (e.g. Back to Top button)
+        if (window.__servicesResetOnEnter) {
+          window.__servicesResetOnEnter = false;
+          cascadeHasPlayed = false;
           currentStep = 0;
           cascadeDone = false;
           animating = false;
