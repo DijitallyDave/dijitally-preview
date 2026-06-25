@@ -250,10 +250,33 @@
   </style>
 </head>
 <body>
+<svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
+  <defs>
+    <!-- Light: dark pixels→#f1efeb, bright pixels→#f5f3ef -->
+    <filter id="duotone-svc-light" color-interpolation-filters="sRGB">
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncR type="linear" slope="0.0157" intercept="0.9451"/>
+        <feFuncG type="linear" slope="0.0157" intercept="0.9373"/>
+        <feFuncB type="linear" slope="0.0157" intercept="0.9216"/>
+      </feComponentTransfer>
+    </filter>
+    <!-- Dark: dark pixels→#151414, bright pixels→#111010 -->
+    <filter id="duotone-svc-dark" color-interpolation-filters="sRGB">
+      <feColorMatrix type="saturate" values="0"/>
+      <feComponentTransfer>
+        <feFuncR type="linear" slope="-0.0157" intercept="0.0824"/>
+        <feFuncG type="linear" slope="-0.0157" intercept="0.0784"/>
+        <feFuncB type="linear" slope="-0.0157" intercept="0.0784"/>
+      </feComponentTransfer>
+    </filter>
+  </defs>
+</svg>
 <div id="dj-cursor"></div>
 <div id="thumb-overlay" style="display:block;opacity:0;position:fixed;z-index:98;overflow:hidden;border-radius:4px;pointer-events:none;background:#F5F3EE"><video src="videos/thumbnail.mp4?v=2" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:contain;display:block"></video></div>
 <div id="nav-portal"></div>
 <div id="glitch-overlay" style="position:fixed;inset:0;z-index:150;overflow:hidden;pointer-events:none;"></div>
+<script>(function(){if(sessionStorage.getItem('skipIntro')){var h=new Date().getHours();var d=localStorage.getItem('dijitally-theme')==='dark'||(!localStorage.getItem('dijitally-theme')&&(h>=18||h<6));var el=document.getElementById('glitch-overlay');if(el)el.style.background=d?'#121010':'#F5F3EE';}})()</script>
 <div id="intro-logo-overlay" style="position:fixed;top:50%;left:42px;right:42px;transform:translateY(-50%);z-index:151;pointer-events:none;aspect-ratio:1604/223;display:none;"></div>
 <svg id="logo-filter-svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
   <defs>
@@ -289,10 +312,34 @@
   window.__beginGlitchTransition = null;
   if (sessionStorage.getItem('skipIntro')) {
     window.__glitchDone = true;
-    var _ov = document.getElementById('glitch-overlay');
-    if (_ov) _ov.remove();
     var _il = document.getElementById('intro-logo-overlay');
     if (_il) _il.remove();
+    var _ov = document.getElementById('glitch-overlay');
+    if (_ov) {
+      var _h = new Date().getHours();
+      var _dark = localStorage.getItem('dijitally-theme') === 'dark' || (!localStorage.getItem('dijitally-theme') && (_h >= 18 || _h < 6));
+      var _color = _dark ? '#121010' : '#F5F3EE';
+      _ov.style.background = 'transparent';
+      var _sliceH = 2, _H = window.innerHeight, _total = Math.ceil(_H / _sliceH);
+      var _frag = document.createDocumentFragment(), _maxEnd = 0;
+      var _delays = [], _durs = [];
+      for (var _i = 0; _i < _total; _i++) {
+        var _frac = _i / Math.max(_total - 1, 1);
+        var _delay = _frac * 0.45 + Math.random() * 0.05;
+        var _dur = 0.16 + Math.random() * 0.1;
+        _delays.push(_delay); _durs.push(_dur);
+        if (_delay + _dur > _maxEnd) _maxEnd = _delay + _dur;
+        var _s = document.createElement('div');
+        _s.style.cssText = 'position:absolute;left:0;width:100%;top:' + (_i * _sliceH) + 'px;height:' + (_sliceH + 1) + 'px;background:' + _color + ';transform:translateX(0);will-change:transform;';
+        _frag.appendChild(_s);
+      }
+      _ov.appendChild(_frag);
+      var _slices = Array.from(_ov.children);
+      _slices.forEach(function(sl, i) {
+        (function(sl, delay, dur) { setTimeout(function() { sl.style.transition = 'transform ' + dur.toFixed(3) + 's linear'; sl.style.transform = 'translateX(100%)'; }, delay * 1000); })(_slices[i], _delays[i], _durs[i]);
+      });
+      setTimeout(function() { _ov.parentNode && _ov.parentNode.removeChild(_ov); }, (_maxEnd + 0.2) * 1000);
+    }
     return;
   }
   document.addEventListener('DOMContentLoaded', function() {
@@ -371,7 +418,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build e4ee10e</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 96b1783</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -1771,8 +1818,15 @@ function goToServices() {
   }, maxEnd * 1000 + 50);
 }
 
+function getDefaultDark() {
+  const saved = localStorage.getItem("dijitally-theme");
+  if (saved) return saved === "dark";
+  const h = new Date().getHours();
+  return h >= 18 || h < 6; // dark between 6pm and 6am
+}
+
 function Page() {
-  const [dark,        setDark]        = useState(()=> localStorage.getItem("dijitally-theme") === "dark");
+  const [dark,        setDark]        = useState(getDefaultDark);
   const [page,        setPage]        = useState('home');
   const [scrolled,    setScrolled]    = useState(false);
   const [isMobile,    setIsMobile]    = useState(()=> window.innerWidth <= 768);
@@ -2646,12 +2700,27 @@ function Page() {
           HERO + HYPE REEL — combined section for smooth thumb→reel animation
       ══════════════════════════════════════ */}
       <section style={{position:"relative"}}>
-        {!isMobile && <DitherCanvas dark={dark} />}
+        {!isMobile && (
+          <video src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline style={{
+            position:"absolute", left:"50%", top:0,
+            transform:"translate(-50%, calc(-50% + 128px))",
+            width:"85%", height:"85%", objectFit:"cover",
+            filter: dark ? "url(#duotone-svc-dark)" : "url(#duotone-svc-light)",
+            opacity: 1, zIndex:0, pointerEvents:"none",
+          }} />
+        )}
 
         {/* Hero viewport — 100svh on mobile (constant, unaffected by browser chrome show/hide), 100vh on desktop */}
         <div ref={heroViewportRef} style={{height: isMobile ? "100svh" : "100vh", position:"relative", overflow:"hidden"}}>
-          {/* Mobile dither video — rendered inside overflow:hidden so it can't bleed over the nav */}
-          {isMobile && <MobileDitherVideo dark={dark} />}
+          {isMobile && (
+            <video src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline style={{
+              position:"absolute", left:"50%", top:0,
+              transform:"translate(-50%, calc(-50% + 128px))",
+              width:"85%", height:"85%", objectFit:"cover",
+              filter: dark ? "url(#duotone-svc-dark)" : "url(#duotone-svc-light)",
+              opacity: 1, zIndex:0, pointerEvents:"none",
+            }} />
+          )}
 
           {/* DIJITALLY™ — centred within first viewport */}
           <div style={{
@@ -3261,7 +3330,8 @@ function Page() {
           <div className="footer-row" style={{width:"100%", paddingTop:"var(--s32)", display:"flex", alignItems:"center", justifyContent:"space-between"}}>
             <div style={{display:"flex",alignItems:"center",gap:"var(--s12)",flexWrap:"wrap"}}>
               {["WORK","SERVICES","ABOUT"].map(l=>(
-                <span key={l} style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
+                <span key={l} style={{display:"flex",alignItems:"center",gap:"var(--s12)",cursor:l==="SERVICES"?"pointer":"default"}}
+                  onClick={l==="SERVICES" ? goToServices : undefined}>
                   <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
                   <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)",}}>{l}</ScrambleSpan>
                 </span>
