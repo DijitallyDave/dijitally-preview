@@ -371,7 +371,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 68457f2</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build e4ee10e</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -558,24 +558,22 @@ function StripRevealVideo({ src, videoRef: externalVideoRef, videoProps={}, styl
     doneRef.current = true;
     const overlay = overlayRef.current;
     if (!overlay) return;
-    const color = colorRef.current || '#888';
-    const H = overlay.offsetHeight;
-    const sliceH = 2;
-    const total = Math.ceil(H / sliceH);
 
-    // Build strips already covering (translateX 0), will animate to translateX(100%)
-    for (let i=0; i<total; i++) {
+    const color  = colorRef.current || '#888';
+    const H      = overlay.offsetHeight;
+    const sliceH = 2;
+    const total  = Math.ceil(H / sliceH);
+
+    for (let i = 0; i < total; i++) {
       const s = document.createElement('div');
       s.style.cssText = `position:absolute;left:0;width:100%;top:${i*sliceH}px;height:${sliceH+1}px;background:${color};transform:translateX(0);will-change:transform;`;
       overlay.appendChild(s);
     }
-    // Clear the solid background now strips are in place
     overlay.style.background = 'transparent';
 
-    const slices = Array.from(overlay.children);
     let maxEnd = 0;
-    slices.forEach((sl, i) => {
-      const frac = i / Math.max(total - 1, 1);
+    Array.from(overlay.children).forEach((sl, i) => {
+      const frac  = i / Math.max(total - 1, 1);
       const delay = frac * 0.45 + Math.random() * 0.05;
       const dur   = 0.16 + Math.random() * 0.1;
       if (delay + dur > maxEnd) maxEnd = delay + dur;
@@ -584,10 +582,8 @@ function StripRevealVideo({ src, videoRef: externalVideoRef, videoProps={}, styl
         sl.style.transform  = 'translateX(100%)';
       }, delay * 1000);
     });
-
-    // Clean up DOM once all strips are off-screen
     setTimeout(() => { overlay.innerHTML = ''; }, (maxEnd + 0.15) * 1000);
-  }, [externalTrigger]);
+  }, [externalTrigger, ready]);
 
   return (
     <div ref={containerRef} style={{ position:'relative', width:'100%', height:'100%', ...style }}>
@@ -597,10 +593,9 @@ function StripRevealVideo({ src, videoRef: externalVideoRef, videoProps={}, styl
         {...videoProps}
         style={{ display:'block', width:'100%', height:'100%', ...(videoProps.style||{}) }}
       />
-      {/* Overlay: solid colour until strips animate away */}
       <div ref={overlayRef} style={{
         position:'absolute', inset:0, overflow:'hidden',
-        background: '#888', // replaced by sampled colour on canplay
+        background:'#888',
         pointerEvents:'none',
       }} />
     </div>
