@@ -192,6 +192,9 @@
       background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
     }
 
+    /* SplitText line wrapper */
+    .st-line { overflow: hidden; display: block; }
+
     /* ScrollSmoother */
     #smooth-wrapper { overflow: hidden; position: fixed; height: 100%; width: 100%; top: 0; left: 0; right: 0; bottom: 0; }
     #smooth-content { overflow: visible; width: 100%; will-change: transform; }
@@ -418,7 +421,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 21239be</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build db95276</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -768,14 +771,1192 @@ function InViewAscii({ text, style, getColor=null }) {
   );
 }
 
-const AllyWordmark = ({size=102, color="currentColor"}) => (
-  <svg width={369*(size/102)} height={size} viewBox="0 0 369 102" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{flexShrink:0,display:"inline-block",verticalAlign:"baseline"}}>
-    <path fillRule="evenodd" clipRule="evenodd" d="M107.03 101.44H83.3966V77.807H39.6756L26.4048 101.44H-0.000488281L56.9913 0H107.03V101.44ZM52.9919 54.174H83.4421V23.633H70.1713L52.9919 54.2195V54.174Z" fill={color}/>
-    <path d="M143.834 77.807H192.463V101.44H120.201V0H143.834V77.807Z" fill={color}/>
-    <path d="M229.267 77.807H277.897V101.44H205.634V0H229.267V77.807Z" fill={color}/>
-    <path d="M319.463 39.5852L341.687 0H368.092L311.1 101.44H284.695L306.238 63.0819L270.833 0H297.239L319.463 39.5852Z" fill={color}/>
+const AllyWordmark = ({size=102, color="currentColor", fillContainer=false}) => (
+  <svg width={fillContainer ? "100%" : 369*(size/102)} height={fillContainer ? undefined : size} viewBox="0 0 369 102" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{flexShrink:0,color,display:"block"}}>
+    <path fillRule="evenodd" clipRule="evenodd" d="M107.03 101.44H83.3966V77.807H39.6756L26.4048 101.44H-0.000488281L56.9913 0H107.03V101.44ZM52.9919 54.174H83.4421V23.633H70.1713L52.9919 54.2195V54.174Z" fill="currentColor"/>
+    <path d="M143.834 77.807H192.463V101.44H120.201V0H143.834V77.807Z" fill="currentColor"/>
+    <path d="M229.267 77.807H277.897V101.44H205.634V0H229.267V77.807Z" fill="currentColor"/>
+    <path d="M319.463 39.5852L341.687 0H368.092L311.1 101.44H284.695L306.238 63.0819L270.833 0H297.239L319.463 39.5852Z" fill="currentColor"/>
   </svg>
 );
+
+/* ── Bracket SVGs ── */
+const BracketClose = ({size=102, color="currentColor"}) => (
+  <svg width={27*(size/102)} height={size} viewBox="0 0 27 102" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{flexShrink:0,color}}>
+    <path d="M0 91.7705H14.9664V9.39749H0V0H26.4522V101.168H0V91.7705Z" fill="currentColor"/>
+  </svg>
+);
+const BracketOpen = ({size=102, color="currentColor"}) => (
+  <svg width={27*(size/102)} height={size} viewBox="0 0 27 102" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{flexShrink:0,color,transform:"scaleX(-1)"}}>
+    <path d="M0 91.7705H14.9664V9.39749H0V0H26.4522V101.168H0V91.7705Z" fill="currentColor"/>
+  </svg>
+);
+
+function scrambleHover(el) {
+  if (!el || typeof gsap === 'undefined' || typeof ScrambleTextPlugin === 'undefined') return;
+  if (!el.dataset.wLocked) {
+    el.dataset.originalText = el.textContent;
+    el.style.display = 'inline-block';
+    el.style.whiteSpace = 'nowrap';
+    el.style.lineHeight = '1';
+    el.style.width = el.offsetWidth + 'px';
+    el.style.overflow = 'hidden';
+    el.dataset.wLocked = '1';
+  }
+  const text = el.dataset.originalText;
+  gsap.to(el, { duration: 0.5, ease: 'none', scrambleText: { text, chars: 'upperCase', revealDelay: 0.1, speed: 0.8 } });
+}
+
+function SvcPill({ label, buttonRef, onClick, dark, active }) {
+  const [hov, setHov] = React.useState(false);
+  return (
+    <button
+      ref={buttonRef}
+      onClick={onClick}
+      onMouseEnter={()=>setHov(true)}
+      onMouseLeave={()=>setHov(false)}
+      style={{
+        display:"flex", alignItems:"center",
+        padding:"10px",
+        background: (!active && hov) ? (dark ? "#1a1a1a" : "#edeae6") : "transparent",
+        border:"none", borderRadius:4,
+        cursor:"pointer",
+        fontFamily:"var(--mono)", fontSize:12, fontWeight:400, letterSpacing:"-0.24px",
+        color:"var(--secondary)",
+        whiteSpace:"nowrap", lineHeight:1.4,
+        position:"relative", zIndex:1,
+        transition:"background 0.15s ease",
+      }}
+    >
+      {label}
+    </button>
+  );
+}
+
+function ModelTab({ label, active, dark }) {
+  const [hov, setHov] = React.useState(false);
+  return (
+    <button
+      onMouseEnter={()=>setHov(true)}
+      onMouseLeave={()=>setHov(false)}
+      style={{
+        padding:"16px 20px", borderRadius:2, border:"none", cursor:"pointer",
+        background: active ? "var(--secondary)" : (hov ? (dark ? "#1a1a1a" : "#edeae6") : "var(--bg)"),
+        fontFamily:"var(--sans)", fontSize:16, fontWeight:350,
+        color: active ? "var(--primary)" : "var(--secondary)",
+        letterSpacing:"-0.32px",
+        transition:"background 0.15s ease",
+      }}
+    ><span style={{display:"inline-block",whiteSpace:"nowrap",overflow:"hidden",verticalAlign:"middle"}}>{label}</span></button>
+  );
+}
+
+function PixelResolveImg({ src, alt, style={}, delay=0 }) {
+  const containerRef = useRef(null), imgElRef = useRef(null), canvasRef = useRef(null);
+  const timerRef = useRef(null);
+  const [ready, setReady] = useState(false), [inView, setInView] = useState(false);
+  const PX = 16, RAMP = 1200;
+  const smplRef = useRef(document.createElement('canvas'));
+  const sctxRef = useRef(smplRef.current.getContext('2d'));
+
+  useEffect(() => {
+    const img = imgElRef.current;
+    if (!img) return;
+    if (img.complete && img.naturalWidth) { setReady(true); return; }
+    const h = () => setReady(true);
+    img.addEventListener('load', h);
+    return () => img.removeEventListener('load', h);
+  }, []);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) { setInView(true); obs.disconnect(); }
+    }, { threshold: 0.2 });
+    obs.observe(el);
+    return () => obs.disconnect();
+  }, []);
+
+  const drawAt = (ctx, W, H, curPX, img) => {
+    ctx.clearRect(0, 0, W, H);
+    ctx.imageSmoothingEnabled = false;
+    const smpl = smplRef.current, sctx = sctxRef.current;
+    const sw = Math.max(1, Math.ceil(W / curPX)), sh = Math.max(1, Math.ceil(H / curPX));
+    if (smpl.width !== sw)  smpl.width  = sw;
+    if (smpl.height !== sh) smpl.height = sh;
+    const vW = img.naturalWidth, vH = img.naturalHeight;
+    const scale = Math.max(W / vW, H / vH);
+    const sx = ((vW * scale - W) / 2) / scale, sy = ((vH * scale - H) / 2) / scale;
+    sctx.drawImage(img, sx, sy, W / scale, H / scale, 0, 0, sw, sh);
+    ctx.drawImage(smpl, 0, 0, sw, sh, 0, 0, W, H);
+  };
+
+  useEffect(() => {
+    if (!ready || inView) return;
+    const canvas = canvasRef.current, img = imgElRef.current;
+    if (!canvas || !img) return;
+    const W = containerRef.current?.offsetWidth, H = containerRef.current?.offsetHeight;
+    if (!W || !H) return;
+    canvas.width = W; canvas.height = H;
+    drawAt(canvas.getContext('2d'), W, H, PX, img);
+  }, [ready, inView]);
+
+  useEffect(() => {
+    if (!inView || !ready) return;
+    const timers = [];
+    timerRef.current = setTimeout(() => {
+      const canvas = canvasRef.current, img = imgElRef.current;
+      if (!canvas || !img) return;
+      const W = containerRef.current?.offsetWidth, H = containerRef.current?.offsetHeight;
+      if (!W || !H) return;
+      canvas.width = W; canvas.height = H;
+      const ctx = canvas.getContext('2d');
+      const ease = t => t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
+      const steps = new Set();
+      for (let i = 0; i <= 60; i++) {
+        const t = i / 60;
+        steps.add(Math.max(1, Math.round(1 + (PX - 1) * ease(1 - t))));
+      }
+      Array.from(steps).sort((a,b) => b-a).forEach(px => {
+        const t = 1 - (px - 1) / (PX - 1);
+        const id = setTimeout(() => {
+          if (px === 1) ctx.clearRect(0, 0, W, H);
+          else          drawAt(ctx, W, H, px, img);
+        }, ease(t) * RAMP);
+        timers.push(id);
+      });
+    }, delay * 1000);
+    return () => { clearTimeout(timerRef.current); timers.forEach(clearTimeout); };
+  }, [inView, ready]);
+
+  return (
+    <div ref={containerRef} style={{position:'relative',width:'100%',height:'100%',...style}}>
+      <img ref={imgElRef} src={src} alt={alt||''} style={{display:'block',width:'100%',height:'100%',objectFit:'cover'}}/>
+      <canvas ref={canvasRef} style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',pointerEvents:'none'}}/>
+    </div>
+  );
+}
+
+function DitherBg({ src, dark, active, px=8 }) {
+  const canvasRef  = React.useRef(null);
+  const videoRef   = React.useRef(null);
+  const darkRef    = React.useRef(dark);
+  const activeRef  = React.useRef(active);
+  React.useEffect(()=>{ darkRef.current  = dark;   }, [dark]);
+  React.useEffect(()=>{ activeRef.current = active; }, [active]);
+
+  React.useEffect(()=>{
+    const canvas = canvasRef.current;
+    const video  = videoRef.current;
+    if (!canvas || !video) return;
+
+    const ctx  = canvas.getContext('2d');
+    const smpl = document.createElement('canvas');
+    const sctx = smpl.getContext('2d', { willReadFrequently: true });
+
+    const PX=px;
+    const BR=0.10, CT=2.4, GM=1.13;
+    const LON=[237,234,229], LOFF=[245,243,238];
+    const DON=[18,16,16],    DOFF=[0,0,0];
+    const BAYER=[[0,2,0,2],[3,1,3,1],[0,2,0,2],[3,1,3,1]];
+
+    let cols=0, rows=0, raf;
+    let outBuf=null, outImageData=null;
+    let frameCount=0, cachedId=null;
+
+    function build(){
+      cols = Math.floor(canvas.width/PX);
+      rows = Math.floor(canvas.height/PX);
+      smpl.width=cols; smpl.height=rows;
+      outBuf = new Uint8ClampedArray(canvas.width*canvas.height*4);
+      outImageData = ctx.createImageData(canvas.width, canvas.height);
+    }
+
+    function setSize(){
+      const vw = video.videoWidth  || 640;
+      const vh = video.videoHeight || 360;
+      const cw = canvas.parentElement ? canvas.parentElement.offsetWidth  : 400;
+      const ch = canvas.parentElement ? canvas.parentElement.offsetHeight : 400;
+      const scale = Math.max(cw / vw, ch / vh) * 0.85;
+      const w = Math.round(vw * scale);
+      const h = Math.round(vh * scale);
+      canvas.width  = Math.floor(w / PX) * PX;
+      canvas.height = Math.floor(h / PX) * PX;
+      canvas.style.width  = canvas.width  + 'px';
+      canvas.style.height = canvas.height + 'px';
+      canvas.style.left   = Math.round((cw - canvas.width)  / 2) + 'px';
+      canvas.style.top    = Math.round((ch - canvas.height) / 2) + 'px';
+      build();
+    }
+
+    function loop(){
+      raf = requestAnimationFrame(loop);
+      if (!activeRef.current) return;
+      frameCount++;
+      if (!outBuf || video.readyState < 2) return;
+      if (frameCount % 2 === 0) {
+        sctx.drawImage(video, 0, 0, cols, rows);
+        cachedId = sctx.getImageData(0, 0, cols, rows);
+      }
+      if (!cachedId) return;
+      outBuf.fill(0);
+      const W = canvas.width;
+      const isDark = darkRef.current;
+      for (let row = 0; row < rows; row++) {
+        for (let col = 0; col < cols; col++) {
+          const idx = (row * cols + col) * 4;
+          let lum = (0.299*cachedId.data[idx] + 0.587*cachedId.data[idx+1] + 0.114*cachedId.data[idx+2]) / 255;
+          lum = Math.pow(Math.max(0, lum), GM);
+          lum = (lum - 0.5) * CT + 0.5;
+          lum = Math.max(0, Math.min(1, lum + BR));
+          const bl = isDark ? 1 - lum : lum;
+          const thr = (BAYER[row & 3][col & 3] + 0.5) / 4;
+          const ch = (bl <= thr) ? (isDark ? DON : LON) : (isDark ? DOFF : LOFF);
+          const gx = col * PX, gy = row * PX;
+          for (let dy = 0; dy < PX; dy++) {
+            let base = ((gy + dy) * W + gx) * 4;
+            for (let dx = 0; dx < PX; dx++) {
+              outBuf[base]=ch[0]; outBuf[base+1]=ch[1]; outBuf[base+2]=ch[2]; outBuf[base+3]=255;
+              base += 4;
+            }
+          }
+        }
+      }
+      outImageData.data.set(outBuf);
+      ctx.putImageData(outImageData, 0, 0);
+    }
+
+    const ro = new ResizeObserver(setSize);
+    ro.observe(canvas.parentElement);
+    setSize();
+    video.addEventListener('loadedmetadata', setSize);
+    video.play().catch(()=>{});
+    loop();
+    return () => { cancelAnimationFrame(raf); ro.disconnect(); };
+  }, []);
+
+  return (
+    <>
+      <video ref={videoRef} src={src} autoPlay muted loop playsInline crossOrigin="anonymous"
+        style={{position:'absolute', opacity:0, width:1, height:1, pointerEvents:'none'}} />
+      <canvas ref={canvasRef} style={{
+        position:'absolute',
+        pointerEvents:'none', zIndex:0, opacity:0.9,
+      }} />
+    </>
+  );
+}
+
+const BG_MAP = { electric: "var(--electric)", stream: "var(--stream)", page: "var(--bg)" };
+
+function ServicesHero({ isMobile, dark }) {
+  const [activeStep, setActiveStep] = React.useState(0);
+  const [carouselIndex, setCarouselIndex] = React.useState(0);
+  const [carouselEngaged, setCarouselEngaged] = React.useState(false);
+  const mobileBracketRef = useRef(null);
+  const mobileCycleRef = useRef(null);
+  const mobileSplitRef = useRef(null);
+  const allyContainerRef = useRef(null);
+  const bgRefs           = useRef([]);
+  const yourInnerRef     = useRef(null);
+  const yourWrapRef      = useRef(null);
+  const bracketOpenRef   = useRef(null);
+  const posRef           = useRef(null);
+  const svcWordRefs      = useRef([]);
+  const bracketCloseRef  = useRef(null);
+  const allyMarkRef      = useRef(null);
+  const wordSlotRef      = useRef(null);
+  const pillsRef         = useRef(null);
+  const pillBoxRef       = useRef(null);
+  const pillTextRefs     = useRef([]);
+  const bodyRefs         = useRef([]);
+  const step0BodyRef     = useRef(null);
+  const videoRefs        = useRef([]);
+  const ditherBgRefs     = useRef([]);
+  const ditherHeroRef    = useRef(null);
+  const ditherOverlayRefs = useRef([]);
+  const darkPropRef      = useRef(dark);
+  const carouselRef      = useRef(null);
+  const carouselThumbRef = useRef(null);
+  const goToStepRef      = useRef(null);
+  const circleWrapRef    = useRef(null);
+  const circleImgRefs    = useRef([]);
+
+  useEffect(() => { darkPropRef.current = dark; }, [dark]);
+
+  useEffect(() => {
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    if (typeof SplitText === 'undefined') return;
+    if (isMobile) return;
+    const el = allyContainerRef.current;
+    if (!el) return;
+
+    const N = 7;
+    const STEP = 1 / N;
+
+    const posNaturalW  = posRef.current ? Math.ceil(posRef.current.getBoundingClientRect().width) : 0;
+    const svcNaturalWs = svcWordRefs.current.map(el => el ? Math.ceil(el.getBoundingClientRect().width) : 0);
+
+    if (wordSlotRef.current) gsap.set(wordSlotRef.current, { width: posNaturalW });
+
+    const yourSplit = new SplitText(yourInnerRef.current, { type: "words" });
+    gsap.set(yourSplit.words, { y: "0%" });
+
+    const posSplit = new SplitText(posRef.current, { type: "words" });
+    gsap.set(posSplit.words, { y: "0%" });
+
+    const svcSplits = svcWordRefs.current.map(el => {
+      if (!el) return null;
+      const s = new SplitText(el, { type: "chars" });
+      gsap.set(s.chars, { y: "110%", opacity: 0 });
+      return s;
+    });
+
+    var cascadeEls = [
+      yourWrapRef.current,
+      bracketOpenRef.current,
+      posRef.current,
+      bracketCloseRef.current,
+      allyMarkRef.current,
+    ];
+    gsap.set(cascadeEls, { y: 60, opacity: 0 });
+    gsap.set(pillsRef.current, { opacity: 0 });
+    videoRefs.current.forEach(v => v && gsap.set(v, { opacity: 0 }));
+    bodyRefs.current.forEach(b => b && gsap.set(b, { opacity: 0 }));
+    if (step0BodyRef.current) gsap.set(step0BodyRef.current, { opacity: 0 });
+
+    const pillPitch  = pillTextRefs.current[0] ? pillTextRefs.current[0].offsetHeight + 8 : 45;
+    const pillWidths = pillTextRefs.current.map(el => el ? Math.ceil(el.getBoundingClientRect().width) : 0);
+    if (pillBoxRef.current) gsap.set(pillBoxRef.current, { y: 0, width: 0, height: pillTextRefs.current[0]?.offsetHeight || 37, opacity: 0 });
+
+    const tl = gsap.timeline({ paused: true });
+
+    SVC_ROWS.forEach((svc, i) => {
+      const s = (i + 1) * STEP;
+
+      if (i === 0) {
+        tl.to(posSplit.words, {
+          y: "-110%", opacity: 0, duration: STEP * 0.12, ease: "power2.in",
+          stagger: { each: STEP * 0.04, from: "end" },
+        }, s - STEP * 0.25);
+        if (yourWrapRef.current) tl.to(yourWrapRef.current, {
+          opacity: 0, width: 0, duration: STEP * 0.15, ease: "power2.in",
+        }, s - STEP * 0.25);
+      }
+
+      if (i === 0) {
+        tl.to(pillsRef.current,   { opacity: 1, duration: STEP * 0.15 }, s - STEP * 0.3);
+        tl.to(pillBoxRef.current, { opacity: 1, duration: STEP * 0.15 }, s - STEP * 0.3);
+      }
+      if (pillTextRefs.current[i]) {
+        tl.to(pillTextRefs.current[i], { color: "var(--bg)", duration: STEP * 0.1 }, s - STEP * 0.45);
+      }
+      if (i > 0 && pillTextRefs.current[i - 1]) {
+        tl.to(pillTextRefs.current[i - 1], { color: "var(--secondary)", duration: STEP * 0.1 }, s - STEP * 0.45);
+      }
+    });
+
+    var currentStep = 0;
+    var cascadeDone = false;
+    var animating = false;
+    var sectionActive = false;
+    var pinST = null;
+    var cascadeHasPlayed = false;
+
+    var bodySplits = bodyRefs.current.map(function(el) {
+      if (!el) return null;
+      var s = new SplitText(el, { type: "words" });
+      gsap.set(s.words, { y: "18px", opacity: 0 });
+      return s;
+    });
+
+    var CIRCLE_R = 270, CIRCLE_IMG_SIZE = 100;
+    var circleAnimDone = true;
+    var circleLayout = CIRCLE_IMGS.map(function(_, i) {
+      var baseAngle = (i / CIRCLE_IMGS.length) * Math.PI * 2 - Math.PI / 2;
+      return {
+        baseAngle: baseAngle,
+        stackX:  (Math.random() - 0.5) * 28,
+        stackY:  110 + (Math.random() - 0.5) * 18,
+        stackR:  (Math.random() - 0.5) * 32,
+        fanX:    Math.cos(baseAngle) * CIRCLE_R,
+        fanY:    Math.sin(baseAngle) * CIRCLE_R,
+      };
+    });
+
+    function positionCircleCenter() {
+      var wrap = circleWrapRef.current;
+      var slot = wordSlotRef.current;
+      var container = allyContainerRef.current;
+      if (!wrap || !slot || !container) return;
+      var slotRect = slot.getBoundingClientRect();
+      var cRect   = container.getBoundingClientRect();
+      gsap.set(wrap, {
+        left: 0,
+        top:  slotRect.top + slotRect.height / 2 - cRect.top,
+      });
+    }
+    positionCircleCenter();
+
+    function setCircleStack() {
+      circleLayout.forEach(function(d, i) {
+        var img = circleImgRefs.current[i];
+        if (!img) return;
+        gsap.set(img, { x: d.stackX, y: d.stackY, rotation: d.stackR, opacity: 0 });
+      });
+    }
+
+    var orbitAngle = 0;
+    var orbitTicker = null;
+    var circleRotateTween = null;
+    var circleSlideX = 0;
+    var circleSlideStart = 0;
+
+    function startOrbitTicker() {
+      if (orbitTicker) return;
+      orbitTicker = function() {
+        orbitAngle += (Math.PI * 2) / (30 * 60);
+        circleLayout.forEach(function(d, i) {
+          var img = circleImgRefs.current[i];
+          if (!img) return;
+          var a = d.baseAngle + orbitAngle;
+          gsap.set(img, { x: Math.cos(a) * CIRCLE_R, y: Math.sin(a) * CIRCLE_R });
+        });
+      };
+      gsap.ticker.add(orbitTicker);
+    }
+
+    function stopOrbitTicker() {
+      if (orbitTicker) { gsap.ticker.remove(orbitTicker); orbitTicker = null; }
+    }
+
+    function initCircleSlide() {
+      circleSlideStart = CIRCLE_R * 2 + 60;
+      circleSlideX = 0;
+      circleAnimDone = false;
+      circleLayout.forEach(function(d, i) {
+        var img = circleImgRefs.current[i];
+        if (!img) return;
+        var a = d.baseAngle + orbitAngle;
+        gsap.set(img, { x: Math.cos(a) * CIRCLE_R, y: Math.sin(a) * CIRCLE_R, opacity: 1 });
+      });
+      gsap.set(circleWrapRef.current, { left: -circleSlideStart });
+      startOrbitTicker();
+    }
+
+    function slideCircleStep() {
+      var step = circleSlideStart / 4;
+      circleSlideX = Math.min(circleSlideX + step, circleSlideStart);
+      var targetLeft = -circleSlideStart + circleSlideX;
+      gsap.to(circleWrapRef.current, { left: targetLeft, duration: 0.6, ease: "power3.out",
+        onComplete: function() {
+          if (targetLeft >= 0) {
+            circleAnimDone = true;
+          }
+        }
+      });
+    }
+
+    function showCircleOrbit() {
+      gsap.set(circleWrapRef.current, { left: 0 });
+      circleAnimDone = true;
+      circleLayout.forEach(function(d, i) {
+        var img = circleImgRefs.current[i];
+        if (!img) return;
+        var a = d.baseAngle + orbitAngle;
+        gsap.set(img, { x: Math.cos(a) * CIRCLE_R, y: Math.sin(a) * CIRCLE_R, rotation: 0, opacity: 1 });
+      });
+      startOrbitTicker();
+    }
+
+    function rotateCircleToVideoSlot(pi) {
+      var newSrc = (pi >= 0 && SVC_ROWS[pi]) ? SVC_ROWS[pi].video : CIRCLE_VIDEO_SRC;
+      var d9 = circleLayout[9];
+      var TWO_PI = Math.PI * 2;
+      var currentAbs = d9.baseAngle + orbitAngle;
+      var normalised = ((currentAbs % TWO_PI) + TWO_PI) % TWO_PI;
+      var forward = (TWO_PI - normalised) % TWO_PI;
+      if (forward < 0.15) forward += TWO_PI;
+      var targetOrbit = orbitAngle + forward;
+      stopOrbitTicker();
+      if (circleRotateTween) { circleRotateTween.kill(); circleRotateTween = null; }
+      var proxy = { v: orbitAngle };
+      var srcSwapped = false;
+      circleRotateTween = gsap.to(proxy, {
+        v: targetOrbit,
+        duration: 1.4,
+        ease: "power2.inOut",
+        onUpdate: function() {
+          orbitAngle = proxy.v;
+          circleLayout.forEach(function(d, i) {
+            var img = circleImgRefs.current[i];
+            if (!img) return;
+            var a = d.baseAngle + orbitAngle;
+            gsap.set(img, { x: Math.cos(a) * CIRCLE_R, y: Math.sin(a) * CIRCLE_R });
+          });
+          if (!srcSwapped) {
+            var a9 = d9.baseAngle + orbitAngle;
+            if (Math.cos(a9) < 0) {
+              srcSwapped = true;
+              var videoEl = circleImgRefs.current[9];
+              if (videoEl) {
+                videoEl.src = newSrc;
+                videoEl.load();
+                videoEl.play().catch(function(){});
+              }
+            }
+          }
+        },
+        onComplete: function() { circleRotateTween = null; if (pi < 0) startOrbitTicker(); },
+      });
+    }
+
+    function getBgColor() {
+      return darkPropRef.current ? '#121010' : '#F5F3EE';
+    }
+
+    function resetOverlay(ov) {
+      if (!ov) return;
+      if (ov.__stripTimer) { clearTimeout(ov.__stripTimer); ov.__stripTimer = null; }
+      ov.innerHTML = '';
+      ov.style.background = getBgColor();
+    }
+
+    function triggerStripReveal(ov) {
+      if (!ov) return;
+      if (ov.__stripTimer) { clearTimeout(ov.__stripTimer); ov.__stripTimer = null; }
+      var color = getBgColor();
+      var W = ov.offsetWidth;
+      var sliceW = 6;
+      var total = Math.ceil(W / sliceW);
+      ov.innerHTML = '';
+      ov.style.background = 'transparent';
+      var frag = document.createDocumentFragment();
+      for (var i = 0; i < total; i++) {
+        var s = document.createElement('div');
+        s.style.cssText = 'position:absolute;top:0;height:100%;left:' + (i * sliceW) + 'px;width:' + (sliceW + 1) + 'px;background:' + color + ';transform:translateY(0);will-change:transform;';
+        frag.appendChild(s);
+      }
+      ov.appendChild(frag);
+      var slices = Array.from(ov.children);
+      var maxEnd = 0;
+      slices.forEach(function(sl, i) {
+        var t = i / Math.max(total - 1, 1);
+        var delay = t * 0.35 + Math.random() * 0.1;
+        var dur   = 0.18 + Math.random() * 0.14;
+        if (delay + dur > maxEnd) maxEnd = delay + dur;
+        (function(sl, delay, dur) {
+          setTimeout(function() {
+            sl.style.transition = 'transform ' + dur.toFixed(3) + 's linear';
+            sl.style.transform  = 'translateY(-100%)';
+          }, delay * 1000);
+        })(sl, delay, dur);
+      });
+      ov.__stripTimer = setTimeout(function() { ov.innerHTML = ''; ov.__stripTimer = null; }, (maxEnd + 0.15) * 1000);
+    }
+
+    function handleSectionChange(step) {
+      setActiveStep(step);
+      var pi = step - 1;
+
+      var thumb = videoRefs.current[0];
+      if (thumb) gsap.to(thumb, { opacity: step === 0 ? 1 : 0, duration: 0.4, ease: "power2.out" });
+
+      ditherBgRefs.current.forEach(function(el, idx) {
+        if (!el) return;
+        var ov = ditherOverlayRefs.current[idx];
+        if (idx === pi) {
+          gsap.set(el, { opacity: 1 });
+          if (ov) triggerStripReveal(ov);
+        } else {
+          gsap.set(el, { opacity: 0 });
+          if (ov) resetOverlay(ov);
+        }
+      });
+
+      svcSplits.forEach(function(split) {
+        if (!split || !split.chars) return;
+        gsap.killTweensOf(split.chars);
+        gsap.set(split.chars, { y: "110%", opacity: 0 });
+      });
+
+      bodyRefs.current.forEach(function(bel, idx) {
+        if (!bel) return;
+        gsap.set(bel, { opacity: 0 });
+        if (bodySplits[idx] && bodySplits[idx].words) {
+          gsap.killTweensOf(bodySplits[idx].words);
+          gsap.set(bodySplits[idx].words, { y: "18px", opacity: 0 });
+        }
+      });
+
+      if (step0BodyRef.current) gsap.to(step0BodyRef.current, { opacity: pi < 0 ? 1 : 0, duration: 0.3, ease: "power1.out" });
+      if (ditherHeroRef.current) gsap.to(ditherHeroRef.current, { opacity: pi < 0 ? 1 : 0, duration: 0.4, ease: "power1.out" });
+
+      if (pi >= 0) {
+        if (posSplit && posSplit.words) {
+          gsap.killTweensOf(posSplit.words);
+          gsap.set(posSplit.words, { y: "-110%", opacity: 0 });
+        }
+        if (yourWrapRef.current) {
+          gsap.killTweensOf(yourWrapRef.current);
+          gsap.set(yourWrapRef.current, { opacity: 0, width: 0 });
+        }
+
+        if (wordSlotRef.current && svcNaturalWs[pi]) {
+          gsap.set(wordSlotRef.current, { width: svcNaturalWs[pi] });
+        }
+        if (pillBoxRef.current && pillWidths[pi]) {
+          gsap.set(pillBoxRef.current, { width: pillWidths[pi], y: pi * pillPitch });
+        }
+        pillTextRefs.current.forEach(function(pel, idx) {
+          if (!pel) return;
+          gsap.set(pel, { color: idx === pi ? "var(--bg)" : "var(--secondary)" });
+        });
+        if (svcSplits[pi] && svcSplits[pi].chars) {
+          gsap.to(svcSplits[pi].chars, { y: "0%", opacity: 1, duration: 0.375, ease: "power2.out", stagger: { each: 0.0225 } });
+        }
+        if (bodyRefs.current[pi]) {
+          gsap.set(bodyRefs.current[pi], { opacity: 1 });
+          if (bodySplits[pi] && bodySplits[pi].words) {
+            gsap.to(bodySplits[pi].words, {
+              y: "0px", opacity: 1, duration: 0.5, ease: "power2.out",
+              stagger: { each: 0.02 }, delay: 0.1,
+            });
+          }
+        }
+      }
+    }
+
+    var tlTween = null;
+    var lastStepTime = 0;
+    var STEP_COOLDOWN = 750;
+    var wheelAcc = 0;
+    var wheelAccTimer = null;
+    var pendingExitDown = false;
+
+    function goToStep(next) {
+      var now = Date.now();
+      if (!cascadeDone || animating || next === currentStep) return;
+      if (now - lastStepTime < STEP_COOLDOWN) return;
+      if (next < 0 || next >= N) return;
+      animating = true;
+      lastStepTime = now;
+      var prevStep = currentStep;
+      currentStep = next;
+
+      if (tlTween) tlTween.kill();
+
+      var prevPi = prevStep - 1;
+
+      if (next === 0) {
+        svcSplits.forEach(function(split) {
+          if (!split || !split.chars) return;
+          gsap.killTweensOf(split.chars);
+          gsap.set(split.chars, { y: "110%", opacity: 0 });
+        });
+        bodyRefs.current.forEach(function(b) { if (b) gsap.set(b, { opacity: 0 }); });
+        if (step0BodyRef.current) gsap.set(step0BodyRef.current, { opacity: 0 });
+        ditherOverlayRefs.current.forEach(function(ov) { resetOverlay(ov); });
+        tl.seek(0, true);
+        gsap.set(wordSlotRef.current, { width: posNaturalW });
+        gsap.killTweensOf(posSplit.words);
+        gsap.set(posSplit.words, { y: "0%", opacity: 1 });
+        if (pillBoxRef.current) gsap.set(pillBoxRef.current, { y: 0 });
+        handleSectionChange(0);
+        setTimeout(function() { animating = false; }, 420);
+        return;
+      }
+
+      if (prevPi >= 0) {
+        if (svcSplits[prevPi] && svcSplits[prevPi].chars) {
+          gsap.killTweensOf(svcSplits[prevPi].chars);
+          gsap.to(svcSplits[prevPi].chars, {
+            y: "-110%", opacity: 0,
+            duration: 0.28, ease: "power2.in",
+            stagger: { each: 0.014, from: "end" },
+          });
+        }
+        if (bodyRefs.current[prevPi]) {
+          gsap.to(bodyRefs.current[prevPi], { opacity: 0, duration: 0.2, ease: "power1.in" });
+        }
+      }
+
+      var pi = next - 1;
+      if (pillBoxRef.current && pillWidths[pi]) {
+        gsap.to(pillBoxRef.current, { width: pillWidths[pi], duration: 0.22, ease: "power2.inOut" });
+        gsap.to(pillBoxRef.current, { y: pi * pillPitch, duration: 0.6, ease: "back.out(1.2)", delay: 0.08, overwrite: "auto" });
+      }
+      if (wordSlotRef.current && svcNaturalWs[pi]) {
+        gsap.killTweensOf(wordSlotRef.current);
+        gsap.to(wordSlotRef.current, { width: svcNaturalWs[pi], duration: 0.15, ease: "power2.inOut" });
+      }
+      tlTween = tl.tweenTo(next / N, {
+        duration: 0.7,
+        ease: "power2.inOut",
+        onComplete: function() {
+          animating = false;
+          handleSectionChange(next);
+          if (pendingExitDown) {
+            pendingExitDown = false;
+            sectionActive = false;
+            wheelAcc = 0;
+            if (pinST) window.scrollTo(0, pinST.end + 10);
+          }
+        },
+      });
+    }
+
+    goToStepRef.current = goToStep;
+
+    var wheelHandler = function(e) {
+      if (!sectionActive) return;
+      if (!cascadeDone) { e.preventDefault(); return; }
+      e.preventDefault();
+      var dir = e.deltaY > 0 ? 1 : -1;
+
+      if (dir > 0 && currentStep >= N - 1) {
+        if (animating) {
+          pendingExitDown = true;
+          return;
+        }
+        sectionActive = false;
+        wheelAcc = 0;
+        if (tlTween) { tlTween.kill(); tlTween = null; }
+        if (pinST) window.scrollTo(0, pinST.end + 10);
+        return;
+      }
+
+      if (animating) return;
+
+      if (currentStep === 0 && !circleAnimDone) {
+        if (dir < 0) {
+          sectionActive = false; animating = false; wheelAcc = 0;
+          if (pinST) window.scrollTo(0, Math.max(0, pinST.start - 10));
+          return;
+        }
+        wheelAcc += e.deltaY;
+        clearTimeout(wheelAccTimer);
+        wheelAccTimer = setTimeout(function() { wheelAcc = 0; }, 150);
+        if (Math.abs(wheelAcc) < 60) return;
+        wheelAcc = 0;
+        slideCircleStep();
+        return;
+      }
+
+      if (dir < 0 && currentStep <= 0) {
+        sectionActive = false;
+        animating = false;
+        wheelAcc = 0;
+        if (tlTween) { tlTween.kill(); tlTween = null; }
+        if (pinST) window.scrollTo(0, Math.max(0, pinST.start - 10));
+        return;
+      }
+      wheelAcc += e.deltaY;
+      clearTimeout(wheelAccTimer);
+      wheelAccTimer = setTimeout(function() { wheelAcc = 0; }, 150);
+      if (Math.abs(wheelAcc) < 60) return;
+      wheelAcc = 0;
+      goToStep(currentStep + dir);
+    };
+    window.addEventListener('wheel', wheelHandler, { passive: false });
+
+    var touchStartY = 0;
+    var touchHandler = function(e) {
+      if (!sectionActive || !cascadeDone) return;
+      if (e.type === "touchstart") { touchStartY = e.touches[0].clientY; return; }
+      var dy = touchStartY - e.changedTouches[0].clientY;
+      if (Math.abs(dy) < 30) return;
+      var dir = dy > 0 ? 1 : -1;
+      if (currentStep === 0 && !circleAnimDone) {
+        if (dir < 0) { sectionActive = false; if (pinST) window.scrollTo(0, Math.max(0, pinST.start - 10)); return; }
+        slideCircleStep();
+        return;
+      }
+      if (dir > 0 && currentStep >= N - 1) return;
+      if (dir < 0 && currentStep <= 0) return;
+      e.preventDefault();
+      goToStep(currentStep + dir);
+    };
+    window.addEventListener('touchstart', touchHandler, { passive: true });
+    window.addEventListener('touchend', touchHandler, { passive: false });
+
+    pinST = ScrollTrigger.create({
+      trigger: el,
+      start: "top top",
+      end: "+=" + ((N - 1) * window.innerHeight),
+      pin: true,
+      onEnter: function() {
+        sectionActive = true;
+        currentStep = 0;
+        cascadeDone = false;
+        animating = false;
+
+        tl.seek(0, true);
+        videoRefs.current.forEach(function(v) { if (v) gsap.set(v, { opacity: 0 }); });
+        gsap.set(pillsRef.current, { opacity: 0 });
+        if (pillBoxRef.current) gsap.set(pillBoxRef.current, { y: 0, opacity: 0 });
+        svcSplits.forEach(function(split) {
+          if (split && split.chars) gsap.set(split.chars, { y: "110%" });
+        });
+        bodyRefs.current.forEach(function(b) { if (b) gsap.set(b, { opacity: 0 }); });
+        ditherOverlayRefs.current.forEach(function(ov) { resetOverlay(ov); });
+        gsap.set(wordSlotRef.current, { width: posNaturalW });
+        if (posSplit && posSplit.words) gsap.set(posSplit.words, { y: "0%", opacity: 1 });
+        setActiveStep(0);
+
+        if (cascadeHasPlayed) {
+          gsap.set([yourWrapRef.current, bracketOpenRef.current, posRef.current, bracketCloseRef.current, allyMarkRef.current], { y: 0, opacity: 1 });
+          cascadeDone = true;
+          handleSectionChange(0);
+          return;
+        }
+
+        gsap.set([yourWrapRef.current, bracketOpenRef.current, posRef.current, bracketCloseRef.current, allyMarkRef.current], { y: 60, opacity: 0 });
+        var dur = 0.5, ease = "power2.out", stagger = 0.12;
+        var t = gsap.timeline({
+          delay: 0.2,
+          onComplete: function() {
+            cascadeDone = true;
+            cascadeHasPlayed = true;
+            handleSectionChange(0);
+          },
+        });
+        [yourWrapRef.current, bracketOpenRef.current, posRef.current, bracketCloseRef.current, allyMarkRef.current].forEach(function(cel, idx) {
+          t.to(cel, { y: 0, opacity: 1, duration: dur, ease: ease }, idx * stagger);
+        });
+      },
+      onLeave: function() {
+        sectionActive = false;
+        animating = false;
+        if (tlTween) { tlTween.kill(); tlTween = null; }
+      },
+      onEnterBack: function() {
+        sectionActive = true;
+        if (window.__servicesResetOnEnter) {
+          window.__servicesResetOnEnter = false;
+          currentStep = 0;
+          cascadeHasPlayed = false;
+          cascadeDone = false;
+          animating = false;
+          tl.seek(0, true);
+          gsap.set(pillsRef.current, { opacity: 0 });
+          if (pillBoxRef.current) gsap.set(pillBoxRef.current, { y: 0, opacity: 0 });
+          videoRefs.current.forEach(function(v) { if (v) gsap.set(v, { opacity: 0 }); });
+          bodyRefs.current.forEach(function(b) { if (b) gsap.set(b, { opacity: 0 }); });
+          if (step0BodyRef.current) gsap.set(step0BodyRef.current, { opacity: 0 });
+          if (ditherHeroRef.current) gsap.set(ditherHeroRef.current, { opacity: 1 });
+          if (posSplit && posSplit.words) gsap.set(posSplit.words, { y: "0%", opacity: 1 });
+          if (wordSlotRef.current) gsap.set(wordSlotRef.current, { width: posNaturalW });
+          svcSplits.forEach(function(split) { if (split && split.chars) gsap.set(split.chars, { y: "110%", opacity: 0 }); });
+          setActiveStep(0);
+          gsap.set([yourWrapRef.current, bracketOpenRef.current, posRef.current, bracketCloseRef.current, allyMarkRef.current], { y: 60, opacity: 0 });
+          var dur = 0.5, ease = "power2.out", stagger = 0.12;
+          var ct = gsap.timeline({ delay: 0.2, onComplete: function() { cascadeDone = true; cascadeHasPlayed = true; handleSectionChange(0); } });
+          [yourWrapRef.current, bracketOpenRef.current, posRef.current, bracketCloseRef.current, allyMarkRef.current].forEach(function(cel, idx) {
+            ct.to(cel, { y: 0, opacity: 1, duration: dur, ease: ease }, idx * stagger);
+          });
+        } else {
+          tl.seek(currentStep / N, true);
+          var pi = currentStep - 1;
+          if (pillBoxRef.current && pi >= 0) gsap.set(pillBoxRef.current, { y: pi * pillPitch });
+          handleSectionChange(currentStep);
+        }
+      },
+      onLeaveBack: function() { sectionActive = false; },
+    });
+
+    return () => {
+      window.removeEventListener('wheel', wheelHandler);
+      window.removeEventListener('touchstart', touchHandler);
+      window.removeEventListener('touchend', touchHandler);
+      goToStepRef.current = null;
+      stopOrbitTicker();
+      ScrollTrigger.getAll().forEach(t => t.kill());
+      yourSplit.revert();
+      posSplit.revert();
+      svcSplits.forEach(s => s && s.revert());
+      bodySplits.forEach(s => s && s.revert());
+    };
+  }, [isMobile]);
+
+  useEffect(()=>{
+    if (!isMobile) return;
+    if (typeof gsap === 'undefined' || typeof SplitText === 'undefined') return;
+    const words = ["point of scale", ...SVC_ROWS.map(s => s.bracket)];
+    let i = 0;
+
+    function swapTo(newText) {
+      const el = mobileBracketRef.current;
+      if (!el) return;
+      const doIn = () => {
+        if (mobileSplitRef.current) { try { mobileSplitRef.current.revert(); } catch(e){} }
+        el.textContent = newText;
+        mobileSplitRef.current = new SplitText(el, { type: "chars" });
+        gsap.fromTo(mobileSplitRef.current.chars,
+          { y: "110%", opacity: 0 },
+          { y: "0%", opacity: 1, duration: 0.375, ease: "power2.out", stagger: { each: 0.0225 } }
+        );
+      };
+      if (mobileSplitRef.current && mobileSplitRef.current.chars && mobileSplitRef.current.chars.length) {
+        gsap.to(mobileSplitRef.current.chars, {
+          y: "-110%", opacity: 0, duration: 0.2, ease: "power2.in",
+          stagger: { each: 0.015 }, onComplete: doIn,
+        });
+      } else {
+        doIn();
+      }
+    }
+
+    function next() {
+      i = (i + 1) % words.length;
+      swapTo(words[i]);
+      mobileCycleRef.current = setTimeout(next, i === 0 ? 2000 : 1500);
+    }
+
+    swapTo(words[0]);
+    mobileCycleRef.current = setTimeout(next, 2000);
+
+    return () => {
+      if (mobileCycleRef.current) clearTimeout(mobileCycleRef.current);
+      if (mobileSplitRef.current) { try { mobileSplitRef.current.revert(); } catch(e){} }
+      const el = mobileBracketRef.current;
+      if (el) gsap.killTweensOf(el);
+    };
+  }, [isMobile]);
+
+  useEffect(()=>{
+    if (!isMobile) return;
+    const el = carouselRef.current;
+    const thumb = carouselThumbRef.current;
+    if (!el || !thumb) return;
+    const onScroll = () => {
+      const max = el.scrollWidth - el.clientWidth;
+      if (max <= 0) return;
+      const pct = el.scrollLeft / max;
+      const trackW = thumb.parentElement.offsetWidth;
+      const thumbW = thumb.offsetWidth;
+      thumb.style.transform = `translateX(${pct * (trackW - thumbW)}px)`;
+      const cardW = el.scrollWidth / SVC_ROWS.length;
+      if (el.scrollLeft >= cardW * 0.5) setCarouselEngaged(true);
+      const idx = Math.round(pct * (SVC_ROWS.length - 1));
+      setCarouselIndex(idx);
+    };
+    el.addEventListener('scroll', onScroll, { passive: true });
+    return () => el.removeEventListener('scroll', onScroll);
+  }, [isMobile]);
+
+  const fs  = "clamp(36px,5vw,72px)";
+  const bsz = isMobile ? 56 : 80;
+  const allyW = Math.round(369 * bsz / 102);
+  const allyRowRight = 64 + 368 - allyW;
+  const wordStyle = {
+    display:"inline-block",
+    fontFamily:"var(--sans)", fontSize:fs, fontWeight:500,
+    lineHeight:1, letterSpacing:"-0.02em",
+    color:"var(--secondary)", whiteSpace:"nowrap",
+  };
+
+  return (
+    <>
+      <div ref={allyContainerRef} style={{ height: isMobile ? "75vh" : "100vh", position:"relative", overflow: "clip" }}>
+
+        {!isMobile && <div style={{ position:"absolute", inset:0, background:"var(--bg)", zIndex:0 }} />}
+        {!isMobile && (
+          <div ref={ditherHeroRef} style={{position:'absolute',left:'50%',top:0,transform:'translate(-50%, calc(-50% + 128px))',width:'85%',height:'85%',zIndex:0,pointerEvents:'none'}}>
+            {!isSafari && <video src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline style={{
+              position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover",
+              filter: dark ? "url(#duotone-svc-dark)" : "url(#duotone-svc-light)",
+            }} />}
+          </div>
+        )}
+
+        {!isMobile && SVC_ROWS.map((svc, i) => (
+          <div key={i} ref={el => ditherBgRefs.current[i] = el} style={{
+            position:"absolute", inset:0, opacity:0, zIndex:1, pointerEvents:"none", overflow:"visible",
+          }}>
+            {!isSafari && <video src={svc.video} autoPlay muted loop playsInline style={{
+              position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"contain",
+              filter: dark ? "url(#duotone-svc-dark)" : "url(#duotone-svc-light)",
+            }} />}
+            <div ref={el => ditherOverlayRefs.current[i] = el} style={{
+              position:"absolute", inset:0, background:"var(--bg)", overflow:"hidden", pointerEvents:"none",
+            }} />
+          </div>
+        ))}
+
+        {!isMobile && (
+          <video
+            ref={el => videoRefs.current[0] = el}
+            src="videos/thumbnail.mp4"
+            autoPlay muted loop playsInline
+            style={{
+              position:"absolute", bottom:64, left:64,
+              width:125, height:125,
+              objectFit:"cover", borderRadius:4,
+              opacity:0, zIndex:5, pointerEvents:"none",
+            }}
+          />
+        )}
+
+        {isMobile ? (
+          <div style={{ position:"absolute", bottom:0, left:0, right:0, background:"var(--bg)" }}>
+            <div style={{ padding:"24px 24px 20px", display:"flex", alignItems:"center", justifyContent:"center", gap:3 }}>
+              <span style={{ fontFamily:"var(--sans)", fontSize:30, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.3px", color:"var(--secondary)", whiteSpace:"nowrap" }}>Your</span>
+              <BracketOpen size={31} color="var(--secondary)" />
+              <div style={{ overflow:"hidden", display:"inline-flex", alignItems:"center" }}>
+                <span ref={mobileBracketRef} style={{ fontFamily:"var(--sans)", fontSize:30, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.3px", color:"var(--secondary)", whiteSpace:"nowrap", display:"inline-block" }}>point of scale</span>
+              </div>
+              <BracketClose size={31} color="var(--secondary)" />
+            </div>
+            <div style={{ padding:"0 24px" }}>
+              <AllyWordmark fillContainer color="var(--secondary)" />
+            </div>
+            <div style={{ padding:"48px 24px 42px", display:"flex", flexDirection:"column", gap:12 }}>
+              <div style={{ fontFamily:"var(--sans)", fontSize:"var(--h1)", fontWeight:350, lineHeight:"110%", letterSpacing:"-0.84px", color:"var(--secondary)" }}>From engineering to execution.</div>
+              <div style={{ fontFamily:"var(--sans)", fontSize:18, fontWeight:350, lineHeight:1.2, letterSpacing:0, color:"#878787" }}>Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.</div>
+            </div>
+          </div>
+        ) : (
+          <div style={{
+            position:"absolute", top:"50%", right:allyRowRight,
+            transform:"translateY(-50%)",
+            display:"flex", alignItems:"center", gap:12,
+            zIndex:5, flexWrap:"nowrap",
+          }}>
+            <div ref={yourWrapRef} style={{ overflow:"hidden", display:"inline-flex" }}>
+              <span ref={yourInnerRef} style={{
+                fontFamily:"var(--sans)", fontSize:fs, fontWeight:350,
+                lineHeight:1, color:"var(--secondary)", whiteSpace:"nowrap",
+                display:"inline-block", marginRight:4,
+              }}>Your</span>
+            </div>
+
+            <div ref={bracketOpenRef} style={{ flexShrink:0, display:"flex" }}>
+              <BracketOpen size={bsz} color="var(--secondary)" />
+            </div>
+
+            <div ref={wordSlotRef} style={{ position:"relative", display:"inline-flex", alignItems:"center", overflow:"hidden", paddingBlock:8, paddingInline:6, boxSizing:"content-box" }}>
+              <span ref={posRef} style={wordStyle}>point of scale</span>
+              {SVC_ROWS.map((svc, i) => (
+                <div key={i} style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
+                  <span ref={el => svcWordRefs.current[i] = el} style={wordStyle}>{svc.bracket}</span>
+                </div>
+              ))}
+            </div>
+
+            <div ref={bracketCloseRef} style={{ flexShrink:0, display:"flex" }}>
+              <BracketClose size={bsz} color="var(--secondary)" />
+            </div>
+
+            <div ref={allyMarkRef} style={{ flexShrink:0, display:"flex" }}>
+              <AllyWordmark size={bsz} color="var(--secondary)" />
+            </div>
+          </div>
+        )}
+
+        {!isMobile && (
+          <div ref={step0BodyRef} style={{
+            position:"absolute", bottom:64, right:64,
+            width:368, zIndex:5,
+            display:"flex", flexDirection:"column", gap:16,
+            opacity:0,
+          }}>
+            <div style={{
+              fontFamily:"var(--sans)", fontSize:26, fontWeight:500,
+              lineHeight:1.1, letterSpacing:"-0.52px", color:"var(--secondary)",
+            }}>From engineering to execution.</div>
+            <div style={{
+              fontFamily:"var(--sans)", fontSize:19, fontWeight:350,
+              lineHeight:1.3, letterSpacing:"0.19px", color:"var(--secondary)", opacity:0.75,
+            }}>Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.</div>
+          </div>
+        )}
+
+        {!isMobile && SVC_ROWS.map((svc, i) => (
+          <div key={i} ref={el => bodyRefs.current[i] = el} style={{
+            position:"absolute", bottom:64, right:64,
+            width:368, zIndex:5,
+            display:"flex", flexDirection:"column", gap:16,
+          }}>
+            <div style={{
+              fontFamily:"var(--sans)", fontSize:26, fontWeight:500,
+              lineHeight:1.1, letterSpacing:"-0.52px", color:"var(--secondary)",
+            }}>{svc.headline}</div>
+            <div style={{
+              fontFamily:"var(--sans)", fontSize:19, fontWeight:350,
+              lineHeight:1.3, letterSpacing:"0.19px", color:"var(--secondary)", opacity:0.75,
+            }}>{svc.body}</div>
+          </div>
+        ))}
+
+        {!isMobile && (
+          <div ref={pillsRef} style={{
+            position:"absolute", bottom:64, left:64,
+            display:"flex", flexDirection:"column", alignItems:"flex-start", gap:8, zIndex:5,
+            opacity:0,
+          }}>
+            <div ref={pillBoxRef} style={{
+              position:"absolute", left:0, top:0,
+              background:"var(--secondary)", borderRadius:4,
+              pointerEvents:"none", zIndex:0,
+            }} />
+            {SVC_ROWS.map((row, i) => (
+              <SvcPill key={row.slug} label={row.slug} buttonRef={el => pillTextRefs.current[i] = el} onClick={() => goToStepRef.current && goToStepRef.current(i + 1)} dark={dark} active={activeStep === i + 1} />
+            ))}
+          </div>
+        )}
+      </div>
+
+      {isMobile && (
+        <div data-carousel ref={carouselRef} style={{
+          background:"var(--bg)",
+          display:"flex", flexDirection:"row",
+          overflowX:"auto", overflowY:"hidden",
+          scrollSnapType:"x mandatory",
+          WebkitOverflowScrolling:"touch",
+          touchAction:"pan-x",
+        }}>
+          {SVC_ROWS.map((svc, i) => (
+            <div key={i} style={{
+              width:"100vw", flexShrink:0,
+              borderTop:"1px solid var(--grey)",
+              padding:"48px 32px",
+              display:"flex", flexDirection:"column", gap:32,
+              scrollSnapAlign:"start",
+              boxSizing:"border-box",
+            }}>
+              <div style={{ display:"flex", alignItems:"center", gap:6 }}>
+                <span style={{ fontFamily:"var(--mono)", fontSize:10, fontWeight:400, letterSpacing:"-0.2px", color:"#878787" }}>0{i+1}.</span>
+                <span style={{ fontFamily:"var(--mono)", fontSize:10, fontWeight:400, letterSpacing:"0.06em", color:"#878787", textTransform:"uppercase" }}>{svc.slug}</span>
+              </div>
+              <div style={{ width:223, height:223, alignSelf:"flex-start", flexShrink:0, overflow:"hidden", borderRadius:4, position:"relative" }}>
+                <video src={svc.video} autoPlay muted loop playsInline style={{
+                  position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover",
+                  filter: isSafari ? "none" : (dark ? "url(#duotone-svc-dark)" : "url(#duotone-svc-light)"),
+                }} />
+              </div>
+              <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
+                <div style={{ fontFamily:"var(--sans)", fontSize:"var(--h1)", fontWeight:350, lineHeight:"110%", letterSpacing:"-0.84px", color:"var(--secondary)" }}>{svc.headline}</div>
+                <div style={{ fontFamily:"var(--sans)", fontSize:18, fontWeight:350, lineHeight:1.2, letterSpacing:0, color:"#878787" }}>{svc.body}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
+      {isMobile && (
+        <div style={{ margin:"16px 24px 48px", position:"relative", height:1, background:"var(--grey)" }}>
+          <div ref={carouselThumbRef} style={{
+            position:"absolute", top:-1, left:0,
+            width:`${100/SVC_ROWS.length}%`, height:3,
+            background:"var(--secondary)", borderRadius:2,
+            transition:"transform 0.05s linear",
+          }} />
+        </div>
+      )}
+    </>
+  );
+}
 
 /* ── Eyebrow label (JetBrains Mono 12px) ── */
 function Eyebrow({children,style={},center=true}) {
@@ -1358,13 +2539,17 @@ function MenuGlitch({ onComplete, onMidpoint }) {
    SERVICES PAGE
 ═══════════════════════════════════════════════════ */
 const SVC_ROWS = [
-  { num:"01", slug:"Strategic.ally",    headline:"Go-to-market through to market fit.",          body:"From market entry and audience strategy to channel prioritisation, we map out the smartest way to grow. Every move is intentional, with a clear definition of success." },
-  { num:"02", slug:"Organisation.ally", headline:"In-house modelling.",                          body:"We scale your capability, not just your output. That means designing operating models, resourcing plans, and workflows that help you move faster without over-hiring." },
-  { num:"03", slug:"Systematic.ally",   headline:"Brand-world development.",                     body:"We build the systems that keep your brand consistent at speed. From design systems to messaging frameworks, everything works together so you show up with confidence." },
-  { num:"04", slug:"Commerci.ally",     headline:"Commerce modelling & data mapping.",           body:"We dig into the numbers to understand where growth is slipping and where it can accelerate. Then we bring your teams together around what matters most." },
-  { num:"05", slug:"Technologic.ally",  headline:"Platforms & experience.",                      body:"From web and commerce to analytics and testing, we engineer flexible, high-performing platforms that keep up with your growth and adapt as you scale." },
-  { num:"06", slug:"Tactic.ally",       headline:"Brand execution.",                             body:"Campaigns and launches to content and always-on activity, we deliver at speed with precision, ensuring everything ladders up to the broader growth strategy." },
+  { slug:"Strategically",    bracket:"strategic",    headline:"Go-to-market through to market fit.",        body:"From market entry and audience strategy to channel prioritisation, we map out the smartest way to grow. Every move is intentional, with a clear definition of success.", bg:"electric", video:"videos/Services/strategy.mp4" },
+  { slug:"Organisationally", bracket:"organisation", headline:"In-house modelling.",                        body:"We scale your capability, not just your output. That means designing operating models, resourcing plans, and workflows that help you move faster without over-hiring.", bg:"stream",    video:"videos/Services/organisation.mp4" },
+  { slug:"Systematically",   bracket:"systematic",   headline:"Brand-world development.",                   body:"We build the systems that keep your brand consistent at speed. From design systems to messaging frameworks, everything works together so you show up with confidence.", bg:"electric", video:"videos/Services/systems.mp4" },
+  { slug:"Commercially",     bracket:"commercial",   headline:"Commerce modelling & data mapping.",         body:"We dig into the numbers to understand where growth is slipping and where it can accelerate. Then we bring your teams together around what matters most.", bg:"stream",    video:"videos/Services/commercial.mp4" },
+  { slug:"Technologically",  bracket:"technologic",  headline:"Platforms & experience.",                    body:"From web and commerce to analytics and testing, we engineer flexible, high-performing platforms that keep up with your growth and adapt as you scale.", bg:"electric", video:"videos/Services/tech.mp4" },
+  { slug:"Tactically",       bracket:"tactic",       headline:"Brand execution.",                           body:"Campaigns and launches to content and always-on activity, we deliver at speed with precision, ensuring everything ladders up to the broader growth strategy.", bg:"page",      video:"videos/Services/tactic.mp4" },
 ];
+
+const CIRCLE_IMGS = ["work/AfterpayxDijitally.jpg","work/AWX.png","work/ProcoreSURE.png","work/Linktree.png","work/Afterpay.jpg","work/Canva.jpg","work/Shopify.jpg","work/Klaviyo.jpg","work/Redbubble.jpg","work/SixPark.jpg"];
+const CIRCLE_VIDEOS = ["videos/Services/commercial.mp4","videos/Services/organisation.mp4","videos/Services/strategy.mp4","videos/Services/systems.mp4","videos/Services/tactic.mp4","videos/Services/tech.mp4"];
+const CIRCLE_VIDEO_SRC = CIRCLE_VIDEOS[Math.floor(Math.random() * CIRCLE_VIDEOS.length)];
 
 const SVC_CAPS = [
   { title:"Strategy, media + performance", items:["Media planning","CRM","Paid media","SEO + content","Data + insights","Commerce","CRO"] },
@@ -1373,36 +2558,46 @@ const SVC_CAPS = [
 ];
 
 const SVC_ACCORDION = [
-  { label:"Creative & Design",        body:"We build brands, campaigns, and content that is bold enough to stand out and structured enough to stand the test of time. Consider us the creative ally that makes your brand commercially powerful." },
-  { label:"Performance Marketing",    body:null },
-  { label:"Platforms + Experience",   body:null },
+  { label:"Creative + Design",        body:"We build brands, campaigns, and content that is bold enough to stand out and structured enough to stand the test of time. Consider us the creative ally that makes your brand commercially powerful.", img:"services/creative+design.png" },
+  { label:"Performance Marketing",    body:"Data-led strategies that don't just drive traffic — they drive conversion. We connect media, analytics, and creative to build performance engines that scale.", img:"services/creative+design.png" },
+  { label:"Platforms + Experience",   body:"End-to-end digital platforms built for growth: from UX strategy and product development to technology integration and ongoing optimisation.", img:"services/creative+design.png" },
+  { label:"Data + Insights",          body:"We turn data into decisions. From attribution and analytics to customer segmentation and reporting, we build the insight layer that keeps your strategy honest and your teams aligned.", img:"services/creative+design.png" },
 ];
 
 const SVC_CASES = [
-  { work: WORKS[0], desc:"We've helped Afterpay build and scale their partnership marketing globally." },
-  { work: WORKS[3], desc:"We've helped Airwallex scale internal teams globally, at pace." },
-  { work: WORKS[2], desc:"We've helped Procore deliver creative social strategy." },
+  { title:"Afterpay x Dijitally", meta:"PARTNERSHIP · 2024 · DIGITAL", logo:"clients/Afterpay.svg", logoH:40, img:"work/AfterpayxDijitally.jpg", desc:"We've helped Afterpay build and scale their partnership marketing globally." },
+  { title:"Airwallex Global",     meta:"PERFORMANCE · 2024 · DATA",    logo:"clients/Airwallex.svg", img:"work/AWX.png",                desc:"We've helped Airwallex scale internal teams globally, at pace." },
+  { title:"Procore SURE",         meta:"CREATIVE · DESIGN · SOCIAL",   logo:"clients/Procore.svg",   img:"work/ProcoreSURE.png",        desc:"We've helped Procore deliver creative social strategy." },
 ];
 
-function SvcFooterRow({ isMobile, dark }) {
+function SiteFooter({ isMobile, dark }) {
   const footerLogoRef = useRef(null);
   useEffect(()=>{
+    if (typeof lottie === "undefined") return;
     const el = footerLogoRef.current;
     if (!el) return;
-    const instance = lottie.loadAnimation({ container:el, renderer:"svg", loop:false, autoplay:false, path:"dijitally-logo-footer.json" });
-    const obs = new IntersectionObserver(([e])=>{ if(e.isIntersecting){ instance.play(); obs.disconnect(); }},{threshold:0.3});
-    obs.observe(el);
-    return ()=>{ instance.destroy(); obs.disconnect(); };
-  },[]);
-  const divider = {borderTop:"1px solid var(--border)"};
+    let anim = null;
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting && !anim) {
+        anim = lottie.loadAnimation({ container:el, renderer:"svg", loop:false, autoplay:true, path:"json/Dijitally-Logo.json", rendererSettings:{preserveAspectRatio:"xMidYMid meet"} });
+        anim.addEventListener("DOMLoaded", () => { if (typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh(); });
+        obs.disconnect();
+      }
+    });
+    obs.observe(el.closest("footer") || el);
+    return () => { obs.disconnect(); if (anim) anim.destroy(); };
+  }, []);
+  const dot = {width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0};
+  const linkStyle = {fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"};
+  const navLinks = ["WORK","SERVICES","ABOUT"];
+  const navClick = l => l==="WORK" ? goToHome : l==="SERVICES" ? goToServices : undefined;
   return (
-    <footer style={{...divider, minHeight:isMobile?"auto":447, padding:isMobile?"64px 24px 24px":"var(--s64)", display:"flex", flexDirection:"column", alignItems:isMobile?"flex-start":"flex-end", gap:isMobile?24:0, background:"var(--bg)"}}>
+    <footer style={{borderTop:"1px solid var(--border)", minHeight:"auto", padding:isMobile?"64px 24px 24px":"var(--s64) var(--s64) 0", display:"flex", flexDirection:"column", alignItems:isMobile?"flex-start":"flex-end", gap:isMobile?24:0, background:"var(--bg)"}}>
       {isMobile ? (
         <div style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          {["WORK","SERVICES","ABOUT"].map(l=>(
-            <span key={l} style={{display:"flex",alignItems:"center",gap:6}}>
-              <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
-              <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>{l}</ScrambleSpan>
+          {navLinks.map(l=>(
+            <span key={l} onClick={navClick(l)} style={{display:"flex",alignItems:"center",gap:6,cursor:navClick(l)?"pointer":"default"}}>
+              <span style={dot}/><ScrambleSpan style={linkStyle}>{l}</ScrambleSpan>
             </span>
           ))}
           <a href="#" aria-label="LinkedIn" style={{display:"flex",alignItems:"center",justifyContent:"center",width:24,height:24,flexShrink:0}}>
@@ -1412,39 +2607,29 @@ function SvcFooterRow({ isMobile, dark }) {
       ) : (
         <div className="footer-row" style={{width:"100%",paddingTop:"var(--s32)",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <div style={{display:"flex",alignItems:"center",gap:"var(--s12)",flexWrap:"wrap"}}>
-            {["WORK","SERVICES","ABOUT"].map(l=>(
-              <span key={l} style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
-                <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
-                <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>{l}</ScrambleSpan>
+            {navLinks.map(l=>(
+              <span key={l} onClick={navClick(l)} style={{display:"flex",alignItems:"center",gap:"var(--s12)",cursor:navClick(l)?"pointer":"default"}}>
+                <span style={dot}/><ScrambleSpan style={linkStyle}>{l}</ScrambleSpan>
               </span>
             ))}
           </div>
           <span style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
-            <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
-            <a href="#" style={{textDecoration:"none"}}><ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>PRIVACY POLICY</ScrambleSpan></a>
+            <span style={dot}/>
+            <a href="#" style={{textDecoration:"none"}}><ScrambleSpan style={linkStyle}>PRIVACY POLICY</ScrambleSpan></a>
           </span>
         </div>
       )}
       {isMobile ? (
         <div style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <span style={{display:"flex",alignItems:"center",gap:6}}>
-            <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
-            <a href="#" style={{textDecoration:"none"}}><ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>PRIVACY POLICY</ScrambleSpan></a>
-          </span>
-          <span style={{display:"flex",alignItems:"center",gap:6}}>
-            <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
-            <a href="#" style={{textDecoration:"none"}}><ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>TERMS + CONDITIONS</ScrambleSpan></a>
-          </span>
+          <span style={{display:"flex",alignItems:"center",gap:6}}><span style={dot}/><a href="#" style={{textDecoration:"none"}}><ScrambleSpan style={linkStyle}>PRIVACY POLICY</ScrambleSpan></a></span>
+          <span style={{display:"flex",alignItems:"center",gap:6}}><span style={dot}/><a href="#" style={{textDecoration:"none"}}><ScrambleSpan style={linkStyle}>TERMS + CONDITIONS</ScrambleSpan></a></span>
         </div>
       ) : (
         <div className="footer-row" style={{width:"100%",padding:"var(--s12) 0 var(--s32) 0",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <a href="#" aria-label="LinkedIn" style={{display:"flex",alignItems:"center",justifyContent:"center",width:24,height:24,flexShrink:0}}>
             <img src="dijitally-footer.svg" alt="LinkedIn" style={{width:24,height:24,display:"block"}}/>
           </a>
-          <span style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
-            <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
-            <a href="#" style={{textDecoration:"none"}}><ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"}}>TERMS + CONDITIONS</ScrambleSpan></a>
-          </span>
+          <span style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}><span style={dot}/><a href="#" style={{textDecoration:"none"}}><ScrambleSpan style={linkStyle}>TERMS + CONDITIONS</ScrambleSpan></a></span>
         </div>
       )}
       <div ref={footerLogoRef} style={{width:"100%",overflow:"hidden",filter:dark?"url(#to-warm-white)":"none",transition:"filter 0.3s ease"}} />
@@ -1452,222 +2637,110 @@ function SvcFooterRow({ isMobile, dark }) {
   );
 }
 
-function ServicesPage({ dark, isMobile, setPage }) {
-  const [openAccordion, setOpenAccordion] = useState(0);
+function ContactSection({ dark, isMobile, setCtaOpen }) {
   const [email, setEmail] = useState('');
   const contactCardRef = useRef(null);
-  const contactSectionRef = useRef(null);
   const [contactHeight, setContactHeight] = useState(null);
   const [contactCardHeight, setContactCardHeight] = useState(null);
-  const svcCardRefs = useRef([]);
-
-  const divider = React.useMemo(()=>({borderTop:"1px solid var(--border)"}), []);
-  const h1      = React.useMemo(()=>({fontFamily:"var(--sans)",fontSize:isMobile?"var(--h1)":48,fontWeight:350,lineHeight:1,letterSpacing:"-0.96px",color:"var(--secondary)"}), [isMobile]);
-  const h2      = React.useMemo(()=>({fontFamily:"var(--sans)",fontSize:isMobile?"var(--h2)":42,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.84px",color:"var(--secondary)"}), [isMobile]);
-  const body22  = React.useMemo(()=>({fontFamily:"var(--sans)",fontSize:isMobile?15:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.22px",color:"var(--static)"}), [isMobile]);
-
   useLayoutEffect(()=>{
     if (!isMobile) return;
-    const CELL = Math.round(32*0.66);
-    const target = window.innerHeight*0.66;
-    setContactHeight(Math.ceil(target/CELL)*CELL);
+    const CELL = Math.round(32 * 0.66);
+    setContactHeight(Math.ceil(window.innerHeight * 0.66 / CELL) * CELL);
     if (contactCardRef.current) {
       const cardH = contactCardRef.current.getBoundingClientRect().height;
-      setContactCardHeight(Math.ceil(cardH/CELL)*CELL);
+      setContactCardHeight(Math.ceil(cardH / CELL) * CELL);
     }
-  },[isMobile]);
+  }, [isMobile]);
+  return (
+    <section style={{
+      borderTop:"1px solid var(--border)",
+      background: dark ? "#1A1A1A" : "#EDEAE5",
+      padding: isMobile ? "48px 16px" : "var(--s96) var(--s64)",
+      minHeight: isMobile ? (contactHeight ? `${contactHeight}px` : "66svh") : "auto",
+      display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", gap:"var(--s24)",
+      position:"relative", overflow:"hidden",
+    }}>
+      <ContactPixels dark={dark} mobile={isMobile} />
+      <div ref={contactCardRef} className="contact-card-inner" style={{
+        background: dark ? "#121010" : "var(--primary)",
+        borderRadius:4,
+        width: isMobile ? "calc(100% - 32px)" : 736,
+        height: isMobile ? (contactCardHeight ? contactCardHeight : "auto") : 416,
+        position:"relative", zIndex:1,
+        display:"flex", alignItems:"center", justifyContent:"center",
+        paddingLeft: isMobile ? 24 : "var(--s64)",
+        paddingRight: isMobile ? 24 : "var(--s64)",
+        paddingTop: isMobile ? 32 : 0,
+        paddingBottom: isMobile ? 32 : 0,
+        overflow:"hidden", flexShrink:0,
+      }}>
+        <div style={{width:"100%",display:"flex",flexDirection:"column",gap:"var(--s24)",alignItems:"center",textAlign:"center"}}>
+          <Eyebrow center={false} style={{letterSpacing:"0.08em"}}>LET'S CHAT</Eyebrow>
+          <div role="heading" aria-level="2" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",color:"var(--secondary)"}}>
+            Looking for an ally<br/>on your next project?
+          </div>
+          <div style={{display:"flex",gap:12,alignItems:"stretch",flexDirection:isMobile?"column":"row"}}>
+            <input type="email" placeholder="Your contact email" value={email} onChange={e=>setEmail(e.target.value)} style={{width:240,flexShrink:0,padding:"18px 14px",fontFamily:"var(--sans)",fontSize:16,fontWeight:500,border:"1px solid var(--grey)",outline:"none",background:"var(--bg)",color:"#878787",boxSizing:"border-box"}}/>
+            <button onClick={()=>setCtaOpen&&setCtaOpen(true)} className="cta-btn" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"18px 24px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,color:"#121010",cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,alignSelf:isMobile?"flex-end":"auto"}}>
+              <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/>
+              <span className="cta-text">Submit</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
 
-  useEffect(()=>{ window.scrollTo(0,0); },[]);
+function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
+  const [openAccordion, setOpenAccordion] = useState(0);
 
-  useEffect(()=>{
-    if (isMobile || typeof ScrollTrigger === 'undefined') return;
-    const TAB_H = 85;
-    const triggers = svcCardRefs.current.map((el, i) => {
-      if (!el) return null;
-      return ScrollTrigger.create({
-        trigger: el,
-        start: `top top+=${i * TAB_H}`,
-        pin: true,
-        pinSpacing: false,
-      });
-    }).filter(Boolean);
-    ScrollTrigger.refresh();
-    return ()=>{ triggers.forEach(t=>t.kill()); ScrollTrigger.refresh(); };
-  },[isMobile]);
+  const h1s = {fontFamily:"var(--sans)",fontSize:isMobile?"var(--h1)":48,fontWeight:350,lineHeight:1,letterSpacing:"-0.96px",color:"var(--secondary)"};
+  const h2s = {fontFamily:"var(--sans)",fontSize:isMobile?"var(--h2)":32,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.64px",color:"var(--secondary)"};
+  const body22 = {fontFamily:"var(--sans)",fontSize:isMobile?15:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.22px",color:"var(--static)"};
 
   return (
     <div style={{background:"var(--bg)",color:"var(--secondary)"}}>
 
-      {/* ══ HERO ══ */}
-      <section style={{position:"relative",overflow:"hidden",background:"var(--bg)"}}>
-        {isMobile ? (
-          /* Mobile hero: inline heading + body */
-          <div style={{position:"relative",zIndex:1,display:"flex",flexDirection:"column",gap:42,padding:"calc(var(--nav-h) + 96px) 24px 42px",minHeight:584,justifyContent:"flex-end"}}>
-            <div style={{fontFamily:"var(--sans)",fontSize:26,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.26px",color:"var(--secondary)"}}>
-              <span style={{color:"var(--static)"}}>Our services. </span>
-              <span>From engineering to execution and everything in between.</span>
-            </div>
-            <div style={{fontFamily:"var(--sans)",fontSize:19,fontWeight:350,lineHeight:1.2,letterSpacing:"0.19px",color:"var(--static)"}}>
-              Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.
-            </div>
-          </div>
-        ) : (
-          /* Desktop two-col header */
-          <div style={{
-            position:"relative",zIndex:1,
-            display:"flex",
-            flexDirection:"row",
-            alignItems:"last baseline",
-            justifyContent:"space-between",
-            gap:"var(--s42)",
-            padding:"256px var(--s64) var(--s64)",
-          }}>
-            <div style={{...h1, maxWidth:680, flexShrink:0}}>
-              <span style={{color:"var(--static)"}}>Our services. </span>
-              <span>From engineering to execution and everything in between.</span>
-            </div>
-            <div style={{...body22, maxWidth:540, flexShrink:0}}>
-              Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.
-            </div>
-          </div>
-        )}
+      {/* ══ SERVICES HERO SCROLL ══ */}
+      <ServicesHero isMobile={isMobile} dark={dark} />
 
+      {/* ══ OPERATING MODELS CALLOUT ══ */}
+      <section style={{padding:isMobile?"64px 24px":"256px var(--s64) var(--s64)",display:"flex",flexDirection:"column",gap:"var(--s24)",background:"var(--bg)"}}>
+        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?"var(--h1)":48,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.96px",color:"var(--secondary)",maxWidth:570}}>Our operating models enable scale through the right allies.</div>
+        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?19:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.22px",color:"var(--static)",maxWidth:480}}>We help brands scale by enabling their product, brand + marketing teams to deliver results, fast.</div>
       </section>
 
-      {/* ══ 6 STICKY SERVICE ROWS ══ */}
-      {SVC_ROWS.map((svc, i) => (
-        isMobile ? (
-          /* Mobile: Figma-accurate layout */
-          <div key={svc.slug} style={{...divider, padding:"48px 32px", display:"flex", flexDirection:"column", gap:32}}>
-            {/* Number + slug */}
-            <div style={{display:"flex",gap:4,alignItems:"baseline"}}>
-              <span style={{fontFamily:"var(--sans)",fontSize:10,color:"var(--static)",letterSpacing:"-0.2px",flexShrink:0,lineHeight:1}}>{svc.num}.</span>
-              <span style={{fontFamily:"var(--sans)",fontSize:i===0?26:19,fontWeight:350,lineHeight:i===0?1.1:1,letterSpacing:i===0?"-0.26px":"-0.38px",color:"var(--secondary)"}}>{svc.slug}</span>
-            </div>
-            {/* 223×223 placeholder */}
-            <div style={{display:"flex",alignItems:"center",justifyContent:"center",width:"100%"}}>
-              <div style={{width:223,height:223,background:"var(--grey)",opacity:0.15,borderRadius:2}}/>
-            </div>
-            {/* Headline + body */}
-            <div style={{display:"flex",flexDirection:"column",gap:24}}>
-              <div style={{fontFamily:"var(--sans)",fontSize:26,fontWeight:500,lineHeight:1.1,letterSpacing:"-0.26px",color:"var(--secondary)",maxWidth:351}}>{svc.headline}</div>
-              <div style={{fontFamily:"var(--sans)",fontSize:19,fontWeight:350,lineHeight:1.2,letterSpacing:"0.19px",color:"var(--static)",maxWidth:351}}>{svc.body}</div>
-            </div>
-          </div>
-        ) : (
-          /* Desktop: single full-height card matching Figma — left col items-start py-32 */
-          <div key={svc.slug} ref={el=>svcCardRefs.current[i]=el} style={{
-            borderTop:"1px solid var(--border)",
-            borderBottom: i === SVC_ROWS.length-1 ? "1px solid var(--border)" : "none",
-            height:650,
-            display:"flex", alignItems:"stretch",
-            background:"var(--bg)",
-            zIndex: 10 + i,
-          }}>
-            {/* Left col: number + slug top-aligned, full-height border-right */}
-            <div style={{
-              flex:"1 0 0",
-              borderRight:"1px solid var(--border)",
-              padding:"32px 64px",
-              display:"flex", gap:10, alignItems:"flex-start",
-            }}>
-              <span style={{fontFamily:"var(--sans)",fontSize:16,color:"var(--static)",letterSpacing:"-0.32px",flexShrink:0,lineHeight:1}}>{svc.num}.</span>
-              <span style={{...h2, lineHeight:1}}>{svc.slug}</span>
-            </div>
-
-            {/* Center: 370×370 placeholder */}
-            <div style={{flex:"1 0 0", display:"flex", alignItems:"center", justifyContent:"center"}}>
-              <div style={{width:370, height:370, background:"var(--grey)", borderRadius:4, opacity:0.15}} />
-            </div>
-
-            {/* Right: headline + body */}
-            <div style={{flex:"1 0 0", padding:"0 64px 0 0", display:"flex", flexDirection:"column", justifyContent:"center", gap:24}}>
-              <div style={{...h2, maxWidth:400}}>{svc.headline}</div>
-              <div style={{...body22, maxWidth:400}}>{svc.body}</div>
-            </div>
-          </div>
-        )
-      ))}
-
-      {/* ══ OPERATING MODELS INTRO ══ */}
-      <section style={{...divider, padding:isMobile?"64px 24px":"var(--s128) var(--s64) var(--s32)", display:"flex", flexDirection:"column", gap:"var(--s24)"}}>
-        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?26:48,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.26px",color:"var(--secondary)",maxWidth:570}}>Our operating models enable scale through the right allies.</div>
-        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?19:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.19px",color:"var(--static)",maxWidth:480}}>We help brands scale by enabling their product, brand + marketing teams to deliver results, fast.</div>
-      </section>
-
-      {/* ══ OPERATING MODELS TABS (reuse home accordion) ══ */}
-      <section style={{padding:isMobile?"0 var(--s42) var(--s64)":"0 var(--s64) var(--s64)"}}>
-        {/* Tab bar */}
-        <div style={{display:"flex", gap:12, alignItems:"center", marginBottom:32, flexWrap:"wrap"}}>
+      {/* ══ MODELS TABS ══ */}
+      <section style={{padding:isMobile?"0 var(--s42) var(--s42)":"0 var(--s64) var(--s42)",background:"var(--bg)",position:isMobile?"sticky":"static",top:isMobile?0:undefined,zIndex:isMobile?10:undefined}}>
+        <div style={{display:"flex",gap:12,alignItems:"center",justifyContent:"center",flexWrap:"wrap",paddingTop:isMobile?16:undefined,paddingBottom:isMobile?16:undefined,background:isMobile?"var(--bg)":undefined}}>
           {["Integrated","In-house","Embedded"].map((t,i)=>(
-            <button key={t} style={{
-              padding:"16px 20px", borderRadius:2, border:"none", cursor:"pointer",
-              background: i===0 ? "var(--secondary)" : "var(--bg)",
-              fontFamily:"var(--sans)", fontSize:16, fontWeight:350,
-              color: i===0 ? "var(--primary)" : "var(--secondary)",
-              letterSpacing:"-0.32px",
-            }}>{t}</button>
-          ))}
-        </div>
-
-        {/* Re-use the MODELS accordion from home — wrap with simplified local render */}
-        <div style={{
-          display:"flex", flexDirection:isMobile?"column":"row",
-          gap:"var(--s42)",
-        }}>
-          {MODELS.map((m,i)=>(
-            <div key={m.name} style={{
-              flex:1, background:dark?"#1A1A1A":"#EDEAE5",
-              borderRadius:4, padding:"var(--s24)",
-              display:"flex", flexDirection:"column", gap:16,
-            }}>
-              <span style={{...h2, fontSize:isMobile?"var(--h2)":24}}>{m.name}</span>
-              <p style={{...body22, fontSize:15, margin:0}}>{m.body}</p>
-              <ul style={{listStyle:"none",padding:0,margin:0,display:"flex",flexDirection:"column",gap:4}}>
-                {m.areas.map(a=>(
-                  <li key={a} style={{fontFamily:"var(--sans)",fontSize:15,fontWeight:350,display:"flex",alignItems:"center",gap:8,color:"var(--secondary)"}}>
-                    <span style={{color:"var(--secondary)"}}>·</span>{a}
-                  </li>
-                ))}
-              </ul>
-            </div>
+            <ModelTab key={t} label={t} active={i===0} dark={dark} />
           ))}
         </div>
       </section>
 
-      {/* ══ DARK CAPABILITIES ══ */}
+      {/* ══ CAPABILITIES GRID ══ */}
       <section style={{
-        ...divider,
         background:"#121010",
-        padding:isMobile?"var(--s64) var(--s42)":"var(--s64) 88px",
-        display:"flex", flexDirection:"column", alignItems:"center", gap:82, overflow:"hidden",
+        padding:isMobile?"var(--s64) var(--s42) 64px":"var(--s64) 88px",
+        display:"flex",flexDirection:"column",alignItems:"center",gap:82,overflow:"hidden",
       }}>
-        {/* Centred headline */}
-        <div style={{...body22, fontSize:isMobile?15:22, color:"#F5F3EE", textAlign:"center", maxWidth:486}}>
+        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?19:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.22px",color:"#F5F3EE",textAlign:"center",maxWidth:486,paddingTop:isMobile?42:undefined}}>
           High-impact capability, delivered fast, without the overhead of permanent hires.
         </div>
-
-        {/* 3 cards */}
-        <div style={{
-          display:"grid",
-          gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",
-          gap:24, width:"100%",
-        }}>
+        <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:24,width:"100%"}}>
           {SVC_CAPS.map(cap=>(
             <div key={cap.title} style={{
               background:"rgba(255,255,255,0.05)",
-              backdropFilter:"blur(21px)", WebkitBackdropFilter:"blur(21px)",
-              borderRadius:4,
-              padding:"32px 64px",
-              display:"flex", flexDirection:"column", gap:32, alignItems:"center", justifyContent:"center",
+              backdropFilter:"blur(21px)",WebkitBackdropFilter:"blur(21px)",
+              borderRadius:4, padding:"32px 64px",
+              display:"flex",flexDirection:"column",gap:32,alignItems:"center",justifyContent:"center",
             }}>
               <div style={{fontFamily:"var(--sans)",fontSize:24,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.48px",color:"#F5F3EE",width:"100%",maxWidth:265}}>{cap.title}</div>
               <div style={{display:"flex",flexDirection:"column",gap:14,width:"100%",maxWidth:265}}>
                 {cap.items.map((item,idx)=>(
-                  <div key={item} style={{
-                    display:"flex", gap:10, alignItems:"center", paddingBottom:8,
-                    borderBottom: idx < cap.items.length-1 ? "1px solid rgba(222,222,222,0.25)" : "none",
-                  }}>
+                  <div key={item} style={{display:"flex",gap:10,alignItems:"center",paddingBottom:8,borderBottom:idx<cap.items.length-1?"1px solid rgba(222,222,222,0.25)":"none"}}>
                     <span style={{width:4,height:4,background:"#F5F3EE",flexShrink:0,display:"inline-block"}}/>
                     <span style={{fontFamily:"var(--sans)",fontSize:16,fontWeight:350,lineHeight:1.2,color:"#F5F3EE"}}>{item}</span>
                   </div>
@@ -1680,55 +2753,59 @@ function ServicesPage({ dark, isMobile, setPage }) {
 
       {/* ══ CASE STUDIES + ACCORDION ══ */}
       <section style={{
-        ...divider,
         padding:isMobile?"var(--s64) var(--s42)":"var(--s128) var(--s64)",
         display:"flex",
         flexDirection:isMobile?"column":"row",
-        gap:isMobile?"var(--s42)":219,
+        gap:isMobile?64:"var(--s64)",
+        justifyContent:isMobile?"flex-start":"space-between",
         alignItems:"flex-start",
+        background:"var(--bg)",
       }}>
         {/* Left: case study stack */}
         <div style={{display:"flex",flexDirection:"column",gap:"var(--s42)",flexShrink:0}}>
-          {SVC_CASES.map(({work:w,desc},i)=>(
-            <div key={w.title} style={{display:"flex",gap:"var(--s42)",alignItems:"flex-end"}}>
-              <div style={{width:190,height:190,flexShrink:0,overflow:"hidden",borderRadius:4}}>
-                <img src={w.img} alt={w.title} style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
+          {SVC_CASES.map((c,i)=>(
+            <div key={c.title} style={{display:"flex",gap:"var(--s42)",alignItems:"flex-end",flexWrap:isMobile?"wrap":"nowrap"}}>
+              <div style={{width:isMobile?82:150,height:isMobile?82:150,flexShrink:0,overflow:"hidden",borderRadius:4}}>
+                <PixelResolveImg src={c.img} alt={c.title} delay={i*0.15} style={{width:"100%",height:"100%"}}/>
               </div>
               <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
-                <span style={{fontFamily:"var(--sans)",fontSize:13,fontWeight:350,letterSpacing:"var(--eyebrow-ls)",color:"var(--static)",textTransform:"uppercase"}}>{w.label||w.title}</span>
-                <div style={{fontFamily:"var(--sans)",fontSize:19,fontWeight:350,lineHeight:1.2,letterSpacing:"0.19px",color:"var(--static)",maxWidth:270}}>{desc}</div>
+                {c.logo
+                  ? <img src={c.logo} alt={c.title} style={{height:c.logoH||20,width:"auto",display:"block",alignSelf:"flex-start",filter:dark?"invert(1)":"none"}} />
+                  : <span style={{fontFamily:"var(--sans)",fontSize:13,fontWeight:350,letterSpacing:"var(--eyebrow-ls)",color:"var(--static)",textTransform:"uppercase"}}>{c.title}</span>
+                }
+                <div style={{fontFamily:"var(--sans)",fontSize:19,fontWeight:350,lineHeight:1.2,letterSpacing:"0.19px",color:"var(--static)",maxWidth:270}}>{c.desc}</div>
               </div>
             </div>
           ))}
         </div>
 
         {/* Right: heading + accordion */}
-        <div style={{flex:1,display:"flex",flexDirection:"column",gap:"var(--s128)"}}>
+        <div style={{flex:1,maxWidth:842,display:"flex",flexDirection:"column",gap:"var(--s128)"}}>
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
-            <div style={{...h1}}>Helping product, brand and marketing teams deliver results. Fast.</div>
-            <div style={{...body22, maxWidth:483}}>We partner with brands at the points where growth needs to be engineered, not just executed.</div>
+            <div style={{...h1s,maxWidth:483}}>Helping product, brand and marketing teams deliver results. Fast.</div>
+            <div style={{...body22,fontSize:isMobile?19:22,maxWidth:483}}>We partner with brands at the points where growth needs to be engineered, not just executed.</div>
           </div>
 
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
             {SVC_ACCORDION.map((item,i)=>(
-              <div key={item.label} style={{borderBottom:"1px solid var(--border)",paddingBottom:24}}>
+              <div key={item.label} style={{borderBottom:"1px solid var(--grey)",paddingBottom:24}}>
                 <button onClick={()=>setOpenAccordion(openAccordion===i?-1:i)} style={{
                   display:"flex",alignItems:"center",justifyContent:"space-between",
-                  width:"100%",background:"none",border:"none",cursor:"pointer",padding:0,
-                  gap:10,
+                  width:"100%",background:"none",border:"none",cursor:"pointer",padding:0,gap:10,
                 }}>
-                  <span style={{fontFamily:"var(--sans)",fontSize:32,fontWeight:350,lineHeight:1.1,color:"var(--secondary)",textAlign:"left"}}>{item.label}</span>
-                  {/* + / – icon */}
-                  <span style={{
-                    position:"relative",width:21,height:21,flexShrink:0,
-                    display:"flex",alignItems:"center",justifyContent:"center",
-                  }}>
+                  <span style={{fontFamily:"var(--sans)",fontSize:22,fontWeight:350,lineHeight:1.1,color:"var(--secondary)",textAlign:"left"}}>{item.label}</span>
+                  <span style={{position:"relative",width:21,height:21,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
                     <span style={{position:"absolute",width:3,height:21,background:"var(--secondary)",borderRadius:0,opacity:openAccordion===i?0:1,transition:"opacity 0.2s"}}/>
                     <span style={{position:"absolute",width:21,height:3,background:"var(--secondary)",borderRadius:0}}/>
                   </span>
                 </button>
-                {openAccordion===i && item.body && (
-                  <div style={{...body22, marginTop:16, maxWidth:670}}>{item.body}</div>
+                {openAccordion===i && (
+                  <div style={{marginTop:16,display:"flex",flexDirection:"column",gap:24}}>
+                    {item.body && <div style={{...body22,fontSize:isMobile?19:22,maxWidth:670}}>{item.body}</div>}
+                    {item.img && (
+                      <img src={item.img} alt={item.label} style={{width:"100%",maxWidth:842,height:"auto",aspectRatio:"842/378",objectFit:"cover",borderRadius:4,display:"block"}} />
+                    )}
+                  </div>
                 )}
               </div>
             ))}
@@ -1736,46 +2813,18 @@ function ServicesPage({ dark, isMobile, setPage }) {
         </div>
       </section>
 
-      {/* ══ CONTACT ══ */}
-      <section ref={contactSectionRef} style={{
-        ...divider,
-        background:dark?"#1A1A1A":"#EDEAE5",
-        padding:isMobile?"48px 16px":"var(--s96) var(--s64)",
-        minHeight:isMobile?(contactHeight?`${contactHeight}px`:"66svh"):"auto",
-        display:"flex",flexDirection:"column",justifyContent:"center",alignItems:"center",gap:"var(--s24)",
-        position:"relative",overflow:"hidden",
-      }}>
-        <ContactPixels dark={dark} mobile={isMobile} />
-        <div ref={contactCardRef} className="contact-card-inner" style={{
-          background:dark?"#121010":"var(--primary)",
-          borderRadius:4,
-          width:isMobile?"calc(100% - 32px)":736,
-          height:isMobile?(contactCardHeight?contactCardHeight:"auto"):416,
-          position:"relative",zIndex:1,
-          display:"flex",alignItems:isMobile?"stretch":"center",
-          paddingLeft:isMobile?24:176, paddingRight:isMobile?24:"var(--s64)",
-          paddingTop:isMobile?32:0, paddingBottom:isMobile?32:0,
-          overflow:"hidden",flexShrink:0,
-        }}>
-          <div style={{position:"absolute",top:8,left:8,width:150,height:150,flexShrink:0,clipPath:"inset(0 round 2px)",transform:"translateZ(0)",display:isMobile?"none":"block"}}>
-            <video src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}}/>
-            <div style={{position:"absolute",inset:0,background:"#121010",mixBlendMode:"multiply",opacity:dark?1:0,transition:"opacity 0.3s ease",pointerEvents:"none"}}/>
-          </div>
-          <div style={{flex:1,display:"flex",flexDirection:"column",gap:"var(--s24)",justifyContent:isMobile?"center":"flex-start"}}>
-            <Eyebrow center={false} style={{letterSpacing:"0.08em"}}>LET'S CHAT</Eyebrow>
-            <div role="heading" aria-level="2" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",color:"var(--secondary)"}}>Looking for an ally on your next project?</div>
-            <div style={{display:"flex",gap:12,alignItems:"flex-end",flexDirection:isMobile?"column":"row"}}>
-              <input type="email" placeholder="Your contact email" value={email} onChange={e=>setEmail(e.target.value)} style={{flex:1,width:"100%",padding:"18px 14px",fontFamily:"var(--sans)",fontSize:13,border:"1px solid var(--grey)",outline:"none",background:"var(--bg)",color:"var(--secondary)",boxSizing:"border-box"}}/>
-              <button className="cta-btn" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"18px 24px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,color:"#121010",cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,alignSelf:isMobile?"flex-end":"auto"}}>
-                <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/>
-                <span className="cta-text">Submit</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ContactSection dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />
+      <SiteFooter dark={dark} isMobile={isMobile} />
 
-      <SvcFooterRow isMobile={isMobile} dark={dark} />
+      <div style={{height:32}}/>
+      <button
+        onClick={()=>{ window.__servicesResetOnEnter = true; window.scrollTo({top:0,behavior:"instant"}); requestAnimationFrame(function(){ if(typeof ScrollTrigger!=="undefined") ScrollTrigger.refresh(); }); }}
+        style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,width:"100%",height:42,background:"var(--tech)",border:"none",cursor:"pointer",padding:0,margin:0,flexShrink:0}}
+      >
+        <span style={{width:3,height:3,borderRadius:"50%",background:"var(--static)",flexShrink:0,display:"block"}}/>
+        <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"-0.24px",color:"#121010",lineHeight:1}}>BACK TO TOP</ScrambleSpan>
+      </button>
+
     </div>
   );
 }
@@ -1783,14 +2832,19 @@ function ServicesPage({ dark, isMobile, setPage }) {
 /* ═══════════════════════════════════════════════════
    PAGE
 ═══════════════════════════════════════════════════ */
-function goToServices() {
-  sessionStorage.setItem('skipIntro', '1');
+function getDefaultDark() {
+  const saved = localStorage.getItem("dijitally-theme");
+  if (saved) return saved === "dark";
+  const h = new Date().getHours();
+  return h >= 18 || h < 6;
+}
+
+function _stripTransition(targetPage) {
   const isDark = localStorage.getItem('dijitally-theme') === 'dark';
   const overlayColor = isDark ? '#121010' : '#F5F3EE';
   const sliceH = 2;
-  const W = window.innerWidth, H = window.innerHeight;
+  const H = window.innerHeight;
   const total = Math.ceil(H / sliceH);
-
   const overlay = document.createElement('div');
   overlay.style.cssText = 'position:fixed;inset:0;z-index:9999;pointer-events:none;overflow:hidden;';
   for (var i = 0; i < total; i++) {
@@ -1799,32 +2853,37 @@ function goToServices() {
     overlay.appendChild(s);
   }
   document.body.appendChild(overlay);
-
   var slices = Array.from(overlay.children);
   var maxEnd = 0;
   slices.forEach(function(sl, i) {
     var frac = i / Math.max(total - 1, 1);
     var delay = frac * 0.5 + (Math.random() * 0.05);
     var dur = 0.18 + Math.random() * 0.12;
-    var end = delay + dur;
-    if (end > maxEnd) maxEnd = end;
+    if (delay + dur > maxEnd) maxEnd = delay + dur;
     setTimeout(function() {
       sl.style.transition = 'transform ' + dur.toFixed(3) + 's linear';
       sl.style.transform = 'translateX(0)';
     }, delay * 1000);
   });
-
   setTimeout(function() {
-    window.location.href = 'dijitally-services.html';
+    if (window.__setPage) window.__setPage(targetPage);
+    window.scrollTo(0, 0);
+    // wipe strips back out
+    slices.forEach(function(sl, i) {
+      var frac = i / Math.max(total - 1, 1);
+      var delay = frac * 0.35 + (Math.random() * 0.05);
+      var dur = 0.18 + Math.random() * 0.12;
+      setTimeout(function() {
+        sl.style.transition = 'transform ' + dur.toFixed(3) + 's linear';
+        sl.style.transform = 'translateX(100%)';
+      }, delay * 1000);
+    });
+    setTimeout(function() { document.body.removeChild(overlay); }, 800);
   }, maxEnd * 1000 + 50);
 }
 
-function getDefaultDark() {
-  const saved = localStorage.getItem("dijitally-theme");
-  if (saved) return saved === "dark";
-  const h = new Date().getHours();
-  return h >= 18 || h < 6; // dark between 6pm and 6am
-}
+function goToServices() { _stripTransition('services'); }
+function goToHome()     { _stripTransition('home'); }
 
 function Page() {
   const [dark,        setDark]        = useState(getDefaultDark);
@@ -1837,7 +2896,6 @@ function Page() {
   const [activeModel, setActiveModel] = useState(0);
   const [hoverModel,  setHoverModel]  = useState(-1);
   const [activeFilter,setActiveFilter]= useState("ALL");
-  const [email,       setEmail]       = useState("");
   const [reelOpen,    setReelOpen]    = useState(false);
   const [ctaOpen,     setCtaOpen]     = useState(false);
   const [menuOpen,    setMenuOpen]    = useState(false);
@@ -1847,6 +2905,9 @@ function Page() {
   const [thumbHover,  setThumbHover]  = useState(false);
 
   const CTA_W = isMobile ? window.innerWidth : 661;
+
+  // Wire global setPage for strip transition
+  useEffect(()=>{ window.__setPage = setPage; return ()=>{ delete window.__setPage; }; }, [setPage]);
 
   // Slide #smooth-wrapper left and animate CTA panel in/out
   useEffect(()=>{
@@ -1992,7 +3053,6 @@ function Page() {
   const heroLogoRef       = useRef(null);
   const heroBodyRef       = useRef(null);
   const navRef            = useRef(null);
-  const footerLogoRef     = useRef(null);
   const menuLogoRef       = useRef(null);
   const heroThumbRef      = useRef(null);
   const thumbSlideRef     = useRef(null);
@@ -2007,10 +3067,6 @@ function Page() {
   const philoMouseRef     = useRef({ targetX:0, currentX:0, targetRotY:0, currentRotY:0, targetY:0, currentY:0, targetRotX:0, currentRotX:0 });
   const carouselRef       = useRef(null);
   const carouselSectionRef  = useRef(null);
-  const contactSectionRef   = useRef(null);
-  const contactCardRef      = useRef(null);
-  const [contactHeight, setContactHeight] = useState(null);
-  const [contactCardHeight, setContactCardHeight] = useState(null);
   const [carouselVisible, setCarouselVisible] = useState(false);
   const [modelsVisible,  setModelsVisible]  = useState(false);
   const dragRef           = useRef({ active: false, startX: 0, scrollLeft: 0 });
@@ -2428,18 +3484,6 @@ function Page() {
   }, [isMobile]);
 
 
-  // Snap contact section and card heights to nearest cell multiple on mobile
-  useLayoutEffect(()=>{
-    if (!isMobile) return;
-    const CELL = Math.round(32 * 0.66);
-    const target = window.innerHeight * 0.66;
-    setContactHeight(Math.ceil(target / CELL) * CELL);
-    // Card: measure natural height then snap up to nearest cell multiple
-    if (contactCardRef.current) {
-      const cardH = contactCardRef.current.getBoundingClientRect().height;
-      setContactCardHeight(Math.ceil(cardH / CELL) * CELL);
-    }
-  }, [isMobile]);
 
   // CTA button ScrambleText on hover — width locked so button never resizes
   useEffect(()=>{
@@ -2463,31 +3507,6 @@ function Page() {
     return ()=> handlers.forEach(({ btn, handler })=> btn.removeEventListener('mouseenter', handler));
   }, []);
 
-  // Footer Lottie — play once when footer enters view
-  useEffect(()=>{
-    if (typeof lottie === "undefined") return;
-    const el = footerLogoRef.current;
-    if (!el) return;
-    let anim = null;
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting && !anim) {
-        anim = lottie.loadAnimation({
-          container: el,
-          renderer: "svg",
-          loop: false,
-          autoplay: true,
-          path: "json/Dijitally-Logo.json",
-          rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
-        });
-        anim.addEventListener("DOMLoaded", () => {
-          if (typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh();
-        });
-        obs.disconnect();
-      }
-    }, { threshold: 0.2 });
-    obs.observe(el);
-    return () => { obs.disconnect(); if (anim) anim.destroy(); };
-  }, []);
 
 
 
@@ -2578,7 +3597,7 @@ function Page() {
 
         {/* Nav logo — shown when scrolled, or always on secondary pages */}
         {(scrolled || page !== 'home') && (
-          <a href="#" onClick={e=>{ e.preventDefault(); setPage('home'); window.scrollTo(0,0); }} style={{display:"flex",alignItems:"center",flexShrink:0,textDecoration:"none"}}>
+          <a href="#" onClick={e=>{ e.preventDefault(); goToHome(); }} style={{display:"flex",alignItems:"center",flexShrink:0,textDecoration:"none"}}>
             <img
               src="dijitally-heading.svg"
               alt="DIJITALLY™"
@@ -2609,7 +3628,7 @@ function Page() {
               cursor:"pointer",
               userSelect:"none",
             }}
-            onClick={()=>{ if(l==="Services"){ goToServices(); } else if(l==="Work"){ setPage('home'); window.scrollTo(0,0); } }}
+            onClick={()=>{ if(l==="Services"){ goToServices(); } else if(l==="Work"){ goToHome(); } }}
             onMouseEnter={e=>{
               const el = e.currentTarget;
               const textNode = el.querySelector('.nav-text');
@@ -2694,7 +3713,7 @@ function Page() {
         </nav>
       </header>, document.getElementById('nav-portal'))}
 
-      {page === 'services' && <ServicesPage dark={dark} isMobile={isMobile} setPage={setPage} />}
+      {page === 'services' && <ServicesPage dark={dark} isMobile={isMobile} setPage={setPage} setCtaOpen={setCtaOpen} />}
 
       {page === 'home' && <>
       {/* ══════════════════════════════════════
@@ -2821,7 +3840,7 @@ function Page() {
             position: isMobile ? "static" : "sticky", top:"var(--nav-h)",
           }}>
             <Eyebrow>++ OUR PHILOSOPHY ++</Eyebrow>
-            <div data-split="" role="paragraph" style={{
+            <div role="paragraph" style={{
               fontFamily:"var(--sans)",
               fontSize: isMobile ? "var(--h1)" : 74,
               fontWeight:350,
@@ -2832,7 +3851,9 @@ function Page() {
               color:"var(--secondary)",
             }}>
               Growth doesn't come from going it alone. It comes from having the right{" "}
-              <AllyWordmark size={isMobile ? 20 : 50} color="var(--secondary)" />{" "}
+              <span style={{display:"inline-block",verticalAlign:"middle",lineHeight:1}}>
+                <AllyWordmark size={isMobile ? 20 : 50} color="var(--secondary)" />
+              </span>{" "}
               beside you.
             </div>
           </div>
@@ -3238,147 +4259,8 @@ function Page() {
       {/* ══════════════════════════════════════
           CONTACT SECTION — padding: 96px 64px, bg #DEDEDE, gap 24px
       ══════════════════════════════════════ */}
-      <section ref={contactSectionRef} style={{
-        ...divider,
-        background: dark ? "#1A1A1A" : "#EDEAE5",
-        padding: isMobile ? "48px 16px" : "var(--s96) var(--s64)",
-        minHeight: isMobile ? (contactHeight ? `${contactHeight}px` : "66svh") : "auto",
-        display:"flex", flexDirection:"column", justifyContent:"center", alignItems:"center", gap:"var(--s24)",
-        position:"relative", overflow:"hidden",
-      }}>
-        {/* Corner pixel effects — interactive, light/dark-aware */}
-        <ContactPixels dark={dark} mobile={isMobile} />
-
-        {/* Inner contact card — 720×409px, bg #F5F3EE, br 4px */}
-        <div ref={contactCardRef} className="contact-card-inner" style={{
-          background: dark ? "#121010" : "var(--primary)",
-          borderRadius:4,
-          width: isMobile ? "calc(100% - 32px)" : 736,
-          height: isMobile ? (contactCardHeight ? contactCardHeight : "auto") : 416,
-          position:"relative",
-          zIndex:1,
-          display:"flex", alignItems:"center", justifyContent:"center",
-          paddingLeft: isMobile ? 24 : "var(--s64)",
-          paddingRight: isMobile ? 24 : "var(--s64)",
-          paddingTop: isMobile ? 32 : 0,
-          paddingBottom: isMobile ? 32 : 0,
-          overflow:"hidden",
-          flexShrink:0,
-        }}>
-          {/* Form — centred */}
-          <div style={{width:"100%",display:"flex",flexDirection:"column",gap:"var(--s24)",alignItems:"center",textAlign:"center"}}>
-            <Eyebrow center={false} style={{letterSpacing:"0.08em"}}>LET'S CHAT</Eyebrow>
-
-            {/* Heading always full width; input+button row below on mobile, inline on desktop */}
-            <div role="heading" aria-level="2" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",color:"var(--secondary)"}}>
-              Looking for an ally<br/>on your next project?
-            </div>
-            <div style={{display:"flex",gap:12,alignItems:"stretch",flexDirection: isMobile ? "column" : "row"}}>
-              <input
-                type="email" placeholder="Your contact email"
-                value={email} onChange={e=>setEmail(e.target.value)}
-                style={{
-                  width:240,flexShrink:0,padding:"18px 14px",fontFamily:"var(--sans)",fontSize:16,fontWeight:500,
-                  border:"1px solid var(--grey)",outline:"none",
-                  background:"var(--bg)",color:"#878787",
-                  boxSizing:"border-box",
-                }}
-              />
-              <button className="cta-btn" style={{
-                display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,
-                padding:"18px 24px",
-                background:"var(--tech)",
-                border:"none",borderRadius:0,
-                fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,
-                color:"#121010",
-                cursor:"pointer",whiteSpace:"nowrap",flexShrink:0,
-              }}>
-                <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/>
-                <span className="cta-text">Submit</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ══════════════════════════════════════
-          FOOTER — flex column, align-items flex-end, 447px
-      ══════════════════════════════════════ */}
-      <footer style={{
-        ...divider,
-        minHeight: "auto",
-        padding: isMobile ? "64px 24px 24px" : "var(--s64) var(--s64) 0",
-        display:"flex", flexDirection:"column", alignItems: isMobile ? "flex-start" : "flex-end",
-        gap: isMobile ? 24 : 0,
-        background:"var(--bg)",
-      }}>
-        {/* Mobile Row 1 — nav links spread + LinkedIn icon right | Desktop Row 1 — nav links + Privacy Policy */}
-        {isMobile ? (
-          <div style={{width:"100%", display:"flex", alignItems:"center", justifyContent:"space-between"}}>
-            {["WORK","SERVICES","ABOUT"].map(l=>(
-              <span key={l} style={{display:"flex",alignItems:"center",gap:6}}>
-                <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
-                <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)",}}>{l}</ScrambleSpan>
-              </span>
-            ))}
-            <a href="#" aria-label="LinkedIn" style={{display:"flex",alignItems:"center",justifyContent:"center",width:24,height:24,flexShrink:0}}>
-              <img src="dijitally-footer.svg" alt="LinkedIn" style={{width:24,height:24,display:"block"}}/>
-            </a>
-          </div>
-        ) : (
-          <div className="footer-row" style={{width:"100%", paddingTop:"var(--s32)", display:"flex", alignItems:"center", justifyContent:"space-between"}}>
-            <div style={{display:"flex",alignItems:"center",gap:"var(--s12)",flexWrap:"wrap"}}>
-              {["WORK","SERVICES","ABOUT"].map(l=>(
-                <span key={l} style={{display:"flex",alignItems:"center",gap:"var(--s12)",cursor:l==="SERVICES"?"pointer":"default"}}
-                  onClick={l==="SERVICES" ? goToServices : undefined}>
-                  <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
-                  <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)",}}>{l}</ScrambleSpan>
-                </span>
-              ))}
-            </div>
-            <span style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
-              <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
-              <a href="#" style={{textDecoration:"none"}}>
-                <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)",}}>PRIVACY POLICY</ScrambleSpan>
-              </a>
-            </span>
-          </div>
-        )}
-
-        {/* Mobile Row 2 — Privacy Policy left, Terms + Conditions right | Desktop Row 2 — LinkedIn + Terms */}
-        {isMobile ? (
-          <div style={{width:"100%", display:"flex", alignItems:"center", justifyContent:"space-between"}}>
-            <span style={{display:"flex",alignItems:"center",gap:6}}>
-              <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
-              <a href="#" style={{textDecoration:"none"}}>
-                <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)",}}>PRIVACY POLICY</ScrambleSpan>
-              </a>
-            </span>
-            <span style={{display:"flex",alignItems:"center",gap:6}}>
-              <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
-              <a href="#" style={{textDecoration:"none"}}>
-                <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)",}}>TERMS + CONDITIONS</ScrambleSpan>
-              </a>
-            </span>
-          </div>
-        ) : (
-          <div className="footer-row" style={{width:"100%", padding:"var(--s12) 0 var(--s32) 0", display:"flex", alignItems:"center", justifyContent:"space-between"}}>
-            <a href="#" aria-label="LinkedIn" style={{display:"flex",alignItems:"center",justifyContent:"center",width:24,height:24,flexShrink:0}}>
-              <img src="dijitally-footer.svg" alt="LinkedIn" style={{width:24,height:24,display:"block"}}/>
-            </a>
-            <span style={{display:"flex",alignItems:"center",gap:"var(--s12)"}}>
-              <span style={{width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0}}/>
-              <a href="#" style={{textDecoration:"none"}}>
-                <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)",}}>TERMS + CONDITIONS</ScrambleSpan>
-              </a>
-            </span>
-          </div>
-        )}
-
-        {/* Footer DIJITALLY™ logo — Lottie, plays once on enter */}
-        <div ref={footerLogoRef} style={{width:"100%",overflow:"hidden",filter:dark?"url(#to-warm-white)":"none",transition:"filter 0.3s ease"}} />
-
-      </footer>
+      <ContactSection dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />
+      <SiteFooter dark={dark} isMobile={isMobile} />
 
       {/* Back to top — full-width bar, outside footer */}
       <div style={{height:32}}/>
@@ -3468,7 +4350,7 @@ function Page() {
                   <a
                     href="#"
                     className="menu-nav-item"
-                    onClick={e=>{ e.preventDefault(); if(label==="Services"){ goToServices(); } else if(label==="Work"){ setMenuOpen(false); setTimeout(()=>{ setPage('home'); window.scrollTo(0,0); },300); } else { setMenuOpen(false); } }}
+                    onClick={e=>{ e.preventDefault(); if(label==="Services"){ setMenuOpen(false); setTimeout(goToServices,300); } else if(label==="Work"){ setMenuOpen(false); setTimeout(goToHome,300); } else { setMenuOpen(false); } }}
                     style={{
                       fontFamily:"var(--sans)", fontSize:26, fontWeight:350,
                       lineHeight:"120%", letterSpacing:"0.26px",

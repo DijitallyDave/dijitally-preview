@@ -169,7 +169,7 @@
       transition: transform 0.7s cubic-bezier(0.76, 0, 0.24, 1);
     }
     #cta-panel.open { transform: translateX(0); }
-    @media(max-width:768px){ #cta-panel { width: 100vw; } }
+    @media(max-width:768px){ #cta-panel { width: 100vw !important; } }
     #cta-overlay {
       opacity: 0; pointer-events: none;
       background: #1A1A1A; mix-blend-mode: multiply;
@@ -179,7 +179,7 @@
   </style>
 </head>
 <body>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 21239be</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build db95276</div>
 <svg style="position:absolute;width:0;height:0;overflow:hidden" aria-hidden="true">
   <defs>
     <!--
@@ -250,33 +250,7 @@
     });
   })();
 </script>
-<div id="cta-overlay" style="position:fixed;inset:0;z-index:199;"></div>
-<div id="cta-panel" style="position:fixed;top:0;right:0;bottom:0;width:661px;background:var(--primary);z-index:200;display:flex;flex-direction:column;padding:32px 24px;overflow-y:auto;">
-  <div style="display:flex;justify-content:flex-end;margin-bottom:42px;">
-    <button id="cta-close" style="background:none;border:none;cursor:pointer;width:28px;height:19px;position:relative;flex-shrink:0;">
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;">
-        <div style="width:30px;height:2px;background:var(--secondary);transform:rotate(-30deg);position:absolute;"></div>
-        <div style="width:30px;height:2px;background:var(--secondary);transform:rotate(-150deg);position:absolute;"></div>
-      </div>
-    </button>
-  </div>
-  <div style="display:flex;flex-direction:column;gap:42px;flex:1;justify-content:center;">
-    <div id="cta-heading" style="font-family:var(--sans);font-size:32px;font-weight:350;line-height:110%;letter-spacing:-0.64px;">
-      <span style="color:var(--static);">Need an ally? </span><span style="color:var(--secondary);">Let's start</span><br/><span style="color:var(--secondary);">a project together.</span>
-    </div>
-    <div style="display:flex;flex-direction:column;width:100%;">
-      <input placeholder="Your name" type="text" style="padding:16px;font-family:var(--sans);font-size:16px;font-weight:350;border:1px solid var(--grey);outline:none;background:var(--primary);color:var(--secondary);letter-spacing:0.16px;" />
-      <input placeholder="Your email" type="email" style="padding:16px;font-family:var(--sans);font-size:16px;font-weight:350;border:1px solid var(--grey);border-top:none;outline:none;background:var(--primary);color:var(--secondary);letter-spacing:0.16px;" />
-      <textarea placeholder="Add any notes, if desired." style="padding:16px;font-family:var(--sans);font-size:16px;font-weight:350;border:1px solid var(--grey);border-top:none;outline:none;background:var(--primary);color:var(--static);resize:none;height:186px;letter-spacing:0.16px;"></textarea>
-      <div style="display:flex;justify-content:flex-end;margin-top:10px;">
-        <button class="cta-btn" style="background:var(--tech);color:#121010;border:none;cursor:pointer;display:inline-flex;align-items:center;gap:4px;padding:6px;font-family:var(--sans);font-size:19px;font-weight:500;letter-spacing:0;line-height:1;">
-          <span style="width:3px;height:3px;background:currentColor;display:inline-block;flex-shrink:0;"></span>
-          <span class="cta-text">Submit</span>
-        </button>
-      </div>
-    </div>
-  </div>
-</div>
+<div id="lb-portal"></div>
 <div id="smooth-wrapper" style="overflow:hidden;position:fixed;height:100%;width:100%;top:0;left:0;right:0;bottom:0;">
   <div id="smooth-content" style="overflow:visible;width:100%;will-change:transform;">
     <div id="root"></div>
@@ -596,7 +570,7 @@ const SVC_ROWS = [
   { slug:"Strategically",    bracket:"strategic",    headline:"Go-to-market through to market fit.",        body:"From market entry and audience strategy to channel prioritisation, we map out the smartest way to grow. Every move is intentional, with a clear definition of success.", bg:"electric", video:"videos/Services/strategy.mp4" },
   { slug:"Organisationally", bracket:"organisation", headline:"In-house modelling.",                        body:"We scale your capability, not just your output. That means designing operating models, resourcing plans, and workflows that help you move faster without over-hiring.", bg:"stream",    video:"videos/Services/organisation.mp4" },
   { slug:"Systematically",   bracket:"systematic",   headline:"Brand-world development.",                   body:"We build the systems that keep your brand consistent at speed. From design systems to messaging frameworks, everything works together so you show up with confidence.", bg:"electric", video:"videos/Services/systems.mp4" },
-  { slug:"Commercially",     bracket:"commerci",     headline:"Commerce modelling & data mapping.",         body:"We dig into the numbers to understand where growth is slipping and where it can accelerate. Then we bring your teams together around what matters most.", bg:"stream",    video:"videos/Services/commercial.mp4" },
+  { slug:"Commercially",     bracket:"commercial",     headline:"Commerce modelling & data mapping.",         body:"We dig into the numbers to understand where growth is slipping and where it can accelerate. Then we bring your teams together around what matters most.", bg:"stream",    video:"videos/Services/commercial.mp4" },
   { slug:"Technologically",  bracket:"technologic",  headline:"Platforms & experience.",                    body:"From web and commerce to analytics and testing, we engineer flexible, high-performing platforms that keep up with your growth and adapt as you scale.", bg:"electric", video:"videos/Services/tech.mp4" },
   { slug:"Tactically",       bracket:"tactic",       headline:"Brand execution.",                           body:"Campaigns and launches to content and always-on activity, we deliver at speed with precision, ensuring everything ladders up to the broader growth strategy.", bg:"page",      video:"videos/Services/tactic.mp4" },
 ];
@@ -641,8 +615,8 @@ const BracketOpen = ({size=102, color="currentColor"}) => (
     <path d="M0 91.7705H14.9664V9.39749H0V0H26.4522V101.168H0V91.7705Z" fill="currentColor"/>
   </svg>
 );
-const AllyWordmark = ({size=102, color="currentColor"}) => (
-  <svg width={369*(size/102)} height={size} viewBox="0 0 369 102" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{flexShrink:0,color}}>
+const AllyWordmark = ({size=102, color="currentColor", fillContainer=false}) => (
+  <svg width={fillContainer ? "100%" : 369*(size/102)} height={fillContainer ? undefined : size} viewBox="0 0 369 102" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true" style={{flexShrink:0,color,display:"block"}}>
     <path fillRule="evenodd" clipRule="evenodd" d="M107.03 101.44H83.3966V77.807H39.6756L26.4048 101.44H-0.000488281L56.9913 0H107.03V101.44ZM52.9919 54.174H83.4421V23.633H70.1713L52.9919 54.2195V54.174Z" fill="currentColor"/>
     <path d="M143.834 77.807H192.463V101.44H120.201V0H143.834V77.807Z" fill="currentColor"/>
     <path d="M229.267 77.807H277.897V101.44H205.634V0H229.267V77.807Z" fill="currentColor"/>
@@ -1079,6 +1053,9 @@ function ServicesHero({ isMobile, dark }) {
   const [activeStep, setActiveStep] = React.useState(0);
   const [carouselIndex, setCarouselIndex] = React.useState(0);
   const [carouselEngaged, setCarouselEngaged] = React.useState(false);
+  const mobileBracketRef = useRef(null);
+  const mobileCycleRef = useRef(null);
+  const mobileSplitRef = useRef(null);
   const allyContainerRef = useRef(null);
   const bgRefs           = useRef([]);
   const yourInnerRef     = useRef(null);
@@ -1770,7 +1747,52 @@ function ServicesHero({ isMobile, dark }) {
     };
   }, [isMobile]);
 
-  // Carousel video autoplay via IntersectionObserver (Android Chrome ignores autoPlay in scroll containers)
+  // Mobile bracket word auto-cycle — SplitText char animation matching desktop
+  useEffect(()=>{
+    if (!isMobile) return;
+    if (typeof gsap === 'undefined' || typeof SplitText === 'undefined') return;
+    const words = ["point of scale", ...SVC_ROWS.map(s => s.bracket)];
+    let i = 0;
+
+    function swapTo(newText) {
+      const el = mobileBracketRef.current;
+      if (!el) return;
+      const doIn = () => {
+        if (mobileSplitRef.current) { try { mobileSplitRef.current.revert(); } catch(e){} }
+        el.textContent = newText;
+        mobileSplitRef.current = new SplitText(el, { type: "chars" });
+        gsap.fromTo(mobileSplitRef.current.chars,
+          { y: "110%", opacity: 0 },
+          { y: "0%", opacity: 1, duration: 0.375, ease: "power2.out", stagger: { each: 0.0225 } }
+        );
+      };
+      if (mobileSplitRef.current && mobileSplitRef.current.chars && mobileSplitRef.current.chars.length) {
+        gsap.to(mobileSplitRef.current.chars, {
+          y: "-110%", opacity: 0, duration: 0.2, ease: "power2.in",
+          stagger: { each: 0.015 }, onComplete: doIn,
+        });
+      } else {
+        doIn();
+      }
+    }
+
+    function next() {
+      i = (i + 1) % words.length;
+      swapTo(words[i]);
+      mobileCycleRef.current = setTimeout(next, i === 0 ? 2000 : 1500);
+    }
+
+    swapTo(words[0]);
+    mobileCycleRef.current = setTimeout(next, 2000);
+
+    return () => {
+      if (mobileCycleRef.current) clearTimeout(mobileCycleRef.current);
+      if (mobileSplitRef.current) { try { mobileSplitRef.current.revert(); } catch(e){} }
+      const el = mobileBracketRef.current;
+      if (el) gsap.killTweensOf(el);
+    };
+  }, [isMobile]);
+
   // Carousel scroll progress bar
   useEffect(()=>{
     if (!isMobile) return;
@@ -1807,15 +1829,17 @@ function ServicesHero({ isMobile, dark }) {
   return (
     <>
       {/* ── ALLY container — desktop: pins as hero; mobile: static headline ── */}
-      <div ref={allyContainerRef} style={{ height: isMobile ? "auto" : "100vh", position:"relative", overflow: "clip" }}>
+      <div ref={allyContainerRef} style={{ height: isMobile ? "75vh" : "100vh", position:"relative", overflow: "clip" }}>
 
         {!isMobile && <div style={{ position:"absolute", inset:0, background:"var(--bg)", zIndex:0 }} />}
-        <div ref={ditherHeroRef} style={{position:'absolute',left:'50%',top:0,transform:'translate(-50%, calc(-50% + 128px))',width:'85%',height:'85%',zIndex:0,pointerEvents:'none'}}>
-          {!isSafari && <video src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline style={{
-            position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover",
-            filter: dark ? "url(#duotone-svc-dark)" : "url(#duotone-svc-light)",
-          }} />}
-        </div>
+        {!isMobile && (
+          <div ref={ditherHeroRef} style={{position:'absolute',left:'50%',top:0,transform:'translate(-50%, calc(-50% + 128px))',width:'85%',height:'85%',zIndex:0,pointerEvents:'none'}}>
+            {!isSafari && <video src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline style={{
+              position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover",
+              filter: dark ? "url(#duotone-svc-dark)" : "url(#duotone-svc-light)",
+            }} />}
+          </div>
+        )}
 
         {/* Dither bg per section — desktop only */}
         {!isMobile && SVC_ROWS.map((svc, i) => (
@@ -1851,20 +1875,22 @@ function ServicesHero({ isMobile, dark }) {
 
         {/* ALLY treatment — mobile: inline row; desktop: right-anchored SVG row */}
         {isMobile ? (
-          <div style={{ background:"var(--bg)" }}>
-            <div style={{ padding:"42px 24px 24px", display:"flex", alignItems:"center", justifyContent:"center", flexWrap:"nowrap", gap:3 }}>
-              {!carouselEngaged && <span style={{ fontFamily:"var(--sans)", fontSize:22, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.22px", color:"var(--secondary)", whiteSpace:"nowrap" }}>Your</span>}
-              <BracketOpen size={23} color="var(--secondary)" />
-              <span style={{ fontFamily:"var(--sans)", fontSize:22, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.22px", color:"var(--secondary)", whiteSpace:"nowrap", transition:"opacity 0.2s" }}>{carouselEngaged ? SVC_ROWS[carouselIndex].bracket : "point of scale"}</span>
-              <BracketClose size={23} color="var(--secondary)" />
-              <AllyWordmark size={23} color="var(--secondary)" />
-            </div>
-            {!carouselEngaged && (
-              <div style={{ padding:"0 24px 42px", display:"flex", flexDirection:"column", gap:12 }}>
-                <div style={{ fontFamily:"var(--sans)", fontSize:19, fontWeight:500, lineHeight:1.1, letterSpacing:"-0.38px", color:"var(--secondary)" }}>From engineering to execution.</div>
-                <div style={{ fontFamily:"var(--sans)", fontSize:15, fontWeight:350, lineHeight:1.3, letterSpacing:"0.15px", color:"var(--secondary)", opacity:0.75 }}>Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.</div>
+          <div style={{ position:"absolute", bottom:0, left:0, right:0, background:"var(--bg)" }}>
+            <div style={{ padding:"24px 24px 20px", display:"flex", alignItems:"center", justifyContent:"center", gap:3 }}>
+              <span style={{ fontFamily:"var(--sans)", fontSize:30, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.3px", color:"var(--secondary)", whiteSpace:"nowrap" }}>Your</span>
+              <BracketOpen size={31} color="var(--secondary)" />
+              <div style={{ overflow:"hidden", display:"inline-flex", alignItems:"center" }}>
+                <span ref={mobileBracketRef} style={{ fontFamily:"var(--sans)", fontSize:30, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.3px", color:"var(--secondary)", whiteSpace:"nowrap", display:"inline-block" }}>point of scale</span>
               </div>
-            )}
+              <BracketClose size={31} color="var(--secondary)" />
+            </div>
+            <div style={{ padding:"0 24px" }}>
+              <AllyWordmark fillContainer color="var(--secondary)" />
+            </div>
+            <div style={{ padding:"48px 24px 42px", display:"flex", flexDirection:"column", gap:12 }}>
+              <div style={{ fontFamily:"var(--sans)", fontSize:"var(--h1)", fontWeight:350, lineHeight:"110%", letterSpacing:"-0.84px", color:"var(--secondary)" }}>From engineering to execution.</div>
+              <div style={{ fontFamily:"var(--sans)", fontSize:18, fontWeight:350, lineHeight:1.2, letterSpacing:0, color:"#878787" }}>Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.</div>
+            </div>
           </div>
         ) : (
           <div style={{
@@ -1968,10 +1994,11 @@ function ServicesHero({ isMobile, dark }) {
           overflowX:"auto", overflowY:"hidden",
           scrollSnapType:"x mandatory",
           WebkitOverflowScrolling:"touch",
+          touchAction:"pan-x",
         }}>
           {SVC_ROWS.map((svc, i) => (
             <div key={i} style={{
-              width:360, flexShrink:0,
+              width:"100vw", flexShrink:0,
               borderTop:"1px solid var(--grey)",
               padding:"48px 32px",
               display:"flex", flexDirection:"column", gap:32,
@@ -1983,11 +2010,14 @@ function ServicesHero({ isMobile, dark }) {
                 <span style={{ fontFamily:"var(--mono)", fontSize:10, fontWeight:400, letterSpacing:"0.06em", color:"#878787", textTransform:"uppercase" }}>{svc.slug}</span>
               </div>
               <div style={{ width:223, height:223, alignSelf:"flex-start", flexShrink:0, overflow:"hidden", borderRadius:4, position:"relative" }}>
-                <DitherBg src={svc.video} dark={dark} active={true} px={4} />
+                <video src={svc.video} autoPlay muted loop playsInline style={{
+                  position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover",
+                  filter: isSafari ? "none" : (dark ? "url(#duotone-svc-dark)" : "url(#duotone-svc-light)"),
+                }} />
               </div>
               <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
-                <div style={{ fontFamily:"var(--sans)", fontSize:26, fontWeight:350, lineHeight:1.1, letterSpacing:"-0.26px", color:"var(--secondary)" }}>{svc.headline}</div>
-                <div style={{ fontFamily:"var(--sans)", fontSize:19, fontWeight:350, lineHeight:1.2, letterSpacing:"0.19px", color:"#878787" }}>{svc.body}</div>
+                <div style={{ fontFamily:"var(--sans)", fontSize:"var(--h1)", fontWeight:350, lineHeight:"110%", letterSpacing:"-0.84px", color:"var(--secondary)" }}>{svc.headline}</div>
+                <div style={{ fontFamily:"var(--sans)", fontSize:18, fontWeight:350, lineHeight:1.2, letterSpacing:0, color:"#878787" }}>{svc.body}</div>
               </div>
             </div>
           ))}
@@ -2187,23 +2217,6 @@ function Page() {
     }
   }, [ctaOpen]);
 
-  // CTA close button
-  useEffect(()=>{
-    const closeBtn = document.getElementById("cta-close");
-    if (!closeBtn) return;
-    const handler = () => setCtaOpen(false);
-    closeBtn.addEventListener('click', handler);
-    return () => closeBtn.removeEventListener('click', handler);
-  }, []);
-
-  // CTA overlay click to close
-  useEffect(()=>{
-    const overlay = document.getElementById("cta-overlay");
-    if (!overlay) return;
-    const handler = () => setCtaOpen(false);
-    overlay.addEventListener('click', handler);
-    return () => overlay.removeEventListener('click', handler);
-  }, []);
 
   // Mobile menu lock
   useLayoutEffect(()=>{
@@ -2632,6 +2645,59 @@ function Page() {
 
       <div style={{height:32}}/>
       <BackToTopButton dark={dark}/>
+
+      {ReactDOM.createPortal(
+        React.createElement(React.Fragment, null,
+          React.createElement("div", {
+            id: "cta-overlay",
+            onClick: ()=>setCtaOpen(false),
+            style: { position:"fixed", inset:0, zIndex:199 }
+          }),
+          React.createElement("div", {
+            id: "cta-panel",
+            style: {
+              position:"fixed", top:0, right:0, height:"100vh", width:CTA_W, zIndex:200,
+              background:"var(--primary)",
+              display:"flex", flexDirection:"column",
+              padding: isMobile ? "32px 24px" : "42px 64px",
+              overflowY:"auto",
+            },
+            onClick: e=>e.stopPropagation()
+          },
+            React.createElement("div", { style:{display:"flex",justifyContent:"flex-end",marginBottom:42} },
+              React.createElement("button", {
+                onClick: ()=>setCtaOpen(false),
+                style:{ background:"none",border:"none",cursor:"pointer",width:28,height:19,position:"relative",flexShrink:0 }
+              },
+                React.createElement("div",{style:{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}},
+                  React.createElement("div",{style:{width:30,height:2,background:"var(--secondary)",transform:"rotate(-30deg)",position:"absolute"}}),
+                  React.createElement("div",{style:{width:30,height:2,background:"var(--secondary)",transform:"rotate(-150deg)",position:"absolute"}})
+                )
+              )
+            ),
+            React.createElement("div", { style:{display:"flex",flexDirection:"column",gap:42,flex:1,justifyContent:"center"} },
+              React.createElement("div", { id:"cta-heading", style:{fontFamily:"var(--sans)",fontSize:32,fontWeight:350,lineHeight:"110%",letterSpacing:"-0.64px",color:"var(--secondary)"} },
+                React.createElement("span",{style:{color:"var(--static)"}},"Need an ally? "),
+                React.createElement("span",{style:{color:"var(--secondary)"}}, "Let's start"),
+                React.createElement("br",null),
+                React.createElement("span",{style:{color:"var(--secondary)"}},"a project together.")
+              ),
+              React.createElement("div", { style:{display:"flex",flexDirection:"column",width: isMobile ? "100%" : 533} },
+                React.createElement("input",{placeholder:"Your name",type:"text",style:{padding:16,fontFamily:"var(--sans)",fontSize:16,fontWeight:350,border:"1px solid var(--grey)",outline:"none",background:"var(--primary)",color:"var(--secondary)",letterSpacing:"0.16px"}}),
+                React.createElement("input",{placeholder:"Your email",type:"email",style:{padding:16,fontFamily:"var(--sans)",fontSize:16,fontWeight:350,border:"1px solid var(--grey)",borderTop:"none",outline:"none",background:"var(--primary)",color:"var(--secondary)",letterSpacing:"0.16px"}}),
+                React.createElement("textarea",{placeholder:"Add any notes, if desired.",style:{padding:16,fontFamily:"var(--sans)",fontSize:16,fontWeight:350,border:"1px solid var(--grey)",borderTop:"none",outline:"none",background:"var(--primary)",color:"var(--static)",resize:"none",height:186,letterSpacing:"0.16px"}}),
+                React.createElement("div",{style:{display:"flex",justifyContent:"flex-end",marginTop:10}},
+                  React.createElement("button",{className:"cta-btn",style:{background:"var(--tech)",color:"#121010",border:"none",cursor:"pointer",display:"inline-flex",alignItems:"center",gap:4,padding:6,fontFamily:"var(--sans)",fontSize:19,fontWeight:500,letterSpacing:0,lineHeight:1}},
+                    React.createElement("span",{style:{width:3,height:3,background:"currentColor",display:"inline-block",flexShrink:0}}),
+                    React.createElement("span",{className:"cta-text"},"Submit")
+                  )
+                )
+              )
+            )
+          )
+        ),
+        document.getElementById("lb-portal")
+      )}
 
     </div>
   );
