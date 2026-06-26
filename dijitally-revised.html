@@ -421,7 +421,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 89345c9</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 09d6882</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -2089,14 +2089,19 @@ function ScrambleSpan({children, style={}, tag='span'}) {
   });
 }
 
-function BackToTopButton({ dark, smootherRef }) {
+function BackToTopButton({ dark, smootherRef, onBackToTop }) {
   const [hov, setHov] = React.useState(false);
   const bg    = hov ? (dark ? "#F5F3EE" : "#1A1818") : "var(--tech)";
   const color = hov ? (dark ? "#121010" : "#F5F3EE") : "#121010";
   const dot   = hov ? (dark ? "#121010" : "#F5F3EE") : "var(--static)";
+  function handleClick() {
+    if (onBackToTop) { onBackToTop(); return; }
+    if (smootherRef && smootherRef.current) smootherRef.current.scrollTo(0, true);
+    else window.scrollTo({ top: 0, behavior: "smooth" });
+  }
   return (
     <button
-      onClick={()=>{ if(smootherRef.current) smootherRef.current.scrollTo(0,true); else window.scrollTo({top:0,behavior:"smooth"}); }}
+      onClick={handleClick}
       onMouseEnter={()=>setHov(true)}
       onMouseLeave={()=>setHov(false)}
       style={{
@@ -2634,7 +2639,7 @@ const SVC_CASES = [
   { title:"Procore SURE",         meta:"CREATIVE · DESIGN · SOCIAL",   logo:"clients/Procore.svg",   img:"work/ProcoreSURE.png",        desc:"We've helped Procore deliver creative social strategy." },
 ];
 
-function SiteFooter({ isMobile, dark }) {
+function SiteFooter({ isMobile, dark, smootherRef, onBackToTop }) {
   const footerLogoRef = useRef(null);
   useEffect(()=>{
     if (typeof lottie === "undefined") return;
@@ -2698,6 +2703,8 @@ function SiteFooter({ isMobile, dark }) {
       )}
       <div ref={footerLogoRef} style={{width:"100%",overflow:"hidden",filter:dark?"url(#to-warm-white)":"none",transition:"filter 0.3s ease"}} />
     </footer>
+    <div style={{height:32}}/>
+    <BackToTopButton dark={dark} smootherRef={smootherRef} onBackToTop={onBackToTop}/>
   );
 }
 
@@ -2878,16 +2885,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
       </section>
 
       <ContactSection dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />
-      <SiteFooter dark={dark} isMobile={isMobile} />
-
-      <div style={{height:32}}/>
-      <button
-        onClick={()=>{ window.__servicesResetOnEnter = true; window.scrollTo({top:0,behavior:"instant"}); requestAnimationFrame(function(){ if(typeof ScrollTrigger!=="undefined") ScrollTrigger.refresh(); }); }}
-        style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,width:"100%",height:42,background:"var(--tech)",border:"none",cursor:"pointer",padding:0,margin:0,flexShrink:0}}
-      >
-        <span style={{width:3,height:3,borderRadius:"50%",background:"var(--static)",flexShrink:0,display:"block"}}/>
-        <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"-0.24px",color:"#121010",lineHeight:1}}>BACK TO TOP</ScrambleSpan>
-      </button>
+      <SiteFooter dark={dark} isMobile={isMobile} onBackToTop={()=>{ window.__servicesResetOnEnter = true; window.scrollTo({top:0,behavior:"instant"}); requestAnimationFrame(function(){ if(typeof ScrollTrigger!=="undefined") ScrollTrigger.refresh(); }); }}/>
 
     </div>
   );
@@ -3141,16 +3139,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
       )}
 
       <ContactSection dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />
-      <SiteFooter dark={dark} isMobile={isMobile} />
-
-      <div style={{height:32}}/>
-      <button
-        onClick={()=>{ window.scrollTo({top:0,behavior:"instant"}); }}
-        style={{display:"flex",alignItems:"center",justifyContent:"center",gap:6,width:"100%",height:42,background:"var(--tech)",border:"none",cursor:"pointer",padding:0,margin:0,flexShrink:0}}
-      >
-        <span style={{width:3,height:3,borderRadius:"50%",background:"var(--static)",flexShrink:0,display:"block"}}/>
-        <ScrambleSpan style={{fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"-0.24px",color:"#121010",lineHeight:1}}>BACK TO TOP</ScrambleSpan>
-      </button>
+      <SiteFooter dark={dark} isMobile={isMobile} onBackToTop={()=>{ window.scrollTo({top:0,behavior:"instant"}); }}/>
     </div>
   );
 }
@@ -4590,11 +4579,7 @@ function Page() {
           CONTACT SECTION — padding: 96px 64px, bg #DEDEDE, gap 24px
       ══════════════════════════════════════ */}
       <ContactSection dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />
-      <SiteFooter dark={dark} isMobile={isMobile} />
-
-      {/* Back to top — full-width bar, outside footer */}
-      <div style={{height:32}}/>
-      <BackToTopButton dark={dark} smootherRef={smootherRef}/>
+      <SiteFooter dark={dark} isMobile={isMobile} smootherRef={smootherRef}/>
 
       </>}
 
