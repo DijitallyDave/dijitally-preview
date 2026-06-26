@@ -4710,10 +4710,10 @@ function Page() {
             </div>
 
             {/* Footer — DIJITALLY™ Lottie logo full width */}
-            <div style={{ flexShrink:0, width:"100%" }}>
+            <div style={{ flexShrink:0, width:"100%" }} onClick={()=>{ setMenuOpen(false); goToHome(); }}>
               <div
                 ref={menuLogoRef}
-                style={{ width:"100%", overflow:"hidden", filter:"invert(1)" }}
+                style={{ width:"100%", overflow:"hidden", filter:"invert(1)", cursor:"pointer" }}
               />
             </div>
           </div>
