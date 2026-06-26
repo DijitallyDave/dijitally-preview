@@ -421,7 +421,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 09d6882</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 8ad2fa9</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -2661,6 +2661,7 @@ function SiteFooter({ isMobile, dark, smootherRef, onBackToTop }) {
   const navLinks = ["WORK","SERVICES","ABOUT"];
   const navClick = l => l==="WORK" ? goToWork : l==="SERVICES" ? goToServices : undefined;
   return (
+    <>
     <footer style={{borderTop:"1px solid var(--border)", minHeight:"auto", padding:isMobile?"64px 24px 24px":"var(--s64) var(--s64) 0", display:"flex", flexDirection:"column", alignItems:isMobile?"flex-start":"flex-end", gap:isMobile?24:0, background:"var(--bg)"}}>
       {isMobile ? (
         <div style={{width:"100%",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
@@ -2705,6 +2706,7 @@ function SiteFooter({ isMobile, dark, smootherRef, onBackToTop }) {
     </footer>
     <div style={{height:32}}/>
     <BackToTopButton dark={dark} smootherRef={smootherRef} onBackToTop={onBackToTop}/>
+    </>
   );
 }
 
