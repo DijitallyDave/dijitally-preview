@@ -4507,8 +4507,8 @@ function Page() {
                 Array.from(el.children).forEach(c => { if (c.classList.contains('wc')) c.style.width = w + 'px'; });
               });
             }} style={{width:"100%",paddingLeft:"var(--s42)",paddingRight:"var(--s42)",boxSizing:"border-box"}}>
-              {filtered.map((w,i) => (
-                <div key={i} className="wc" style={{marginBottom: i < filtered.length-1 ? 56 : 0}}>
+              {filtered.slice(0,4).map((w,i) => (
+                <div key={i} className="wc" style={{marginBottom: i < Math.min(filtered.length,4)-1 ? 56 : 0}}>
                   <div style={{position:"relative",width:"100%",paddingBottom:"64.58%",overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg}}>
                     <div style={{position:"absolute",top:0,left:0,width:"100%",height:"100%"}}>
                       {w.img && <StripRevealImg src={w.img} alt={w.title} delay={i*0.1}/>}
