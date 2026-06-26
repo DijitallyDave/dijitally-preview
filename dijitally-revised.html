@@ -421,7 +421,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 06cfec0</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 89345c9</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -1360,42 +1360,54 @@ function ServicesHero({ isMobile, dark }) {
       ov.__stripTimer = setTimeout(function() { ov.innerHTML = ''; ov.__stripTimer = null; }, (maxEnd + 0.15) * 1000);
     }
 
-    function handleSectionChange(step) {
+    function handleSectionChange(step, instant) {
       setActiveStep(step);
       var pi = step - 1;
 
       var thumb = videoRefs.current[0];
-      if (thumb) gsap.to(thumb, { opacity: step === 0 ? 1 : 0, duration: 0.4, ease: "power2.out" });
+      if (thumb) gsap.to(thumb, { opacity: step === 0 ? 1 : 0, duration: instant ? 0 : 0.4, ease: "power2.out" });
 
       ditherBgRefs.current.forEach(function(el, idx) {
         if (!el) return;
         var ov = ditherOverlayRefs.current[idx];
         if (idx === pi) {
           gsap.set(el, { opacity: 1 });
-          if (ov) triggerStripReveal(ov);
+          if (!instant && ov) triggerStripReveal(ov);
         } else {
           gsap.set(el, { opacity: 0 });
           if (ov) resetOverlay(ov);
         }
       });
 
-      svcSplits.forEach(function(split) {
+      svcSplits.forEach(function(split, idx) {
         if (!split || !split.chars) return;
         gsap.killTweensOf(split.chars);
-        gsap.set(split.chars, { y: "110%", opacity: 0 });
+        if (instant && idx === pi) {
+          gsap.set(split.chars, { y: "0%", opacity: 1 });
+        } else {
+          gsap.set(split.chars, { y: "110%", opacity: 0 });
+        }
       });
 
       bodyRefs.current.forEach(function(bel, idx) {
         if (!bel) return;
-        gsap.set(bel, { opacity: 0 });
-        if (bodySplits[idx] && bodySplits[idx].words) {
-          gsap.killTweensOf(bodySplits[idx].words);
-          gsap.set(bodySplits[idx].words, { y: "18px", opacity: 0 });
+        if (instant && idx === pi) {
+          gsap.set(bel, { opacity: 1 });
+          if (bodySplits[idx] && bodySplits[idx].words) {
+            gsap.killTweensOf(bodySplits[idx].words);
+            gsap.set(bodySplits[idx].words, { y: "0px", opacity: 1 });
+          }
+        } else {
+          gsap.set(bel, { opacity: 0 });
+          if (bodySplits[idx] && bodySplits[idx].words) {
+            gsap.killTweensOf(bodySplits[idx].words);
+            gsap.set(bodySplits[idx].words, { y: "18px", opacity: 0 });
+          }
         }
       });
 
-      if (step0BodyRef.current) gsap.to(step0BodyRef.current, { opacity: pi < 0 ? 1 : 0, duration: 0.3, ease: "power1.out" });
-      if (ditherHeroRef.current) gsap.to(ditherHeroRef.current, { opacity: pi < 0 ? 1 : 0, duration: 0.4, ease: "power1.out" });
+      if (step0BodyRef.current) { if (instant) gsap.set(step0BodyRef.current, { opacity: pi < 0 ? 1 : 0 }); else gsap.to(step0BodyRef.current, { opacity: pi < 0 ? 1 : 0, duration: 0.3, ease: "power1.out" }); }
+      if (ditherHeroRef.current) { if (instant) gsap.set(ditherHeroRef.current, { opacity: pi < 0 ? 1 : 0 }); else gsap.to(ditherHeroRef.current, { opacity: pi < 0 ? 1 : 0, duration: 0.4, ease: "power1.out" }); }
 
       if (pi >= 0) {
         if (posSplit && posSplit.words) {
@@ -1417,10 +1429,10 @@ function ServicesHero({ isMobile, dark }) {
           if (!pel) return;
           gsap.set(pel, { color: idx === pi ? "var(--bg)" : "var(--secondary)" });
         });
-        if (svcSplits[pi] && svcSplits[pi].chars) {
+        if (!instant && svcSplits[pi] && svcSplits[pi].chars) {
           gsap.to(svcSplits[pi].chars, { y: "0%", opacity: 1, duration: 0.375, ease: "power2.out", stagger: { each: 0.0225 } });
         }
-        if (bodyRefs.current[pi]) {
+        if (!instant && bodyRefs.current[pi]) {
           gsap.set(bodyRefs.current[pi], { opacity: 1 });
           if (bodySplits[pi] && bodySplits[pi].words) {
             gsap.to(bodySplits[pi].words, {
@@ -1701,9 +1713,7 @@ function ServicesHero({ isMobile, dark }) {
           }
         } else {
           tl.seek(currentStep / N, true);
-          var pi = currentStep - 1;
-          if (pillBoxRef.current && pi >= 0) gsap.set(pillBoxRef.current, { y: pi * pillPitch });
-          handleSectionChange(currentStep);
+          handleSectionChange(currentStep, true);
         }
       },
       onLeaveBack: function() { sectionActive = false; },
