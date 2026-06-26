@@ -421,7 +421,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 46f0a74</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build 06cfec0</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -1468,7 +1468,7 @@ function ServicesHero({ isMobile, dark }) {
         gsap.set(posSplit.words, { y: "0%", opacity: 1 });
         if (pillBoxRef.current) gsap.set(pillBoxRef.current, { y: 0 });
         handleSectionChange(0);
-        setTimeout(function() { animating = false; }, 420);
+        setTimeout(function() { animating = false; lastStepTime = 0; }, 420);
         return;
       }
 
@@ -1500,6 +1500,7 @@ function ServicesHero({ isMobile, dark }) {
         ease: "power2.inOut",
         onComplete: function() {
           animating = false;
+          lastStepTime = 0;
           handleSectionChange(next);
           if (pendingExitDown) {
             pendingExitDown = false;
@@ -1664,6 +1665,8 @@ function ServicesHero({ isMobile, dark }) {
       },
       onEnterBack: function() {
         sectionActive = true;
+        lastStepTime = 0;
+        animating = false;
         // Only full-reset when explicitly requested (e.g. Back to Top button)
         if (window.__servicesResetOnEnter) {
           window.__servicesResetOnEnter = false;
