@@ -2290,7 +2290,7 @@ const WORKS = [
   {title:"Afterpay Day",          meta:"CREATIVE · DESIGN · SOCIAL",     cat:"CREATIVE",     bg:"#1a1a1a",  fg:"#F5F3EE", label:"Afterpay Day",         img:"work/AfterpayDay.jpg",         aspect:"1/1"},
   {title:"Constantinople",        meta:"CREATIVE · DESIGN · SOCIAL",     cat:"SOCIAL",       bg:"#FF4500",  fg:"#F5F3EE", label:"Constantinople",       img:"work/Constantinople.png",      aspect:"1008/1360"},
   {title:"Airwallex x Dijitally", meta:"PERFORMANCE · 2024 · DATA",      cat:"DATA",         bg:"#0a0a1e",  fg:"#B6F4C9", label:"Airwallex",            img:"work/AWXxAirwallex.png",       aspect:"1008/1230"},
-  {title:"RoomStay Holiday Parks",meta:"CAMPAIGN · EVENT · 2024",        cat:"CREATIVE",     bg:"#1c2419",  fg:"#B6F4C9", label:"RoomStay",             img:null},
+  {title:"RoomStay Holiday Parks",meta:"CAMPAIGN · EVENT · 2024",        cat:"CREATIVE",     bg:"#1c2419",  fg:"#B6F4C9", label:"RoomStay",             img:"work/RoomStayBE_02.png", aspect:"1008/1360"},
   {title:"Procore ProSURE",       meta:"CREATIVE · DESIGN · SOCIAL",     cat:"SOCIAL",       bg:"#FF7F3F",  fg:"#F5F3EE", label:"Procore",              img:null},
 ];
 const CATS = ["ALL","PARTNERSHIPS","CREATIVE","SOCIAL","DATA"];
@@ -2659,7 +2659,7 @@ function SiteFooter({ isMobile, dark, smootherRef, onBackToTop }) {
   const dot = {width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0};
   const linkStyle = {fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"};
   const navLinks = ["WORK","SERVICES","ABOUT"];
-  const navClick = l => l==="WORK" ? goToWork : l==="SERVICES" ? goToServices : undefined;
+  const navClick = l => l==="WORK" ? goToWork : l==="SERVICES" ? goToServices : l==="ABOUT" ? goToAbout : undefined;
   return (
     <>
     <footer style={{borderTop:"1px solid var(--border)", minHeight:"auto", padding:isMobile?"64px 24px 24px":"var(--s64) var(--s64) 0", display:"flex", flexDirection:"column", alignItems:isMobile?"flex-start":"flex-end", gap:isMobile?24:0, background:"var(--bg)"}}>
@@ -2896,6 +2896,28 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
 /* ═══════════════════════════════════════════════════
    WORK PAGE
 ═══════════════════════════════════════════════════ */
+function FilterPill({ label, active, onClick }) {
+  const [hov, setHov] = React.useState(false);
+  return (
+    <button onClick={onClick}
+      onMouseEnter={()=>setHov(true)}
+      onMouseLeave={()=>setHov(false)}
+      style={{
+        display:"inline-flex", alignItems:"center", gap:4,
+        padding:"6px 12px",
+        background: active ? "var(--secondary)" : hov ? "var(--grey)" : "transparent",
+        border:"1px solid",
+        borderColor: active ? "var(--secondary)" : "var(--grey)",
+        borderRadius:100,
+        fontFamily:"var(--mono)", fontSize:11, fontWeight:400,
+        letterSpacing:"0.06em",
+        color: active ? "var(--bg)" : "var(--static)",
+        cursor:"pointer", whiteSpace:"nowrap",
+        transition:"background 0.15s ease",
+      }}>{label}</button>
+  );
+}
+
 function WorkPage({ dark, isMobile, setCtaOpen }) {
   const [cat, setCat] = useState("ALL");
   const [view, setView] = useState("grid");
@@ -2960,19 +2982,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
           {/* Filter pills */}
           <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
             {CATS.map(c=>(
-              <button key={c} onClick={()=>setCat(c)} style={{
-                display:"inline-flex",alignItems:"center",gap:4,
-                padding:"6px 12px",
-                background:cat===c?"var(--secondary)":"transparent",
-                border:"1px solid",
-                borderColor:cat===c?"var(--secondary)":"var(--grey)",
-                borderRadius:100,
-                fontFamily:"var(--mono)",fontSize:11,fontWeight:400,
-                letterSpacing:"0.06em",
-                color:cat===c?"var(--bg)":"var(--static)",
-                cursor:"pointer",whiteSpace:"nowrap",
-                transition:"all 0.2s ease",
-              }}>{c}</button>
+              <FilterPill key={c} label={c} active={cat===c} onClick={()=>setCat(c)}/>
             ))}
           </div>
 
@@ -3203,6 +3213,233 @@ function _stripTransition(targetPage) {
 function goToServices() { _stripTransition('services'); }
 function goToWork()     { _stripTransition('work'); }
 function goToHome()     { _stripTransition('home'); }
+function goToAbout()    { _stripTransition('about'); }
+
+/* ══════════════════════════════════════
+   ABOUT PAGE
+══════════════════════════════════════ */
+const TEAM = [
+  { name:"Declan", role:"FOUNDING ALLY" },
+  { name:"Luke",   role:"BUSINESS ALLY" },
+  { name:"Dave",   role:"CREATIVE ALLY" },
+  { name:"Dan",    role:"CLIENT ALLY"   },
+  { name:"Zara",   role:"STRATEGY ALLY" },
+];
+
+function AboutHeroPixels({ dark }) {
+  /* Small pixel-art cluster for bottom-right of hero image */
+  const fill = dark ? "#2a2a2a" : "#F5F3EF";
+  const blocks = [
+    [0,0],[1,0],[2,0],[3,0],
+    [0,1],[1,1],
+    [2,2],[3,2],[4,2],
+    [3,3],[4,3],
+    [4,4],[5,4],[6,4],
+    [5,5],[6,5],[7,5],
+  ];
+  const cell = 8;
+  const cols = 8, rows = 6;
+  return (
+    <svg width={cols*cell} height={rows*cell} style={{display:"block",flexShrink:0}}>
+      {blocks.map(([c,r],i)=>(
+        <rect key={i} x={c*cell} y={r*cell} width={cell-1} height={cell-1} fill={fill}/>
+      ))}
+    </svg>
+  );
+}
+
+function TeamCarousel({ dark, isMobile, nameStyle, roleStyle, padLeft }) {
+  const trackRef = useRef(null);
+  const thumbRef = useRef(null);
+  const barRef   = useRef(null);
+  const dragRef  = useRef({ active:false, startX:0, scrollStart:0 });
+
+  useEffect(()=>{
+    const track = trackRef.current;
+    const thumb = thumbRef.current;
+    const bar   = barRef.current;
+    if (!track || !thumb || !bar) return;
+
+    const update = () => {
+      const scrollable = track.scrollWidth - track.clientWidth;
+      const barW = bar.clientWidth;
+      if (scrollable <= 0) { thumb.style.width = barW + 'px'; thumb.style.left='0'; return; }
+      const thumbW  = Math.max((track.clientWidth / track.scrollWidth) * barW, 40);
+      const maxLeft = barW - thumbW;
+      const pos     = track.scrollLeft / scrollable;
+      thumb.style.width = thumbW + 'px';
+      thumb.style.left  = (pos * maxLeft) + 'px';
+    };
+
+    update();
+    track.addEventListener('scroll', update, {passive:true});
+    window.addEventListener('resize', update);
+
+    // Drag-to-scroll (desktop)
+    const onDown = e => {
+      dragRef.current = { active:true, startX:e.pageX, scrollStart:track.scrollLeft };
+      track.style.cursor = 'grabbing';
+      track.style.userSelect = 'none';
+    };
+    const onMove = e => {
+      if (!dragRef.current.active) return;
+      e.preventDefault();
+      track.scrollLeft = dragRef.current.scrollStart - (e.pageX - dragRef.current.startX);
+    };
+    const onUp = () => {
+      dragRef.current.active = false;
+      track.style.cursor = 'grab';
+      track.style.userSelect = '';
+    };
+    track.addEventListener('mousedown', onDown);
+    window.addEventListener('mousemove', onMove);
+    window.addEventListener('mouseup', onUp);
+    track.style.cursor = 'grab';
+
+    return ()=>{
+      track.removeEventListener('scroll', update);
+      window.removeEventListener('resize', update);
+      track.removeEventListener('mousedown', onDown);
+      window.removeEventListener('mousemove', onMove);
+      window.removeEventListener('mouseup', onUp);
+    };
+  }, []);
+
+  return (
+    <div style={{display:"flex",flexDirection:"column",gap:64}}>
+      <div ref={trackRef} style={{
+        display:"flex",
+        flexDirection:"row",
+        gap:42,
+        overflowX:"auto",
+        scrollbarWidth:"none",
+        msOverflowStyle:"none",
+        paddingLeft: padLeft,
+        paddingRight: 64,
+      }}>
+        {TEAM.map((member,i)=>(
+          <div key={i} style={{
+            display:"flex",
+            flexDirection:"column",
+            gap:24,
+            flexShrink:0,
+            width: isMobile ? "calc(100vw - 48px)" : 320,
+          }}>
+            <div style={{
+              width:"100%",
+              height: isMobile ? 220 : 320,
+              border:"1px solid var(--grey)",
+              borderRadius:4,
+              background: dark
+                ? (i===1||i===2 ? "#1a1a1a" : "linear-gradient(135deg,#1e1e1e 0%,#2a2a2a 100%)")
+                : (i===1||i===2 ? "#f0f0f0" : "linear-gradient(135deg,#f6f6f6 0%,#e8e8e8 100%)"),
+            }}/>
+            <div style={{display:"flex",flexDirection:"column",gap:12}}>
+              <span style={nameStyle}>{member.name}</span>
+              <span style={roleStyle}>{member.role}</span>
+            </div>
+          </div>
+        ))}
+      </div>
+      {/* Scrollbar */}
+      <div ref={barRef} style={{position:"relative",height:2,background:"var(--grey)",marginLeft:padLeft,marginRight:64,overflow:"hidden"}}>
+        <div ref={thumbRef} style={{
+          position:"absolute",top:0,left:0,
+          height:"100%",
+          background:"var(--secondary)",
+          borderRadius:1,
+          pointerEvents:"none",
+        }}/>
+      </div>
+    </div>
+  );
+}
+
+function AboutPage({ dark, isMobile, setCtaOpen }) {
+  const nameStyle = {fontFamily:"var(--sans)",fontSize:isMobile?18:22,fontWeight:350,lineHeight:1.1,color:"var(--secondary)"};
+  const roleStyle = {fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",color:"#878787"};
+
+  return (
+    <div style={{background:"var(--bg)",color:"var(--secondary)",minHeight:"100svh"}}>
+
+      {/* ── Hero ── */}
+      <section style={{
+        height:"100svh",
+        padding: isMobile ? "0 24px 64px" : "0 var(--s64) var(--s64)",
+        display:"flex",
+        flexDirection: isMobile ? "column" : "row",
+        alignItems: isMobile ? "flex-start" : "flex-end",
+        justifyContent: isMobile ? "flex-end" : "space-between",
+        gap: isMobile ? 32 : 64,
+        maxWidth:"100%",
+        boxSizing:"border-box",
+      }}>
+        {/* Left — headline */}
+        <div style={{flex:"0 0 auto", maxWidth: isMobile ? "100%" : 541}}>
+          <h1 style={{fontFamily:"var(--sans)",fontSize:isMobile?"var(--h1)":48,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.96px",margin:0}}>
+            <span style={{color:"#878787"}}>We're Dijitally.</span>{" "}
+            A specialist growth agency built for brands at point of scale.
+          </h1>
+        </div>
+        {/* Right — body */}
+        {!isMobile && (
+          <div style={{flex:"0 0 auto",maxWidth:480}}>
+            <p style={{fontFamily:"var(--sans)",fontSize:22,fontWeight:350,lineHeight:1.2,color:"#878787",margin:0}}>
+              We bring together creative, production, marketing, + technology to drive measurable impact. Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.
+            </p>
+          </div>
+        )}
+      </section>
+
+      {/* ── Hero video ── */}
+      <div style={{margin: isMobile ? "0 24px" : "0 var(--s64)",lineHeight:0,flexShrink:0}}>
+        <video
+          autoPlay muted loop playsInline
+          style={{width:"100%",height:"auto",display:"block",objectFit:"cover"}}
+          src="videos/thumbnail.mp4"
+        />
+      </div>
+
+      {/* Mobile body text */}
+      {isMobile && (
+        <section style={{padding:"32px 24px 0"}}>
+          <p style={{fontFamily:"var(--sans)",fontSize:16,fontWeight:350,lineHeight:1.4,color:"#878787",margin:0}}>
+            We bring together creative, production, marketing, + technology to drive measurable impact. Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.
+          </p>
+        </section>
+      )}
+
+      {/* ── Team ── */}
+      <section style={{
+        paddingTop: isMobile ? 64 : 128,
+        paddingBottom: isMobile ? 64 : 256,
+        paddingLeft: isMobile ? 24 : "var(--s64)",
+        paddingRight: 0,
+        display:"flex",
+        flexDirection:"column",
+        gap: isMobile ? 40 : 64,
+        overflow:"visible",
+      }}>
+        {/* Header row */}
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
+          <Eyebrow center={false}>OUR SENIOR TEAM ( YOUR ALLIES )</Eyebrow>
+          <h2 style={{fontFamily:"var(--sans)",fontSize:isMobile?"var(--h1)":48,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.96px",color:"var(--secondary)",margin:0,maxWidth:420}}>
+            No lone wolves.<br/>Just smart packs.
+          </h2>
+        </div>
+
+        {/* Team carousel — bleeds off right edge */}
+        <TeamCarousel dark={dark} isMobile={isMobile} nameStyle={nameStyle} roleStyle={roleStyle} padLeft={0}/>
+      </section>
+
+      {/* ── Contact ── */}
+      <ContactSection dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen}/>
+
+      {/* ── Footer ── */}
+      <SiteFooter dark={dark} isMobile={isMobile} onBackToTop={()=>{ window.scrollTo({top:0,behavior:"instant"}); }}/>
+    </div>
+  );
+}
 
 function Page() {
   const [dark,        setDark]        = useState(getDefaultDark);
@@ -3939,16 +4176,16 @@ function Page() {
             <span key={l} className="mobile-nav-links nav-item" style={{
               display:"flex", alignItems:"center", gap:4,
               padding:6,
-              background: (l==="Services" && page==="services") || (l==="Work" && page==="work") ? "var(--secondary)" : "var(--bg)",
+              background: (l==="Services" && page==="services") || (l==="Work" && page==="work") || (l==="About" && page==="about") ? "var(--secondary)" : "var(--bg)",
               fontFamily:"var(--sans)",
               fontSize:"var(--nav-size)",
               fontWeight:"var(--nav-w)",
               letterSpacing:0,
-              color: (l==="Services" && page==="services") || (l==="Work" && page==="work") ? "var(--bg)" : "var(--secondary)",
+              color: (l==="Services" && page==="services") || (l==="Work" && page==="work") || (l==="About" && page==="about") ? "var(--bg)" : "var(--secondary)",
               cursor:"pointer",
               userSelect:"none",
             }}
-            onClick={()=>{ if(l==="Services"){ goToServices(); } else if(l==="Work"){ goToWork(); } }}
+            onClick={()=>{ if(l==="Services"){ goToServices(); } else if(l==="Work"){ goToWork(); } else if(l==="About"){ goToAbout(); } }}
             onMouseEnter={e=>{
               const el = e.currentTarget;
               const textNode = el.querySelector('.nav-text');
@@ -3963,7 +4200,7 @@ function Page() {
               gsap.to(textNode,{duration:0.4,ease:'none',
                 scrambleText:{text:l,chars:'upperCase',revealDelay:0.1,speed:0.9}});
             }}>
-              <span className="nav-dot" style={{width:3,height:3,background: (l==="Services" && page==="services") || (l==="Work" && page==="work") ? "var(--bg)" : "var(--secondary)",display:"inline-block",flexShrink:0}}/>
+              <span className="nav-dot" style={{width:3,height:3,background: (l==="Services" && page==="services") || (l==="Work" && page==="work") || (l==="About" && page==="about") ? "var(--bg)" : "var(--secondary)",display:"inline-block",flexShrink:0}}/>
               <span className="nav-text">{l}</span>
             </span>
           ))}
@@ -4035,6 +4272,7 @@ function Page() {
 
       {page === 'services' && <ServicesPage dark={dark} isMobile={isMobile} setPage={setPage} setCtaOpen={setCtaOpen} />}
       {page === 'work'     && <WorkPage dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />}
+      {page === 'about'    && <AboutPage dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />}
 
       {page === 'home' && <>
       {/* ══════════════════════════════════════
@@ -4659,7 +4897,7 @@ function Page() {
                   <a
                     href="#"
                     className="menu-nav-item"
-                    onClick={e=>{ e.preventDefault(); if(label==="Services"){ setMenuOpen(false); setTimeout(goToServices,300); } else if(label==="Work"){ setMenuOpen(false); setTimeout(goToWork,300); } else { setMenuOpen(false); } }}
+                    onClick={e=>{ e.preventDefault(); if(label==="Services"){ setMenuOpen(false); setTimeout(goToServices,300); } else if(label==="Work"){ setMenuOpen(false); setTimeout(goToWork,300); } else if(label==="About"){ setMenuOpen(false); setTimeout(goToAbout,300); } else { setMenuOpen(false); } }}
                     style={{
                       fontFamily:"var(--sans)", fontSize:26, fontWeight:350,
                       lineHeight:"120%", letterSpacing:"0.26px",
