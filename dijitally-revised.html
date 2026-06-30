@@ -2655,6 +2655,7 @@ function ServicesHeroStatic({ isMobile }) {
 function ServicesAccordion({ isMobile, dark }) {
   const [activeIdx, setActiveIdx] = React.useState(0);
   const activeIdxRef  = useRef(0);
+  const lastStepRef   = useRef(0);
   const sectionRef    = useRef(null);
   const bodyRefs      = useRef([]);
 
@@ -2685,7 +2686,6 @@ function ServicesAccordion({ isMobile, dark }) {
 
     const N = SVC_ROWS.length;
     const stepH = window.innerHeight * 0.85;
-    let lastStep = 0;
 
     const st = ScrollTrigger.create({
       trigger: el,
@@ -2695,8 +2695,8 @@ function ServicesAccordion({ isMobile, dark }) {
       pinSpacing: true,
       onUpdate: (self) => {
         const step = Math.min(Math.floor(self.progress * N), N - 1);
-        if (step !== lastStep) {
-          lastStep = step;
+        if (step !== lastStepRef.current) {
+          lastStepRef.current = step;
           setActiveIdx(step);
         }
       },
@@ -2705,9 +2705,10 @@ function ServicesAccordion({ isMobile, dark }) {
     return () => { st.kill(); };
   }, [isMobile]);
 
-  /* Click to jump: update state and scroll to corresponding pin position */
+  /* Click to jump: set state directly and snap scroll to position — no intermediate steps */
   function handleItemClick(idx) {
     setActiveIdx(idx);
+    lastStepRef.current = idx;
     if (isMobile || typeof ScrollTrigger === 'undefined') return;
     const triggers = ScrollTrigger.getAll();
     const st = triggers.find(t => t.trigger === sectionRef.current);
@@ -2716,7 +2717,7 @@ function ServicesAccordion({ isMobile, dark }) {
     const stepH = window.innerHeight * 0.85;
     const progress = (idx + 0.05) / N;
     const targetScroll = st.start + progress * stepH * N;
-    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+    window.scrollTo({ top: targetScroll, behavior: 'instant' });
   }
 
   const fs  = isMobile ? 36 : 58;
