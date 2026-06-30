@@ -2768,8 +2768,8 @@ function ServicesAccordion({ isMobile, dark }) {
                 marginBottom: i < SVC_ROWS.length - 1 ? (isActive ? (isMobile ? 16 : 24) : 0) : 0,
               }}>
                 {/* Title row */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, flexWrap: 'nowrap', width: 'max-content' }}>
-                  <span style={{ display: 'flex', flexShrink: 0, transition: 'opacity 0.35s ease', opacity: isActive ? 1 : 0.5 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, flexWrap: 'nowrap', width: 'max-content', opacity: isActive ? 1 : 0.5, transition: 'opacity 0.35s ease' }}>
+                  <span style={{ display: 'flex', flexShrink: 0 }}>
                     <BracketOpen size={bsz} color="var(--secondary)" />
                   </span>
                   <span style={{
@@ -2778,11 +2778,10 @@ function ServicesAccordion({ isMobile, dark }) {
                     fontWeight: 350,
                     lineHeight: 1.1,
                     letterSpacing: '-0.58px',
-                    color: isActive ? 'var(--secondary)' : 'var(--static)',
+                    color: 'var(--secondary)',
                     whiteSpace: 'nowrap',
-                    transition: 'color 0.35s ease',
                   }}>{label}</span>
-                  <span style={{ display: 'flex', flexShrink: 0, transition: 'opacity 0.35s ease', opacity: isActive ? 1 : 0.5 }}>
+                  <span style={{ display: 'flex', flexShrink: 0 }}>
                     <BracketClose size={bsz} color="var(--secondary)" />
                   </span>
                   {isActive && (
