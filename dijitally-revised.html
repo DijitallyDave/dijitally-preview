@@ -2932,7 +2932,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
   );
 
   const cardThumb = (w, width, height) => (
-    <div style={{width,height,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,position:"relative",overflow:"hidden",borderRadius:4,flexShrink:0}}>
+    <div onClick={e=>e.preventDefault()} style={{width,height,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,position:"relative",overflow:"hidden",borderRadius:4,flexShrink:0,cursor:"pointer"}}>
       {w.img
         ? <StripRevealImg src={w.img} alt={w.title} delay={0} style={{position:"absolute",inset:0,width:"100%",height:"100%"}}/>
         : <div style={{position:"absolute",inset:0,background:w.bg||"#2a2a2a"}}/>
@@ -3016,7 +3016,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
             }} style={{width:"100%"}}>
               {filtered.map((w,i)=>(
                 <div key={i} className="wc" style={{marginBottom:i<filtered.length-1?56:0}}>
-                  <div style={{position:"relative",width:"100%",paddingBottom:"64.58%",overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg}}>
+                  <div onClick={e=>e.preventDefault()} style={{position:"relative",width:"100%",paddingBottom:"64.58%",overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,cursor:"pointer"}}>
                     <div style={{position:"absolute",top:0,left:0,width:"100%",height:"100%"}}>
                       {w.img
                         ? <StripRevealImg src={w.img} alt={w.title} delay={i*0.1}/>
@@ -3040,7 +3040,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
                 <div style={{display:"flex",gap:128,alignItems:"flex-start"}}>
                   {filtered[0] && (
                     <div className="wc" style={{width:720,flexShrink:0}}>
-                      <div className="work-grid-thumb" style={{height:465,background:filtered[0].img?(dark?"#121010":"#1A1A1A"):filtered[0].bg}}>
+                      <div className="work-grid-thumb" onClick={e=>e.preventDefault()} style={{height:465,background:filtered[0].img?(dark?"#121010":"#1A1A1A"):filtered[0].bg,cursor:"pointer"}}>
                         {filtered[0].img
                           ? <StripRevealImg src={filtered[0].img} alt={filtered[0].title} delay={0}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[0].bg||"#2a2a2a"}}/>
@@ -3052,7 +3052,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
                   )}
                   {filtered[1] && (
                     <div className="wc" style={{width:378,flexShrink:0,paddingTop:252}}>
-                      <div className="work-grid-thumb" style={{height:378,background:filtered[1].img?(dark?"#121010":"#1A1A1A"):filtered[1].bg}}>
+                      <div className="work-grid-thumb" onClick={e=>e.preventDefault()} style={{height:378,background:filtered[1].img?(dark?"#121010":"#1A1A1A"):filtered[1].bg,cursor:"pointer"}}>
                         {filtered[1].img
                           ? <StripRevealImg src={filtered[1].img} alt={filtered[1].title} delay={0.2}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[1].bg||"#2a2a2a"}}/>
@@ -3069,7 +3069,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
                 <div style={{display:"flex",gap:128,alignItems:"flex-start"}}>
                   {filtered[2] && (
                     <div className="wc" style={{width:378,flexShrink:0,paddingBottom:320}}>
-                      <div className="work-grid-thumb" style={{height:378,background:filtered[2].img?(dark?"#121010":"#1A1A1A"):filtered[2].bg}}>
+                      <div className="work-grid-thumb" onClick={e=>e.preventDefault()} style={{height:378,background:filtered[2].img?(dark?"#121010":"#1A1A1A"):filtered[2].bg,cursor:"pointer"}}>
                         {filtered[2].img
                           ? <StripRevealImg src={filtered[2].img} alt={filtered[2].title} delay={0.1}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[2].bg||"#2a2a2a"}}/>
@@ -3081,7 +3081,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
                   )}
                   {filtered[3] && (
                     <div className="wc" style={{width:720,flexShrink:0,paddingTop:252}}>
-                      <div className="work-grid-thumb" style={{height:465,background:filtered[3].img?(dark?"#121010":"#1A1A1A"):filtered[3].bg}}>
+                      <div className="work-grid-thumb" onClick={e=>e.preventDefault()} style={{height:465,background:filtered[3].img?(dark?"#121010":"#1A1A1A"):filtered[3].bg,cursor:"pointer"}}>
                         {filtered[3].img
                           ? <StripRevealImg src={filtered[3].img} alt={filtered[3].title} delay={0.3}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[3].bg||"#2a2a2a"}}/>
@@ -3098,7 +3098,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
                 <div style={{display:"flex",gap:256,alignItems:"flex-start",paddingTop:128,paddingBottom:96}}>
                   {filtered[4] && (
                     <div className="wc" style={{width:378,flexShrink:0}}>
-                      <div className="work-grid-thumb" style={{height:378,background:filtered[4].img?(dark?"#121010":"#1A1A1A"):filtered[4].bg}}>
+                      <div className="work-grid-thumb" onClick={e=>e.preventDefault()} style={{height:378,background:filtered[4].img?(dark?"#121010":"#1A1A1A"):filtered[4].bg,cursor:"pointer"}}>
                         {filtered[4].img
                           ? <StripRevealImg src={filtered[4].img} alt={filtered[4].title} delay={0.1}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[4].bg||"#2a2a2a"}}/>
@@ -3110,7 +3110,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
                   )}
                   {filtered[5] && (
                     <div className="wc" style={{width:378,flexShrink:0}}>
-                      <div className="work-grid-thumb" style={{height:378,background:filtered[5].img?(dark?"#121010":"#1A1A1A"):filtered[5].bg}}>
+                      <div className="work-grid-thumb" onClick={e=>e.preventDefault()} style={{height:378,background:filtered[5].img?(dark?"#121010":"#1A1A1A"):filtered[5].bg,cursor:"pointer"}}>
                         {filtered[5].img
                           ? <StripRevealImg src={filtered[5].img} alt={filtered[5].title} delay={0.3}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[5].bg||"#2a2a2a"}}/>
@@ -3196,6 +3196,8 @@ function _stripTransition(targetPage) {
     if (targetPage === 'home') sessionStorage.setItem('skipIntro', '1');
     if (window.__setPage) window.__setPage(targetPage);
     window.scrollTo(0, 0);
+    if (window.__resetSmoother) window.__resetSmoother();
+    requestAnimationFrame(function() { window.scrollTo(0, 0); if (window.__resetSmoother) window.__resetSmoother(); });
     // wipe strips back out
     slices.forEach(function(sl, i) {
       var frac = i / Math.max(total - 1, 1);
@@ -3428,8 +3430,10 @@ function AboutPage({ dark, isMobile, setCtaOpen }) {
           </h2>
         </div>
 
-        {/* Team carousel — bleeds off right edge */}
-        <TeamCarousel dark={dark} isMobile={isMobile} nameStyle={nameStyle} roleStyle={roleStyle} padLeft={0}/>
+        {/* Team carousel — bleeds off both edges */}
+        <div style={{marginLeft: isMobile ? -24 : "calc(-1 * var(--s64))", marginRight:0}}>
+          <TeamCarousel dark={dark} isMobile={isMobile} nameStyle={nameStyle} roleStyle={roleStyle} padLeft={isMobile ? 24 : "var(--s64)"}/>
+        </div>
       </section>
 
       {/* ── Contact ── */}
@@ -3464,6 +3468,14 @@ function Page() {
 
   // Wire global setPage for strip transition
   useEffect(()=>{ window.__setPage = setPage; return ()=>{ delete window.__setPage; }; }, [setPage]);
+
+  // Expose smoother reset so _stripTransition can jump to top instantly
+  useEffect(()=>{
+    window.__resetSmoother = function() {
+      if (smootherRef.current) smootherRef.current.scrollTo(0, false);
+    };
+    return ()=>{ delete window.__resetSmoother; };
+  }, []);
 
   // Slide #smooth-wrapper left and animate CTA panel in/out
   useEffect(()=>{
@@ -4739,7 +4751,7 @@ function Page() {
             }} style={{width:"100%",paddingLeft:"var(--s42)",paddingRight:"var(--s42)",boxSizing:"border-box"}}>
               {filtered.slice(0,4).map((w,i) => (
                 <div key={i} className="wc" style={{marginBottom: i < Math.min(filtered.length,4)-1 ? 56 : 0}}>
-                  <div style={{position:"relative",width:"100%",paddingBottom:"64.58%",overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg}}>
+                  <div onClick={goToWork} style={{position:"relative",width:"100%",paddingBottom:"64.58%",overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,cursor:"pointer"}}>
                     <div style={{position:"absolute",top:0,left:0,width:"100%",height:"100%"}}>
                       {w.img && <StripRevealImg src={w.img} alt={w.title} delay={i*0.1}/>}
                       {cardCta('View project')}
@@ -4756,7 +4768,7 @@ function Page() {
               <div style={{display:"flex",gap:128,alignItems:"flex-start"}}>
                 {filtered[0] && (
                   <div className="wc" style={{width:720,flexShrink:0}}>
-                    <div className="work-grid-thumb" style={{height:465,background:filtered[0].img?(dark?"#121010":"#1A1A1A"):filtered[0].bg}}>
+                    <div className="work-grid-thumb" onClick={goToWork} style={{height:465,background:filtered[0].img?(dark?"#121010":"#1A1A1A"):filtered[0].bg,cursor:"pointer"}}>
                       {filtered[0].img && <StripRevealImg src={filtered[0].img} alt={filtered[0].title} delay={0}/>}
                       {cardCta('View project')}
                     </div>
@@ -4765,7 +4777,7 @@ function Page() {
                 )}
                 {filtered[1] && (
                   <div className="wc" style={{width:378,flexShrink:0,paddingTop:252}}>
-                    <div className="work-grid-thumb" style={{height:378,background:filtered[1].img?(dark?"#121010":"#1A1A1A"):filtered[1].bg}}>
+                    <div className="work-grid-thumb" onClick={goToWork} style={{height:378,background:filtered[1].img?(dark?"#121010":"#1A1A1A"):filtered[1].bg,cursor:"pointer"}}>
                       {filtered[1].img && <StripRevealImg src={filtered[1].img} alt={filtered[1].title} delay={0.2}/>}
                       {cardCta('View project')}
                     </div>
@@ -4777,7 +4789,7 @@ function Page() {
               <div style={{display:"flex",gap:128,alignItems:"flex-start",paddingBottom:96}}>
                 {filtered[2] && (
                   <div className="wc" style={{width:378,flexShrink:0,paddingBottom:320}}>
-                    <div className="work-grid-thumb" style={{height:378,background:filtered[2].img?(dark?"#121010":"#1A1A1A"):filtered[2].bg}}>
+                    <div className="work-grid-thumb" onClick={goToWork} style={{height:378,background:filtered[2].img?(dark?"#121010":"#1A1A1A"):filtered[2].bg,cursor:"pointer"}}>
                       {filtered[2].img && <StripRevealImg src={filtered[2].img} alt={filtered[2].title} delay={0.1}/>}
                       {cardCta('View project')}
                     </div>
@@ -4786,7 +4798,7 @@ function Page() {
                 )}
                 {filtered[3] && (
                   <div className="wc" style={{width:720,flexShrink:0,paddingTop:252}}>
-                    <div className="work-grid-thumb" style={{height:465,background:filtered[3].img?(dark?"#121010":"#1A1A1A"):filtered[3].bg}}>
+                    <div className="work-grid-thumb" onClick={goToWork} style={{height:465,background:filtered[3].img?(dark?"#121010":"#1A1A1A"):filtered[3].bg,cursor:"pointer"}}>
                       {filtered[3].img && <StripRevealImg src={filtered[3].img} alt={filtered[3].title} delay={0.3}/>}
                       {cardCta('View project')}
                     </div>
@@ -4800,7 +4812,7 @@ function Page() {
 
         {/* View all CTA — below thumbnails, centred */}
         <div style={{width:"100%",display:"flex",justifyContent:"center",paddingTop:isMobile?24:0,paddingBottom:isMobile?0:256,paddingLeft:"var(--s42)",paddingRight:"var(--s42)"}}>
-          <a href="#work" className="cta-btn" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"18px 24px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,color:"#121010",textDecoration:"none",whiteSpace:"nowrap"}}>
+          <a href="#work" className="cta-btn" onClick={e=>{e.preventDefault();goToWork();}} style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"18px 24px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,color:"#121010",textDecoration:"none",whiteSpace:"nowrap",cursor:"pointer"}}>
             <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span>
           </a>
         </div>
