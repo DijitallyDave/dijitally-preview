@@ -2717,7 +2717,8 @@ function ServicesAccordion({ isMobile, dark }) {
     const stepH = window.innerHeight * 0.85;
     const progress = (idx + 0.05) / N;
     const targetScroll = st.start + progress * stepH * N;
-    window.scrollTo({ top: targetScroll, behavior: 'instant' });
+    if (window.__smootherScrollTo) window.__smootherScrollTo(targetScroll);
+    else window.scrollTo({ top: targetScroll, behavior: 'instant' });
   }
 
   const fs  = isMobile ? 36 : 58;
@@ -3710,7 +3711,11 @@ function Page() {
     window.__resetSmoother = function() {
       if (smootherRef.current) smootherRef.current.scrollTo(0, false);
     };
-    return ()=>{ delete window.__resetSmoother; };
+    window.__smootherScrollTo = function(pos) {
+      if (smootherRef.current) smootherRef.current.scrollTo(pos, false);
+      else window.scrollTo({ top: pos, behavior: 'instant' });
+    };
+    return ()=>{ delete window.__resetSmoother; delete window.__smootherScrollTo; };
   }, []);
 
   // Slide #smooth-wrapper left and animate CTA panel in/out
