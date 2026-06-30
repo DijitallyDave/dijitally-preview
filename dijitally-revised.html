@@ -2610,110 +2610,76 @@ function MenuGlitch({ onComplete, onMidpoint }) {
 
 /* ── Accordion media sources — null = use default video ── */
 const ACCORDION_MEDIA = [
-  null,                                                          // 0 Strategic
-  { type:'video', src:'videos/Inhouse+Embedded.mp4' },          // 1 Organisation
-  null,                                                          // 2 Systematic
-  { type:'image', src:'work/AfterpayDay.jpg' },                  // 3 Commercial
-  { type:'image', src:'work/Constantinople.png' },               // 4 Technologic
-  { type:'image', src:'work/AWX.png' },                          // 5 Tactic
+  null,                                                 // 0 Strategic
+  { type:'video', src:'videos/Inhouse+Embedded.mp4' }, // 1 Organisation
+  null,                                                 // 2 Systematic
+  { type:'image', src:'work/AfterpayDay.jpg' },         // 3 Commercial
+  { type:'image', src:'work/Constantinople.png' },      // 4 Technologic
+  { type:'image', src:'work/AWX.png' },                 // 5 Tactic
 ];
 const ACCORDION_DEFAULT_VIDEO = 'videos/thumbnail.mp4';
 
-function AccordionMediaPanel({ activeIdx }) {
-  const containerRef  = useRef(null);
-  const canvasRef     = useRef(null);
-  const mediaRef      = useRef(null);
-  const animTimers    = useRef([]);
+/* Strip overlay — mounts full-color, immediately wipes slices to the right */
+function AccordionStripOverlay({ color }) {
+  const overlayRef = useRef(null);
+  useEffect(() => {
+    const overlay = overlayRef.current;
+    if (!overlay) return;
+    const H = overlay.offsetHeight;
+    const sliceH = 2;
+    const total  = Math.ceil(H / sliceH);
+    for (let i = 0; i < total; i++) {
+      const s = document.createElement('div');
+      s.style.cssText = `position:absolute;left:0;width:100%;top:${i*sliceH}px;height:${sliceH+1}px;background:${color};transform:translateX(0);will-change:transform;`;
+      overlay.appendChild(s);
+    }
+    overlay.style.background = 'transparent';
+    const slices = Array.from(overlay.children);
+    let maxEnd = 0;
+    slices.forEach((sl, i) => {
+      const frac = i / Math.max(total - 1, 1);
+      const d    = frac * 0.45 + Math.random() * 0.05;
+      const dur  = 0.16 + Math.random() * 0.1;
+      if (d + dur > maxEnd) maxEnd = d + dur;
+      setTimeout(() => {
+        sl.style.transition = `transform ${dur.toFixed(3)}s linear`;
+        sl.style.transform  = 'translateX(100%)';
+      }, d * 1000);
+    });
+    const t = setTimeout(() => { if (overlay) overlay.innerHTML = ''; }, (maxEnd + 0.15) * 1000);
+    return () => clearTimeout(t);
+  }, []);
+  return (
+    <div ref={overlayRef} style={{
+      position:'absolute', inset:0, overflow:'hidden', pointerEvents:'none',
+      background: color,
+    }} />
+  );
+}
+
+function AccordionMediaPanel({ activeIdx, dark }) {
   const [displayIdx, setDisplayIdx] = React.useState(activeIdx);
-  const prevIdxRef    = useRef(activeIdx);
-
-  const PX_MAX = 28, STEPS = 18, STEP_MS = 18;
-
-  function clearTimers() { animTimers.current.forEach(clearInterval); animTimers.current = []; }
-
-  function runTransition(newIdx) {
-    clearTimers();
-    const canvas = canvasRef.current, container = containerRef.current;
-    if (!canvas || !container) { setDisplayIdx(newIdx); return; }
-
-    const W = container.offsetWidth, H = container.offsetHeight;
-    canvas.width = W; canvas.height = H;
-    const ctx = canvas.getContext('2d');
-    ctx.imageSmoothingEnabled = false;
-
-    const smpl = document.createElement('canvas');
-    const sctx = smpl.getContext('2d');
-    const capturedEl = mediaRef.current; // snapshot before re-render
-
-    // Phase 1: pixelate OUT current media
-    let step = 0;
-    const phaseOut = setInterval(() => {
-      step++;
-      const t = step / STEPS;
-      const px = Math.round(1 + (PX_MAX - 1) * (t * t));
-      if (capturedEl) {
-        try {
-          const sw = Math.max(1, Math.ceil(W / px)), sh = Math.max(1, Math.ceil(H / px));
-          smpl.width = sw; smpl.height = sh;
-          sctx.drawImage(capturedEl, 0, 0, sw, sh);
-          ctx.clearRect(0, 0, W, H);
-          ctx.drawImage(smpl, 0, 0, W, H);
-        } catch(e) {}
-      }
-      if (step >= STEPS) {
-        clearInterval(phaseOut);
-        setDisplayIdx(newIdx);
-        // Phase 2: pixelate IN new media after React updates
-        const delay = setTimeout(() => {
-          let step2 = STEPS;
-          const phaseIn = setInterval(() => {
-            step2--;
-            const t2 = step2 / STEPS;
-            const px2 = Math.round(1 + (PX_MAX - 1) * (t2 * t2));
-            const newEl = mediaRef.current;
-            if (step2 <= 0 || px2 <= 1) {
-              clearInterval(phaseIn);
-              ctx.clearRect(0, 0, W, H);
-              return;
-            }
-            if (newEl) {
-              try {
-                const sw2 = Math.max(1, Math.ceil(W / px2)), sh2 = Math.max(1, Math.ceil(H / px2));
-                smpl.width = sw2; smpl.height = sh2;
-                sctx.drawImage(newEl, 0, 0, sw2, sh2);
-                ctx.clearRect(0, 0, W, H);
-                ctx.drawImage(smpl, 0, 0, W, H);
-              } catch(e) { ctx.clearRect(0, 0, W, H); }
-            } else {
-              ctx.clearRect(0, 0, W, H);
-            }
-          }, STEP_MS);
-          animTimers.current.push(phaseIn);
-        }, 80);
-        animTimers.current.push(delay);
-      }
-    }, STEP_MS);
-    animTimers.current.push(phaseOut);
-  }
+  const [revealKey,  setRevealKey]  = React.useState(0);
+  const prevIdxRef = useRef(activeIdx);
 
   useEffect(() => {
-    if (activeIdx !== prevIdxRef.current) {
-      runTransition(activeIdx);
-      prevIdxRef.current = activeIdx;
-    }
+    if (activeIdx === prevIdxRef.current) return;
+    setDisplayIdx(activeIdx);
+    setRevealKey(k => k + 1);
+    prevIdxRef.current = activeIdx;
   }, [activeIdx]);
 
-  useEffect(() => () => clearTimers(), []);
-
-  const media = ACCORDION_MEDIA[displayIdx] || { type:'video', src: ACCORDION_DEFAULT_VIDEO };
+  const media     = ACCORDION_MEDIA[displayIdx] || { type:'video', src: ACCORDION_DEFAULT_VIDEO };
+  const bgColor   = dark ? '#121010' : '#F5F3EE';
+  const mediaStyle = { position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', display:'block' };
 
   return (
-    <div ref={containerRef} style={{ position:'relative', width:'100%', height:'100%', borderRadius:4, overflow:'hidden', background:'#1a1a1a' }}>
+    <div style={{ position:'relative', width:'100%', height:'100%', borderRadius:4, overflow:'hidden', background:'#1a1a1a' }}>
       {media.type === 'image'
-        ? <img ref={mediaRef} key={media.src} src={media.src} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
-        : <video ref={mediaRef} key={media.src} autoPlay muted loop playsInline style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} src={media.src} />
+        ? <img  key={media.src} src={media.src} alt="" style={mediaStyle} />
+        : <video key={media.src} autoPlay muted loop playsInline style={mediaStyle} src={media.src} />
       }
-      <canvas ref={canvasRef} style={{ position:'absolute', inset:0, width:'100%', height:'100%', pointerEvents:'none', imageRendering:'pixelated' }} />
+      {revealKey > 0 && <AccordionStripOverlay key={revealKey} color={bgColor} />}
     </div>
   );
 }
@@ -2936,7 +2902,7 @@ function ServicesAccordion({ isMobile, dark }) {
           height: 'calc(100svh - 192px)',
           alignSelf: 'center',
         }}>
-          <AccordionMediaPanel activeIdx={activeIdx} />
+          <AccordionMediaPanel activeIdx={activeIdx} dark={dark} />
         </div>
       )}
     </section>
