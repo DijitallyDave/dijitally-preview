@@ -2768,7 +2768,7 @@ function ServicesAccordion({ isMobile, dark }) {
                 marginBottom: i < SVC_ROWS.length - 1 ? (isActive ? (isMobile ? 16 : 24) : 0) : 0,
               }}>
                 {/* Title row */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, flexWrap: 'nowrap' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, flexWrap: 'nowrap', width: 'max-content' }}>
                   <span style={{ display: 'flex', flexShrink: 0, transition: 'opacity 0.35s ease', opacity: isActive ? 1 : 0.5 }}>
                     <BracketOpen size={bsz} color="var(--secondary)" />
                   </span>
