@@ -2608,6 +2608,116 @@ function MenuGlitch({ onComplete, onMidpoint }) {
    SERVICES PAGE
 ═══════════════════════════════════════════════════ */
 
+/* ── Accordion media sources — null = use default video ── */
+const ACCORDION_MEDIA = [
+  null,                                                          // 0 Strategic
+  { type:'video', src:'videos/Inhouse+Embedded.mp4' },          // 1 Organisation
+  null,                                                          // 2 Systematic
+  { type:'image', src:'work/AfterpayDay.jpg' },                  // 3 Commercial
+  { type:'image', src:'work/Constantinople.png' },               // 4 Technologic
+  { type:'image', src:'work/AWX.png' },                          // 5 Tactic
+];
+const ACCORDION_DEFAULT_VIDEO = 'videos/thumbnail.mp4';
+
+function AccordionMediaPanel({ activeIdx }) {
+  const containerRef  = useRef(null);
+  const canvasRef     = useRef(null);
+  const mediaRef      = useRef(null);
+  const animTimers    = useRef([]);
+  const [displayIdx, setDisplayIdx] = React.useState(activeIdx);
+  const prevIdxRef    = useRef(activeIdx);
+
+  const PX_MAX = 28, STEPS = 18, STEP_MS = 18;
+
+  function clearTimers() { animTimers.current.forEach(clearInterval); animTimers.current = []; }
+
+  function runTransition(newIdx) {
+    clearTimers();
+    const canvas = canvasRef.current, container = containerRef.current;
+    if (!canvas || !container) { setDisplayIdx(newIdx); return; }
+
+    const W = container.offsetWidth, H = container.offsetHeight;
+    canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    ctx.imageSmoothingEnabled = false;
+
+    const smpl = document.createElement('canvas');
+    const sctx = smpl.getContext('2d');
+    const capturedEl = mediaRef.current; // snapshot before re-render
+
+    // Phase 1: pixelate OUT current media
+    let step = 0;
+    const phaseOut = setInterval(() => {
+      step++;
+      const t = step / STEPS;
+      const px = Math.round(1 + (PX_MAX - 1) * (t * t));
+      if (capturedEl) {
+        try {
+          const sw = Math.max(1, Math.ceil(W / px)), sh = Math.max(1, Math.ceil(H / px));
+          smpl.width = sw; smpl.height = sh;
+          sctx.drawImage(capturedEl, 0, 0, sw, sh);
+          ctx.clearRect(0, 0, W, H);
+          ctx.drawImage(smpl, 0, 0, W, H);
+        } catch(e) {}
+      }
+      if (step >= STEPS) {
+        clearInterval(phaseOut);
+        setDisplayIdx(newIdx);
+        // Phase 2: pixelate IN new media after React updates
+        const delay = setTimeout(() => {
+          let step2 = STEPS;
+          const phaseIn = setInterval(() => {
+            step2--;
+            const t2 = step2 / STEPS;
+            const px2 = Math.round(1 + (PX_MAX - 1) * (t2 * t2));
+            const newEl = mediaRef.current;
+            if (step2 <= 0 || px2 <= 1) {
+              clearInterval(phaseIn);
+              ctx.clearRect(0, 0, W, H);
+              return;
+            }
+            if (newEl) {
+              try {
+                const sw2 = Math.max(1, Math.ceil(W / px2)), sh2 = Math.max(1, Math.ceil(H / px2));
+                smpl.width = sw2; smpl.height = sh2;
+                sctx.drawImage(newEl, 0, 0, sw2, sh2);
+                ctx.clearRect(0, 0, W, H);
+                ctx.drawImage(smpl, 0, 0, W, H);
+              } catch(e) { ctx.clearRect(0, 0, W, H); }
+            } else {
+              ctx.clearRect(0, 0, W, H);
+            }
+          }, STEP_MS);
+          animTimers.current.push(phaseIn);
+        }, 80);
+        animTimers.current.push(delay);
+      }
+    }, STEP_MS);
+    animTimers.current.push(phaseOut);
+  }
+
+  useEffect(() => {
+    if (activeIdx !== prevIdxRef.current) {
+      runTransition(activeIdx);
+      prevIdxRef.current = activeIdx;
+    }
+  }, [activeIdx]);
+
+  useEffect(() => () => clearTimers(), []);
+
+  const media = ACCORDION_MEDIA[displayIdx] || { type:'video', src: ACCORDION_DEFAULT_VIDEO };
+
+  return (
+    <div ref={containerRef} style={{ position:'relative', width:'100%', height:'100%', borderRadius:4, overflow:'hidden', background:'#1a1a1a' }}>
+      {media.type === 'image'
+        ? <img ref={mediaRef} key={media.src} src={media.src} alt="" style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} />
+        : <video ref={mediaRef} key={media.src} autoPlay muted loop playsInline style={{ width:'100%', height:'100%', objectFit:'cover', display:'block' }} src={media.src} />
+      }
+      <canvas ref={canvasRef} style={{ position:'absolute', inset:0, width:'100%', height:'100%', pointerEvents:'none', imageRendering:'pixelated' }} />
+    </div>
+  );
+}
+
 /* ── ServicesHeroStatic — "Your [point of scale] ALLY" entrance, no scroll lock ── */
 function ServicesHeroStatic({ isMobile }) {
   const rowRef = useRef(null);
@@ -2818,22 +2928,15 @@ function ServicesAccordion({ isMobile, dark }) {
         </div>
       </div>
 
-      {/* ── Right: single video panel ── */}
+      {/* ── Right: per-item media panel with pixel transition ── */}
       {!isMobile && (
         <div style={{
           aspectRatio: '1 / 1',
           flexShrink: 0,
           height: 'calc(100svh - 192px)',
-          borderRadius: 4,
-          overflow: 'hidden',
-          background: '#1a1a1a',
           alignSelf: 'center',
         }}>
-          <video
-            autoPlay muted loop playsInline
-            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
-            src="videos/thumbnail.mp4"
-          />
+          <AccordionMediaPanel activeIdx={activeIdx} />
         </div>
       )}
     </section>
