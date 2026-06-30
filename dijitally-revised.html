@@ -2050,22 +2050,25 @@ function Eyebrow({children,style={},center=true}) {
 }
 
 /* ── ScrambleSpan — applies ScrambleText to any inline element on scroll-enter ── */
-function ScrambleSpan({children, style={}, tag='span'}) {
+function ScrambleSpan({children, style={}, tag='span', hoverOnly=false}) {
   const ref = useRef(null);
   useEffect(()=>{
     const el = ref.current;
     if (!el || typeof gsap==='undefined' || typeof ScrambleTextPlugin==='undefined') return;
     const text = String(children||'');
 
-    // Scroll-enter scramble (one-shot)
-    const obs = new IntersectionObserver(([e])=>{
-      if (!e.isIntersecting) return;
-      obs.disconnect();
-      gsap.to(el, { duration:1.5, ease:'none',
-        scrambleText:{ text, chars:'upperCase', revealDelay:0.3, speed:0.6 },
-      });
-    },{ threshold:0.5 });
-    obs.observe(el);
+    // Scroll-enter scramble (one-shot) — skipped when hoverOnly
+    let obs;
+    if (!hoverOnly) {
+      obs = new IntersectionObserver(([e])=>{
+        if (!e.isIntersecting) return;
+        obs.disconnect();
+        gsap.to(el, { duration:1.5, ease:'none',
+          scrambleText:{ text, chars:'upperCase', revealDelay:0.3, speed:0.6 },
+        });
+      },{ threshold:0.5 });
+      obs.observe(el);
+    }
 
     // Hover scramble — lock width first so layout never shifts
     const lockAndScramble = () => {
@@ -2079,7 +2082,7 @@ function ScrambleSpan({children, style={}, tag='span'}) {
     };
     el.addEventListener('mouseenter', lockAndScramble);
 
-    return ()=>{ obs.disconnect(); el.removeEventListener('mouseenter', lockAndScramble); };
+    return ()=>{ obs && obs.disconnect(); el.removeEventListener('mouseenter', lockAndScramble); };
   },[]);
   const Tag = tag;
   return React.createElement(Tag, {
@@ -2849,7 +2852,7 @@ function ServicesAccordion({ isMobile, dark }) {
                   </span>
                   {isActive
                     ? <span style={{ fontFamily:'var(--sans)', fontSize:fs, fontWeight:350, lineHeight:1.1, letterSpacing:'-0.58px', color:'var(--secondary)', whiteSpace:'nowrap' }}>{label}</span>
-                    : <ScrambleSpan style={{ fontFamily:'var(--sans)', fontSize:fs, fontWeight:350, lineHeight:1.1, letterSpacing:'-0.58px', color:'var(--secondary)', whiteSpace:'nowrap' }}>{label}</ScrambleSpan>
+                    : <ScrambleSpan hoverOnly style={{ fontFamily:'var(--sans)', fontSize:fs, fontWeight:350, lineHeight:1.1, letterSpacing:'-0.58px', color:'var(--secondary)', whiteSpace:'nowrap' }}>{label}</ScrambleSpan>
                   }
                   <span style={{ display: 'flex', flexShrink: 0 }}>
                     <BracketClose size={bsz} color="var(--secondary)" />
