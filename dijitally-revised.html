@@ -2607,6 +2607,238 @@ function MenuGlitch({ onComplete, onMidpoint }) {
 /* ═══════════════════════════════════════════════════
    SERVICES PAGE
 ═══════════════════════════════════════════════════ */
+
+/* ── ServicesHeroStatic — "Your [point of scale] ALLY" entrance, no scroll lock ── */
+function ServicesHeroStatic({ isMobile }) {
+  const rowRef = useRef(null);
+
+  useEffect(() => {
+    const el = rowRef.current;
+    if (!el || typeof gsap === 'undefined') return;
+    const els = Array.from(el.children);
+    gsap.set(els, { y: 50, opacity: 0 });
+    gsap.to(els, { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out', stagger: 0.09, delay: 0.25 });
+  }, []);
+
+  const fs  = isMobile ? 32 : 72;
+  const bsz = isMobile ? 33 : 74;
+
+  return (
+    <section style={{
+      height: '100svh',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: isMobile ? '0 24px' : '0 var(--s64)',
+      paddingTop: 'var(--nav-h)',
+      background: 'var(--bg)',
+      boxSizing: 'border-box',
+    }}>
+      <div ref={rowRef} style={{
+        display: 'flex',
+        alignItems: 'center',
+        gap: isMobile ? 4 : 12,
+        flexWrap: isMobile ? 'wrap' : 'nowrap',
+        justifyContent: 'center',
+      }}>
+        <span style={{ fontFamily: 'var(--sans)', fontSize: fs, fontWeight: 350, lineHeight: 1, color: 'var(--secondary)', whiteSpace: 'nowrap' }}>Your</span>
+        <span style={{ display: 'flex', flexShrink: 0 }}><BracketOpen size={bsz} color="var(--secondary)" /></span>
+        <span style={{ fontFamily: 'var(--sans)', fontSize: fs, fontWeight: 350, lineHeight: 1, color: 'var(--secondary)', whiteSpace: 'nowrap' }}>point of scale</span>
+        <span style={{ display: 'flex', flexShrink: 0 }}><BracketClose size={bsz} color="var(--secondary)" /></span>
+        <span style={{ display: 'flex', flexShrink: 0 }}><AllyWordmark size={bsz} color="var(--secondary)" /></span>
+      </div>
+    </section>
+  );
+}
+
+/* ── ServicesAccordion — scroll/click-driven expand accordion ── */
+function ServicesAccordion({ isMobile, dark }) {
+  const [activeIdx, setActiveIdx] = React.useState(0);
+  const activeIdxRef  = useRef(0);
+  const sectionRef    = useRef(null);
+  const bodyRefs      = useRef([]);
+
+  useEffect(() => { activeIdxRef.current = activeIdx; }, [activeIdx]);
+
+  /* Animate body copy words in whenever active item changes */
+  useEffect(() => {
+    const bodyEl = bodyRefs.current[activeIdx];
+    if (!bodyEl || typeof gsap === 'undefined') return;
+    if (typeof SplitText !== 'undefined') {
+      const split = new SplitText(bodyEl, { type: 'words' });
+      gsap.fromTo(split.words,
+        { y: 14, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.55, ease: 'power2.out', stagger: 0.018,
+          onComplete: () => split.revert() }
+      );
+    } else {
+      gsap.fromTo(bodyEl, { opacity: 0 }, { opacity: 1, duration: 0.4 });
+    }
+  }, [activeIdx]);
+
+  /* ScrollTrigger pin — desktop only */
+  useEffect(() => {
+    if (isMobile) return;
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    const el = sectionRef.current;
+    if (!el) return;
+
+    const N = SVC_ROWS.length;
+    const stepH = window.innerHeight * 0.85;
+    let lastStep = 0;
+
+    const st = ScrollTrigger.create({
+      trigger: el,
+      start: 'top top',
+      end: `+=${stepH * N}`,
+      pin: true,
+      pinSpacing: true,
+      onUpdate: (self) => {
+        const step = Math.min(Math.floor(self.progress * N), N - 1);
+        if (step !== lastStep) {
+          lastStep = step;
+          setActiveIdx(step);
+        }
+      },
+    });
+
+    return () => { st.kill(); };
+  }, [isMobile]);
+
+  /* Click to jump: update state and scroll to corresponding pin position */
+  function handleItemClick(idx) {
+    setActiveIdx(idx);
+    if (isMobile || typeof ScrollTrigger === 'undefined') return;
+    const triggers = ScrollTrigger.getAll();
+    const st = triggers.find(t => t.trigger === sectionRef.current);
+    if (!st) return;
+    const N = SVC_ROWS.length;
+    const stepH = window.innerHeight * 0.85;
+    const progress = (idx + 0.05) / N;
+    const targetScroll = st.start + progress * stepH * N;
+    window.scrollTo({ top: targetScroll, behavior: 'smooth' });
+  }
+
+  const fs  = isMobile ? 36 : 58;
+  const bsz = fs;
+
+  return (
+    <section ref={sectionRef} style={{
+      background: 'var(--bg)',
+      minHeight: '100svh',
+      padding: isMobile ? '64px 24px 96px' : '96px var(--s64) 96px',
+      display: 'flex',
+      flexDirection: isMobile ? 'column' : 'row',
+      gap: isMobile ? 48 : 128,
+      alignItems: 'flex-start',
+      boxSizing: 'border-box',
+    }}>
+
+      {/* ── Left: accordion list ── */}
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+
+        {/* Eyebrow — top right */}
+        <div style={{
+          width: '100%',
+          display: 'flex',
+          justifyContent: 'flex-end',
+          fontFamily: 'var(--mono)',
+          fontSize: 12,
+          fontWeight: 400,
+          letterSpacing: '-0.24px',
+          lineHeight: 1.4,
+          color: 'var(--secondary)',
+          textAlign: 'right',
+          marginBottom: isMobile ? 40 : 64,
+        }}>
+          ++ From engineering<br/>to execution ++
+        </div>
+
+        {/* Accordion rows */}
+        <div style={{ display: 'flex', flexDirection: 'column' }}>
+          {SVC_ROWS.map((svc, i) => {
+            const isActive = i === activeIdx;
+            const label = svc.bracket.charAt(0).toUpperCase() + svc.bracket.slice(1);
+            return (
+              <div key={i} onClick={() => handleItemClick(i)} style={{
+                cursor: 'pointer',
+                paddingBottom: isActive ? (isMobile ? 24 : 32) : 0,
+                marginBottom: i < SVC_ROWS.length - 1 ? (isActive ? (isMobile ? 16 : 24) : 0) : 0,
+              }}>
+                {/* Title row */}
+                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, flexWrap: 'nowrap' }}>
+                  <span style={{ display: 'flex', flexShrink: 0, transition: 'opacity 0.35s ease', opacity: isActive ? 1 : 0.5 }}>
+                    <BracketOpen size={bsz} color="var(--secondary)" />
+                  </span>
+                  <span style={{
+                    fontFamily: 'var(--sans)',
+                    fontSize: fs,
+                    fontWeight: 350,
+                    lineHeight: 1.1,
+                    letterSpacing: '-0.58px',
+                    color: isActive ? 'var(--secondary)' : 'var(--static)',
+                    whiteSpace: 'nowrap',
+                    transition: 'color 0.35s ease',
+                  }}>{label}</span>
+                  <span style={{ display: 'flex', flexShrink: 0, transition: 'opacity 0.35s ease', opacity: isActive ? 1 : 0.5 }}>
+                    <BracketClose size={bsz} color="var(--secondary)" />
+                  </span>
+                  {isActive && (
+                    <span style={{ display: 'flex', flexShrink: 0, marginLeft: isMobile ? 4 : 8 }}>
+                      <AllyWordmark size={bsz} color="var(--secondary)" />
+                    </span>
+                  )}
+                </div>
+
+                {/* Expanded body — only visible for active item */}
+                {isActive && (
+                  <div style={{ display: 'flex', flexDirection: 'column', gap: 24, marginTop: isMobile ? 20 : 24, maxWidth: 422 }}>
+                    <div style={{
+                      fontFamily: 'var(--sans)',
+                      fontSize: isMobile ? 20 : 26,
+                      fontWeight: 350,
+                      lineHeight: 1.1,
+                      letterSpacing: '-0.26px',
+                      color: 'var(--secondary)',
+                    }}>{svc.headline}</div>
+                    <div ref={el => bodyRefs.current[i] = el} style={{
+                      fontFamily: 'var(--sans)',
+                      fontSize: isMobile ? 15 : 19,
+                      fontWeight: 350,
+                      lineHeight: 1.2,
+                      letterSpacing: '0.19px',
+                      color: 'var(--static)',
+                    }}>{svc.body}</div>
+                  </div>
+                )}
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      {/* ── Right: single video panel ── */}
+      {!isMobile && (
+        <div style={{
+          width: 480,
+          flexShrink: 0,
+          height: 'calc(100svh - 192px)',
+          borderRadius: 4,
+          overflow: 'hidden',
+          background: '#1a1a1a',
+          alignSelf: 'center',
+        }}>
+          <video
+            autoPlay muted loop playsInline
+            style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }}
+            src="videos/thumbnail.mp4"
+          />
+        </div>
+      )}
+    </section>
+  );
+}
+
 const SVC_ROWS = [
   { slug:"Strategically",    bracket:"strategic",    headline:"Go-to-market through to market fit.",        body:"From market entry and audience strategy to channel prioritisation, we map out the smartest way to grow. Every move is intentional, with a clear definition of success.", bg:"electric", video:"videos/Services/strategy.mp4" },
   { slug:"Organisationally", bracket:"organisation", headline:"In-house modelling.",                        body:"We scale your capability, not just your output. That means designing operating models, resourcing plans, and workflows that help you move faster without over-hiring.", bg:"stream",    video:"videos/Services/organisation.mp4" },
@@ -2775,8 +3007,11 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
   return (
     <div style={{background:"var(--bg)",color:"var(--secondary)"}}>
 
-      {/* ══ SERVICES HERO SCROLL ══ */}
-      <ServicesHero isMobile={isMobile} dark={dark} />
+      {/* ══ YOUR POINT OF SCALE HERO ══ */}
+      <ServicesHeroStatic isMobile={isMobile} />
+
+      {/* ══ SERVICES ACCORDION ══ */}
+      <ServicesAccordion isMobile={isMobile} dark={dark} />
 
       {/* ══ OPERATING MODELS CALLOUT ══ */}
       <section style={{padding:isMobile?"64px 24px":"256px var(--s64) var(--s64)",display:"flex",flexDirection:"column",gap:"var(--s24)",background:"var(--bg)"}}>
