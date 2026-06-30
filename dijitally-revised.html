@@ -2847,15 +2847,10 @@ function ServicesAccordion({ isMobile, dark }) {
                   <span style={{ display: 'flex', flexShrink: 0 }}>
                     <BracketOpen size={bsz} color="var(--secondary)" />
                   </span>
-                  <span style={{
-                    fontFamily: 'var(--sans)',
-                    fontSize: fs,
-                    fontWeight: 350,
-                    lineHeight: 1.1,
-                    letterSpacing: '-0.58px',
-                    color: 'var(--secondary)',
-                    whiteSpace: 'nowrap',
-                  }}>{label}</span>
+                  {isActive
+                    ? <span style={{ fontFamily:'var(--sans)', fontSize:fs, fontWeight:350, lineHeight:1.1, letterSpacing:'-0.58px', color:'var(--secondary)', whiteSpace:'nowrap' }}>{label}</span>
+                    : <ScrambleSpan style={{ fontFamily:'var(--sans)', fontSize:fs, fontWeight:350, lineHeight:1.1, letterSpacing:'-0.58px', color:'var(--secondary)', whiteSpace:'nowrap' }}>{label}</ScrambleSpan>
+                  }
                   <span style={{ display: 'flex', flexShrink: 0 }}>
                     <BracketClose size={bsz} color="var(--secondary)" />
                   </span>
