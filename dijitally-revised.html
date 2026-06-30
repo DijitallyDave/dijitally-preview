@@ -3190,7 +3190,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
       </section>
 
       <ContactSection dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />
-      <SiteFooter dark={dark} isMobile={isMobile} onBackToTop={()=>{ window.__servicesResetOnEnter = true; window.scrollTo({top:0,behavior:"instant"}); requestAnimationFrame(function(){ if(typeof ScrollTrigger!=="undefined") ScrollTrigger.refresh(); }); }}/>
+      <SiteFooter dark={dark} isMobile={isMobile} onBackToTop={()=>{ if(window.__resetSmoother) window.__resetSmoother(); else window.scrollTo({top:0,behavior:"instant"}); }}/>
 
     </div>
   );
