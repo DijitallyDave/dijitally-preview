@@ -2747,13 +2747,14 @@ function ServicesHeroStatic({ isMobile, dark }) {
         justifyContent: 'flex-end', padding: '0 24px 64px',
         paddingTop: 'var(--nav-h)', background: 'var(--bg)', boxSizing: 'border-box', overflow: 'hidden',
       }}>
-        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 12 }}>
-          <img ref={yourRef} src="svgs/SVG/your.svg" alt="YOUR" style={{ width: '76%', height: 'auto', display: 'block', filter: imgFilter }} />
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
+          <img ref={yourRef}  src="svgs/SVG/your.svg"  alt="YOUR"  style={{ height: '10vw', width: 'auto', display: 'block', filter: imgFilter }} />
+          <img ref={pointRef} src="svgs/SVG/point.svg" alt="POINT" style={{ height: '10vw', width: 'auto', display: 'block', filter: imgFilter }} />
           <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10 }}>
-            <img ref={ofRef} src="svgs/SVG/of.svg" alt="OF" style={{ width: '29%', height: 'auto', display: 'block', filter: imgFilter }} />
-            <img ref={scaleRef} src="svgs/SVG/scale.svg" alt="SCALE" style={{ width: '64%', height: 'auto', display: 'block', filter: imgFilter }} />
+            <img ref={ofRef} src="svgs/SVG/of.svg" alt="OF" style={{ height: '10vw', width: 'auto', display: 'block', filter: imgFilter }} />
+            <img ref={scaleRef} src="svgs/SVG/scale.svg" alt="SCALE" style={{ height: '10vw', width: 'auto', display: 'block', filter: imgFilter }} />
           </div>
-          <img ref={allyRef} src="svgs/SVG/ally.svg" alt="ALLY" style={{ width: '55%', height: 'auto', display: 'block', filter: imgFilter }} />
+          <img ref={allyRef} src="svgs/SVG/ally.svg" alt="ALLY" style={{ height: '10vw', width: 'auto', display: 'block', filter: imgFilter }} />
         </div>
       </section>
     );
@@ -3877,13 +3878,11 @@ function AboutHeroStatic({ isMobile, dark }) {
       justifyContent:'flex-end', padding:'0 24px 64px',
       paddingTop:'var(--nav-h)', background:'var(--bg)', boxSizing:'border-box', overflow:'hidden',
     }}>
-      <div style={{ width:'100%', display:'flex', flexDirection:'column', gap:12 }}>
-        <img ref={theRef}        src="svgs/SVG/the.svg"        alt="THE"        style={{ width:'76%', height:'auto', display:'block', filter:inv }} />
-        <div style={{ display:'flex', alignItems:'flex-end', gap:10 }}>
-          <img ref={growthRef}     src="svgs/SVG/growth.svg"     alt="GROWTH"     style={{ width:'29%', height:'auto', display:'block', filter:inv }} />
-          <img ref={specialistRef} src="svgs/SVG/specialist.svg" alt="SPECIALIST" style={{ width:'64%', height:'auto', display:'block', filter:inv }} />
-        </div>
-        <img ref={agencyRef}     src="svgs/SVG/agency.svg"     alt="AGENCY"     style={{ width:'55%', height:'auto', display:'block', filter:inv }} />
+      <div style={{ width:'100%', display:'flex', flexDirection:'column', alignItems:'flex-start', gap:12 }}>
+        <img ref={theRef}        src="svgs/SVG/the.svg"        alt="THE"        style={{ height:'10vw', width:'auto', display:'block', filter:inv }} />
+        <img ref={growthRef}     src="svgs/SVG/growth.svg"     alt="GROWTH"     style={{ height:'10vw', width:'auto', display:'block', filter:inv }} />
+        <img ref={specialistRef} src="svgs/SVG/specialist.svg" alt="SPECIALIST" style={{ height:'10vw', width:'auto', display:'block', filter:inv }} />
+        <img ref={agencyRef}     src="svgs/SVG/agency.svg"     alt="AGENCY"     style={{ height:'10vw', width:'auto', display:'block', filter:inv }} />
       </div>
     </section>
   );
