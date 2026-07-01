@@ -2750,11 +2750,19 @@ function ServicesHeroStatic({ isMobile, dark }) {
         <div style={{ width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
           <img ref={yourRef}  src="svgs/SVG/your.svg"  alt="YOUR"  style={{ height: '10vw', width: 'auto', display: 'block', filter: imgFilter }} />
           <img ref={pointRef} src="svgs/SVG/point.svg" alt="POINT" style={{ height: '10vw', width: 'auto', display: 'block', filter: imgFilter }} />
-          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
             <img ref={ofRef} src="svgs/SVG/of.svg" alt="OF" style={{ height: '10vw', width: 'auto', display: 'block', filter: imgFilter }} />
             <img ref={scaleRef} src="svgs/SVG/scale.svg" alt="SCALE" style={{ height: '10vw', width: 'auto', display: 'block', filter: imgFilter }} />
           </div>
           <img ref={allyRef} src="svgs/SVG/ally.svg" alt="ALLY" style={{ height: '10vw', width: 'auto', display: 'block', filter: imgFilter }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 12 }}>
+            <p ref={headRef} style={{ fontFamily: 'var(--sans)', fontSize: 'var(--h1)', fontWeight: 350, lineHeight: '110%', letterSpacing: '-0.84px', color: 'var(--secondary)', margin: 0 }}>
+              From engineering to execution and everything in between.
+            </p>
+            <p ref={bodyRef} style={{ fontFamily: 'var(--sans)', fontSize: 18, fontWeight: 350, lineHeight: 1.2, color: '#878787', margin: 0 }}>
+              Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.
+            </p>
+          </div>
         </div>
       </section>
     );
@@ -2940,7 +2948,7 @@ function ServicesAccordion({ isMobile, dark }) {
                     }}>{svc.headline}</div>
                     <div ref={el => bodyRefs.current[i] = el} style={{
                       fontFamily: 'var(--sans)',
-                      fontSize: isMobile ? 15 : 19,
+                      fontSize: isMobile ? 18 : 19,
                       fontWeight: 350,
                       lineHeight: 1.2,
                       letterSpacing: '0.19px',
