@@ -3415,7 +3415,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
       {/* Header */}
       <section style={{paddingTop:isMobile?96:256,paddingBottom:0,paddingLeft:isMobile?"var(--s42)":"var(--s64)",paddingRight:isMobile?"var(--s42)":"var(--s64)"}}>
         <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)",marginBottom:isMobile?48:64}}>
-          <img src="svgs/SVG/work.svg" alt="WORK" style={{ height: 'calc((100vw - 128px) * 100 / 1562)', width: 'auto', display: 'block', alignSelf: 'flex-start', filter: dark ? 'invert(1)' : 'none' }} />
+          <img src="svgs/SVG/work.svg" alt="WORK" style={{ height: isMobile ? '10vw' : 'calc((100vw - 128px) * 100 / 1562)', width: 'auto', display: 'block', alignSelf: 'flex-start', filter: dark ? 'invert(1)' : 'none' }} />
           <WorkHeadlineCycle />
         </div>
 
@@ -5269,7 +5269,7 @@ function Page() {
           paddingRight: isMobile ? "var(--s42)" : "var(--s64)",
         }}>
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
-            <img src="svgs/SVG/work.svg" alt="WORK" style={{ height: 'calc((100vw - 128px) * 100 / 1562)', width: 'auto', display: 'block', alignSelf: 'flex-start', filter: dark ? 'invert(1)' : 'none' }} />
+            <img src="svgs/SVG/work.svg" alt="WORK" style={{ height: isMobile ? '10vw' : 'calc((100vw - 128px) * 100 / 1562)', width: 'auto', display: 'block', alignSelf: 'flex-start', filter: dark ? 'invert(1)' : 'none' }} />
             <WorkHeadlineCycle />
           </div>
         </div>
