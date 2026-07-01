@@ -2912,6 +2912,7 @@ function ServicesAccordion({ isMobile, dark }) {
             return (
               <div key={i} onClick={() => handleItemClick(i)} style={{
                 cursor: 'pointer',
+                WebkitTapHighlightColor: 'transparent',
                 paddingTop: 0,
                 paddingBottom: isActive ? (isMobile ? 24 : 32) : 0,
                 marginBottom: i < SVC_ROWS.length - 1 ? (isActive ? (isMobile ? 16 : 24) : 0) : 0,
