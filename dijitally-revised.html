@@ -692,17 +692,18 @@ function StripRevealImg({ src, alt, style={}, delay=0 }) {
     img.onload = () => {
       const color = sampleColor(img);
       colorRef.current = color;
-      if (overlayRef.current) overlayRef.current.style.background = color;
+      // Only update overlay if reveal hasn't already completed
+      if (overlayRef.current && !doneRef.current) overlayRef.current.style.background = color;
     };
     img.src = src;
   }, [src]);
 
-  // Trigger strip wipe when card enters viewport
+  // Trigger strip wipe when card enters viewport (or immediately if already visible)
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const obs = new IntersectionObserver(([e]) => {
-      if (!e.isIntersecting || doneRef.current) return;
+    const runReveal = () => {
+      if (doneRef.current) return;
       doneRef.current = true;
       obs.disconnect();
       const overlay = overlayRef.current;
@@ -732,9 +733,17 @@ function StripRevealImg({ src, alt, style={}, delay=0 }) {
         });
         setTimeout(() => { overlay.innerHTML = ''; }, (maxEnd + 0.15) * 1000);
       }, delay * 1000);
-    }, { threshold: 0.2 });
+    };
+    const obs = new IntersectionObserver(([e]) => {
+      if (e.isIntersecting) runReveal();
+    }, { threshold: 0 });
     obs.observe(el);
-    return () => obs.disconnect();
+    // Fire after a frame if already in viewport (handles elements visible on initial render)
+    const rafId = requestAnimationFrame(() => {
+      const rect = el.getBoundingClientRect();
+      if (rect.top < window.innerHeight && rect.bottom > 0) runReveal();
+    });
+    return () => { obs.disconnect(); cancelAnimationFrame(rafId); };
   }, []);
 
   return (
@@ -2613,10 +2622,10 @@ function MenuGlitch({ onComplete, onMidpoint }) {
 
 /* ── Accordion media sources — null = use default video ── */
 const ACCORDION_MEDIA = [
-  null,                                                 // 0 Strategic
+  { type:'placeholder' },       // 0 Strategic
   { type:'video', src:'videos/Inhouse+Embedded.mp4' }, // 1 Organisation
-  null,                                                 // 2 Systematic
-  { type:'image', src:'work/AfterpayDay.jpg' },         // 3 Commercial
+  { type:'placeholder' },       // 2 Systematic
+  { type:'placeholder' },       // 3 Commercial
   { type:'image', src:'work/Constantinople.png' },      // 4 Technologic
   { type:'image', src:'work/AWX.png' },                 // 5 Tactic
 ];
@@ -2628,6 +2637,7 @@ function AccordionStripOverlay({ color }) {
   useEffect(() => {
     const overlay = overlayRef.current;
     if (!overlay) return;
+    overlay.style.background = color;
     const H = overlay.offsetHeight;
     const sliceH = 2;
     const total  = Math.ceil(H / sliceH);
@@ -2655,7 +2665,6 @@ function AccordionStripOverlay({ color }) {
   return (
     <div ref={overlayRef} style={{
       position:'absolute', inset:0, overflow:'hidden', pointerEvents:'none',
-      background: color,
     }} />
   );
 }
@@ -2664,6 +2673,16 @@ function AccordionMediaPanel({ activeIdx, dark }) {
   const [displayIdx, setDisplayIdx] = React.useState(activeIdx);
   const [revealKey,  setRevealKey]  = React.useState(0);
   const prevIdxRef = useRef(activeIdx);
+
+  // Preload all images so they're cached before the strip overlay plays
+  useEffect(() => {
+    ACCORDION_MEDIA.forEach(m => {
+      if (m && m.type === 'image' && m.src) {
+        const img = new Image();
+        img.src = m.src;
+      }
+    });
+  }, []);
 
   useEffect(() => {
     if (activeIdx === prevIdxRef.current) return;
@@ -2678,53 +2697,111 @@ function AccordionMediaPanel({ activeIdx, dark }) {
 
   return (
     <div style={{ position:'relative', width:'100%', height:'100%', borderRadius:4, overflow:'hidden', background:'#1a1a1a' }}>
-      {media.type === 'image'
-        ? <img  key={media.src} src={media.src} alt="" style={mediaStyle} />
-        : <video key={media.src} autoPlay muted loop playsInline style={mediaStyle} src={media.src} />
+      {media.type === 'placeholder'
+        ? <div key="placeholder" style={{ position:'absolute', inset:0, background:'#808080', display:'flex', alignItems:'center', justifyContent:'center' }}>
+            <span style={{ fontFamily:'var(--sans)', fontSize:14, fontWeight:400, color:'#fff', letterSpacing:'0.02em' }}>Needs guidance for type of work</span>
+          </div>
+        : media.type === 'image'
+          ? <img  key={media.src} src={media.src} alt="" style={mediaStyle} />
+          : <video key={media.src} autoPlay muted loop playsInline style={mediaStyle} src={media.src} />
       }
       {revealKey > 0 && <AccordionStripOverlay key={revealKey} color={bgColor} />}
     </div>
   );
 }
 
-/* ── ServicesHeroStatic — "Your [point of scale] ALLY" entrance, no scroll lock ── */
-function ServicesHeroStatic({ isMobile }) {
-  const rowRef = useRef(null);
+/* ── ServicesHeroStatic — pixel-perfect match to Figma 04.Services.Desktop hero ── */
+function ServicesHeroStatic({ isMobile, dark }) {
+  const yourRef  = useRef(null);
+  const pointRef = useRef(null);
+  const ofRef    = useRef(null);
+  const scaleRef = useRef(null);
+  const allyRef  = useRef(null);
+  const headRef  = useRef(null);
+  const bodyRef  = useRef(null);
 
   useEffect(() => {
-    const el = rowRef.current;
-    if (!el || typeof gsap === 'undefined') return;
-    const els = Array.from(el.children);
-    gsap.set(els, { y: 50, opacity: 0 });
-    gsap.to(els, { y: 0, opacity: 1, duration: 0.7, ease: 'power3.out', stagger: 0.09, delay: 0.25 });
+    if (typeof gsap === 'undefined') return;
+    const svgs = [yourRef, pointRef, ofRef, scaleRef, allyRef].map(r => r.current).filter(Boolean);
+    const text = [headRef, bodyRef].map(r => r.current).filter(Boolean);
+
+    gsap.set([...svgs, ...text], { y: 36, opacity: 0 });
+
+    gsap.to(svgs, {
+      y: 0, opacity: 1,
+      duration: 0.9, ease: 'power3.out',
+      stagger: 0.16,
+      delay: 0.2,
+      onComplete: () => {
+        gsap.to(text, { y: 0, opacity: 1, duration: 0.75, ease: 'power2.out', stagger: 0.18 });
+      },
+    });
   }, []);
 
-  const fs  = isMobile ? 32 : 72;
-  const bsz = isMobile ? 33 : 74;
+  const imgFilter = dark ? 'invert(1)' : 'none';
+
+  if (isMobile) {
+    return (
+      <section style={{
+        minHeight: '100svh', display: 'flex', flexDirection: 'column',
+        justifyContent: 'flex-end', padding: '0 24px 64px',
+        paddingTop: 'var(--nav-h)', background: 'var(--bg)', boxSizing: 'border-box', overflow: 'hidden',
+      }}>
+        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 12 }}>
+          <img ref={yourRef} src="svgs/SVG/your.svg" alt="YOUR" style={{ width: '76%', height: 'auto', display: 'block', filter: imgFilter }} />
+          <div style={{ display: 'flex', alignItems: 'flex-end', gap: 10 }}>
+            <img ref={ofRef} src="svgs/SVG/of.svg" alt="OF" style={{ width: '29%', height: 'auto', display: 'block', filter: imgFilter }} />
+            <img ref={scaleRef} src="svgs/SVG/scale.svg" alt="SCALE" style={{ width: '64%', height: 'auto', display: 'block', filter: imgFilter }} />
+          </div>
+          <img ref={allyRef} src="svgs/SVG/ally.svg" alt="ALLY" style={{ width: '55%', height: 'auto', display: 'block', filter: imgFilter }} />
+        </div>
+      </section>
+    );
+  }
+
+  /* Desktop — all SVGs at 100px height (Figma design at 1690px wide / 1562px content) */
+  const svgH = 'calc((100vw - 128px) * 100 / 1562)';
+  const ofScaleW = 'calc((100vw - 128px) * 751 / 1562)';
+  const bodyW = 'calc((100vw - 128px) * 368 / 1562)';
 
   return (
     <section style={{
-      height: '100svh',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: isMobile ? '0 24px' : '0 var(--s64)',
-      paddingTop: 'var(--nav-h)',
-      background: 'var(--bg)',
-      boxSizing: 'border-box',
+      height: '100svh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
+      paddingTop: 'var(--nav-h)', paddingLeft: 64, paddingRight: 64, paddingBottom: 64,
+      background: 'var(--bg)', boxSizing: 'border-box', overflow: 'hidden',
     }}>
-      <div ref={rowRef} style={{
-        display: 'flex',
-        alignItems: 'center',
-        gap: isMobile ? 4 : 12,
-        flexWrap: isMobile ? 'wrap' : 'nowrap',
-        justifyContent: 'center',
-      }}>
-        <span style={{ fontFamily: 'var(--sans)', fontSize: fs, fontWeight: 350, lineHeight: 1, color: 'var(--secondary)', whiteSpace: 'nowrap' }}>Your</span>
-        <span style={{ display: 'flex', flexShrink: 0 }}><BracketOpen size={bsz} color="var(--secondary)" /></span>
-        <span style={{ fontFamily: 'var(--sans)', fontSize: fs, fontWeight: 350, lineHeight: 1, color: 'var(--secondary)', whiteSpace: 'nowrap' }}>point of scale</span>
-        <span style={{ display: 'flex', flexShrink: 0 }}><BracketClose size={bsz} color="var(--secondary)" /></span>
-        <span style={{ display: 'flex', flexShrink: 0 }}><AllyWordmark size={bsz} color="var(--secondary)" /></span>
+      <div style={{ display: 'flex', flexDirection: 'column', gap: 28, width: '100%' }}>
+
+        {/* Row 1: YOUR ←————————————————→ POINT */}
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', height: svgH }}>
+          <img ref={yourRef}  src="svgs/SVG/your.svg"  alt="YOUR"  style={{ height: '100%', width: 'auto', display: 'block', filter: imgFilter }} />
+          <img ref={pointRef} src="svgs/SVG/point.svg" alt="POINT" style={{ height: '100%', width: 'auto', display: 'block', filter: imgFilter }} />
+        </div>
+
+        {/* Row 2: [OF  SCALE / ALLY] ←——→ body copy */}
+        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', width: '100%' }}>
+          {/* Left: OF+SCALE row stacked above ALLY */}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: svgH, width: ofScaleW }}>
+              <img ref={ofRef}    src="svgs/SVG/of.svg"    alt="OF"    style={{ height: '100%', width: 'auto', display: 'block', filter: imgFilter }} />
+              <img ref={scaleRef} src="svgs/SVG/scale.svg" alt="SCALE" style={{ height: '100%', width: 'auto', display: 'block', filter: imgFilter }} />
+            </div>
+            <div style={{ height: svgH }}>
+              <img ref={allyRef} src="svgs/SVG/ally.svg" alt="ALLY" style={{ height: '100%', width: 'auto', display: 'block', filter: imgFilter }} />
+            </div>
+          </div>
+
+          {/* Right: body copy — live text as per brief */}
+          <div style={{ width: bodyW, display: 'flex', flexDirection: 'column', gap: 28, flexShrink: 0 }}>
+            <p ref={headRef} style={{ fontFamily: 'var(--sans)', fontSize: 'calc((100vw - 128px) * 26 / 1562)', fontWeight: 350, lineHeight: 1.1, letterSpacing: '-0.26px', color: 'var(--secondary)', margin: 0 }}>
+              From engineering to execution and everything in between.
+            </p>
+            <p ref={bodyRef} style={{ fontFamily: 'var(--sans)', fontSize: 'calc((100vw - 128px) * 22 / 1562)', fontWeight: 350, lineHeight: 1.2, color: '#878787', margin: 0 }}>
+              Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.
+            </p>
+          </div>
+        </div>
+
       </div>
     </section>
   );
@@ -2810,29 +2887,13 @@ function ServicesAccordion({ isMobile, dark }) {
       display: 'flex',
       flexDirection: isMobile ? 'column' : 'row',
       gap: isMobile ? 48 : 128,
-      alignItems: 'flex-start',
+      alignItems: isMobile ? 'flex-start' : 'stretch',
       boxSizing: 'border-box',
     }}>
 
       {/* ── Left: accordion list ── */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', minWidth: 0 }}>
+      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: isMobile ? 'flex-start' : 'center', minWidth: 0 }}>
 
-        {/* Eyebrow — top right */}
-        <div style={{
-          width: '100%',
-          display: 'flex',
-          justifyContent: 'flex-end',
-          fontFamily: 'var(--mono)',
-          fontSize: 12,
-          fontWeight: 400,
-          letterSpacing: '-0.24px',
-          lineHeight: 1.4,
-          color: 'var(--secondary)',
-          textAlign: 'right',
-          marginBottom: isMobile ? 40 : 64,
-        }}>
-          ++ From engineering<br/>to execution ++
-        </div>
 
         {/* Accordion rows */}
         <div style={{ display: 'flex', flexDirection: 'column' }}>
@@ -2842,6 +2903,7 @@ function ServicesAccordion({ isMobile, dark }) {
             return (
               <div key={i} onClick={() => handleItemClick(i)} style={{
                 cursor: 'pointer',
+                paddingTop: (isActive && i === SVC_ROWS.length - 1) ? (isMobile ? 48 : 64) : 0,
                 paddingBottom: isActive ? (isMobile ? 24 : 32) : 0,
                 marginBottom: i < SVC_ROWS.length - 1 ? (isActive ? (isMobile ? 16 : 24) : 0) : 0,
               }}>
@@ -2898,7 +2960,7 @@ function ServicesAccordion({ isMobile, dark }) {
           aspectRatio: '1 / 1',
           flexShrink: 0,
           height: 'calc(100svh - 192px)',
-          alignSelf: 'center',
+          alignSelf: 'flex-end',
         }}>
           <AccordionMediaPanel activeIdx={activeIdx} dark={dark} />
         </div>
@@ -3076,7 +3138,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
     <div style={{background:"var(--bg)",color:"var(--secondary)"}}>
 
       {/* ══ YOUR POINT OF SCALE HERO ══ */}
-      <ServicesHeroStatic isMobile={isMobile} />
+      <ServicesHeroStatic isMobile={isMobile} dark={dark} />
 
       {/* ══ SERVICES ACCORDION ══ */}
       <ServicesAccordion isMobile={isMobile} dark={dark} />
@@ -3221,9 +3283,87 @@ function FilterPill({ label, active, onClick }) {
   );
 }
 
+const WORK_HEADLINES = [
+  'Creative that converts.',
+  'Data that performs.',
+  'Systems that support.',
+  'Production that moves.',
+];
+
+function WorkHeadlineCycle() {
+  const elRef = useRef(null);
+
+  useEffect(() => {
+    const el = elRef.current;
+    if (!el || typeof gsap === 'undefined') return;
+
+    let idx = 0;
+    let tl;
+
+    const show = () => {
+      el.textContent = WORK_HEADLINES[idx];
+      tl = gsap.timeline({ onComplete: () => {
+        idx = (idx + 1) % WORK_HEADLINES.length;
+        show();
+      }});
+      tl.fromTo(el,
+        { y: 36, opacity: 0 },
+        { y: 0, opacity: 1, duration: 0.75, ease: 'power3.out' }
+      )
+      .to(el, { y: -36, opacity: 0, duration: 0.6, ease: 'power3.in', delay: 2 });
+    };
+
+    show();
+    return () => { if (tl) tl.kill(); };
+  }, []);
+
+  return (
+    <div style={{ overflow: 'hidden' }}>
+      <div ref={elRef} role="heading" aria-level="1" style={{
+        fontFamily: 'var(--sans)',
+        fontSize: 'var(--h2)',
+        fontWeight: 350,
+        lineHeight: 'var(--h2-lh)',
+        letterSpacing: 'var(--h2-ls)',
+        opacity: 0,
+      }} />
+    </div>
+  );
+}
+
 function WorkPage({ dark, isMobile, setCtaOpen }) {
   const [cat, setCat] = useState("ALL");
   const [view, setView] = useState("grid");
+
+  useEffect(() => {
+    if (isMobile || typeof ScrollTrigger === 'undefined' || typeof gsap === 'undefined') return;
+    let triggers = [];
+    let rafId;
+    const setup = () => {
+      const thumbs = document.querySelectorAll('.work-grid-thumb');
+      thumbs.forEach(thumb => {
+        const img = thumb.querySelector('img');
+        if (!img) return;
+        gsap.set(img, { scale: 1.1, y: 20 });
+        const st = ScrollTrigger.create({
+          trigger: thumb,
+          start: 'top bottom',
+          end: 'bottom top',
+          scrub: true,
+          onUpdate: self => {
+            const p = self.progress;
+            gsap.set(img, { y: 20 - p * 40, scale: 1.1 - p * 0.06 });
+          },
+        });
+        triggers.push(st);
+      });
+    };
+    rafId = requestAnimationFrame(setup);
+    return () => {
+      cancelAnimationFrame(rafId);
+      triggers.forEach(st => st.kill());
+    };
+  }, [cat, view, isMobile]);
 
   const filtered = cat === "ALL" ? WORKS : WORKS.filter(w => w.cat === cat);
 
@@ -3274,10 +3414,8 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
       {/* Header */}
       <section style={{paddingTop:isMobile?96:256,paddingBottom:0,paddingLeft:isMobile?"var(--s42)":"var(--s64)",paddingRight:isMobile?"var(--s42)":"var(--s64)"}}>
         <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)",marginBottom:isMobile?48:64}}>
-          <Eyebrow center={false}>++ OUR WORK ++</Eyebrow>
-          <div data-split="" role="heading" aria-level="1" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:620}}>
-            Creative that converts. Data that performs. Systems that support. Production that moves.
-          </div>
+          <img src="svgs/SVG/work.svg" alt="WORK" style={{ height: 'calc((100vw - 128px) * 100 / 1562)', width: 'auto', display: 'block', alignSelf: 'flex-start', filter: dark ? 'invert(1)' : 'none' }} />
+          <WorkHeadlineCycle />
         </div>
 
         {/* Filter + view toggle row */}
@@ -3633,11 +3771,8 @@ function TeamCarousel({ dark, isMobile, nameStyle, roleStyle, padLeft }) {
             <div style={{
               width:"100%",
               height: isMobile ? 220 : 320,
-              border:"1px solid var(--grey)",
               borderRadius:4,
-              background: dark
-                ? (i===1||i===2 ? "#1a1a1a" : "linear-gradient(135deg,#1e1e1e 0%,#2a2a2a 100%)")
-                : (i===1||i===2 ? "#f0f0f0" : "linear-gradient(135deg,#f6f6f6 0%,#e8e8e8 100%)"),
+              background:"#808080",
             }}/>
             <div style={{display:"flex",flexDirection:"column",gap:12}}>
               <span style={nameStyle}>{member.name}</span>
@@ -3660,6 +3795,133 @@ function TeamCarousel({ dark, isMobile, nameStyle, roleStyle, padLeft }) {
   );
 }
 
+function GrowthSpecialistHero({ dark, isMobile }) {
+  const sectionRef = useRef(null);
+  const w0 = useRef(null), w1 = useRef(null), w2 = useRef(null), w3 = useRef(null);
+  const lineRef = useRef(null);
+
+  useEffect(() => {
+    const el = sectionRef.current;
+    if (!el || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    const words = [w0, w1, w2, w3].map(r => r.current).filter(Boolean);
+    gsap.set(words, { y: 60, opacity: 0 });
+    if (lineRef.current) gsap.set(lineRef.current, { scaleX: 0, transformOrigin: 'left center' });
+    const st = ScrollTrigger.create({
+      trigger: el,
+      start: 'top 80%',
+      onEnter: () => {
+        gsap.to(words, { y: 0, opacity: 1, duration: 0.9, ease: 'power3.out', stagger: 0.12 });
+        if (lineRef.current) gsap.to(lineRef.current, { scaleX: 1, duration: 1.1, ease: 'power3.out', delay: 0.15 });
+        st.kill();
+      },
+    });
+    return () => st.kill();
+  }, []);
+
+  const svgH   = isMobile ? 'calc((100vw - 48px) * 0.14)'  : 'calc((100vw - 128px) * 0.095)';
+  const svgHLg = isMobile ? 'calc((100vw - 48px) * 0.24)'  : 'calc((100vw - 128px) * 0.165)';
+  const inv    = { filter: dark ? 'invert(1)' : 'none' };
+
+  return (
+    <section ref={sectionRef} style={{ padding: isMobile ? '96px 24px 80px' : '128px var(--s64) 96px', overflow: 'hidden' }}>
+      <div ref={w0} style={{ marginBottom: isMobile ? 8 : 12 }}>
+        <img src="svgs/SVG/the.svg" alt="the" style={{ height: svgH, width: 'auto', display: 'block', opacity: 0.35, ...inv }} />
+      </div>
+      <div ref={w1} style={{ marginBottom: 0 }}>
+        <img src="svgs/SVG/growth.svg" alt="growth" style={{ width: '100%', height: 'auto', display: 'block', maxWidth: '100%', ...inv }} />
+      </div>
+      <div ref={lineRef} style={{ height: 1, background: 'var(--border)', margin: isMobile ? '20px 0' : '28px 0' }} />
+      <div style={{ display: 'flex', alignItems: 'flex-end', gap: isMobile ? 16 : 32, flexWrap: 'wrap' }}>
+        <div ref={w2} style={{ transform: 'rotate(-2deg)', transformOrigin: 'left bottom' }}>
+          <img src="svgs/SVG/specialist.svg" alt="specialist" style={{ height: svgH, width: 'auto', display: 'block', ...inv }} />
+        </div>
+        <div ref={w3}>
+          <img src="svgs/SVG/agency.svg" alt="agency" style={{ height: svgH, width: 'auto', display: 'block', opacity: 0.35, ...inv }} />
+        </div>
+      </div>
+    </section>
+  );
+}
+
+function AboutHeroStatic({ isMobile, dark }) {
+  const theRef        = useRef(null);
+  const growthRef     = useRef(null);
+  const specialistRef = useRef(null);
+  const agencyRef     = useRef(null);
+  const headRef       = useRef(null);
+  const bodyRef       = useRef(null);
+
+  useEffect(() => {
+    if (typeof gsap === 'undefined') return;
+    const svgs = [theRef, growthRef, specialistRef, agencyRef].map(r => r.current).filter(Boolean);
+    const text = [headRef, bodyRef].map(r => r.current).filter(Boolean);
+    gsap.set([...svgs, ...text], { y: 36, opacity: 0 });
+    gsap.to(svgs, {
+      y: 0, opacity: 1,
+      duration: 0.9, ease: 'power3.out',
+      stagger: 0.16,
+      delay: 0.2,
+      onComplete: () => {
+        gsap.to(text, { y: 0, opacity: 1, duration: 0.75, ease: 'power2.out', stagger: 0.18 });
+      },
+    });
+  }, []);
+
+  const inv = dark ? 'invert(1)' : 'none';
+  const headline = "We bring together creative, production, marketing, + technology.";
+  const bodyText = "Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.";
+
+  if (isMobile) return (
+    <section style={{
+      minHeight:'100svh', display:'flex', flexDirection:'column',
+      justifyContent:'flex-end', padding:'0 24px 64px',
+      paddingTop:'var(--nav-h)', background:'var(--bg)', boxSizing:'border-box', overflow:'hidden',
+    }}>
+      <div style={{ width:'100%', display:'flex', flexDirection:'column', gap:12 }}>
+        <img ref={theRef}        src="svgs/SVG/the.svg"        alt="THE"        style={{ width:'76%', height:'auto', display:'block', filter:inv }} />
+        <div style={{ display:'flex', alignItems:'flex-end', gap:10 }}>
+          <img ref={growthRef}     src="svgs/SVG/growth.svg"     alt="GROWTH"     style={{ width:'29%', height:'auto', display:'block', filter:inv }} />
+          <img ref={specialistRef} src="svgs/SVG/specialist.svg" alt="SPECIALIST" style={{ width:'64%', height:'auto', display:'block', filter:inv }} />
+        </div>
+        <img ref={agencyRef}     src="svgs/SVG/agency.svg"     alt="AGENCY"     style={{ width:'55%', height:'auto', display:'block', filter:inv }} />
+      </div>
+    </section>
+  );
+
+  const svgH  = 'calc((100vw - 128px) * 100 / 1562)';
+  const midW  = 'calc((100vw - 128px) * 751 / 1562)';
+  const bodyW = 'calc((100vw - 128px) * 368 / 1562)';
+
+  return (
+    <section style={{
+      height:'100svh', display:'flex', flexDirection:'column', justifyContent:'flex-end',
+      paddingTop:'var(--nav-h)', paddingLeft:64, paddingRight:64, paddingBottom:64,
+      background:'var(--bg)', boxSizing:'border-box', overflow:'hidden',
+    }}>
+      <div style={{ display:'flex', flexDirection:'column', gap:28, width:'100%' }}>
+        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', width:'100%', height:svgH }}>
+          <img ref={theRef}    src="svgs/SVG/the.svg"    alt="THE"    style={{ height:'100%', width:'auto', display:'block', filter:inv }} />
+          <img ref={growthRef} src="svgs/SVG/growth.svg" alt="GROWTH" style={{ height:'100%', width:'auto', display:'block', filter:inv }} />
+        </div>
+        <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', width:'100%' }}>
+          <div style={{ display:'flex', flexDirection:'column', gap:28 }}>
+            <div style={{ display:'flex', alignItems:'center', height:svgH, width:midW }}>
+              <img ref={specialistRef} src="svgs/SVG/specialist.svg" alt="SPECIALIST" style={{ height:'100%', width:'auto', display:'block', filter:inv }} />
+            </div>
+            <div style={{ height:svgH }}>
+              <img ref={agencyRef} src="svgs/SVG/agency.svg" alt="AGENCY" style={{ height:'100%', width:'auto', display:'block', filter:inv }} />
+            </div>
+          </div>
+          <div style={{ width:bodyW, display:'flex', flexDirection:'column', gap:28, flexShrink:0 }}>
+            <p ref={headRef} style={{ fontFamily:'var(--sans)', fontSize:'calc((100vw - 128px) * 26 / 1562)', fontWeight:350, lineHeight:1.1, letterSpacing:'-0.26px', color:'var(--secondary)', margin:0 }}>{headline}</p>
+            <p ref={bodyRef} style={{ fontFamily:'var(--sans)', fontSize:'calc((100vw - 128px) * 22 / 1562)', fontWeight:350, lineHeight:1.2, color:'#878787', margin:0 }}>{bodyText}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+}
+
 function AboutPage({ dark, isMobile, setCtaOpen }) {
   const nameStyle = {fontFamily:"var(--sans)",fontSize:isMobile?18:22,fontWeight:350,lineHeight:1.1,color:"var(--secondary)"};
   const roleStyle = {fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",color:"#878787"};
@@ -3667,34 +3929,7 @@ function AboutPage({ dark, isMobile, setCtaOpen }) {
   return (
     <div style={{background:"var(--bg)",color:"var(--secondary)",minHeight:"100svh"}}>
 
-      {/* ── Hero ── */}
-      <section style={{
-        height:"100svh",
-        padding: isMobile ? "0 24px 64px" : "0 var(--s64) var(--s64)",
-        display:"flex",
-        flexDirection: isMobile ? "column" : "row",
-        alignItems: isMobile ? "flex-start" : "flex-end",
-        justifyContent: isMobile ? "flex-end" : "space-between",
-        gap: isMobile ? 32 : 64,
-        maxWidth:"100%",
-        boxSizing:"border-box",
-      }}>
-        {/* Left — headline */}
-        <div style={{flex:"0 0 auto", maxWidth: isMobile ? "100%" : 541}}>
-          <h1 style={{fontFamily:"var(--sans)",fontSize:isMobile?"var(--h1)":48,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.96px",margin:0}}>
-            <span style={{color:"#878787"}}>We're Dijitally.</span>{" "}
-            A specialist growth agency built for brands at point of scale.
-          </h1>
-        </div>
-        {/* Right — body */}
-        {!isMobile && (
-          <div style={{flex:"0 0 auto",maxWidth:480}}>
-            <p style={{fontFamily:"var(--sans)",fontSize:22,fontWeight:350,lineHeight:1.2,color:"#878787",margin:0}}>
-              We bring together creative, production, marketing, + technology to drive measurable impact. Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.
-            </p>
-          </div>
-        )}
-      </section>
+      <AboutHeroStatic isMobile={isMobile} dark={dark} />
 
       {/* ── Hero video ── */}
       <div style={{margin: isMobile ? "0 24px" : "0 var(--s64)",lineHeight:0,flexShrink:0}}>
@@ -3713,6 +3948,7 @@ function AboutPage({ dark, isMobile, setCtaOpen }) {
           </p>
         </section>
       )}
+
 
       {/* ── Team ── */}
       <section style={{
@@ -4296,6 +4532,15 @@ function Page() {
   useEffect(()=>{
     const el = modelPanelRef.current;
     if (!el) return;
+    if (typeof ScrollTrigger !== 'undefined') {
+      const st = ScrollTrigger.create({
+        trigger: el,
+        start: 'top 80%',
+        onEnter: () => { setModelsVisible(true); st.kill(); },
+      });
+      return () => st.kill();
+    }
+    // Fallback for when ScrollTrigger isn't available
     const obs = new IntersectionObserver(([e])=>{
       if (e.isIntersecting) { setModelsVisible(true); obs.disconnect(); }
     }, { threshold: 0.3 });
@@ -4813,7 +5058,6 @@ function Page() {
               letterSpacing: 0,
               color:"#878787",
               zIndex: 2,
-              opacity: 0,
             }}>
               And the small details<br/>that put it into action.
             </p>
@@ -5026,10 +5270,8 @@ function Page() {
           paddingRight: isMobile ? "var(--s42)" : "var(--s64)",
         }}>
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
-            <Eyebrow center={false}>++ OUR WORK ++</Eyebrow>
-            <div data-split="" role="heading" aria-level="2" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:720}}>
-              Creative that converts. Data that performs. Systems that support. Production that moves.
-            </div>
+            <img src="svgs/SVG/work.svg" alt="WORK" style={{ height: 'calc((100vw - 128px) * 100 / 1562)', width: 'auto', display: 'block', alignSelf: 'flex-start', filter: dark ? 'invert(1)' : 'none' }} />
+            <WorkHeadlineCycle />
           </div>
         </div>
 
