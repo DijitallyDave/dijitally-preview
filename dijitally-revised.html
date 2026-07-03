@@ -2624,8 +2624,8 @@ function MenuGlitch({ onComplete, onMidpoint }) {
 const ACCORDION_MEDIA = [
   { type:'image', src:'services/strategy.png' }, // 0 Strategic
   { type:'video', src:'videos/Inhouse+Embedded.mp4' }, // 1 Organisation
-  { type:'placeholder' },       // 2 Systematic
-  { type:'placeholder' },       // 3 Commercial
+  { type:'image', src:'services/needswork_light.png' }, // 2 Systematic
+  { type:'image', src:'services/needswork_light.png' }, // 3 Commercial
   { type:'image', src:'work/Constantinople.png' },      // 4 Technologic
   { type:'image', src:'work/AWX.png' },                 // 5 Tactic
 ];
@@ -2696,7 +2696,7 @@ function AccordionMediaPanel({ activeIdx, dark }) {
   const mediaStyle = { position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', display:'block' };
 
   return (
-    <div style={{ position:'relative', width:'100%', height:'100%', borderRadius:4, overflow:'hidden', background:'#1a1a1a' }}>
+    <div style={{ position:'relative', width:'100%', height:'100%', borderRadius:4, overflow:'hidden', background:'transparent' }}>
       {media.type === 'placeholder'
         ? <div key="placeholder" style={{ position:'absolute', inset:0, background:'#808080', display:'flex', alignItems:'center', justifyContent:'center' }}>
             <span style={{ fontFamily:'var(--sans)', fontSize:14, fontWeight:400, color:'#fff', letterSpacing:'0.02em' }}>Needs guidance for type of work</span>
