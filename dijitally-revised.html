@@ -3199,7 +3199,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
 
       {/* ══ CASE STUDIES + ACCORDION ══ */}
       <section style={{
-        padding:isMobile?"var(--s64) var(--s42)":"var(--s128) var(--s64)",
+        padding:isMobile?"96px var(--s42) var(--s64)":"var(--s128) var(--s64)",
         display:"flex",
         flexDirection:isMobile?"column":"row",
         gap:isMobile?64:"var(--s64)",
@@ -4755,6 +4755,7 @@ function Page() {
               display:"flex", alignItems:"center", gap:4,
               padding:6,
               background: (l==="Services" && page==="services") || (l==="Work" && page==="work") || (l==="About" && page==="about") ? "var(--secondary)" : "var(--bg)",
+              borderBottom: isMobile && ((l==="Services" && page==="services") || (l==="Work" && page==="work") || (l==="About" && page==="about")) ? "2px solid var(--bg)" : "2px solid transparent",
               fontFamily:"var(--sans)",
               fontSize:"var(--nav-size)",
               fontWeight:"var(--nav-w)",
