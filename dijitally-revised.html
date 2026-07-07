@@ -2298,8 +2298,8 @@ const MODELS = [
 ];
 
 const WORKS = [
-  {title:"Afterpay x Dijitally",  meta:"PARTNERSHIP · 2024 · DIGITAL",  cat:"PARTNERSHIPS", bg:"#000",     fg:"#B6F4C9", label:"DIJITALLY × afterpay", img:"work/AfterpayxDijitally.png", aspect:"1008/1360"},
-  {title:"Afterpay Day",          meta:"CREATIVE · DESIGN · SOCIAL",     cat:"CREATIVE",     bg:"#1a1a1a",  fg:"#F5F3EE", label:"Afterpay Day",         img:"work/AfterpayDay.jpg",         aspect:"1/1"},
+  {title:"Afterpay x Dijitally",  meta:"PARTNERSHIP · 2024 · DIGITAL",  cat:"PARTNERSHIPS", bg:"#000",     fg:"#B6F4C9", label:"DIJITALLY × afterpay", img:"work/AfterpayxDijitally.png", aspect:"1008/1360", template:2},
+  {title:"Afterpay Day",          meta:"CREATIVE · DESIGN · SOCIAL",     cat:"CREATIVE",     bg:"#1a1a1a",  fg:"#F5F3EE", label:"Afterpay Day",         img:"work/AfterpayDay.jpg",         aspect:"1/1",        template:1},
   {title:"Constantinople",        meta:"CREATIVE · DESIGN · SOCIAL",     cat:"SOCIAL",       bg:"#FF4500",  fg:"#F5F3EE", label:"Constantinople",       img:"work/Constantinople.png",      aspect:"1008/1360"},
   {title:"Airwallex x Dijitally", meta:"PERFORMANCE · 2024 · DATA",      cat:"DATA",         bg:"#0a0a1e",  fg:"#B6F4C9", label:"Airwallex",            img:"work/AWXxAirwallex.png",       aspect:"1008/1230"},
   {title:"RoomStay Holiday Parks",meta:"CAMPAIGN · EVENT · 2024",        cat:"CREATIVE",     bg:"#1c2419",  fg:"#B6F4C9", label:"RoomStay",             img:"work/RoomStayBE_02.png", aspect:"1008/1360"},
@@ -3350,7 +3350,7 @@ function WorkHeadlineCycle() {
   );
 }
 
-function WorkPage({ dark, isMobile, setCtaOpen }) {
+function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
   const [cat, setCat] = useState("ALL");
   const [view, setView] = useState("grid");
 
@@ -3394,7 +3394,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
   );
 
   const cardThumb = (w, width, height) => (
-    <div onClick={e=>e.preventDefault()} style={{width,height,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,position:"relative",overflow:"hidden",borderRadius:4,flexShrink:0,cursor:"pointer"}}>
+    <div onClick={()=>onCardClick&&onCardClick(w)} style={{width,height,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,position:"relative",overflow:"hidden",borderRadius:4,flexShrink:0,cursor:"pointer"}}>
       {w.img
         ? <StripRevealImg src={w.img} alt={w.title} delay={0} style={{position:"absolute",inset:0,width:"100%",height:"100%"}}/>
         : <div style={{position:"absolute",inset:0,background:w.bg||"#2a2a2a"}}/>
@@ -3476,7 +3476,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
             }} style={{width:"100%"}}>
               {filtered.map((w,i)=>(
                 <div key={i} className="wc" style={{marginBottom:i<filtered.length-1?56:0}}>
-                  <div onClick={e=>e.preventDefault()} style={{position:"relative",width:"100%",paddingBottom:"64.58%",overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,cursor:"pointer"}}>
+                  <div onClick={()=>onCardClick&&onCardClick(w)} style={{position:"relative",width:"100%",paddingBottom:"64.58%",overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,cursor:"pointer"}}>
                     <div style={{position:"absolute",top:0,left:0,width:"100%",height:"100%"}}>
                       {w.img
                         ? <StripRevealImg src={w.img} alt={w.title} delay={i*0.1}/>
@@ -3500,7 +3500,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
                 <div style={{display:"flex",gap:128,alignItems:"flex-start"}}>
                   {filtered[0] && (
                     <div className="wc" style={{width:720,flexShrink:0}}>
-                      <div className="work-grid-thumb" onClick={e=>e.preventDefault()} style={{height:465,background:filtered[0].img?(dark?"#121010":"#1A1A1A"):filtered[0].bg,cursor:"pointer"}}>
+                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[0])} style={{height:465,background:filtered[0].img?(dark?"#121010":"#1A1A1A"):filtered[0].bg,cursor:"pointer"}}>
                         {filtered[0].img
                           ? <StripRevealImg src={filtered[0].img} alt={filtered[0].title} delay={0}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[0].bg||"#2a2a2a"}}/>
@@ -3512,7 +3512,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
                   )}
                   {filtered[1] && (
                     <div className="wc" style={{width:378,flexShrink:0,paddingTop:252}}>
-                      <div className="work-grid-thumb" onClick={e=>e.preventDefault()} style={{height:378,background:filtered[1].img?(dark?"#121010":"#1A1A1A"):filtered[1].bg,cursor:"pointer"}}>
+                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[1])} style={{height:378,background:filtered[1].img?(dark?"#121010":"#1A1A1A"):filtered[1].bg,cursor:"pointer"}}>
                         {filtered[1].img
                           ? <StripRevealImg src={filtered[1].img} alt={filtered[1].title} delay={0.2}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[1].bg||"#2a2a2a"}}/>
@@ -3529,7 +3529,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
                 <div style={{display:"flex",gap:128,alignItems:"flex-start"}}>
                   {filtered[2] && (
                     <div className="wc" style={{width:378,flexShrink:0,paddingBottom:320}}>
-                      <div className="work-grid-thumb" onClick={e=>e.preventDefault()} style={{height:378,background:filtered[2].img?(dark?"#121010":"#1A1A1A"):filtered[2].bg,cursor:"pointer"}}>
+                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[2])} style={{height:378,background:filtered[2].img?(dark?"#121010":"#1A1A1A"):filtered[2].bg,cursor:"pointer"}}>
                         {filtered[2].img
                           ? <StripRevealImg src={filtered[2].img} alt={filtered[2].title} delay={0.1}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[2].bg||"#2a2a2a"}}/>
@@ -3541,7 +3541,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
                   )}
                   {filtered[3] && (
                     <div className="wc" style={{width:720,flexShrink:0,paddingTop:252}}>
-                      <div className="work-grid-thumb" onClick={e=>e.preventDefault()} style={{height:465,background:filtered[3].img?(dark?"#121010":"#1A1A1A"):filtered[3].bg,cursor:"pointer"}}>
+                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[3])} style={{height:465,background:filtered[3].img?(dark?"#121010":"#1A1A1A"):filtered[3].bg,cursor:"pointer"}}>
                         {filtered[3].img
                           ? <StripRevealImg src={filtered[3].img} alt={filtered[3].title} delay={0.3}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[3].bg||"#2a2a2a"}}/>
@@ -3558,7 +3558,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
                 <div style={{display:"flex",gap:256,alignItems:"flex-start",paddingTop:128,paddingBottom:96}}>
                   {filtered[4] && (
                     <div className="wc" style={{width:378,flexShrink:0}}>
-                      <div className="work-grid-thumb" onClick={e=>e.preventDefault()} style={{height:378,background:filtered[4].img?(dark?"#121010":"#1A1A1A"):filtered[4].bg,cursor:"pointer"}}>
+                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[4])} style={{height:378,background:filtered[4].img?(dark?"#121010":"#1A1A1A"):filtered[4].bg,cursor:"pointer"}}>
                         {filtered[4].img
                           ? <StripRevealImg src={filtered[4].img} alt={filtered[4].title} delay={0.1}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[4].bg||"#2a2a2a"}}/>
@@ -3570,7 +3570,7 @@ function WorkPage({ dark, isMobile, setCtaOpen }) {
                   )}
                   {filtered[5] && (
                     <div className="wc" style={{width:378,flexShrink:0}}>
-                      <div className="work-grid-thumb" onClick={e=>e.preventDefault()} style={{height:378,background:filtered[5].img?(dark?"#121010":"#1A1A1A"):filtered[5].bg,cursor:"pointer"}}>
+                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[5])} style={{height:378,background:filtered[5].img?(dark?"#121010":"#1A1A1A"):filtered[5].bg,cursor:"pointer"}}>
                         {filtered[5].img
                           ? <StripRevealImg src={filtered[5].img} alt={filtered[5].title} delay={0.3}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[5].bg||"#2a2a2a"}}/>
@@ -3626,6 +3626,403 @@ function getDefaultDark() {
   return h >= 18 || h < 6;
 }
 
+/* ══════════════════════════════════════
+   CASE STUDY DATA
+══════════════════════════════════════ */
+const CASE_STUDY_1_CONTENT = {
+  headline: "Delivering results for the biggest sales day events of the year. 4 years and running.",
+  sections: [
+    {
+      label: "The ask",
+      body: "Afterpay tasked us with creating an engaging campaign to drive awareness and purchases during Afterpay Day — one of the biggest sales events on the calendar. We needed to cut through, stand out, and reach a global audience.",
+      results: null,
+    },
+    {
+      label: "The process",
+      body: "We developed a full creative suite spanning motion design, social content, CRM communications and animation — all built around a unified campaign identity that could flex across every touchpoint and market.",
+      results: null,
+    },
+    {
+      label: "The results",
+      body: "The campaign drove record engagement across all markets, with content reaching millions of users across Instagram, TikTok, email and paid channels.",
+      results: [
+        { label: "REACH", value: "+12M" },
+        { label: "MARKETS", value: "5" },
+        { label: "PIECES OF CONTENT", value: "80+" },
+        { label: "EMAIL OPEN RATE", value: "32%" },
+      ],
+    },
+  ],
+};
+
+const CASE_STUDY_2_CONTENT = {
+  headline: "Afterpay's point of scale ally. Six years and counting.",
+  stats: [
+    { number: "6", label: "years of partnership" },
+    { number: "5", label: "global markets" },
+    { number: "2", label: "models: Studio + In-house" },
+  ],
+  textSection: {
+    heading: "A partnership built for scale",
+    body: "Since 2020, Dijitally has been Afterpay's point of scale ally — providing creative, strategy, and embedded team capability across six connected pillars. Built for pace, designed for partnership.",
+  },
+  blockquote: {
+    quote: "“Not many agencies quite literally help you extend your team. Dijitally have become a true extension of ours.”",
+    attribution: "— Joe Ahn, Growth Marketing Lead",
+  },
+  modelSection: {
+    heading: "Our model: Studio + In-House",
+    body: "Two operating models. One seamless partnership. We flex between studio delivery and embedded team capability — depending on what the moment demands.",
+    cards: [
+      { title: "Integrated Model", body: "Full-service creative and strategic output delivered from our studio. Ideal for campaigns, launches, and high-volume content production." },
+      { title: "In-House Model", body: "Dijitally team members embedded directly within Afterpay, working day-to-day alongside their teams." },
+      { title: "Follow the Sun", body: "Time-zone spanning capability across Sydney, Melbourne and global markets — keeping output moving around the clock." },
+    ],
+  },
+  pillars: [
+    "Creative Production",
+    "CRM + Email",
+    "Web + Engineering",
+    "Data + Performance",
+    "Embedded Teams (In-house)",
+    "B2B Growth Strategy",
+  ],
+  howWeWork: [
+    { principle: "Collaboration + Candor", body: "We speak plainly, share work early, and build trust through transparency. No surprises — just straight talk." },
+    { principle: "Shared outcomes", body: "We measure success the same way our clients do. Our goals are aligned from the start." },
+    { principle: "Reactive and proactive", body: "We respond fast and think ahead — anticipating what's needed before it's asked." },
+    { principle: "Overflow, not overlap", body: "We extend capacity without creating confusion. Clear lanes, clean handoffs." },
+    { principle: "Follow the sun", body: "Cross-timezone coverage ensures work keeps moving — no waiting for business hours." },
+  ],
+  timeline: [
+    { year: "2020", body: "Partnership begins. Studio model established across creative and social." },
+    { year: "2021", body: "Embedded team model introduced. CRM + Email capability added." },
+    { year: "2022", body: "Scale-up across global markets. Data + Performance pillar launched." },
+    { year: "2023", body: "Web + Engineering capability added. B2B Growth Strategy pillar introduced." },
+    { year: "2024", body: "Six connected capability pillars operating. Follow the sun model active." },
+    { year: "2025+", body: "Continuing to build the future of global commerce, together." },
+  ],
+  ctaText: "There's a reason you can't spell exponentially without ally. Let's build something together.",
+};
+
+/* ══════════════════════════════════════
+   CASE STUDY PAGE — TEMPLATE 1 (Creative)
+══════════════════════════════════════ */
+function CaseStudy1Page({ work, isMobile, dark, setCtaOpen }) {
+  const [activeSection, setActiveSection] = useState(0);
+  const data = CASE_STUDY_1_CONTENT;
+  const nextWork = WORKS.find(w => w.title === 'Afterpay x Dijitally') || WORKS[0];
+
+  return (
+    <div style={{ background: 'var(--bg)', minHeight: '100vh', paddingTop: 'var(--nav-h)' }}>
+
+      {/* Hero */}
+      <section style={{ paddingTop: isMobile ? 64 : 256, paddingBottom: 42, paddingLeft: 24, paddingRight: 24 }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'flex-end', justifyContent: 'space-between', gap: isMobile ? 24 : 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 42 }}>
+            <h1 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 64, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-1px', lineHeight: 1.1, maxWidth: 640, color: 'var(--secondary)', margin: 0 }}>
+              {data.headline}
+            </h1>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--static)', letterSpacing: '-0.2px' }}>{work.meta}</span>
+          </div>
+          <div style={{ width: isMobile ? 50 : 98.6, height: isMobile ? 17 : 34, background: '#000', borderRadius: 2, flexShrink: 0 }} />
+        </div>
+      </section>
+
+      {/* Image grid + text */}
+      {isMobile ? (
+        <section style={{ padding: '0 24px' }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+            <div style={{ width: '100%', height: 209, borderRadius: 2, background: '#000' }} />
+            <div style={{ width: '100%', height: 209, borderRadius: 2, background: '#000' }} />
+            <div style={{ display: 'flex', gap: 12, height: 209 }}>
+              <div style={{ flex: 1, borderRadius: 2, background: '#000' }} />
+              <div style={{ flex: 1, borderRadius: 2, background: '#aef5e9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 66, height: 66, background: '#000', borderRadius: 2 }} />
+              </div>
+            </div>
+            <div style={{ width: '100%', height: 209, borderRadius: 2, background: '#000' }} />
+          </div>
+          <div style={{ paddingTop: 64, paddingBottom: 64, display: 'flex', flexDirection: 'column', gap: 54 }}>
+            {data.sections.map((s, i) => (
+              <div key={i} onClick={() => setActiveSection(i)} style={{ display: 'flex', flexDirection: 'column', gap: 16, cursor: 'pointer' }}>
+                <h3 style={{ fontFamily: 'var(--sans)', fontSize: 26, fontWeight: 500, letterSpacing: '-0.26px', lineHeight: 1, color: activeSection === i ? 'var(--secondary)' : 'rgba(23,22,24,0.33)', margin: 0 }}>{s.label}</h3>
+                {activeSection === i && (
+                  <>
+                    <p style={{ fontFamily: 'var(--sans)', fontSize: 19, fontWeight: 500, letterSpacing: '0.19px', lineHeight: 1.2, color: 'var(--secondary)', margin: 0 }}>{s.body}</p>
+                    {s.results && s.results.map((r, j) => (
+                      <div key={j} style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 8, borderBottom: '1px solid var(--static)', marginBottom: 0 }}>
+                        <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>{r.label}</span>
+                        <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>{r.value}</span>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      ) : (
+        <section style={{ display: 'flex', gap: 24, padding: '0 24px', alignItems: 'flex-start' }}>
+          <div style={{ width: 1187, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 128 }}>
+            <div style={{ width: '100%', height: 640, borderRadius: 2, background: '#000' }} />
+            <div style={{ width: '100%', height: 640, borderRadius: 2, background: '#000' }} />
+            <div style={{ display: 'flex', gap: 24, height: 640 }}>
+              <div style={{ flex: 1, borderRadius: 2, background: '#000' }} />
+              <div style={{ flex: 1, borderRadius: 2, background: '#aef5e9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                <div style={{ width: 198, height: 198, background: '#000', borderRadius: 2 }} />
+              </div>
+            </div>
+            <div style={{ width: '100%', height: 640, borderRadius: 2, background: '#000' }} />
+          </div>
+          <div style={{ flex: 1, position: 'sticky', top: 0, paddingTop: 64, display: 'flex', flexDirection: 'column', gap: 48, height: '100vh', overflowY: 'auto' }}>
+            {data.sections.map((s, i) => (
+              <div key={i} onClick={() => setActiveSection(i)} style={{ display: 'flex', flexDirection: 'column', gap: 16, cursor: 'pointer' }}>
+                <h3 style={{ fontFamily: 'var(--sans)', fontSize: 26, fontWeight: 500, letterSpacing: '-0.26px', lineHeight: 1, color: activeSection === i ? 'var(--secondary)' : 'rgba(23,22,24,0.33)', margin: 0 }}>{s.label}</h3>
+                {activeSection === i && (
+                  <>
+                    <p style={{ fontFamily: 'var(--sans)', fontSize: 19, fontWeight: 500, letterSpacing: '0.19px', lineHeight: 1.2, color: 'var(--secondary)', maxWidth: 432, margin: 0 }}>{s.body}</p>
+                    {s.results && s.results.map((r, j) => (
+                      <div key={j} style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 8, borderBottom: '1px solid var(--static)', marginBottom: 0 }}>
+                        <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>{r.label}</span>
+                        <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>{r.value}</span>
+                      </div>
+                    ))}
+                  </>
+                )}
+              </div>
+            ))}
+          </div>
+        </section>
+      )}
+
+      {/* Footer: Up next + CTA */}
+      <section style={{ paddingTop: isMobile ? 64 : 128, paddingLeft: isMobile ? 24 : 64, paddingRight: isMobile ? 24 : 64, paddingBottom: isMobile ? 64 : 128, display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 42, alignItems: 'flex-start' }}>
+        <div onClick={() => window.__goToCaseStudy && window.__goToCaseStudy(nextWork)} style={{ width: isMobile ? '100%' : 393, height: 409, background: 'var(--secondary)', borderRadius: 4, padding: 8, flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', cursor: 'pointer', boxSizing: 'border-box' }}>
+          <div style={{ width: 155, height: 155, background: '#000', borderRadius: 2 }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bg)', letterSpacing: '-0.48px' }}>UP NEXT</span>
+            <h3 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 28 : 48, fontWeight: 500, letterSpacing: '-0.96px', lineHeight: 1, color: 'var(--bg)', margin: 0 }}>{nextWork.title}</h3>
+          </div>
+        </div>
+        <div style={{ flex: 1, minHeight: 409, background: dark ? '#1a1a1a' : '#EDEAE5', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 42px', boxSizing: 'border-box', width: isMobile ? '100%' : undefined }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'center', textAlign: 'center', width: '100%', maxWidth: 480 }}>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 500, letterSpacing: '0.08em', color: 'var(--static)', textTransform: 'uppercase' }}>LET'S CHAT</span>
+            <p style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 22 : 28, fontWeight: 350, lineHeight: 1.2, letterSpacing: '-0.5px', color: 'var(--secondary)', margin: 0 }}>Looking for an ally<br/>on your next project?</p>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'stretch', flexDirection: isMobile ? 'column' : 'row' }}>
+              <input type="email" placeholder="Your contact email" style={{ width: 240, padding: '18px 14px', fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 500, border: '1px solid var(--grey)', outline: 'none', background: 'var(--bg)', color: '#878787', boxSizing: 'border-box' }} />
+              <button onClick={() => setCtaOpen && setCtaOpen(true)} className="cta-btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '18px 24px', background: 'var(--tech)', border: 'none', borderRadius: 0, fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 500, color: '#121010', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                <span style={{ display: 'inline-block', width: 4, height: 4, background: 'currentColor', flexShrink: 0 }} />
+                <span className="cta-text">Submit</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <SiteFooter dark={dark} isMobile={isMobile} onBackToTop={() => { if (window.__resetSmoother) window.__resetSmoother(); window.scrollTo(0,0); }} />
+    </div>
+  );
+}
+
+/* ══════════════════════════════════════
+   CASE STUDY PAGE — TEMPLATE 2 (Partnership)
+══════════════════════════════════════ */
+function CaseStudy2Page({ work, isMobile, dark, setCtaOpen }) {
+  const [openPillar, setOpenPillar] = useState(-1);
+  const data = CASE_STUDY_2_CONTENT;
+  const nextWork = WORKS.find(w => w.title === 'Afterpay Day') || WORKS[1];
+
+  return (
+    <div style={{ background: 'var(--bg)', minHeight: '100vh', paddingTop: 'var(--nav-h)' }}>
+
+      {/* 1. Hero */}
+      <section style={{ paddingTop: isMobile ? 64 : 256, paddingBottom: 42, paddingLeft: 24, paddingRight: 24 }}>
+        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'flex-end', justifyContent: 'space-between', gap: isMobile ? 24 : 0 }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 42 }}>
+            <h1 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 64, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-1px', lineHeight: 1.1, maxWidth: 640, color: 'var(--secondary)', margin: 0 }}>
+              {data.headline}
+            </h1>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--static)', letterSpacing: '-0.2px' }}>PARTNERSHIP: 2020 — PRESENT</span>
+          </div>
+          <div style={{ width: isMobile ? 69.6 : 150.8, height: isMobile ? 24 : 52, background: '#000', borderRadius: 2, flexShrink: 0 }} />
+        </div>
+      </section>
+
+      {/* 2. Hero image with stats */}
+      <section style={{ padding: '0 24px' }}>
+        <div style={{ width: '100%', height: isMobile ? 508 : 849, borderRadius: 2, background: '#000', position: 'relative', overflow: 'hidden' }}>
+          {!isMobile && (
+            <div style={{ position: 'absolute', bottom: 42, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 10 }}>
+              {data.stats.map((s, i) => (
+                <div key={i} style={{ width: 220, height: 220, background: 'rgba(18,16,16,0.15)', backdropFilter: 'blur(64px)', borderRadius: 4, display: 'flex', flexDirection: 'column', gap: 18, alignItems: 'center', justifyContent: 'center', color: '#fdfeff', textAlign: 'center', padding: '0 16px', boxSizing: 'border-box' }}>
+                  <span style={{ fontFamily: 'var(--sans)', fontSize: 64, fontWeight: 700, letterSpacing: '0.64px', lineHeight: 1.2 }}>{s.number}</span>
+                  <span style={{ fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 500, letterSpacing: '0.32px', lineHeight: 1.2 }}>{s.label}</span>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </section>
+
+      {/* 3. Text section */}
+      <section style={{ paddingTop: 96, paddingBottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
+        <div style={{ width: isMobile ? '100%' : 1043, display: 'flex', flexDirection: 'column', gap: 42 }}>
+          <h2 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 42, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-0.84px', lineHeight: 1.1, color: 'var(--secondary)', margin: 0 }}>{data.textSection.heading}</h2>
+          <p style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 19 : 22, fontWeight: 500, letterSpacing: '0.22px', lineHeight: 1.2, color: 'var(--secondary)', margin: 0 }}>{data.textSection.body}</p>
+        </div>
+      </section>
+
+      {/* 4. Blockquote */}
+      <section style={{ paddingTop: 128, display: 'flex', justifyContent: 'center', paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
+        <div style={{ width: isMobile ? '100%' : 1127, background: '#f6f6f6', border: '1px solid var(--grey)', borderRadius: 4, padding: isMobile ? '64px 32px' : '128px 42px', display: 'flex', flexDirection: 'column', gap: 42, alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box' }}>
+          <p style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 19 : 26, fontWeight: 500, lineHeight: 1.2, color: 'var(--secondary)', maxWidth: 664, textAlign: 'center', margin: 0 }}>{data.blockquote.quote}</p>
+          <span style={{ fontFamily: 'var(--mono)', fontSize: isMobile ? 10 : 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>{data.blockquote.attribution}</span>
+          <div style={{ width: isMobile ? 69 : 98.6, height: isMobile ? 24 : 34, background: '#000', borderRadius: 2 }} />
+        </div>
+      </section>
+
+      {/* 5. Our model + 3 cards */}
+      <section style={{ paddingTop: 128, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 64, paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
+        <div style={{ width: isMobile ? '100%' : 1043, display: 'flex', flexDirection: 'column', gap: 42 }}>
+          <h2 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 42, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-0.84px', lineHeight: 1.1, color: 'var(--secondary)', margin: 0 }}>{data.modelSection.heading}</h2>
+          <p style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 19 : 22, fontWeight: 500, letterSpacing: '0.22px', lineHeight: 1.2, color: 'var(--secondary)', margin: 0 }}>{data.modelSection.body}</p>
+        </div>
+        {isMobile ? (
+          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 32 }}>
+            {data.modelSection.cards.map((card, i) => (
+              <div key={i} style={{ background: 'var(--bg)', border: '1px solid var(--grey)', borderRadius: 4, padding: 12, display: 'flex', flexDirection: 'column', gap: 42 }}>
+                <div style={{ width: '100%', height: 271, borderRadius: 2, background: '#000' }} />
+                <div style={{ padding: '0 12px 30px', display: 'flex', flexDirection: 'column', gap: 24 }}>
+                  <h3 style={{ fontFamily: 'var(--sans)', fontSize: 19, fontWeight: 500, lineHeight: 1.1, color: 'var(--secondary)', margin: 0 }}>{card.title}</h3>
+                  <p style={{ fontFamily: 'var(--sans)', fontSize: 14, fontWeight: 500, letterSpacing: '0.14px', lineHeight: 1.2, color: 'var(--secondary)', margin: 0 }}>{card.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div style={{ width: '100%', height: 488, display: 'flex', gap: 42, paddingLeft: 42, paddingRight: 42, boxSizing: 'border-box', justifyContent: 'center' }}>
+            {data.modelSection.cards.map((card, i) => (
+              <div key={i} style={{ flex: 1, height: '100%', background: 'var(--bg)', border: '1px solid var(--grey)', borderRadius: 4, display: 'flex', flexDirection: 'column', gap: 42, padding: '24px 24px 42px', boxSizing: 'border-box' }}>
+                <div style={{ height: 271, borderRadius: 2, background: '#000' }} />
+                <div style={{ paddingLeft: 24, paddingRight: 24, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                  <h3 style={{ fontFamily: 'var(--sans)', fontSize: 24, fontWeight: 500, lineHeight: 1.1, color: 'var(--secondary)', margin: 0 }}>{card.title}</h3>
+                  <p style={{ fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 500, letterSpacing: '0.16px', lineHeight: 1.2, color: 'var(--secondary)', margin: 0 }}>{card.body}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </section>
+
+      {/* 6. Capability pillars */}
+      <section style={{ paddingTop: 128, display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: 'flex-start', justifyContent: 'center', gap: isMobile ? 48 : 64, paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
+        <div style={{ width: isMobile ? '100%' : 308, flexShrink: 0, ...(isMobile ? {} : { position: 'sticky', top: 64 }) }}>
+          <h2 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 42, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-0.84px', lineHeight: 1.1, color: 'var(--secondary)', margin: 0 }}>Ally across six connected capability pillars</h2>
+        </div>
+        <div style={{ width: isMobile ? '100%' : 671, display: 'flex', flexDirection: 'column', paddingTop: isMobile ? 0 : 64 }}>
+          {data.pillars.map((p, i) => (
+            <div key={i} onClick={() => setOpenPillar(openPillar === i ? -1 : i)} style={{ borderBottom: '1px solid #c2c3c3', padding: '21px 0', cursor: 'pointer' }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 18 : 22, fontWeight: 500, lineHeight: 1.1, color: 'var(--secondary)' }}>{p}</span>
+                <div style={{ width: 21, height: 21, position: 'relative', flexShrink: 0, marginLeft: 16 }}>
+                  <div style={{ position: 'absolute', top: '50%', left: 0, width: 21, height: 3, background: 'var(--static)', transform: 'translateY(-50%)' }} />
+                  <div style={{ position: 'absolute', left: '50%', top: 0, width: 3, height: 21, background: 'var(--static)', transform: `translateX(-50%) rotate(${openPillar === i ? 90 : 0}deg)`, transition: 'transform 0.25s ease' }} />
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 7. How we work */}
+      <section style={{ paddingTop: 128, display: 'flex', flexDirection: 'column', alignItems: 'center', paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
+        <div style={{ width: isMobile ? '100%' : 1043, display: 'flex', flexDirection: 'column', gap: 42, marginBottom: 42 }}>
+          <h2 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 42, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-0.84px', lineHeight: 1.1, color: 'var(--secondary)', margin: 0 }}>How we work</h2>
+          <p style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 19 : 22, fontWeight: 500, letterSpacing: '0.22px', lineHeight: 1.2, color: 'var(--static)', margin: 0 }}>Five principles that guide every engagement.</p>
+        </div>
+        <div style={{ width: isMobile ? '100%' : 1043 }}>
+          {!isMobile && (
+            <div style={{ display: 'flex', gap: 42, paddingBottom: 8, borderBottom: '1px solid var(--static)', marginBottom: 0 }}>
+              <span style={{ width: 300, flexShrink: 0, fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>PRINCIPLE</span>
+              <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>WHAT IT MEANS IN PRACTICE</span>
+            </div>
+          )}
+          {data.howWeWork.map((row, i) => (
+            <div key={i} style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 12 : 42, padding: '42px 0', borderBottom: '1px solid var(--grey)', background: i % 2 !== 0 ? '#f6f6f6' : 'transparent' }}>
+              <span style={{ width: isMobile ? '100%' : 300, flexShrink: 0, fontFamily: 'var(--sans)', fontSize: isMobile ? 19 : 22, fontWeight: 500, letterSpacing: '0.22px', lineHeight: 1.2, color: 'var(--secondary)' }}>{row.principle}</span>
+              <span style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 19 : 22, letterSpacing: '0.22px', lineHeight: 1.2, color: 'var(--static)' }}>{row.body}</span>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 8. Six years of scale */}
+      <section style={{ paddingTop: 128, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 64, paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
+        <div style={{ width: isMobile ? '100%' : 1128 }}>
+          <h2 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 42, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-0.84px', lineHeight: 1.1, color: 'var(--secondary)', margin: '0 0 64px' }}>Six years of scale</h2>
+          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20, width: 'max-content' }}>
+              {data.timeline.map((_, i) => (
+                <React.Fragment key={i}>
+                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#d9d9d9', flexShrink: 0 }} />
+                  {i < data.timeline.length - 1 && <div style={{ width: 252, height: 1, background: '#d9d9d9', flexShrink: 0 }} />}
+                </React.Fragment>
+              ))}
+              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#d9d9d9', flexShrink: 0 }} />
+            </div>
+            <div style={{ display: 'flex', gap: 64, width: 'max-content', paddingBottom: 8 }}>
+              {data.timeline.map((item, i) => (
+                <div key={i} style={{ width: 252, display: 'flex', flexDirection: 'column', gap: 24 }}>
+                  <span style={{ fontFamily: 'var(--mono)', fontSize: 12, fontWeight: 500, color: 'var(--secondary)', letterSpacing: '0.16px', lineHeight: 1.2 }}>{item.year}</span>
+                  <p style={{ fontFamily: 'var(--sans)', fontSize: 18, lineHeight: 1.2, letterSpacing: '0.18px', color: 'var(--secondary)', margin: 0, paddingBottom: 42 }}>{item.body}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* 9. Dark CTA */}
+      <section style={{ paddingTop: 128, display: 'flex', justifyContent: 'center', paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
+        <div style={{ width: isMobile ? '100%' : 1128, minHeight: isMobile ? 592 : 602, background: 'var(--secondary)', borderRadius: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 42, padding: isMobile ? '96px 32px' : '128px 209px', boxSizing: 'border-box' }}>
+          <p style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 22 : 24, fontWeight: 500, lineHeight: 1.2, color: 'var(--bg)', textAlign: 'center', maxWidth: 710, margin: 0 }}>{data.ctaText}</p>
+          <button onClick={() => setCtaOpen && setCtaOpen(true)} className="cta-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '18px 24px', background: 'var(--tech)', border: 'none', borderRadius: 0, fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 500, color: '#121010', cursor: 'pointer', whiteSpace: 'nowrap', width: 208, justifyContent: 'center', flexShrink: 0, boxSizing: 'border-box' }}>
+            <span style={{ display: 'inline-block', width: 4, height: 4, background: 'currentColor', flexShrink: 0 }} />
+            <span className="cta-text">Get in touch</span>
+          </button>
+        </div>
+      </section>
+
+      {/* 10. Up next + CTA */}
+      <section style={{ paddingTop: 128, paddingLeft: isMobile ? 24 : 64, paddingRight: isMobile ? 24 : 64, paddingBottom: isMobile ? 64 : 128, display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 42, alignItems: 'flex-start' }}>
+        <div onClick={() => window.__goToCaseStudy && window.__goToCaseStudy(nextWork)} style={{ width: isMobile ? '100%' : 393, height: 409, background: 'var(--secondary)', borderRadius: 4, padding: 8, flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', cursor: 'pointer', boxSizing: 'border-box' }}>
+          <div style={{ width: 155, height: 155, background: '#000', borderRadius: 2 }} />
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bg)', letterSpacing: '-0.48px' }}>UP NEXT</span>
+            <h3 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 28 : 48, fontWeight: 500, letterSpacing: '-0.96px', lineHeight: 1, color: 'var(--bg)', margin: 0 }}>{nextWork.title}</h3>
+          </div>
+        </div>
+        <div style={{ flex: 1, minHeight: 409, background: dark ? '#1a1a1a' : '#EDEAE5', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 42px', boxSizing: 'border-box', width: isMobile ? '100%' : undefined }}>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'center', textAlign: 'center', width: '100%', maxWidth: 480 }}>
+            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 500, letterSpacing: '0.08em', color: 'var(--static)', textTransform: 'uppercase' }}>LET'S CHAT</span>
+            <p style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 22 : 28, fontWeight: 350, lineHeight: 1.2, letterSpacing: '-0.5px', color: 'var(--secondary)', margin: 0 }}>Looking for an ally<br/>on your next project?</p>
+            <div style={{ display: 'flex', gap: 12, alignItems: 'stretch', flexDirection: isMobile ? 'column' : 'row' }}>
+              <input type="email" placeholder="Your contact email" style={{ width: 240, padding: '18px 14px', fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 500, border: '1px solid var(--grey)', outline: 'none', background: 'var(--bg)', color: '#878787', boxSizing: 'border-box' }} />
+              <button onClick={() => setCtaOpen && setCtaOpen(true)} className="cta-btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '18px 24px', background: 'var(--tech)', border: 'none', borderRadius: 0, fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 500, color: '#121010', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
+                <span style={{ display: 'inline-block', width: 4, height: 4, background: 'currentColor', flexShrink: 0 }} />
+                <span className="cta-text">Submit</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <SiteFooter dark={dark} isMobile={isMobile} onBackToTop={() => { if (window.__resetSmoother) window.__resetSmoother(); window.scrollTo(0,0); }} />
+    </div>
+  );
+}
+
 function _stripTransition(targetPage) {
   const isDark = localStorage.getItem('dijitally-theme') === 'dark';
   const overlayColor = isDark ? '#121010' : '#F5F3EE';
@@ -3672,10 +4069,11 @@ function _stripTransition(targetPage) {
   }, maxEnd * 1000 + 50);
 }
 
-function goToServices() { _stripTransition('services'); }
-function goToWork()     { _stripTransition('work'); }
-function goToHome()     { _stripTransition('home'); }
-function goToAbout()    { _stripTransition('about'); }
+function goToServices()    { _stripTransition('services'); }
+function goToWork()        { _stripTransition('work'); }
+function goToHome()        { _stripTransition('home'); }
+function goToAbout()       { _stripTransition('about'); }
+function goToCaseStudy(w)  { if (window.__setCaseStudy) window.__setCaseStudy(w); _stripTransition('casestudy'); }
 
 /* ══════════════════════════════════════
    ABOUT PAGE
@@ -4001,6 +4399,7 @@ function AboutPage({ dark, isMobile, setCtaOpen }) {
 function Page() {
   const [dark,        setDark]        = useState(getDefaultDark);
   const [page,        setPage]        = useState('home');
+  const [caseStudy,   setCaseStudy]   = useState(null);
   const [scrolled,    setScrolled]    = useState(false);
   const [isMobile,    setIsMobile]    = useState(()=> window.innerWidth <= 768);
   const scrollYRef    = useRef(0);
@@ -4019,8 +4418,13 @@ function Page() {
 
   const CTA_W = isMobile ? window.innerWidth : 661;
 
-  // Wire global setPage for strip transition
-  useEffect(()=>{ window.__setPage = setPage; return ()=>{ delete window.__setPage; }; }, [setPage]);
+  // Wire global setPage + setCaseStudy for strip transitions
+  useEffect(()=>{
+    window.__setPage      = setPage;
+    window.__setCaseStudy = setCaseStudy;
+    window.__goToCaseStudy = goToCaseStudy;
+    return ()=>{ delete window.__setPage; delete window.__setCaseStudy; delete window.__goToCaseStudy; };
+  }, [setPage, setCaseStudy]);
 
   // Expose smoother reset so _stripTransition can jump to top instantly
   useEffect(()=>{
@@ -4849,9 +5253,14 @@ function Page() {
         </nav>
       </header>, document.getElementById('nav-portal'))}
 
-      {page === 'services' && <ServicesPage dark={dark} isMobile={isMobile} setPage={setPage} setCtaOpen={setCtaOpen} />}
-      {page === 'work'     && <WorkPage dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />}
-      {page === 'about'    && <AboutPage dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />}
+      {page === 'services'   && <ServicesPage dark={dark} isMobile={isMobile} setPage={setPage} setCtaOpen={setCtaOpen} />}
+      {page === 'work'       && <WorkPage dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} onCardClick={w => w.template ? goToCaseStudy(w) : null} />}
+      {page === 'about'      && <AboutPage dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />}
+      {page === 'casestudy'  && caseStudy && (
+        caseStudy.template === 1
+          ? <CaseStudy1Page work={caseStudy} dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />
+          : <CaseStudy2Page work={caseStudy} dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />
+      )}
 
       {page === 'home' && <>
       {/* ══════════════════════════════════════
