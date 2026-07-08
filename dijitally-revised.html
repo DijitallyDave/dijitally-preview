@@ -2302,6 +2302,8 @@ const WORKS = [
   {title:"Afterpay Day",          meta:"CREATIVE · DESIGN · SOCIAL",     cat:"CREATIVE",     bg:"#1a1a1a",  fg:"#F5F3EE", label:"Afterpay Day",         img:"work/AfterpayDay.jpg",         aspect:"1/1",        template:1},
   {title:"Constantinople",        meta:"CREATIVE · DESIGN · SOCIAL",     cat:"SOCIAL",       bg:"#FF4500",  fg:"#F5F3EE", label:"Constantinople",       img:"work/Constantinople.png",      aspect:"1008/1360"},
   {title:"Airwallex x Dijitally", meta:"PERFORMANCE · 2024 · DATA",      cat:"DATA",         bg:"#0a0a1e",  fg:"#B6F4C9", label:"Airwallex",            img:"work/AWXxAirwallex.png",       aspect:"1008/1230"},
+  {title:"Procore x Dijitally",   meta:"PARTNERSHIP · 2025 · DIGITAL",   cat:"PARTNERSHIPS", bg:"#000",     fg:"#B6F4C9", label:"Procore",              img:null},
+  {title:"SYD Airport",           meta:"CREATIVE · DESIGN · SOCIAL",     cat:"CREATIVE",     bg:"#000",     fg:"#F5F3EE", label:"SYD Airport",          img:null},
   {title:"RoomStay Holiday Parks",meta:"CAMPAIGN · EVENT · 2024",        cat:"CREATIVE",     bg:"#1c2419",  fg:"#B6F4C9", label:"RoomStay",             img:"work/RoomStayBE_02.png", aspect:"1008/1360"},
   {title:"Procore PresSURE",       meta:"CREATIVE · DESIGN · SOCIAL",     cat:"SOCIAL",       bg:"#FF7F3F",  fg:"#F5F3EE", label:"Procore",              img:"work/presSURE.png"},
 ];
@@ -3553,14 +3555,14 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
                   )}
                 </div>
               )}
-              {/* Row 3: two equal small cards */}
+              {/* Row 3: large left + small right */}
               {(filtered[4] || filtered[5]) && (
-                <div style={{display:"flex",gap:256,alignItems:"flex-start",paddingTop:128,paddingBottom:96}}>
+                <div style={{display:"flex",gap:128,alignItems:"flex-start"}}>
                   {filtered[4] && (
-                    <div className="wc" style={{width:378,flexShrink:0}}>
-                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[4])} style={{height:378,background:filtered[4].img?(dark?"#121010":"#1A1A1A"):filtered[4].bg,cursor:"pointer"}}>
+                    <div className="wc" style={{width:720,flexShrink:0}}>
+                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[4])} style={{height:465,background:filtered[4].img?(dark?"#121010":"#1A1A1A"):filtered[4].bg,cursor:"pointer"}}>
                         {filtered[4].img
-                          ? <StripRevealImg src={filtered[4].img} alt={filtered[4].title} delay={0.1}/>
+                          ? <StripRevealImg src={filtered[4].img} alt={filtered[4].title} delay={0}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[4].bg||"#2a2a2a"}}/>
                         }
                         {cardCta('View project')}
@@ -3569,15 +3571,44 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
                     </div>
                   )}
                   {filtered[5] && (
-                    <div className="wc" style={{width:378,flexShrink:0}}>
+                    <div className="wc" style={{width:378,flexShrink:0,paddingTop:252}}>
                       <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[5])} style={{height:378,background:filtered[5].img?(dark?"#121010":"#1A1A1A"):filtered[5].bg,cursor:"pointer"}}>
                         {filtered[5].img
-                          ? <StripRevealImg src={filtered[5].img} alt={filtered[5].title} delay={0.3}/>
+                          ? <StripRevealImg src={filtered[5].img} alt={filtered[5].title} delay={0.2}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[5].bg||"#2a2a2a"}}/>
                         }
                         {cardCta('View project')}
                       </div>
                       {cardMeta(filtered[5])}
+                    </div>
+                  )}
+                </div>
+              )}
+              {/* Row 4: two equal small cards */}
+              {(filtered[6] || filtered[7]) && (
+                <div style={{display:"flex",gap:256,alignItems:"flex-start",paddingTop:128,paddingBottom:96}}>
+                  {filtered[6] && (
+                    <div className="wc" style={{width:378,flexShrink:0}}>
+                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[6])} style={{height:378,background:filtered[6].img?(dark?"#121010":"#1A1A1A"):filtered[6].bg,cursor:"pointer"}}>
+                        {filtered[6].img
+                          ? <StripRevealImg src={filtered[6].img} alt={filtered[6].title} delay={0.1}/>
+                          : <div style={{position:"absolute",inset:0,background:filtered[6].bg||"#2a2a2a"}}/>
+                        }
+                        {cardCta('View project')}
+                      </div>
+                      {cardMeta(filtered[6])}
+                    </div>
+                  )}
+                  {filtered[7] && (
+                    <div className="wc" style={{width:378,flexShrink:0}}>
+                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[7])} style={{height:378,background:filtered[7].img?(dark?"#121010":"#1A1A1A"):filtered[7].bg,cursor:"pointer"}}>
+                        {filtered[7].img
+                          ? <StripRevealImg src={filtered[7].img} alt={filtered[7].title} delay={0.3}/>
+                          : <div style={{position:"absolute",inset:0,background:filtered[7].bg||"#2a2a2a"}}/>
+                        }
+                        {cardCta('View project')}
+                      </div>
+                      {cardMeta(filtered[7])}
                     </div>
                   )}
                 </div>
