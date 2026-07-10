@@ -47,14 +47,20 @@
       --sans: "NeuSans Trial", "Helvetica Neue", Arial, sans-serif;
       --mono: "JetBrains Mono", monospace;
 
-      /* Typography — Figma exact */
-      /* H1.desktop */ --h1: 48px; --h1-w: 500; --h1-lh: 100%; --h1-ls: -0.96px;
-      /* H2.desktop */ --h2: 42px; --h2-w: 500; --h2-lh: 110%; --h2-ls: -0.84px;
-      /* Nav links  */ --nav-size: 19px; --nav-w: 600; --nav-ls: -0.38px;
-      /* Eyebrow    */ --eyebrow: 12px; --eyebrow-ls: -0.24px;
-      /* Card title */ --card: 24px; --card-lh: 120%;
-      /* Card meta  */ --meta: 10px; --meta-ls: -0.2px;
-      /* Accordion body */ --acc-body: 17px; --acc-body-lh: 120%;
+      /* ── Type scale — edit here to update globally ── */
+      /* H1          */ --h1: 48px;  --h1-w: 350; --h1-lh: 110%; --h1-ls: -0.96px;
+      /* H2          */ --h2: 42px;  --h2-w: 350; --h2-lh: 110%; --h2-ls: -0.84px;
+      /* H3          */ --h3: 26px;  --h3-w: 500; --h3-lh: 110%; --h3-ls: -0.52px;
+      /* Card title  */ --card-title: 24px; --card-title-w: 350; --card-title-lh: 110%; --card-title-ls: -0.48px;
+      /* Body LG     */ --body-lg: 22px; --body-lg-w: 350; --body-lg-lh: 120%; --body-lg-ls: 0.22px;
+      /* Body MD     */ --body-md: 19px; --body-md-w: 350; --body-md-lh: 120%; --body-md-ls: 0.19px;
+      /* Body SM     */ --body-sm: 18px; --body-sm-w: 350; --body-sm-lh: 120%; --body-sm-ls: 0px;
+      /* Body XS     */ --body-xs: 16px; --body-xs-w: 350; --body-xs-lh: 120%; --body-xs-ls: 0px;
+      /* Label       */ --label: 13px; --label-w: 350; --label-lh: 100%; --label-ls: 0.08em;
+      /* Eyebrow     */ --eyebrow: 12px; --eyebrow-ls: -0.24px;
+      /* Meta        */ --meta: 10px; --meta-ls: -0.2px;
+      /* Nav         */ --nav-size: 19px; --nav-w: 600; --nav-ls: -0.38px;
+      /* Accordion   */ --acc-body: 17px; --acc-body-lh: 120%;
 
       /* Spacing */
       --s4:4px; --s6:6px; --s8:8px; --s10:10px; --s12:12px;
@@ -209,7 +215,7 @@
 
     /* Responsive — 900px */
     @media(max-width:900px){
-      :root{ --h1:32px; --h2:22px; --nav-size:14px; }
+      :root{ --h1:38px; --h2:32px; --h3:24px; --nav-size:14px; }
     }
 
     /* ── Mobile breakpoint 768px ── */
@@ -218,8 +224,13 @@
       .ticker-inner { animation-duration: 22.5s; }
       .ticker-wrap { width: 133.34%; transform: scale(0.75); transform-origin: left center; }
       :root{
-        --h1: 30px;
-        --h2: 30px;
+        --h1: 30px;  --h1-ls: -0.3px;
+        --h2: 26px;  --h2-ls: -0.26px;
+        --h3: 22px;  --h3-ls: -0.22px;
+        --body-lg: 19px;
+        --body-md: 16px;
+        --body-sm: 15px;
+        --body-xs: 14px;
         --nav-size: 13px;
         --s64: 24px;
         --s42: 20px;
@@ -1885,7 +1896,7 @@ function ServicesHero({ isMobile, dark }) {
             </div>
             <div style={{ padding:"48px 24px 42px", display:"flex", flexDirection:"column", gap:12 }}>
               <div style={{ fontFamily:"var(--sans)", fontSize:"var(--h1)", fontWeight:350, lineHeight:"110%", letterSpacing:"-0.84px", color:"var(--secondary)" }}>From engineering to execution.</div>
-              <div style={{ fontFamily:"var(--sans)", fontSize:18, fontWeight:350, lineHeight:1.2, letterSpacing:0, color:"#878787" }}>Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.</div>
+              <div style={{ fontFamily:"var(--sans)", fontSize:'var(--body-sm)', fontWeight:'var(--body-sm-w)', lineHeight:'var(--body-sm-lh)', letterSpacing:'var(--body-sm-ls)', color:"#878787" }}>Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.</div>
             </div>
           </div>
         ) : (
@@ -1934,11 +1945,11 @@ function ServicesHero({ isMobile, dark }) {
             opacity:0,
           }}>
             <div style={{
-              fontFamily:"var(--sans)", fontSize:26, fontWeight:500,
+              fontFamily:"var(--sans)", fontSize:"var(--h3)", fontWeight:"var(--h3-w)",
               lineHeight:1.1, letterSpacing:"-0.52px", color:"var(--secondary)",
             }}>From engineering to execution.</div>
             <div style={{
-              fontFamily:"var(--sans)", fontSize:19, fontWeight:350,
+              fontFamily:"var(--sans)", fontSize:"var(--body-md)", fontWeight:"var(--body-md-w)",
               lineHeight:1.3, letterSpacing:"0.19px", color:"var(--secondary)", opacity:0.75,
             }}>Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.</div>
           </div>
@@ -1951,11 +1962,11 @@ function ServicesHero({ isMobile, dark }) {
             display:"flex", flexDirection:"column", gap:16,
           }}>
             <div style={{
-              fontFamily:"var(--sans)", fontSize:26, fontWeight:500,
+              fontFamily:"var(--sans)", fontSize:"var(--h3)", fontWeight:"var(--h3-w)",
               lineHeight:1.1, letterSpacing:"-0.52px", color:"var(--secondary)",
             }}>{svc.headline}</div>
             <div style={{
-              fontFamily:"var(--sans)", fontSize:19, fontWeight:350,
+              fontFamily:"var(--sans)", fontSize:"var(--body-md)", fontWeight:"var(--body-md-w)",
               lineHeight:1.3, letterSpacing:"0.19px", color:"var(--secondary)", opacity:0.75,
             }}>{svc.body}</div>
           </div>
@@ -2009,7 +2020,7 @@ function ServicesHero({ isMobile, dark }) {
               </div>
               <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
                 <div style={{ fontFamily:"var(--sans)", fontSize:"var(--h1)", fontWeight:350, lineHeight:"110%", letterSpacing:"-0.84px", color:"var(--secondary)" }}>{svc.headline}</div>
-                <div style={{ fontFamily:"var(--sans)", fontSize:18, fontWeight:350, lineHeight:1.2, letterSpacing:0, color:"#878787" }}>{svc.body}</div>
+                <div style={{ fontFamily:"var(--sans)", fontSize:'var(--body-sm)', fontWeight:'var(--body-sm-w)', lineHeight:'var(--body-sm-lh)', letterSpacing:'var(--body-sm-ls)', color:"#878787" }}>{svc.body}</div>
               </div>
             </div>
           ))}
@@ -2302,7 +2313,7 @@ const WORKS = [
   {title:"Afterpay Day",          meta:"CREATIVE · DESIGN · SOCIAL",     cat:"CREATIVE",     bg:"#1a1a1a",  fg:"#F5F3EE", label:"Afterpay Day",         img:"work/AfterpayDay.jpg",         aspect:"1/1",        template:1},
   {title:"Constantinople",        meta:"CREATIVE · DESIGN · SOCIAL",     cat:"SOCIAL",       bg:"#FF4500",  fg:"#F5F3EE", label:"Constantinople",       img:"work/Constantinople.png",      aspect:"1008/1360"},
   {title:"Airwallex x Dijitally", meta:"PERFORMANCE · 2024 · DATA",      cat:"DATA",         bg:"#0a0a1e",  fg:"#B6F4C9", label:"Airwallex",            img:"work/AWXxAirwallex.png",       aspect:"1008/1230"},
-  {title:"Procore x Dijitally",   meta:"PARTNERSHIP · 2025 · DIGITAL",   cat:"PARTNERSHIPS", bg:"#000",     fg:"#B6F4C9", label:"Procore",              img:null},
+  {title:"Procore x Dijitally",   meta:"PARTNERSHIP · 2025 · DIGITAL",   cat:"PARTNERSHIPS", bg:"#000",     fg:"#B6F4C9", label:"Procore",              img:"work/ProcorexDijitally.png"},
   {title:"SYD Airport",           meta:"CREATIVE · DESIGN · SOCIAL",     cat:"CREATIVE",     bg:"#000",     fg:"#F5F3EE", label:"SYD Airport",          img:null},
   {title:"RoomStay Holiday Parks",meta:"CAMPAIGN · EVENT · 2024",        cat:"CREATIVE",     bg:"#1c2419",  fg:"#B6F4C9", label:"RoomStay",             img:"work/RoomStayBE_02.png", aspect:"1008/1360"},
   {title:"Procore PresSURE",       meta:"CREATIVE · DESIGN · SOCIAL",     cat:"SOCIAL",       bg:"#FF7F3F",  fg:"#F5F3EE", label:"Procore",              img:"work/presSURE.png"},
@@ -2740,7 +2751,7 @@ function ServicesHeroStatic({ isMobile, dark }) {
     });
   }, []);
 
-  const imgFilter = dark ? 'invert(1)' : 'none';
+  const imgFilter = dark ? 'invert(1) brightness(0.96) sepia(0.3)' : 'none';
 
   if (isMobile) {
     return (
@@ -2761,7 +2772,7 @@ function ServicesHeroStatic({ isMobile, dark }) {
             <p ref={headRef} style={{ fontFamily: 'var(--sans)', fontSize: 'var(--h1)', fontWeight: 350, lineHeight: '110%', letterSpacing: '-0.84px', color: 'var(--secondary)', margin: 0 }}>
               From engineering to execution and everything in between.
             </p>
-            <p ref={bodyRef} style={{ fontFamily: 'var(--sans)', fontSize: 18, fontWeight: 350, lineHeight: 1.2, color: '#878787', margin: 0 }}>
+            <p ref={bodyRef} style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-sm)', fontWeight: 'var(--body-sm-w)', lineHeight: 'var(--body-sm-lh)', color: '#878787', margin: 0 }}>
               Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.
             </p>
           </div>
@@ -3140,9 +3151,9 @@ function ContactSection({ dark, isMobile, setCtaOpen }) {
 function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
   const [openAccordion, setOpenAccordion] = useState(0);
 
-  const h1s = {fontFamily:"var(--sans)",fontSize:isMobile?"var(--h1)":48,fontWeight:350,lineHeight:1,letterSpacing:"-0.96px",color:"var(--secondary)"};
-  const h2s = {fontFamily:"var(--sans)",fontSize:isMobile?"var(--h2)":32,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.64px",color:"var(--secondary)"};
-  const body22 = {fontFamily:"var(--sans)",fontSize:isMobile?15:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.22px",color:"var(--static)"};
+  const h1s = {fontFamily:"var(--sans)",fontSize:"var(--h1)",fontWeight:"var(--h1-w)",lineHeight:"var(--h1-lh)",letterSpacing:"var(--h1-ls)",color:"var(--secondary)"};
+  const h2s = {fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:"var(--h2-w)",lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",color:"var(--secondary)"};
+  const body22 = {fontFamily:"var(--sans)",fontSize:"var(--body-lg)",fontWeight:"var(--body-lg-w)",lineHeight:"var(--body-lg-lh)",letterSpacing:"var(--body-lg-ls)",color:"var(--static)"};
 
   return (
     <div style={{background:"var(--bg)",color:"var(--secondary)"}}>
@@ -3156,7 +3167,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
       {/* ══ OPERATING MODELS CALLOUT ══ */}
       <section style={{padding:isMobile?"64px 24px":"256px var(--s64) var(--s64)",display:"flex",flexDirection:"column",gap:"var(--s24)",background:"var(--bg)"}}>
         <div style={{fontFamily:"var(--sans)",fontSize:isMobile?"var(--h1)":48,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.96px",color:"var(--secondary)",maxWidth:570}}>Our operating models enable scale through the right allies.</div>
-        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?19:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.22px",color:"var(--static)",maxWidth:480}}>We help brands scale by enabling their product, brand + marketing teams to deliver results, fast.</div>
+        <div style={{fontFamily:"var(--sans)",fontSize:"var(--body-lg)",fontWeight:"var(--body-lg-w)",lineHeight:"var(--body-lg-lh)",letterSpacing:"var(--body-lg-ls)",color:"var(--static)",maxWidth:480}}>We help brands scale by enabling their product, brand + marketing teams to deliver results, fast.</div>
       </section>
 
       {/* ══ MODELS TABS ══ */}
@@ -3174,7 +3185,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
         padding:isMobile?"var(--s64) var(--s42) 64px":"var(--s64) 88px",
         display:"flex",flexDirection:"column",alignItems:"center",gap:82,overflow:"hidden",
       }}>
-        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?19:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.22px",color:"#F5F3EE",textAlign:"center",maxWidth:486,paddingTop:isMobile?42:undefined}}>
+        <div style={{fontFamily:"var(--sans)",fontSize:"var(--body-lg)",fontWeight:"var(--body-lg-w)",lineHeight:"var(--body-lg-lh)",letterSpacing:"var(--body-lg-ls)",color:"#F5F3EE",textAlign:"center",maxWidth:486,paddingTop:isMobile?42:undefined}}>
           High-impact capability, delivered fast, without the overhead of permanent hires.
         </div>
         <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:24,width:"100%"}}>
@@ -3185,12 +3196,12 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
               borderRadius:4, padding:"32px 64px",
               display:"flex",flexDirection:"column",gap:32,alignItems:"center",justifyContent:"center",
             }}>
-              <div style={{fontFamily:"var(--sans)",fontSize:24,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.48px",color:"#F5F3EE",width:"100%",maxWidth:265}}>{cap.title}</div>
+              <div style={{fontFamily:"var(--sans)",fontSize:'var(--card-title)',fontWeight:'var(--card-title-w)',lineHeight:'var(--card-title-lh)',letterSpacing:'var(--card-title-ls)',color:"#F5F3EE",width:"100%",maxWidth:265}}>{cap.title}</div>
               <div style={{display:"flex",flexDirection:"column",gap:14,width:"100%",maxWidth:265}}>
                 {cap.items.map((item,idx)=>(
                   <div key={item} style={{display:"flex",gap:10,alignItems:"center",paddingBottom:8,borderBottom:idx<cap.items.length-1?"1px solid rgba(222,222,222,0.25)":"none"}}>
                     <span style={{width:4,height:4,background:"#F5F3EE",flexShrink:0,display:"inline-block"}}/>
-                    <span style={{fontFamily:"var(--sans)",fontSize:16,fontWeight:350,lineHeight:1.2,color:"#F5F3EE"}}>{item}</span>
+                    <span style={{fontFamily:"var(--sans)",fontSize:'var(--body-xs)',fontWeight:'var(--body-xs-w)',lineHeight:'var(--body-xs-lh)',color:"#F5F3EE"}}>{item}</span>
                   </div>
                 ))}
               </div>
@@ -3219,7 +3230,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
                     ? <img src={c.logo} alt={c.title} style={{height:c.logoH||20,width:"auto",display:"block",alignSelf:"flex-start",filter:dark?"invert(1)":"none"}} />
                     : <span style={{fontFamily:"var(--sans)",fontSize:13,fontWeight:350,letterSpacing:"var(--eyebrow-ls)",color:"var(--static)",textTransform:"uppercase"}}>{c.title}</span>
                   }
-                  <div style={{fontFamily:"var(--sans)",fontSize:19,fontWeight:350,lineHeight:1.2,letterSpacing:"0.19px",color:"var(--static)"}}>{c.desc}</div>
+                  <div style={{fontFamily:"var(--sans)",fontSize:'var(--body-md)',fontWeight:'var(--body-md-w)',lineHeight:'var(--body-md-lh)',letterSpacing:'var(--body-md-ls)',color:"var(--static)"}}>{c.desc}</div>
                 </div>
               )}
               <div style={{width:isMobile?"100%":150,height:isMobile?"auto":150,aspectRatio:isMobile?"16/9":undefined,flexShrink:0,overflow:"hidden",borderRadius:4}}>
@@ -3231,7 +3242,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
                     ? <img src={c.logo} alt={c.title} style={{height:c.logoH||20,width:"auto",display:"block",alignSelf:"flex-start",filter:dark?"invert(1)":"none"}} />
                     : <span style={{fontFamily:"var(--sans)",fontSize:13,fontWeight:350,letterSpacing:"var(--eyebrow-ls)",color:"var(--static)",textTransform:"uppercase"}}>{c.title}</span>
                   }
-                  <div style={{fontFamily:"var(--sans)",fontSize:19,fontWeight:350,lineHeight:1.2,letterSpacing:"0.19px",color:"var(--static)",maxWidth:270}}>{c.desc}</div>
+                  <div style={{fontFamily:"var(--sans)",fontSize:'var(--body-md)',fontWeight:'var(--body-md-w)',lineHeight:'var(--body-md-lh)',letterSpacing:'var(--body-md-ls)',color:"var(--static)",maxWidth:270}}>{c.desc}</div>
                 </div>
               )}
             </div>
@@ -3242,7 +3253,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
         <div style={{flex:1,maxWidth:842,display:"flex",flexDirection:"column",gap:"var(--s128)"}}>
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
             <div style={{...h1s,maxWidth:483}}>Helping product, brand and marketing teams deliver results. Fast.</div>
-            <div style={{...body22,fontSize:isMobile?19:22,maxWidth:483}}>We partner with brands at the points where growth needs to be engineered, not just executed.</div>
+            <div style={{...body22,maxWidth:483}}>We partner with brands at the points where growth needs to be engineered, not just executed.</div>
           </div>
 
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
@@ -3252,7 +3263,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
                   display:"flex",alignItems:"center",justifyContent:"space-between",
                   width:"100%",background:"none",border:"none",cursor:"pointer",padding:0,gap:10,
                 }}>
-                  <span style={{fontFamily:"var(--sans)",fontSize:22,fontWeight:350,lineHeight:1.1,color:"var(--secondary)",textAlign:"left"}}>{item.label}</span>
+                  <span style={{fontFamily:"var(--sans)",fontSize:'var(--body-lg)',fontWeight:'var(--body-lg-w)',lineHeight:'var(--body-lg-lh)',color:"var(--secondary)",textAlign:"left"}}>{item.label}</span>
                   <span style={{position:"relative",width:21,height:21,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
                     <span style={{position:"absolute",width:3,height:21,background:"var(--secondary)",borderRadius:0,opacity:openAccordion===i?0:1,transition:"opacity 0.2s"}}/>
                     <span style={{position:"absolute",width:21,height:3,background:"var(--secondary)",borderRadius:0}}/>
@@ -3260,7 +3271,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
                 </button>
                 {openAccordion===i && (
                   <div style={{marginTop:16,display:"flex",flexDirection:"column",gap:24}}>
-                    {item.body && <div style={{...body22,fontSize:isMobile?19:22,maxWidth:670}}>{item.body}</div>}
+                    {item.body && <div style={{...body22,maxWidth:670}}>{item.body}</div>}
                     {item.img && (
                       <img src={item.img} alt={item.label} style={{width:"100%",maxWidth:842,height:"auto",aspectRatio:"842/378",objectFit:"cover",borderRadius:4,display:"block"}} />
                     )}
@@ -3365,7 +3376,7 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
       thumbs.forEach(thumb => {
         const img = thumb.querySelector('img');
         if (!img) return;
-        gsap.set(img, { scale: 1.1, y: 20 });
+        gsap.set(img, { scale: 1.15, y: 20 });
         const st = ScrollTrigger.create({
           trigger: thumb,
           start: 'top bottom',
@@ -3373,7 +3384,7 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
           scrub: true,
           onUpdate: self => {
             const p = self.progress;
-            gsap.set(img, { y: 20 - p * 40, scale: 1.1 - p * 0.06 });
+            gsap.set(img, { y: 20 - p * 40, scale: 1.15 - p * 0.04 });
           },
         });
         triggers.push(st);
@@ -3435,7 +3446,7 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
       {/* Header */}
       <section style={{paddingTop:isMobile?96:256,paddingBottom:0,paddingLeft:isMobile?"var(--s42)":"var(--s64)",paddingRight:isMobile?"var(--s42)":"var(--s64)"}}>
         <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)",marginBottom:isMobile?48:64}}>
-          <img src="svgs/SVG/work.svg" alt="WORK" style={{ height: isMobile ? '10vw' : 'calc((100vw - 128px) * 100 / 1562)', width: 'auto', display: 'block', alignSelf: 'flex-start', filter: dark ? 'invert(1)' : 'none' }} />
+          <img src="svgs/SVG/work.svg" alt="WORK" style={{ height: isMobile ? '10vw' : 'calc((100vw - 128px) * 100 / 1562)', width: 'auto', display: 'block', alignSelf: 'flex-start', filter: dark ? 'invert(1) brightness(0.96) sepia(0.3)' : 'none' }} />
           <WorkHeadlineCycle />
         </div>
 
@@ -3557,7 +3568,7 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
               )}
               {/* Row 3: large left + small right */}
               {(filtered[4] || filtered[5]) && (
-                <div style={{display:"flex",gap:128,alignItems:"flex-start"}}>
+                <div style={{display:"flex",gap:128,alignItems:"flex-start",paddingTop:128}}>
                   {filtered[4] && (
                     <div className="wc" style={{width:720,flexShrink:0}}>
                       <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[4])} style={{height:465,background:filtered[4].img?(dark?"#121010":"#1A1A1A"):filtered[4].bg,cursor:"pointer"}}>
@@ -3628,7 +3639,7 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
                   {w.img && <StripRevealImg src={w.img} alt={w.title} delay={i*0.05}/>}
                 </div>
                 <div style={{flex:1,display:"flex",flexDirection:"column",gap:4}}>
-                  <span style={{fontFamily:"var(--sans)",fontSize:22,fontWeight:350,color:"var(--secondary)"}}>{w.title}</span>
+                  <span style={{fontFamily:"var(--sans)",fontSize:'var(--body-lg)',fontWeight:'var(--body-lg-w)',color:"var(--secondary)"}}>{w.title}</span>
                   <span style={{fontFamily:"var(--mono)",fontSize:10,fontWeight:400,letterSpacing:"0.06em",color:"var(--static)"}}>{w.meta}</span>
                 </div>
                 <span style={{fontFamily:"var(--mono)",fontSize:10,fontWeight:400,letterSpacing:"0.06em",color:"var(--static)",flexShrink:0}}>{w.cat}</span>
@@ -3705,9 +3716,9 @@ const CASE_STUDY_2_CONTENT = {
     heading: "Our model: Studio + In-House",
     body: "Two operating models. One seamless partnership. We flex between studio delivery and embedded team capability — depending on what the moment demands.",
     cards: [
-      { title: "Integrated Model", body: "Full-service creative and strategic output delivered from our studio. Ideal for campaigns, launches, and high-volume content production." },
-      { title: "In-House Model", body: "Dijitally team members embedded directly within Afterpay, working day-to-day alongside their teams." },
-      { title: "Follow the Sun", body: "Time-zone spanning capability across Sydney, Melbourne and global markets — keeping output moving around the clock." },
+      { title: "Integrated Model", body: "Full-service creative and strategic output delivered from our studio. Ideal for campaigns, launches, and high-volume content production.", video: "videos/Integrated.mp4" },
+      { title: "In-House Model", body: "Dijitally team members embedded directly within Afterpay, working day-to-day alongside their teams.", video: "videos/Inhouse+Embedded.mp4" },
+      { title: "Follow the Sun", body: "Time-zone spanning capability across Sydney, Melbourne and global markets — keeping output moving around the clock.", video: "videos/FollowSun.mp4" },
     ],
   },
   pillars: [
@@ -3777,10 +3788,10 @@ function CaseStudy1Page({ work, isMobile, dark, setCtaOpen }) {
           <div style={{ paddingTop: 64, paddingBottom: 64, display: 'flex', flexDirection: 'column', gap: 54 }}>
             {data.sections.map((s, i) => (
               <div key={i} onClick={() => setActiveSection(i)} style={{ display: 'flex', flexDirection: 'column', gap: 16, cursor: 'pointer' }}>
-                <h3 style={{ fontFamily: 'var(--sans)', fontSize: 26, fontWeight: 500, letterSpacing: '-0.26px', lineHeight: 1, color: activeSection === i ? 'var(--secondary)' : 'rgba(23,22,24,0.33)', margin: 0 }}>{s.label}</h3>
+                <h3 style={{ fontFamily: 'var(--sans)', fontSize: 'var(--h3)', fontWeight: 'var(--h3-w)', letterSpacing: 'var(--h3-ls)', lineHeight: 'var(--h3-lh)', color: activeSection === i ? 'var(--secondary)' : 'rgba(23,22,24,0.33)', margin: 0 }}>{s.label}</h3>
                 {activeSection === i && (
                   <>
-                    <p style={{ fontFamily: 'var(--sans)', fontSize: 19, fontWeight: 500, letterSpacing: '0.19px', lineHeight: 1.2, color: 'var(--secondary)', margin: 0 }}>{s.body}</p>
+                    <p style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-md)', fontWeight: 'var(--body-md-w)', letterSpacing: 'var(--body-md-ls)', lineHeight: 'var(--body-md-lh)', color: 'var(--secondary)', margin: 0 }}>{s.body}</p>
                     {s.results && s.results.map((r, j) => (
                       <div key={j} style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 8, borderBottom: '1px solid var(--static)', marginBottom: 0 }}>
                         <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>{r.label}</span>
@@ -3809,10 +3820,10 @@ function CaseStudy1Page({ work, isMobile, dark, setCtaOpen }) {
           <div style={{ flex: 1, position: 'sticky', top: 0, paddingTop: 64, display: 'flex', flexDirection: 'column', gap: 48, height: '100vh', overflowY: 'auto' }}>
             {data.sections.map((s, i) => (
               <div key={i} onClick={() => setActiveSection(i)} style={{ display: 'flex', flexDirection: 'column', gap: 16, cursor: 'pointer' }}>
-                <h3 style={{ fontFamily: 'var(--sans)', fontSize: 26, fontWeight: 500, letterSpacing: '-0.26px', lineHeight: 1, color: activeSection === i ? 'var(--secondary)' : 'rgba(23,22,24,0.33)', margin: 0 }}>{s.label}</h3>
+                <h3 style={{ fontFamily: 'var(--sans)', fontSize: 'var(--h3)', fontWeight: 'var(--h3-w)', letterSpacing: 'var(--h3-ls)', lineHeight: 'var(--h3-lh)', color: activeSection === i ? 'var(--secondary)' : 'rgba(23,22,24,0.33)', margin: 0 }}>{s.label}</h3>
                 {activeSection === i && (
                   <>
-                    <p style={{ fontFamily: 'var(--sans)', fontSize: 19, fontWeight: 500, letterSpacing: '0.19px', lineHeight: 1.2, color: 'var(--secondary)', maxWidth: 432, margin: 0 }}>{s.body}</p>
+                    <p style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-md)', fontWeight: 'var(--body-md-w)', letterSpacing: 'var(--body-md-ls)', lineHeight: 'var(--body-md-lh)', color: 'var(--secondary)', maxWidth: 432, margin: 0 }}>{s.body}</p>
                     {s.results && s.results.map((r, j) => (
                       <div key={j} style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 8, borderBottom: '1px solid var(--static)', marginBottom: 0 }}>
                         <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>{r.label}</span>
@@ -3871,18 +3882,19 @@ function CaseStudy2Page({ work, isMobile, dark, setCtaOpen }) {
       <section style={{ paddingTop: isMobile ? 64 : 256, paddingBottom: 42, paddingLeft: 24, paddingRight: 24 }}>
         <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'flex-end', justifyContent: 'space-between', gap: isMobile ? 24 : 0 }}>
           <div style={{ display: 'flex', flexDirection: 'column', gap: 42 }}>
-            <h1 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 64, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-1px', lineHeight: 1.1, maxWidth: 640, color: 'var(--secondary)', margin: 0 }}>
+            <h1 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 42, fontWeight: isMobile ? 500 : 350, letterSpacing: isMobile ? '-0.26px' : '-0.84px', lineHeight: isMobile ? 1.1 : '110%', maxWidth: 640, color: 'var(--secondary)', margin: 0 }}>
               {data.headline}
             </h1>
             <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--static)', letterSpacing: '-0.2px' }}>PARTNERSHIP: 2020 — PRESENT</span>
           </div>
-          <div style={{ width: isMobile ? 69.6 : 150.8, height: isMobile ? 24 : 52, background: '#000', borderRadius: 2, flexShrink: 0 }} />
+          <img src="clients/Afterpay.svg" alt="Afterpay" style={{ height: isMobile ? 24 : 52, width: 'auto', display: 'block', flexShrink: 0, filter: dark ? 'invert(1) brightness(0.96) sepia(0.3)' : 'none' }} />
         </div>
       </section>
 
       {/* 2. Hero image with stats */}
       <section style={{ padding: '0 24px' }}>
         <div style={{ width: '100%', height: isMobile ? 508 : 849, borderRadius: 2, background: '#000', position: 'relative', overflow: 'hidden' }}>
+          <img src="work/AfterpayxDijitally.png" alt="Afterpay x Dijitally" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
           {!isMobile && (
             <div style={{ position: 'absolute', bottom: 42, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 10 }}>
               {data.stats.map((s, i) => (
@@ -3900,7 +3912,7 @@ function CaseStudy2Page({ work, isMobile, dark, setCtaOpen }) {
       <section style={{ paddingTop: 96, paddingBottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
         <div style={{ width: isMobile ? '100%' : 1043, display: 'flex', flexDirection: 'column', gap: 42 }}>
           <h2 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 42, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-0.84px', lineHeight: 1.1, color: 'var(--secondary)', margin: 0 }}>{data.textSection.heading}</h2>
-          <p style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 19 : 22, fontWeight: 500, letterSpacing: '0.22px', lineHeight: 1.2, color: 'var(--secondary)', margin: 0 }}>{data.textSection.body}</p>
+          <p style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-lg)', fontWeight: 'var(--body-lg-w)', letterSpacing: 'var(--body-lg-ls)', lineHeight: 'var(--body-lg-lh)', color: 'var(--secondary)', margin: 0 }}>{data.textSection.body}</p>
         </div>
       </section>
 
@@ -3909,7 +3921,7 @@ function CaseStudy2Page({ work, isMobile, dark, setCtaOpen }) {
         <div style={{ width: isMobile ? '100%' : 1127, background: '#f6f6f6', border: '1px solid var(--grey)', borderRadius: 4, padding: isMobile ? '64px 32px' : '128px 42px', display: 'flex', flexDirection: 'column', gap: 42, alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box' }}>
           <p style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 19 : 26, fontWeight: 500, lineHeight: 1.2, color: 'var(--secondary)', maxWidth: 664, textAlign: 'center', margin: 0 }}>{data.blockquote.quote}</p>
           <span style={{ fontFamily: 'var(--mono)', fontSize: isMobile ? 10 : 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>{data.blockquote.attribution}</span>
-          <div style={{ width: isMobile ? 69 : 98.6, height: isMobile ? 24 : 34, background: '#000', borderRadius: 2 }} />
+          <img src="clients/Afterpay.svg" alt="Afterpay" style={{ height: isMobile ? 24 : 34, width: 'auto', display: 'block' }} />
         </div>
       </section>
 
@@ -3917,15 +3929,17 @@ function CaseStudy2Page({ work, isMobile, dark, setCtaOpen }) {
       <section style={{ paddingTop: 128, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 64, paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
         <div style={{ width: isMobile ? '100%' : 1043, display: 'flex', flexDirection: 'column', gap: 42 }}>
           <h2 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 42, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-0.84px', lineHeight: 1.1, color: 'var(--secondary)', margin: 0 }}>{data.modelSection.heading}</h2>
-          <p style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 19 : 22, fontWeight: 500, letterSpacing: '0.22px', lineHeight: 1.2, color: 'var(--secondary)', margin: 0 }}>{data.modelSection.body}</p>
+          <p style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-lg)', fontWeight: 'var(--body-lg-w)', letterSpacing: 'var(--body-lg-ls)', lineHeight: 'var(--body-lg-lh)', color: 'var(--secondary)', margin: 0 }}>{data.modelSection.body}</p>
         </div>
         {isMobile ? (
           <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 32 }}>
             {data.modelSection.cards.map((card, i) => (
               <div key={i} style={{ background: 'var(--bg)', border: '1px solid var(--grey)', borderRadius: 4, padding: 12, display: 'flex', flexDirection: 'column', gap: 42 }}>
-                <div style={{ width: '100%', height: 271, borderRadius: 2, background: '#000' }} />
+                <div style={{ width: '100%', height: 271, borderRadius: 2, background: '#000', overflow: 'hidden' }}>
+                  {card.video && <video src={card.video} autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
+                </div>
                 <div style={{ padding: '0 12px 30px', display: 'flex', flexDirection: 'column', gap: 24 }}>
-                  <h3 style={{ fontFamily: 'var(--sans)', fontSize: 19, fontWeight: 500, lineHeight: 1.1, color: 'var(--secondary)', margin: 0 }}>{card.title}</h3>
+                  <h3 style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-md)', fontWeight: 'var(--body-md-w)', lineHeight: 'var(--body-md-lh)', color: 'var(--secondary)', margin: 0 }}>{card.title}</h3>
                   <p style={{ fontFamily: 'var(--sans)', fontSize: 14, fontWeight: 500, letterSpacing: '0.14px', lineHeight: 1.2, color: 'var(--secondary)', margin: 0 }}>{card.body}</p>
                 </div>
               </div>
@@ -3935,10 +3949,12 @@ function CaseStudy2Page({ work, isMobile, dark, setCtaOpen }) {
           <div style={{ width: '100%', height: 488, display: 'flex', gap: 42, paddingLeft: 42, paddingRight: 42, boxSizing: 'border-box', justifyContent: 'center' }}>
             {data.modelSection.cards.map((card, i) => (
               <div key={i} style={{ flex: 1, height: '100%', background: 'var(--bg)', border: '1px solid var(--grey)', borderRadius: 4, display: 'flex', flexDirection: 'column', gap: 42, padding: '24px 24px 42px', boxSizing: 'border-box' }}>
-                <div style={{ height: 271, borderRadius: 2, background: '#000' }} />
+                <div style={{ height: 271, borderRadius: 2, background: '#000', overflow: 'hidden' }}>
+                  {card.video && <video src={card.video} autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
+                </div>
                 <div style={{ paddingLeft: 24, paddingRight: 24, display: 'flex', flexDirection: 'column', gap: 24 }}>
-                  <h3 style={{ fontFamily: 'var(--sans)', fontSize: 24, fontWeight: 500, lineHeight: 1.1, color: 'var(--secondary)', margin: 0 }}>{card.title}</h3>
-                  <p style={{ fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 500, letterSpacing: '0.16px', lineHeight: 1.2, color: 'var(--secondary)', margin: 0 }}>{card.body}</p>
+                  <h3 style={{ fontFamily: 'var(--sans)', fontSize: 'var(--card-title)', fontWeight: 'var(--card-title-w)', lineHeight: 'var(--card-title-lh)', color: 'var(--secondary)', margin: 0 }}>{card.title}</h3>
+                  <p style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-xs)', fontWeight: 'var(--body-xs-w)', letterSpacing: 'var(--body-xs-ls)', lineHeight: 'var(--body-xs-lh)', color: 'var(--secondary)', margin: 0 }}>{card.body}</p>
                 </div>
               </div>
             ))}
@@ -3970,7 +3986,7 @@ function CaseStudy2Page({ work, isMobile, dark, setCtaOpen }) {
       <section style={{ paddingTop: 128, display: 'flex', flexDirection: 'column', alignItems: 'center', paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
         <div style={{ width: isMobile ? '100%' : 1043, display: 'flex', flexDirection: 'column', gap: 42, marginBottom: 42 }}>
           <h2 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 42, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-0.84px', lineHeight: 1.1, color: 'var(--secondary)', margin: 0 }}>How we work</h2>
-          <p style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 19 : 22, fontWeight: 500, letterSpacing: '0.22px', lineHeight: 1.2, color: 'var(--static)', margin: 0 }}>Five principles that guide every engagement.</p>
+          <p style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-lg)', fontWeight: 'var(--body-lg-w)', letterSpacing: 'var(--body-lg-ls)', lineHeight: 'var(--body-lg-lh)', color: 'var(--static)', margin: 0 }}>Five principles that guide every engagement.</p>
         </div>
         <div style={{ width: isMobile ? '100%' : 1043 }}>
           {!isMobile && (
@@ -3981,8 +3997,8 @@ function CaseStudy2Page({ work, isMobile, dark, setCtaOpen }) {
           )}
           {data.howWeWork.map((row, i) => (
             <div key={i} style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 12 : 42, padding: '42px 0', borderBottom: '1px solid var(--grey)', background: i % 2 !== 0 ? '#f6f6f6' : 'transparent' }}>
-              <span style={{ width: isMobile ? '100%' : 300, flexShrink: 0, fontFamily: 'var(--sans)', fontSize: isMobile ? 19 : 22, fontWeight: 500, letterSpacing: '0.22px', lineHeight: 1.2, color: 'var(--secondary)' }}>{row.principle}</span>
-              <span style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 19 : 22, letterSpacing: '0.22px', lineHeight: 1.2, color: 'var(--static)' }}>{row.body}</span>
+              <span style={{ width: isMobile ? '100%' : 300, flexShrink: 0, fontFamily: 'var(--sans)', fontSize: 'var(--body-lg)', fontWeight: 'var(--body-lg-w)', letterSpacing: 'var(--body-lg-ls)', lineHeight: 'var(--body-lg-lh)', color: 'var(--secondary)' }}>{row.principle}</span>
+              <span style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-lg)', letterSpacing: 'var(--body-lg-ls)', lineHeight: 'var(--body-lg-lh)', color: 'var(--static)' }}>{row.body}</span>
             </div>
           ))}
         </div>
@@ -4006,7 +4022,7 @@ function CaseStudy2Page({ work, isMobile, dark, setCtaOpen }) {
               {data.timeline.map((item, i) => (
                 <div key={i} style={{ width: 252, display: 'flex', flexDirection: 'column', gap: 24 }}>
                   <span style={{ fontFamily: 'var(--mono)', fontSize: 12, fontWeight: 500, color: 'var(--secondary)', letterSpacing: '0.16px', lineHeight: 1.2 }}>{item.year}</span>
-                  <p style={{ fontFamily: 'var(--sans)', fontSize: 18, lineHeight: 1.2, letterSpacing: '0.18px', color: 'var(--secondary)', margin: 0, paddingBottom: 42 }}>{item.body}</p>
+                  <p style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-sm)', lineHeight: 'var(--body-sm-lh)', letterSpacing: '0.18px', color: 'var(--secondary)', margin: 0, paddingBottom: 42 }}>{item.body}</p>
                 </div>
               ))}
             </div>
@@ -4268,7 +4284,7 @@ function GrowthSpecialistHero({ dark, isMobile }) {
 
   const svgH   = isMobile ? 'calc((100vw - 48px) * 0.14)'  : 'calc((100vw - 128px) * 0.095)';
   const svgHLg = isMobile ? 'calc((100vw - 48px) * 0.24)'  : 'calc((100vw - 128px) * 0.165)';
-  const inv    = { filter: dark ? 'invert(1)' : 'none' };
+  const inv    = { filter: dark ? 'invert(1) brightness(0.96) sepia(0.3)' : 'none' };
 
   return (
     <section ref={sectionRef} style={{ padding: isMobile ? '96px 24px 80px' : '128px var(--s64) 96px', overflow: 'hidden' }}>
@@ -4315,7 +4331,7 @@ function AboutHeroStatic({ isMobile, dark }) {
     });
   }, []);
 
-  const inv = dark ? 'invert(1)' : 'none';
+  const inv = dark ? 'invert(1) brightness(0.96) sepia(0.3)' : 'none';
   const headline = "We bring together creative, production, marketing, + technology.";
   const bodyText = "Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.";
 
@@ -4332,7 +4348,7 @@ function AboutHeroStatic({ isMobile, dark }) {
         <img ref={agencyRef}     src="svgs/SVG/agency.svg"     alt="AGENCY"     style={{ height:'10vw', width:'auto', display:'block', filter:inv }} />
         <div style={{ display:'flex', flexDirection:'column', gap:16, marginTop:12 }}>
           <p ref={headRef} style={{ fontFamily:'var(--sans)', fontSize:'var(--h1)', fontWeight:350, lineHeight:'110%', letterSpacing:'-0.84px', color:'var(--secondary)', margin:0 }}>{headline}</p>
-          <p ref={bodyRef} style={{ fontFamily:'var(--sans)', fontSize:18, fontWeight:350, lineHeight:1.2, color:'#878787', margin:0 }}>{bodyText}</p>
+          <p ref={bodyRef} style={{ fontFamily:'var(--sans)', fontSize:'var(--body-sm)', fontWeight:'var(--body-sm-w)', lineHeight:'var(--body-sm-lh)', color:'#878787', margin:0 }}>{bodyText}</p>
         </div>
       </div>
     </section>
@@ -4634,6 +4650,8 @@ function Page() {
   const modelPanelRef     = useRef(null);
   const modelVideoRefs    = useRef([]);
   const heroTextRef       = useRef(null);
+  const heroShaderRef      = useRef(null);
+  const heroShaderStateRef = useRef(null);
 
   // Capture the hero logo's initial bounding rect (once, before any scroll)
 
@@ -4772,6 +4790,166 @@ function Page() {
     };
   }, [page]);
 
+  // ── Hero halftone shader ──────────────────────────────────────────────────
+  useEffect(() => {
+    if (page !== 'home') return;
+    const canvas = heroShaderRef.current;
+    if (!canvas) return;
+    const gl = canvas.getContext('webgl', { alpha:true, premultipliedAlpha:false })
+            || canvas.getContext('experimental-webgl', { alpha:true, premultipliedAlpha:false });
+    if (!gl) return;
+
+    const VS = `attribute vec2 aPos;varying vec2 vUv;void main(){vUv=aPos*0.5+0.5;gl_Position=vec4(aPos,0.0,1.0);}`;
+    const FIELD_FS = `precision highp float;uniform float uTime;uniform float uAmp;uniform float uReveal;varying vec2 vUv;
+void main(){
+  vec2 c=2.0*vUv-1.0;float ds=uAmp*uReveal;
+  c+=ds*0.4*sin(c.yx+vec2(1.2,3.4)+uTime);
+  c+=ds*0.2*sin(5.2*c.yx+vec2(3.5,0.4)+uTime);
+  c+=ds*0.3*sin(3.5*c.yx+vec2(1.2,3.1)+uTime);
+  c+=ds*1.6*sin(0.4*c.yx+vec2(0.8,2.4)+uTime);
+  float L=length(c);float v=0.0;
+  for(int i=0;i<4;i++){v=mix(v,float(i)/3.0,cos(float(i)*L));}
+  gl_FragColor=vec4(clamp(v,0.0,1.0),0.0,0.0,1.0);}`;
+    const HALF_FS = `precision highp float;
+uniform sampler2D uFieldTex;uniform vec2 uFieldRes;uniform vec2 uRes;
+uniform float uReveal;uniform float uPixelSize;uniform float uGooeyness;
+uniform float uContrast;uniform float uBias;uniform float uInvert;
+uniform vec3 uFg;uniform float uWaveTime;uniform float uWaveFreq;uniform float uWaveAmp;uniform float uShape;
+varying vec2 vUv;
+float rectSDF(vec2 d,vec2 hs){vec2 q=abs(d)-hs;return length(max(q,0.0))+min(max(q.x,q.y),0.0);}
+float shapeSDF(vec2 d,float r){
+  float s=uShape;
+  if(s<0.5) return length(d)-r;
+  if(s<1.5) return rectSDF(d,vec2(r*0.88));
+  if(s<2.5){float a=r*0.34;return min(rectSDF(d,vec2(r,a)),rectSDF(d,vec2(a,r)));}
+  if(s<3.5) return rectSDF(d,vec2(r,r*0.27));
+  return (abs(d.x)+abs(d.y))*0.7071-r*0.88;}
+float smin(float a,float b,float k){if(k<=0.001)return min(a,b);float h=max(k-abs(a-b),0.0)/k;return min(a,b)-h*h*k*0.25;}
+void main(){
+  vec2 px=vUv*uRes;vec2 ci=floor(px/uPixelSize);float md=1.0e5;float sk=uGooeyness*1.5;
+  for(int dx=-1;dx<=1;dx++){for(int dy=-1;dy<=1;dy++){
+    vec2 cell=ci+vec2(float(dx),float(dy));
+    if(mod(cell.x+cell.y,2.0)>0.5)continue;
+    vec2 cuv=clamp((cell+0.5)/uFieldRes,0.0,1.0);
+    float luma=texture2D(uFieldTex,cuv).r;
+    float v=clamp((luma-0.5+uBias)*uContrast+0.5,0.0,1.0);
+    if(uInvert>0.5)v=1.0-v;
+    float r=v*uPixelSize*0.6+uPixelSize*0.05;
+    float wo=uWaveAmp*sin(cuv.y*uWaveFreq*6.28318+uWaveTime);
+    r+=wo*uPixelSize*0.1;
+    vec2 cc=(cell+0.5)*uPixelSize;
+    md=smin(md,shapeSDF(px-cc,r),sk);}}
+  float alpha=1.0-smoothstep(-0.5,0.5,md);
+  gl_FragColor=vec4(uFg*uReveal,alpha*uReveal);}`;
+
+    function mkShader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);return s;}
+    function mkProg(vs,fs){const p=gl.createProgram();gl.attachShader(p,mkShader(gl.VERTEX_SHADER,vs));gl.attachShader(p,mkShader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);return p;}
+
+    const fProg = mkProg(VS, FIELD_FS);
+    const hProg = mkProg(VS, HALF_FS);
+
+    const fU = {};
+    ['uTime','uAmp','uReveal'].forEach(n=>fU[n]=gl.getUniformLocation(fProg,n));
+    const hU = {};
+    ['uFieldTex','uFieldRes','uRes','uReveal','uPixelSize','uGooeyness','uContrast','uBias','uInvert','uFg','uWaveTime','uWaveFreq','uWaveAmp','uShape'].forEach(n=>hU[n]=gl.getUniformLocation(hProg,n));
+
+    const qbuf = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, qbuf);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]), gl.STATIC_DRAW);
+    function bindQ(prog){gl.bindBuffer(gl.ARRAY_BUFFER,qbuf);const loc=gl.getAttribLocation(prog,'aPos');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);}
+
+    const fFBO = gl.createFramebuffer();
+    const fTex = gl.createTexture();
+    gl.bindTexture(gl.TEXTURE_2D,fTex);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
+    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,fFBO);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,fTex,0);
+    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+
+    const sp = {
+      amplitude:1.40, timeSpeed:0.0100, pixelSize:5.5,
+      gooeyness:0.00, contrast:1.00, bias:-0.45, invert:false,
+      fg: localStorage.getItem('dijitally-theme')==='dark' ? '#fdfeff' : '#121010',
+      waveAmp:0.40, waveFreq:0.70, waveSpd:0.0100,
+      reveal:0, shape:2,
+    };
+
+    heroShaderStateRef.current = { sp };
+
+    let rafId, t=0, wt=0, lastTs=0;
+    let fW=1, fH=1, lW=0, lH=0, lPS=0;
+
+    function hex3(h){return[parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255];}
+
+    function frame(ts){
+      rafId = requestAnimationFrame(frame);
+      const dt = Math.min((ts-lastTs)/(1000/60),3); lastTs=ts;
+
+      // Resize
+      const cw=Math.round(canvas.offsetWidth*Math.min(devicePixelRatio,1.5));
+      const ch=Math.round(canvas.offsetHeight*Math.min(devicePixelRatio,1.5));
+      if(cw!==lW||ch!==lH||sp.pixelSize!==lPS){
+        lW=cw;lH=ch;lPS=sp.pixelSize;
+        canvas.width=cw;canvas.height=ch;
+        fW=Math.ceil(cw/sp.pixelSize)+1;fH=Math.ceil(ch/sp.pixelSize)+1;
+        gl.bindTexture(gl.TEXTURE_2D,fTex);
+        gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,fW,fH,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
+      }
+
+      // Ease reveal toward 0.75
+      sp.reveal += (0.75 - sp.reveal) * 0.012 * dt;
+
+      t  += sp.timeSpeed * dt;
+      wt += sp.waveSpd   * dt;
+
+      // Pass 1 — field
+      gl.useProgram(fProg); bindQ(fProg);
+      gl.bindFramebuffer(gl.FRAMEBUFFER,fFBO);
+      gl.viewport(0,0,fW,fH);
+      gl.uniform1f(fU.uTime,t); gl.uniform1f(fU.uAmp,sp.amplitude); gl.uniform1f(fU.uReveal,sp.reveal);
+      gl.drawArrays(gl.TRIANGLES,0,6);
+
+      // Pass 2 — halftone
+      gl.useProgram(hProg); bindQ(hProg);
+      gl.bindFramebuffer(gl.FRAMEBUFFER,null);
+      gl.viewport(0,0,canvas.width,canvas.height);
+      gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
+      gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT);
+      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,fTex); gl.uniform1i(hU.uFieldTex,0);
+      gl.uniform2f(hU.uFieldRes,fW,fH);
+      gl.uniform2f(hU.uRes,canvas.width,canvas.height);
+      gl.uniform1f(hU.uReveal,sp.reveal);
+      gl.uniform1f(hU.uPixelSize,sp.pixelSize);
+      gl.uniform1f(hU.uGooeyness,sp.gooeyness);
+      gl.uniform1f(hU.uContrast,sp.contrast);
+      gl.uniform1f(hU.uBias,sp.bias);
+      gl.uniform1f(hU.uInvert,sp.invert?1:0);
+      gl.uniform3fv(hU.uFg,hex3(sp.fg));
+      gl.uniform1f(hU.uWaveTime,wt);
+      gl.uniform1f(hU.uWaveFreq,sp.waveFreq);
+      gl.uniform1f(hU.uWaveAmp,sp.waveAmp);
+      gl.uniform1f(hU.uShape,sp.shape);
+      gl.drawArrays(gl.TRIANGLES,0,6);
+    }
+    rafId = requestAnimationFrame(frame);
+
+    return () => {
+      cancelAnimationFrame(rafId);
+      heroShaderStateRef.current = null;
+      gl.deleteFramebuffer(fFBO);
+      gl.deleteTexture(fTex);
+    };
+  }, [page]);
+
+  // Swap shader fg when dark mode toggles
+  useEffect(() => {
+    const state = heroShaderStateRef.current;
+    if (state) state.sp.fg = dark ? '#fdfeff' : '#121010';
+  }, [dark]);
 
   // Capture thumbnail + reel rects once at mount
   const initThumbRect = useRef(null);
@@ -5175,7 +5353,7 @@ function Page() {
                 height: isMobile ? 19 : "var(--nav-size)",
                 width:"auto",
                 display:"block",
-                filter:dark?"invert(1)":"none",
+                filter:dark?"invert(1) brightness(0.96) sepia(0.3)":"none",
                 transition:"filter 0.3s ease",
               }}
             />
@@ -5298,25 +5476,9 @@ function Page() {
           HERO + HYPE REEL — combined section for smooth thumb→reel animation
       ══════════════════════════════════════ */}
       <section style={{position:"relative"}}>
-        {!isMobile && !isSafari && (
-          <div style={{position:"absolute",left:"50%",top:0,transform:"translate(-50%, calc(-50% + 128px))",width:"85%",height:"85%",zIndex:0,pointerEvents:"none"}}>
-            <video src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline style={{
-              position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover",
-              filter: dark ? "url(#duotone-svc-dark)" : "url(#duotone-svc-light)",
-            }} />
-          </div>
-        )}
-
         {/* Hero viewport — 100svh on mobile (constant, unaffected by browser chrome show/hide), 100vh on desktop */}
         <div ref={heroViewportRef} style={{height: isMobile ? "100svh" : "100vh", position:"relative", overflow:"hidden"}}>
-          {isMobile && !isSafari && (
-            <div style={{position:"absolute",left:"50%",top:0,transform:"translate(-50%, calc(-50% + 128px))",width:"85%",height:"85%",zIndex:0,pointerEvents:"none"}}>
-              <video src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline style={{
-                position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover",
-                filter: dark ? "url(#duotone-svc-dark)" : "url(#duotone-svc-light)",
-              }} />
-            </div>
-          )}
+          <canvas ref={heroShaderRef} style={{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:0}} />
 
           {/* DIJITALLY™ — centred within first viewport */}
           <div style={{
@@ -5703,7 +5865,7 @@ function Page() {
           paddingRight: isMobile ? "var(--s42)" : "var(--s64)",
         }}>
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
-            <img src="svgs/SVG/work.svg" alt="WORK" style={{ height: isMobile ? '10vw' : 'calc((100vw - 128px) * 100 / 1562)', width: 'auto', display: 'block', alignSelf: 'flex-start', filter: dark ? 'invert(1)' : 'none' }} />
+            <img src="svgs/SVG/work.svg" alt="WORK" style={{ height: isMobile ? '10vw' : 'calc((100vw - 128px) * 100 / 1562)', width: 'auto', display: 'block', alignSelf: 'flex-start', filter: dark ? 'invert(1) brightness(0.96) sepia(0.3)' : 'none' }} />
             <WorkHeadlineCycle />
           </div>
         </div>
@@ -5910,7 +6072,7 @@ function Page() {
                   style={{
                     display:"flex", alignItems:"center", gap:10,
                     background:"none", border:"none", cursor:"pointer", padding:0,
-                    fontFamily:"var(--sans)", fontSize:26, fontWeight:500,
+                    fontFamily:"var(--sans)", fontSize:"var(--h3)", fontWeight:"var(--h3-w)",
                     lineHeight:"120%", letterSpacing:"0.26px",
                     color:"#F5F3EE", opacity:0,
                   }}
