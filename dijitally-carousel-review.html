@@ -47,20 +47,14 @@
       --sans: "NeuSans Trial", "Helvetica Neue", Arial, sans-serif;
       --mono: "JetBrains Mono", monospace;
 
-      /* ── Type scale — edit here to update globally ── */
-      /* H1          */ --h1: 48px;  --h1-w: 350; --h1-lh: 110%; --h1-ls: -0.96px;
-      /* H2          */ --h2: 42px;  --h2-w: 350; --h2-lh: 110%; --h2-ls: -0.84px;
-      /* H3          */ --h3: 26px;  --h3-w: 500; --h3-lh: 110%; --h3-ls: -0.52px;
-      /* Card title  */ --card-title: 24px; --card-title-w: 350; --card-title-lh: 110%; --card-title-ls: -0.48px;
-      /* Body LG     */ --body-lg: 22px; --body-lg-w: 350; --body-lg-lh: 120%; --body-lg-ls: 0.22px;
-      /* Body MD     */ --body-md: 19px; --body-md-w: 350; --body-md-lh: 120%; --body-md-ls: 0.19px;
-      /* Body SM     */ --body-sm: 18px; --body-sm-w: 350; --body-sm-lh: 120%; --body-sm-ls: 0px;
-      /* Body XS     */ --body-xs: 16px; --body-xs-w: 350; --body-xs-lh: 120%; --body-xs-ls: 0px;
-      /* Label       */ --label: 13px; --label-w: 350; --label-lh: 100%; --label-ls: 0.08em;
-      /* Eyebrow     */ --eyebrow: 12px; --eyebrow-ls: -0.24px;
-      /* Meta        */ --meta: 10px; --meta-ls: -0.2px;
-      /* Nav         */ --nav-size: 19px; --nav-w: 600; --nav-ls: -0.38px;
-      /* Accordion   */ --acc-body: 17px; --acc-body-lh: 120%;
+      /* Typography — Figma exact */
+      /* H1.desktop */ --h1: 48px; --h1-w: 500; --h1-lh: 100%; --h1-ls: -0.96px;
+      /* H2.desktop */ --h2: 42px; --h2-w: 500; --h2-lh: 110%; --h2-ls: -0.84px;
+      /* Nav links  */ --nav-size: 19px; --nav-w: 600; --nav-ls: -0.38px;
+      /* Eyebrow    */ --eyebrow: 12px; --eyebrow-ls: -0.24px;
+      /* Card title */ --card: 24px; --card-lh: 120%;
+      /* Card meta  */ --meta: 10px; --meta-ls: -0.2px;
+      /* Accordion body */ --acc-body: 17px; --acc-body-lh: 120%;
 
       /* Spacing */
       --s4:4px; --s6:6px; --s8:8px; --s10:10px; --s12:12px;
@@ -215,7 +209,7 @@
 
     /* Responsive — 900px */
     @media(max-width:900px){
-      :root{ --h1:38px; --h2:32px; --h3:24px; --nav-size:14px; }
+      :root{ --h1:32px; --h2:22px; --nav-size:14px; }
     }
 
     /* ── Mobile breakpoint 768px ── */
@@ -224,13 +218,8 @@
       .ticker-inner { animation-duration: 22.5s; }
       .ticker-wrap { width: 133.34%; transform: scale(0.75); transform-origin: left center; }
       :root{
-        --h1: 30px;  --h1-ls: -0.3px;
-        --h2: 26px;  --h2-ls: -0.26px;
-        --h3: 22px;  --h3-ls: -0.22px;
-        --body-lg: 19px;
-        --body-md: 16px;
-        --body-sm: 15px;
-        --body-xs: 14px;
+        --h1: 30px;
+        --h2: 30px;
         --nav-size: 13px;
         --s64: 24px;
         --s42: 20px;
@@ -432,7 +421,7 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build ally-fix2</div>
+<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build ally-fix</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -703,18 +692,17 @@ function StripRevealImg({ src, alt, style={}, delay=0 }) {
     img.onload = () => {
       const color = sampleColor(img);
       colorRef.current = color;
-      // Only update overlay if reveal hasn't already completed
-      if (overlayRef.current && !doneRef.current) overlayRef.current.style.background = color;
+      if (overlayRef.current) overlayRef.current.style.background = color;
     };
     img.src = src;
   }, [src]);
 
-  // Trigger strip wipe when card enters viewport (or immediately if already visible)
+  // Trigger strip wipe when card enters viewport
   useEffect(() => {
     const el = containerRef.current;
     if (!el) return;
-    const runReveal = () => {
-      if (doneRef.current) return;
+    const obs = new IntersectionObserver(([e]) => {
+      if (!e.isIntersecting || doneRef.current) return;
       doneRef.current = true;
       obs.disconnect();
       const overlay = overlayRef.current;
@@ -744,17 +732,9 @@ function StripRevealImg({ src, alt, style={}, delay=0 }) {
         });
         setTimeout(() => { overlay.innerHTML = ''; }, (maxEnd + 0.15) * 1000);
       }, delay * 1000);
-    };
-    const obs = new IntersectionObserver(([e]) => {
-      if (e.isIntersecting) runReveal();
-    }, { threshold: 0 });
+    }, { threshold: 0.2 });
     obs.observe(el);
-    // Fire after a frame if already in viewport (handles elements visible on initial render)
-    const rafId = requestAnimationFrame(() => {
-      const rect = el.getBoundingClientRect();
-      if (rect.top < window.innerHeight && rect.bottom > 0) runReveal();
-    });
-    return () => { obs.disconnect(); cancelAnimationFrame(rafId); };
+    return () => obs.disconnect();
   }, []);
 
   return (
@@ -1896,7 +1876,7 @@ function ServicesHero({ isMobile, dark }) {
             </div>
             <div style={{ padding:"48px 24px 42px", display:"flex", flexDirection:"column", gap:12 }}>
               <div style={{ fontFamily:"var(--sans)", fontSize:"var(--h1)", fontWeight:350, lineHeight:"110%", letterSpacing:"-0.84px", color:"var(--secondary)" }}>From engineering to execution.</div>
-              <div style={{ fontFamily:"var(--sans)", fontSize:'var(--body-sm)', fontWeight:'var(--body-sm-w)', lineHeight:'var(--body-sm-lh)', letterSpacing:'var(--body-sm-ls)', color:"#878787" }}>Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.</div>
+              <div style={{ fontFamily:"var(--sans)", fontSize:18, fontWeight:350, lineHeight:1.2, letterSpacing:0, color:"#878787" }}>Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.</div>
             </div>
           </div>
         ) : (
@@ -1945,11 +1925,11 @@ function ServicesHero({ isMobile, dark }) {
             opacity:0,
           }}>
             <div style={{
-              fontFamily:"var(--sans)", fontSize:"var(--h3)", fontWeight:"var(--h3-w)",
+              fontFamily:"var(--sans)", fontSize:26, fontWeight:500,
               lineHeight:1.1, letterSpacing:"-0.52px", color:"var(--secondary)",
             }}>From engineering to execution.</div>
             <div style={{
-              fontFamily:"var(--sans)", fontSize:"var(--body-md)", fontWeight:"var(--body-md-w)",
+              fontFamily:"var(--sans)", fontSize:19, fontWeight:350,
               lineHeight:1.3, letterSpacing:"0.19px", color:"var(--secondary)", opacity:0.75,
             }}>Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.</div>
           </div>
@@ -1962,11 +1942,11 @@ function ServicesHero({ isMobile, dark }) {
             display:"flex", flexDirection:"column", gap:16,
           }}>
             <div style={{
-              fontFamily:"var(--sans)", fontSize:"var(--h3)", fontWeight:"var(--h3-w)",
+              fontFamily:"var(--sans)", fontSize:26, fontWeight:500,
               lineHeight:1.1, letterSpacing:"-0.52px", color:"var(--secondary)",
             }}>{svc.headline}</div>
             <div style={{
-              fontFamily:"var(--sans)", fontSize:"var(--body-md)", fontWeight:"var(--body-md-w)",
+              fontFamily:"var(--sans)", fontSize:19, fontWeight:350,
               lineHeight:1.3, letterSpacing:"0.19px", color:"var(--secondary)", opacity:0.75,
             }}>{svc.body}</div>
           </div>
@@ -2020,7 +2000,7 @@ function ServicesHero({ isMobile, dark }) {
               </div>
               <div style={{ display:"flex", flexDirection:"column", gap:24 }}>
                 <div style={{ fontFamily:"var(--sans)", fontSize:"var(--h1)", fontWeight:350, lineHeight:"110%", letterSpacing:"-0.84px", color:"var(--secondary)" }}>{svc.headline}</div>
-                <div style={{ fontFamily:"var(--sans)", fontSize:'var(--body-sm)', fontWeight:'var(--body-sm-w)', lineHeight:'var(--body-sm-lh)', letterSpacing:'var(--body-sm-ls)', color:"#878787" }}>{svc.body}</div>
+                <div style={{ fontFamily:"var(--sans)", fontSize:18, fontWeight:350, lineHeight:1.2, letterSpacing:0, color:"#878787" }}>{svc.body}</div>
               </div>
             </div>
           ))}
@@ -2070,25 +2050,22 @@ function Eyebrow({children,style={},center=true}) {
 }
 
 /* ── ScrambleSpan — applies ScrambleText to any inline element on scroll-enter ── */
-function ScrambleSpan({children, style={}, tag='span', hoverOnly=false}) {
+function ScrambleSpan({children, style={}, tag='span'}) {
   const ref = useRef(null);
   useEffect(()=>{
     const el = ref.current;
     if (!el || typeof gsap==='undefined' || typeof ScrambleTextPlugin==='undefined') return;
     const text = String(children||'');
 
-    // Scroll-enter scramble (one-shot) — skipped when hoverOnly
-    let obs;
-    if (!hoverOnly) {
-      obs = new IntersectionObserver(([e])=>{
-        if (!e.isIntersecting) return;
-        obs.disconnect();
-        gsap.to(el, { duration:1.5, ease:'none',
-          scrambleText:{ text, chars:'upperCase', revealDelay:0.3, speed:0.6 },
-        });
-      },{ threshold:0.5 });
-      obs.observe(el);
-    }
+    // Scroll-enter scramble (one-shot)
+    const obs = new IntersectionObserver(([e])=>{
+      if (!e.isIntersecting) return;
+      obs.disconnect();
+      gsap.to(el, { duration:1.5, ease:'none',
+        scrambleText:{ text, chars:'upperCase', revealDelay:0.3, speed:0.6 },
+      });
+    },{ threshold:0.5 });
+    obs.observe(el);
 
     // Hover scramble — lock width first so layout never shifts
     const lockAndScramble = () => {
@@ -2102,7 +2079,7 @@ function ScrambleSpan({children, style={}, tag='span', hoverOnly=false}) {
     };
     el.addEventListener('mouseenter', lockAndScramble);
 
-    return ()=>{ obs && obs.disconnect(); el.removeEventListener('mouseenter', lockAndScramble); };
+    return ()=>{ obs.disconnect(); el.removeEventListener('mouseenter', lockAndScramble); };
   },[]);
   const Tag = tag;
   return React.createElement(Tag, {
@@ -2309,14 +2286,12 @@ const MODELS = [
 ];
 
 const WORKS = [
-  {title:"Afterpay x Dijitally",  meta:"PARTNERSHIP · 2024 · DIGITAL",  cat:"PARTNERSHIPS", bg:"#000",     fg:"#B6F4C9", label:"DIJITALLY × afterpay", img:"work/AfterpayxDijitally.png", aspect:"1008/1360", template:2},
-  {title:"Afterpay Day",          meta:"CREATIVE · DESIGN · SOCIAL",     cat:"CREATIVE",     bg:"#1a1a1a",  fg:"#F5F3EE", label:"Afterpay Day",         img:"work/AfterpayDay.jpg",         aspect:"1/1",        template:1},
+  {title:"Afterpay x Dijitally",  meta:"PARTNERSHIP · 2024 · DIGITAL",  cat:"PARTNERSHIPS", bg:"#000",     fg:"#B6F4C9", label:"DIJITALLY × afterpay", img:"work/AfterpayxDijitally.png", aspect:"1008/1360"},
+  {title:"Afterpay Day",          meta:"CREATIVE · DESIGN · SOCIAL",     cat:"CREATIVE",     bg:"#1a1a1a",  fg:"#F5F3EE", label:"Afterpay Day",         img:"work/AfterpayDay.jpg",         aspect:"1/1"},
   {title:"Constantinople",        meta:"CREATIVE · DESIGN · SOCIAL",     cat:"SOCIAL",       bg:"#FF4500",  fg:"#F5F3EE", label:"Constantinople",       img:"work/Constantinople.png",      aspect:"1008/1360"},
   {title:"Airwallex x Dijitally", meta:"PERFORMANCE · 2024 · DATA",      cat:"DATA",         bg:"#0a0a1e",  fg:"#B6F4C9", label:"Airwallex",            img:"work/AWXxAirwallex.png",       aspect:"1008/1230"},
-  {title:"Procore x Dijitally",   meta:"PARTNERSHIP · 2025 · DIGITAL",   cat:"PARTNERSHIPS", bg:"#000",     fg:"#B6F4C9", label:"Procore",              img:"work/ProcorexDijitally.png"},
-  {title:"SYD Airport",           meta:"CREATIVE · DESIGN · SOCIAL",     cat:"CREATIVE",     bg:"#000",     fg:"#F5F3EE", label:"SYD Airport",          img:null},
-  {title:"RoomStay Holiday Parks",meta:"CAMPAIGN · EVENT · 2024",        cat:"CREATIVE",     bg:"#1c2419",  fg:"#B6F4C9", label:"RoomStay",             img:"work/RoomStayBE_02.png", aspect:"1008/1360"},
-  {title:"Procore PresSURE",       meta:"CREATIVE · DESIGN · SOCIAL",     cat:"SOCIAL",       bg:"#FF7F3F",  fg:"#F5F3EE", label:"Procore",              img:"work/presSURE.png"},
+  {title:"RoomStay Holiday Parks",meta:"CAMPAIGN · EVENT · 2024",        cat:"CREATIVE",     bg:"#1c2419",  fg:"#B6F4C9", label:"RoomStay",             img:null},
+  {title:"Procore ProSURE",       meta:"CREATIVE · DESIGN · SOCIAL",     cat:"SOCIAL",       bg:"#FF7F3F",  fg:"#F5F3EE", label:"Procore",              img:null},
 ];
 const CATS = ["ALL","PARTNERSHIPS","CREATIVE","SOCIAL","DATA"];
 
@@ -2632,461 +2607,6 @@ function MenuGlitch({ onComplete, onMidpoint }) {
 /* ═══════════════════════════════════════════════════
    SERVICES PAGE
 ═══════════════════════════════════════════════════ */
-
-/* ── Accordion media sources — null = use default video ── */
-const ACCORDION_MEDIA = [
-  { type:'image', src:'services/strategy.png' }, // 0 Strategic
-  { type:'video', src:'videos/Inhouse+Embedded.mp4' }, // 1 Organisation
-  { type:'image', src:'services/needswork_light.png' }, // 2 Systematic
-  { type:'image', src:'services/needswork_light.png' }, // 3 Commercial
-  { type:'image', src:'work/Constantinople.png' },      // 4 Technologic
-  { type:'image', src:'work/AWX.png' },                 // 5 Tactic
-];
-const ACCORDION_DEFAULT_VIDEO = 'videos/thumbnail.mp4';
-
-/* Strip overlay — mounts full-color, immediately wipes slices to the right */
-function AccordionStripOverlay({ color }) {
-  const overlayRef = useRef(null);
-  useEffect(() => {
-    const overlay = overlayRef.current;
-    if (!overlay) return;
-    overlay.style.background = color;
-    const H = overlay.offsetHeight;
-    const sliceH = 2;
-    const total  = Math.ceil(H / sliceH);
-    for (let i = 0; i < total; i++) {
-      const s = document.createElement('div');
-      s.style.cssText = `position:absolute;left:0;width:100%;top:${i*sliceH}px;height:${sliceH+1}px;background:${color};transform:translateX(0);will-change:transform;`;
-      overlay.appendChild(s);
-    }
-    overlay.style.background = 'transparent';
-    const slices = Array.from(overlay.children);
-    let maxEnd = 0;
-    slices.forEach((sl, i) => {
-      const frac = i / Math.max(total - 1, 1);
-      const d    = frac * 0.45 + Math.random() * 0.05;
-      const dur  = 0.16 + Math.random() * 0.1;
-      if (d + dur > maxEnd) maxEnd = d + dur;
-      setTimeout(() => {
-        sl.style.transition = `transform ${dur.toFixed(3)}s linear`;
-        sl.style.transform  = 'translateX(100%)';
-      }, d * 1000);
-    });
-    const t = setTimeout(() => { if (overlay) overlay.innerHTML = ''; }, (maxEnd + 0.15) * 1000);
-    return () => clearTimeout(t);
-  }, []);
-  return (
-    <div ref={overlayRef} style={{
-      position:'absolute', inset:0, overflow:'hidden', pointerEvents:'none',
-    }} />
-  );
-}
-
-function AccordionMediaPanel({ activeIdx, dark }) {
-  const [displayIdx, setDisplayIdx] = React.useState(activeIdx);
-  const [revealKey,  setRevealKey]  = React.useState(0);
-  const prevIdxRef = useRef(activeIdx);
-
-  // Preload all images so they're cached before the strip overlay plays
-  useEffect(() => {
-    ACCORDION_MEDIA.forEach(m => {
-      if (m && m.type === 'image' && m.src) {
-        const img = new Image();
-        img.src = m.src;
-      }
-    });
-  }, []);
-
-  useEffect(() => {
-    if (activeIdx === prevIdxRef.current) return;
-    setDisplayIdx(activeIdx);
-    setRevealKey(k => k + 1);
-    prevIdxRef.current = activeIdx;
-  }, [activeIdx]);
-
-  const media     = ACCORDION_MEDIA[displayIdx] || { type:'video', src: ACCORDION_DEFAULT_VIDEO };
-  const bgColor   = dark ? '#121010' : '#F5F3EE';
-  const mediaStyle = { position:'absolute', inset:0, width:'100%', height:'100%', objectFit:'cover', display:'block' };
-
-  return (
-    <div style={{ position:'relative', width:'100%', height:'100%', borderRadius:4, overflow:'hidden', background:'transparent' }}>
-      {media.type === 'placeholder'
-        ? <div key="placeholder" style={{ position:'absolute', inset:0, background:'#808080', display:'flex', alignItems:'center', justifyContent:'center' }}>
-            <span style={{ fontFamily:'var(--sans)', fontSize:14, fontWeight:400, color:'#fff', letterSpacing:'0.02em' }}>Needs guidance for type of work</span>
-          </div>
-        : media.type === 'image'
-          ? <img  key={media.src} src={media.src} alt="" style={mediaStyle} />
-          : <video key={media.src} autoPlay muted loop playsInline style={mediaStyle} src={media.src} />
-      }
-      {revealKey > 0 && <AccordionStripOverlay key={revealKey} color={bgColor} />}
-    </div>
-  );
-}
-
-/* ── Shared hero halftone shader hook ───────────────────────────────────────── */
-function useHeroShader(canvasRef, dark) {
-  const stateRef = useRef(null);
-
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-    const gl = canvas.getContext('webgl', { alpha:true, premultipliedAlpha:false })
-            || canvas.getContext('experimental-webgl', { alpha:true, premultipliedAlpha:false });
-    if (!gl) return;
-
-    const VS = `attribute vec2 aPos;varying vec2 vUv;void main(){vUv=aPos*0.5+0.5;gl_Position=vec4(aPos,0.0,1.0);}`;
-    const FIELD_FS = `precision highp float;uniform float uTime;uniform float uAmp;uniform float uReveal;varying vec2 vUv;
-void main(){vec2 c=2.0*vUv-1.0;float ds=uAmp*uReveal;
-c+=ds*0.4*sin(c.yx+vec2(1.2,3.4)+uTime);c+=ds*0.2*sin(5.2*c.yx+vec2(3.5,0.4)+uTime);
-c+=ds*0.3*sin(3.5*c.yx+vec2(1.2,3.1)+uTime);c+=ds*1.6*sin(0.4*c.yx+vec2(0.8,2.4)+uTime);
-float L=length(c);float v=0.0;for(int i=0;i<4;i++){v=mix(v,float(i)/3.0,cos(float(i)*L));}
-gl_FragColor=vec4(clamp(v,0.0,1.0),0.0,0.0,1.0);}`;
-    const HALF_FS = `precision highp float;
-uniform sampler2D uFieldTex;uniform vec2 uFieldRes;uniform vec2 uRes;
-uniform float uReveal;uniform float uPixelSize;uniform float uGooeyness;
-uniform float uContrast;uniform float uBias;uniform float uInvert;
-uniform vec3 uFg;uniform float uWaveTime;uniform float uWaveFreq;uniform float uWaveAmp;uniform float uShape;
-varying vec2 vUv;
-float rectSDF(vec2 d,vec2 hs){vec2 q=abs(d)-hs;return length(max(q,0.0))+min(max(q.x,q.y),0.0);}
-float shapeSDF(vec2 d,float r){if(uShape<0.5)return length(d)-r;if(uShape<1.5)return rectSDF(d,vec2(r*0.88));if(uShape<2.5){float a=r*0.34;return min(rectSDF(d,vec2(r,a)),rectSDF(d,vec2(a,r)));}if(uShape<3.5)return rectSDF(d,vec2(r,r*0.27));return(abs(d.x)+abs(d.y))*0.7071-r*0.88;}
-float smin(float a,float b,float k){if(k<=0.001)return min(a,b);float h=max(k-abs(a-b),0.0)/k;return min(a,b)-h*h*k*0.25;}
-void main(){vec2 px=vUv*uRes;vec2 ci=floor(px/uPixelSize);float md=1.0e5;float sk=uGooeyness*1.5;
-for(int dx=-1;dx<=1;dx++){for(int dy=-1;dy<=1;dy++){
-vec2 cell=ci+vec2(float(dx),float(dy));if(mod(cell.x+cell.y,2.0)>0.5)continue;
-vec2 cuv=clamp((cell+0.5)/uFieldRes,0.0,1.0);float luma=texture2D(uFieldTex,cuv).r;
-float v=clamp((luma-0.5+uBias)*uContrast+0.5,0.0,1.0);if(uInvert>0.5)v=1.0-v;
-float r=v*uPixelSize*0.6+uPixelSize*0.05;
-float wo=uWaveAmp*sin(cuv.y*uWaveFreq*6.28318+uWaveTime);r+=wo*uPixelSize*0.1;
-vec2 cc=(cell+0.5)*uPixelSize;md=smin(md,shapeSDF(px-cc,r),sk);}}
-float alpha=1.0-smoothstep(-0.5,0.5,md);gl_FragColor=vec4(uFg*uReveal,alpha*uReveal);}`;
-
-    function mkS(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);return s;}
-    function mkP(vs,fs){const p=gl.createProgram();gl.attachShader(p,mkS(gl.VERTEX_SHADER,vs));gl.attachShader(p,mkS(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);return p;}
-    const fProg=mkP(VS,FIELD_FS), hProg=mkP(VS,HALF_FS);
-    const fU={},hU={};
-    ['uTime','uAmp','uReveal'].forEach(n=>fU[n]=gl.getUniformLocation(fProg,n));
-    ['uFieldTex','uFieldRes','uRes','uReveal','uPixelSize','uGooeyness','uContrast','uBias','uInvert','uFg','uWaveTime','uWaveFreq','uWaveAmp','uShape'].forEach(n=>hU[n]=gl.getUniformLocation(hProg,n));
-    const qbuf=gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER,qbuf);
-    gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]),gl.STATIC_DRAW);
-    function bindQ(prog){gl.bindBuffer(gl.ARRAY_BUFFER,qbuf);const loc=gl.getAttribLocation(prog,'aPos');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);}
-    const fFBO=gl.createFramebuffer(),fTex=gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,fTex);
-    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
-    gl.bindFramebuffer(gl.FRAMEBUFFER,fFBO);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,fTex,0);
-    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
-
-    const sp={amplitude:1.40,timeSpeed:0.0100,pixelSize:5.5,gooeyness:0.00,contrast:1.00,bias:-0.45,invert:false,fg:dark?'#fdfeff':'#121010',waveAmp:0.40,waveFreq:0.70,waveSpd:0.0100,reveal:0,shape:2};
-    stateRef.current={sp};
-
-    function hex3(h){return[parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255];}
-    let rafId,t=0,wt=0,lastTs=0,fW=1,fH=1,lW=0,lH=0;
-    function frame(ts){
-      rafId=requestAnimationFrame(frame);
-      const dt=Math.min((ts-lastTs)/(1000/60),3);lastTs=ts;
-      const dpr=Math.min(devicePixelRatio,1.5);
-      const cw=Math.round(canvas.offsetWidth*dpr),ch=Math.round(canvas.offsetHeight*dpr);
-      if(cw!==lW||ch!==lH){lW=cw;lH=ch;canvas.width=cw;canvas.height=ch;fW=Math.ceil(cw/sp.pixelSize)+1;fH=Math.ceil(ch/sp.pixelSize)+1;gl.bindTexture(gl.TEXTURE_2D,fTex);gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,fW,fH,0,gl.RGBA,gl.UNSIGNED_BYTE,null);}
-      sp.reveal+=(0.75-sp.reveal)*0.012*dt;
-      t+=sp.timeSpeed*dt;wt+=sp.waveSpd*dt;
-      gl.useProgram(fProg);bindQ(fProg);gl.bindFramebuffer(gl.FRAMEBUFFER,fFBO);gl.viewport(0,0,fW,fH);
-      gl.uniform1f(fU.uTime,t);gl.uniform1f(fU.uAmp,sp.amplitude);gl.uniform1f(fU.uReveal,sp.reveal);
-      gl.drawArrays(gl.TRIANGLES,0,6);
-      gl.useProgram(hProg);bindQ(hProg);gl.bindFramebuffer(gl.FRAMEBUFFER,null);gl.viewport(0,0,canvas.width,canvas.height);
-      gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
-      gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT);
-      gl.activeTexture(gl.TEXTURE0);gl.bindTexture(gl.TEXTURE_2D,fTex);gl.uniform1i(hU.uFieldTex,0);
-      gl.uniform2f(hU.uFieldRes,fW,fH);gl.uniform2f(hU.uRes,canvas.width,canvas.height);
-      gl.uniform1f(hU.uReveal,sp.reveal);gl.uniform1f(hU.uPixelSize,sp.pixelSize);
-      gl.uniform1f(hU.uGooeyness,sp.gooeyness);gl.uniform1f(hU.uContrast,sp.contrast);
-      gl.uniform1f(hU.uBias,sp.bias);gl.uniform1f(hU.uInvert,sp.invert?1:0);
-      gl.uniform3fv(hU.uFg,hex3(sp.fg));gl.uniform1f(hU.uWaveTime,wt);
-      gl.uniform1f(hU.uWaveFreq,sp.waveFreq);gl.uniform1f(hU.uWaveAmp,sp.waveAmp);
-      gl.uniform1f(hU.uShape,sp.shape);gl.drawArrays(gl.TRIANGLES,0,6);
-    }
-    rafId=requestAnimationFrame(frame);
-    return ()=>{cancelAnimationFrame(rafId);stateRef.current=null;gl.deleteFramebuffer(fFBO);gl.deleteTexture(fTex);};
-  }, []);
-
-  useEffect(()=>{ if(stateRef.current) stateRef.current.sp.fg=dark?'#fdfeff':'#121010'; },[dark]);
-}
-
-/* ── ServicesHeroStatic — pixel-perfect match to Figma 04.Services.Desktop hero ── */
-function ServicesHeroStatic({ isMobile, dark }) {
-  const yourRef  = useRef(null);
-  const pointRef = useRef(null);
-  const ofRef    = useRef(null);
-  const scaleRef = useRef(null);
-  const allyRef  = useRef(null);
-  const headRef  = useRef(null);
-  const bodyRef  = useRef(null);
-  const shaderRef = useRef(null);
-  useHeroShader(shaderRef, dark);
-
-  useEffect(() => {
-    if (typeof gsap === 'undefined') return;
-    const svgs = [yourRef, pointRef, ofRef, scaleRef, allyRef].map(r => r.current).filter(Boolean);
-    const text = [headRef, bodyRef].map(r => r.current).filter(Boolean);
-
-    gsap.set([...svgs, ...text], { y: 36, opacity: 0 });
-
-    gsap.to(svgs, {
-      y: 0, opacity: 1,
-      duration: 0.9, ease: 'power3.out',
-      stagger: 0.16,
-      delay: 0.2,
-      onComplete: () => {
-        gsap.to(text, { y: 0, opacity: 1, duration: 0.75, ease: 'power2.out', stagger: 0.18 });
-      },
-    });
-  }, []);
-
-  const imgFilter = dark ? 'invert(1) brightness(0.96) sepia(0.3)' : 'none';
-
-  if (isMobile) {
-    return (
-      <section style={{
-        minHeight: '100svh', display: 'flex', flexDirection: 'column',
-        justifyContent: 'flex-end', padding: '0 24px 64px',
-        paddingTop: 'var(--nav-h)', background: 'var(--bg)', boxSizing: 'border-box', overflow: 'hidden', position: 'relative',
-      }}>
-        <canvas ref={shaderRef} style={{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:0}} />
-        <div style={{ position:'relative', zIndex:1, width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'flex-start', gap: 12 }}>
-          <img ref={yourRef}  src="svgs/SVG/your.svg"  alt="YOUR"  style={{ height: '10vw', width: 'auto', display: 'block', filter: imgFilter }} />
-          <img ref={pointRef} src="svgs/SVG/point.svg" alt="POINT" style={{ height: '10vw', width: 'auto', display: 'block', filter: imgFilter }} />
-          <div style={{ display: 'flex', alignItems: 'center', gap: 20 }}>
-            <img ref={ofRef} src="svgs/SVG/of.svg" alt="OF" style={{ height: '10vw', width: 'auto', display: 'block', filter: imgFilter }} />
-            <img ref={scaleRef} src="svgs/SVG/scale.svg" alt="SCALE" style={{ height: '10vw', width: 'auto', display: 'block', filter: imgFilter }} />
-          </div>
-          <img ref={allyRef} src="svgs/SVG/ally.svg" alt="ALLY" style={{ height: '10vw', width: 'auto', display: 'block', filter: imgFilter }} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 12 }}>
-            <p ref={headRef} style={{ fontFamily: 'var(--sans)', fontSize: 'var(--h1)', fontWeight: 350, lineHeight: '110%', letterSpacing: '-0.84px', color: 'var(--secondary)', margin: 0 }}>
-              From engineering to execution and everything in between.
-            </p>
-            <p ref={bodyRef} style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-sm)', fontWeight: 'var(--body-sm-w)', lineHeight: 'var(--body-sm-lh)', color: '#878787', margin: 0 }}>
-              Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.
-            </p>
-          </div>
-        </div>
-      </section>
-    );
-  }
-
-  /* Desktop — all SVGs at 100px height (Figma design at 1690px wide / 1562px content) */
-  const svgH = 'calc((100vw - 128px) * 100 / 1562)';
-  const ofScaleW = 'calc((100vw - 128px) * 751 / 1562)';
-  const bodyW = 'calc((100vw - 128px) * 368 / 1562)';
-
-  return (
-    <section style={{
-      height: '100svh', display: 'flex', flexDirection: 'column', justifyContent: 'flex-end',
-      paddingTop: 'var(--nav-h)', paddingLeft: 64, paddingRight: 64, paddingBottom: 64,
-      background: 'var(--bg)', boxSizing: 'border-box', overflow: 'hidden', position: 'relative',
-    }}>
-      <canvas ref={shaderRef} style={{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:0}} />
-      <div style={{ position:'relative', zIndex:1, display: 'flex', flexDirection: 'column', gap: 28, width: '100%' }}>
-
-        {/* Row 1: YOUR ←————————————————→ POINT */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: '100%', height: svgH }}>
-          <img ref={yourRef}  src="svgs/SVG/your.svg"  alt="YOUR"  style={{ height: '100%', width: 'auto', display: 'block', filter: imgFilter }} />
-          <img ref={pointRef} src="svgs/SVG/point.svg" alt="POINT" style={{ height: '100%', width: 'auto', display: 'block', filter: imgFilter }} />
-        </div>
-
-        {/* Row 2: [OF  SCALE / ALLY] ←——→ body copy */}
-        <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', width: '100%' }}>
-          {/* Left: OF+SCALE row stacked above ALLY */}
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 28 }}>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', height: svgH, width: ofScaleW }}>
-              <img ref={ofRef}    src="svgs/SVG/of.svg"    alt="OF"    style={{ height: '100%', width: 'auto', display: 'block', filter: imgFilter }} />
-              <img ref={scaleRef} src="svgs/SVG/scale.svg" alt="SCALE" style={{ height: '100%', width: 'auto', display: 'block', filter: imgFilter }} />
-            </div>
-            <div style={{ height: svgH }}>
-              <img ref={allyRef} src="svgs/SVG/ally.svg" alt="ALLY" style={{ height: '100%', width: 'auto', display: 'block', filter: imgFilter }} />
-            </div>
-          </div>
-
-          {/* Right: body copy — live text as per brief */}
-          <div style={{ width: bodyW, display: 'flex', flexDirection: 'column', gap: 28, flexShrink: 0 }}>
-            <p ref={headRef} style={{ fontFamily: 'var(--sans)', fontSize: 'calc((100vw - 128px) * 26 / 1562)', fontWeight: 350, lineHeight: 1.1, letterSpacing: '-0.26px', color: 'var(--secondary)', margin: 0 }}>
-              From engineering to execution and everything in between.
-            </p>
-            <p ref={bodyRef} style={{ fontFamily: 'var(--sans)', fontSize: 'calc((100vw - 128px) * 22 / 1562)', fontWeight: 350, lineHeight: 1.2, color: '#878787', margin: 0 }}>
-              Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.
-            </p>
-          </div>
-        </div>
-
-      </div>
-    </section>
-  );
-}
-
-/* ── ServicesAccordion — scroll/click-driven expand accordion ── */
-function ServicesAccordion({ isMobile, dark }) {
-  const [activeIdx, setActiveIdx] = React.useState(0);
-  const activeIdxRef  = useRef(0);
-  const lastStepRef   = useRef(0);
-  const sectionRef    = useRef(null);
-  const bodyRefs      = useRef([]);
-
-  useEffect(() => { activeIdxRef.current = activeIdx; }, [activeIdx]);
-
-  /* Animate body copy words in whenever active item changes */
-  useEffect(() => {
-    const bodyEl = bodyRefs.current[activeIdx];
-    if (!bodyEl || typeof gsap === 'undefined') return;
-    if (typeof SplitText !== 'undefined') {
-      const split = new SplitText(bodyEl, { type: 'words' });
-      gsap.fromTo(split.words,
-        { y: 14, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.55, ease: 'power2.out', stagger: 0.018}
-      );
-    } else {
-      gsap.fromTo(bodyEl, { opacity: 0 }, { opacity: 1, duration: 0.4 });
-    }
-  }, [activeIdx]);
-
-  /* ScrollTrigger pin — desktop only */
-  useEffect(() => {
-    if (isMobile) return;
-    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
-    const el = sectionRef.current;
-    if (!el) return;
-
-    const N = SVC_ROWS.length;
-    const stepH = window.innerHeight * 0.85;
-
-    const st = ScrollTrigger.create({
-      trigger: el,
-      start: 'top top',
-      end: `+=${stepH * N}`,
-      pin: true,
-      pinSpacing: true,
-      onUpdate: (self) => {
-        const step = Math.min(Math.floor(self.progress * N), N - 1);
-        if (step !== lastStepRef.current) {
-          lastStepRef.current = step;
-          setActiveIdx(step);
-        }
-      },
-    });
-
-    return () => { st.kill(); };
-  }, [isMobile]);
-
-  /* Click to jump: set state directly and snap scroll to position — no intermediate steps */
-  function handleItemClick(idx) {
-    setActiveIdx(idx);
-    lastStepRef.current = idx;
-    if (isMobile || typeof ScrollTrigger === 'undefined') return;
-    const triggers = ScrollTrigger.getAll();
-    const st = triggers.find(t => t.trigger === sectionRef.current);
-    if (!st) return;
-    const N = SVC_ROWS.length;
-    const stepH = window.innerHeight * 0.85;
-    const progress = (idx + 0.05) / N;
-    const targetScroll = st.start + progress * stepH * N;
-    if (window.__smootherScrollTo) window.__smootherScrollTo(targetScroll);
-    else window.scrollTo({ top: targetScroll, behavior: 'instant' });
-  }
-
-  const fs  = isMobile ? 36 : 58;
-  const bsz = fs;
-
-  return (
-    <section ref={sectionRef} style={{
-      background: 'var(--bg)',
-      minHeight: '100svh',
-      padding: isMobile ? '64px 24px 96px' : '96px var(--s64) 96px',
-      display: 'flex',
-      flexDirection: isMobile ? 'column' : 'row',
-      gap: isMobile ? 48 : 128,
-      alignItems: isMobile ? 'flex-start' : 'stretch',
-      boxSizing: 'border-box',
-    }}>
-
-      {/* ── Left: accordion list ── */}
-      <div style={{ flex: 1, display: 'flex', flexDirection: 'column', justifyContent: isMobile ? 'flex-start' : 'center', minWidth: 0 }}>
-
-
-        {/* Accordion rows */}
-        <div style={{ display: 'flex', flexDirection: 'column' }}>
-          {SVC_ROWS.map((svc, i) => {
-            const isActive = i === activeIdx;
-            const label = svc.bracket.charAt(0).toUpperCase() + svc.bracket.slice(1);
-            return (
-              <div key={i} onClick={() => handleItemClick(i)} style={{
-                cursor: 'pointer',
-                WebkitTapHighlightColor: 'transparent',
-                paddingTop: 0,
-                paddingBottom: isActive ? (isMobile ? 24 : 32) : 0,
-                marginBottom: i < SVC_ROWS.length - 1 ? (isActive ? (isMobile ? 16 : 24) : 0) : 0,
-              }}>
-                {/* Title row */}
-                <div style={{ display: 'flex', alignItems: 'center', gap: isMobile ? 6 : 10, flexWrap: 'nowrap', width: 'max-content', opacity: isActive ? 1 : 0.25, transition: 'opacity 0.35s ease' }}>
-                  <span style={{ display: 'flex', flexShrink: 0 }}>
-                    <BracketOpen size={bsz} color="var(--secondary)" />
-                  </span>
-                  {isActive
-                    ? <span style={{ fontFamily:'var(--sans)', fontSize:fs, fontWeight:350, lineHeight:1.1, letterSpacing:'-0.58px', color:'var(--secondary)', whiteSpace:'nowrap' }}>{label}</span>
-                    : <ScrambleSpan hoverOnly style={{ fontFamily:'var(--sans)', fontSize:fs, fontWeight:350, lineHeight:1.1, letterSpacing:'-0.58px', color:'var(--secondary)', whiteSpace:'nowrap' }}>{label}</ScrambleSpan>
-                  }
-                  <span style={{ display: 'flex', flexShrink: 0 }}>
-                    <BracketClose size={bsz} color="var(--secondary)" />
-                  </span>
-                  {isActive && (
-                    <span style={{ display: 'flex', flexShrink: 0, marginLeft: isMobile ? 4 : 8 }}>
-                      <AllyWordmark size={bsz} color="var(--secondary)" />
-                    </span>
-                  )}
-                </div>
-
-                {/* Expanded body — only visible for active item */}
-                {isActive && (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: 12, marginTop: isMobile ? 10 : 12 }}>
-                    <div style={{
-                      fontFamily: 'var(--sans)',
-                      fontSize: isMobile ? 20 : 26,
-                      fontWeight: 350,
-                      lineHeight: 1.1,
-                      letterSpacing: '-0.26px',
-                      color: 'var(--secondary)',
-                    }}>{svc.headline}</div>
-                    <div ref={el => bodyRefs.current[i] = el} style={{
-                      fontFamily: 'var(--sans)',
-                      fontSize: isMobile ? 18 : 19,
-                      fontWeight: 350,
-                      lineHeight: 1.2,
-                      letterSpacing: '0.19px',
-                      color: 'var(--static)',
-                      maxWidth: 422,
-                    }}>{svc.body}</div>
-                  </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
-      </div>
-
-      {/* ── Right (desktop) / Top (mobile): per-item media panel with pixel transition ── */}
-      <div style={{
-        ...(isMobile
-          ? { width: '100%', aspectRatio: '1 / 1', order: -1, flexShrink: 0 }
-          : { aspectRatio: '1 / 1', flexShrink: 0, height: 'calc(100svh - 192px)', alignSelf: 'flex-end' }
-        ),
-      }}>
-        <AccordionMediaPanel activeIdx={activeIdx} dark={dark} />
-      </div>
-    </section>
-  );
-}
-
 const SVC_ROWS = [
   { slug:"Strategically",    bracket:"strategic",    headline:"Go-to-market through to market fit.",        body:"From market entry and audience strategy to channel prioritisation, we map out the smartest way to grow. Every move is intentional, with a clear definition of success.", bg:"electric", video:"videos/Services/strategy.mp4" },
   { slug:"Organisationally", bracket:"organisation", headline:"In-house modelling.",                        body:"We scale your capability, not just your output. That means designing operating models, resourcing plans, and workflows that help you move faster without over-hiring.", bg:"stream",    video:"videos/Services/organisation.mp4" },
@@ -3096,7 +2616,7 @@ const SVC_ROWS = [
   { slug:"Tactically",       bracket:"tactic",       headline:"Brand execution.",                           body:"Campaigns and launches to content and always-on activity, we deliver at speed with precision, ensuring everything ladders up to the broader growth strategy.", bg:"page",      video:"videos/Services/tactic.mp4" },
 ];
 
-const CIRCLE_IMGS = ["work/AfterpayxDijitally.jpg","work/AWX.png","work/presSURE.png","work/Linktree.png","work/Afterpay.jpg","work/Canva.jpg","work/Shopify.jpg","work/Klaviyo.jpg","work/Redbubble.jpg","work/SixPark.jpg"];
+const CIRCLE_IMGS = ["work/AfterpayxDijitally.jpg","work/AWX.png","work/ProcoreSURE.png","work/Linktree.png","work/Afterpay.jpg","work/Canva.jpg","work/Shopify.jpg","work/Klaviyo.jpg","work/Redbubble.jpg","work/SixPark.jpg"];
 const CIRCLE_VIDEOS = ["videos/Services/commercial.mp4","videos/Services/organisation.mp4","videos/Services/strategy.mp4","videos/Services/systems.mp4","videos/Services/tactic.mp4","videos/Services/tech.mp4"];
 const CIRCLE_VIDEO_SRC = CIRCLE_VIDEOS[Math.floor(Math.random() * CIRCLE_VIDEOS.length)];
 
@@ -3116,7 +2636,7 @@ const SVC_ACCORDION = [
 const SVC_CASES = [
   { title:"Afterpay x Dijitally", meta:"PARTNERSHIP · 2024 · DIGITAL", logo:"clients/Afterpay.svg", logoH:40, img:"work/AfterpayxDijitally.jpg", desc:"We've helped Afterpay build and scale their partnership marketing globally." },
   { title:"Airwallex Global",     meta:"PERFORMANCE · 2024 · DATA",    logo:"clients/Airwallex.svg", img:"work/AWX.png",                desc:"We've helped Airwallex scale internal teams globally, at pace." },
-  { title:"Procore SURE",         meta:"CREATIVE · DESIGN · SOCIAL",   logo:"clients/Procore.svg",   img:"work/presSURE.png",        desc:"We've helped Procore deliver creative social strategy." },
+  { title:"Procore SURE",         meta:"CREATIVE · DESIGN · SOCIAL",   logo:"clients/Procore.svg",   img:"work/ProcoreSURE.png",        desc:"We've helped Procore deliver creative social strategy." },
 ];
 
 function SiteFooter({ isMobile, dark, smootherRef, onBackToTop }) {
@@ -3139,7 +2659,7 @@ function SiteFooter({ isMobile, dark, smootherRef, onBackToTop }) {
   const dot = {width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0};
   const linkStyle = {fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"};
   const navLinks = ["WORK","SERVICES","ABOUT"];
-  const navClick = l => l==="WORK" ? goToWork : l==="SERVICES" ? goToServices : l==="ABOUT" ? goToAbout : undefined;
+  const navClick = l => l==="WORK" ? goToWork : l==="SERVICES" ? goToServices : undefined;
   return (
     <>
     <footer style={{borderTop:"1px solid var(--border)", minHeight:"auto", padding:isMobile?"64px 24px 24px":"var(--s64) var(--s64) 0", display:"flex", flexDirection:"column", alignItems:isMobile?"flex-start":"flex-end", gap:isMobile?24:0, background:"var(--bg)"}}>
@@ -3248,23 +2768,20 @@ function ContactSection({ dark, isMobile, setCtaOpen }) {
 function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
   const [openAccordion, setOpenAccordion] = useState(0);
 
-  const h1s = {fontFamily:"var(--sans)",fontSize:"var(--h1)",fontWeight:"var(--h1-w)",lineHeight:"var(--h1-lh)",letterSpacing:"var(--h1-ls)",color:"var(--secondary)"};
-  const h2s = {fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:"var(--h2-w)",lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",color:"var(--secondary)"};
-  const body22 = {fontFamily:"var(--sans)",fontSize:"var(--body-lg)",fontWeight:"var(--body-lg-w)",lineHeight:"var(--body-lg-lh)",letterSpacing:"var(--body-lg-ls)",color:"var(--static)"};
+  const h1s = {fontFamily:"var(--sans)",fontSize:isMobile?"var(--h1)":48,fontWeight:350,lineHeight:1,letterSpacing:"-0.96px",color:"var(--secondary)"};
+  const h2s = {fontFamily:"var(--sans)",fontSize:isMobile?"var(--h2)":32,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.64px",color:"var(--secondary)"};
+  const body22 = {fontFamily:"var(--sans)",fontSize:isMobile?15:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.22px",color:"var(--static)"};
 
   return (
     <div style={{background:"var(--bg)",color:"var(--secondary)"}}>
 
-      {/* ══ YOUR POINT OF SCALE HERO ══ */}
-      <ServicesHeroStatic isMobile={isMobile} dark={dark} />
-
-      {/* ══ SERVICES ACCORDION ══ */}
-      <ServicesAccordion isMobile={isMobile} dark={dark} />
+      {/* ══ SERVICES HERO SCROLL ══ */}
+      <ServicesHero isMobile={isMobile} dark={dark} />
 
       {/* ══ OPERATING MODELS CALLOUT ══ */}
       <section style={{padding:isMobile?"64px 24px":"256px var(--s64) var(--s64)",display:"flex",flexDirection:"column",gap:"var(--s24)",background:"var(--bg)"}}>
         <div style={{fontFamily:"var(--sans)",fontSize:isMobile?"var(--h1)":48,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.96px",color:"var(--secondary)",maxWidth:570}}>Our operating models enable scale through the right allies.</div>
-        <div style={{fontFamily:"var(--sans)",fontSize:"var(--body-lg)",fontWeight:"var(--body-lg-w)",lineHeight:"var(--body-lg-lh)",letterSpacing:"var(--body-lg-ls)",color:"var(--static)",maxWidth:480}}>We help brands scale by enabling their product, brand + marketing teams to deliver results, fast.</div>
+        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?19:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.22px",color:"var(--static)",maxWidth:480}}>We help brands scale by enabling their product, brand + marketing teams to deliver results, fast.</div>
       </section>
 
       {/* ══ MODELS TABS ══ */}
@@ -3282,7 +2799,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
         padding:isMobile?"var(--s64) var(--s42) 64px":"var(--s64) 88px",
         display:"flex",flexDirection:"column",alignItems:"center",gap:82,overflow:"hidden",
       }}>
-        <div style={{fontFamily:"var(--sans)",fontSize:"var(--body-lg)",fontWeight:"var(--body-lg-w)",lineHeight:"var(--body-lg-lh)",letterSpacing:"var(--body-lg-ls)",color:"#F5F3EE",textAlign:"center",maxWidth:486,paddingTop:isMobile?42:undefined}}>
+        <div style={{fontFamily:"var(--sans)",fontSize:isMobile?19:22,fontWeight:350,lineHeight:1.2,letterSpacing:"0.22px",color:"#F5F3EE",textAlign:"center",maxWidth:486,paddingTop:isMobile?42:undefined}}>
           High-impact capability, delivered fast, without the overhead of permanent hires.
         </div>
         <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:24,width:"100%"}}>
@@ -3293,12 +2810,12 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
               borderRadius:4, padding:"32px 64px",
               display:"flex",flexDirection:"column",gap:32,alignItems:"center",justifyContent:"center",
             }}>
-              <div style={{fontFamily:"var(--sans)",fontSize:'var(--card-title)',fontWeight:'var(--card-title-w)',lineHeight:'var(--card-title-lh)',letterSpacing:'var(--card-title-ls)',color:"#F5F3EE",width:"100%",maxWidth:265}}>{cap.title}</div>
+              <div style={{fontFamily:"var(--sans)",fontSize:24,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.48px",color:"#F5F3EE",width:"100%",maxWidth:265}}>{cap.title}</div>
               <div style={{display:"flex",flexDirection:"column",gap:14,width:"100%",maxWidth:265}}>
                 {cap.items.map((item,idx)=>(
                   <div key={item} style={{display:"flex",gap:10,alignItems:"center",paddingBottom:8,borderBottom:idx<cap.items.length-1?"1px solid rgba(222,222,222,0.25)":"none"}}>
                     <span style={{width:4,height:4,background:"#F5F3EE",flexShrink:0,display:"inline-block"}}/>
-                    <span style={{fontFamily:"var(--sans)",fontSize:'var(--body-xs)',fontWeight:'var(--body-xs-w)',lineHeight:'var(--body-xs-lh)',color:"#F5F3EE"}}>{item}</span>
+                    <span style={{fontFamily:"var(--sans)",fontSize:16,fontWeight:350,lineHeight:1.2,color:"#F5F3EE"}}>{item}</span>
                   </div>
                 ))}
               </div>
@@ -3309,7 +2826,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
 
       {/* ══ CASE STUDIES + ACCORDION ══ */}
       <section style={{
-        padding:isMobile?"96px var(--s42) var(--s64)":"var(--s128) var(--s64)",
+        padding:isMobile?"var(--s64) var(--s42)":"var(--s128) var(--s64)",
         display:"flex",
         flexDirection:isMobile?"column":"row",
         gap:isMobile?64:"var(--s64)",
@@ -3320,28 +2837,17 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
         {/* Left: case study stack */}
         <div style={{display:"flex",flexDirection:"column",gap:"var(--s42)",flexShrink:0}}>
           {SVC_CASES.map((c,i)=>(
-            <div key={c.title} style={{display:"flex",flexDirection:isMobile?"column":"row",gap:"var(--s42)",alignItems:isMobile?"flex-start":"flex-end"}}>
-              {isMobile && (
-                <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
-                  {c.logo
-                    ? <img src={c.logo} alt={c.title} style={{height:c.logoH||20,width:"auto",display:"block",alignSelf:"flex-start",filter:dark?"invert(1)":"none"}} />
-                    : <span style={{fontFamily:"var(--sans)",fontSize:13,fontWeight:350,letterSpacing:"var(--eyebrow-ls)",color:"var(--static)",textTransform:"uppercase"}}>{c.title}</span>
-                  }
-                  <div style={{fontFamily:"var(--sans)",fontSize:'var(--body-md)',fontWeight:'var(--body-md-w)',lineHeight:'var(--body-md-lh)',letterSpacing:'var(--body-md-ls)',color:"var(--static)"}}>{c.desc}</div>
-                </div>
-              )}
-              <div style={{width:isMobile?"100%":150,height:isMobile?"auto":150,aspectRatio:isMobile?"16/9":undefined,flexShrink:0,overflow:"hidden",borderRadius:4}}>
+            <div key={c.title} style={{display:"flex",gap:"var(--s42)",alignItems:"flex-end",flexWrap:isMobile?"wrap":"nowrap"}}>
+              <div style={{width:isMobile?82:150,height:isMobile?82:150,flexShrink:0,overflow:"hidden",borderRadius:4}}>
                 <StripRevealImg src={c.img} alt={c.title} delay={i*0.15} style={{width:"100%",height:"100%"}}/>
               </div>
-              {!isMobile && (
-                <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
-                  {c.logo
-                    ? <img src={c.logo} alt={c.title} style={{height:c.logoH||20,width:"auto",display:"block",alignSelf:"flex-start",filter:dark?"invert(1)":"none"}} />
-                    : <span style={{fontFamily:"var(--sans)",fontSize:13,fontWeight:350,letterSpacing:"var(--eyebrow-ls)",color:"var(--static)",textTransform:"uppercase"}}>{c.title}</span>
-                  }
-                  <div style={{fontFamily:"var(--sans)",fontSize:'var(--body-md)',fontWeight:'var(--body-md-w)',lineHeight:'var(--body-md-lh)',letterSpacing:'var(--body-md-ls)',color:"var(--static)",maxWidth:270}}>{c.desc}</div>
-                </div>
-              )}
+              <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
+                {c.logo
+                  ? <img src={c.logo} alt={c.title} style={{height:c.logoH||20,width:"auto",display:"block",alignSelf:"flex-start",filter:dark?"invert(1)":"none"}} />
+                  : <span style={{fontFamily:"var(--sans)",fontSize:13,fontWeight:350,letterSpacing:"var(--eyebrow-ls)",color:"var(--static)",textTransform:"uppercase"}}>{c.title}</span>
+                }
+                <div style={{fontFamily:"var(--sans)",fontSize:19,fontWeight:350,lineHeight:1.2,letterSpacing:"0.19px",color:"var(--static)",maxWidth:270}}>{c.desc}</div>
+              </div>
             </div>
           ))}
         </div>
@@ -3350,7 +2856,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
         <div style={{flex:1,maxWidth:842,display:"flex",flexDirection:"column",gap:"var(--s128)"}}>
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
             <div style={{...h1s,maxWidth:483}}>Helping product, brand and marketing teams deliver results. Fast.</div>
-            <div style={{...body22,maxWidth:483}}>We partner with brands at the points where growth needs to be engineered, not just executed.</div>
+            <div style={{...body22,fontSize:isMobile?19:22,maxWidth:483}}>We partner with brands at the points where growth needs to be engineered, not just executed.</div>
           </div>
 
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
@@ -3360,7 +2866,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
                   display:"flex",alignItems:"center",justifyContent:"space-between",
                   width:"100%",background:"none",border:"none",cursor:"pointer",padding:0,gap:10,
                 }}>
-                  <span style={{fontFamily:"var(--sans)",fontSize:'var(--body-lg)',fontWeight:'var(--body-lg-w)',lineHeight:'var(--body-lg-lh)',color:"var(--secondary)",textAlign:"left"}}>{item.label}</span>
+                  <span style={{fontFamily:"var(--sans)",fontSize:22,fontWeight:350,lineHeight:1.1,color:"var(--secondary)",textAlign:"left"}}>{item.label}</span>
                   <span style={{position:"relative",width:21,height:21,flexShrink:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
                     <span style={{position:"absolute",width:3,height:21,background:"var(--secondary)",borderRadius:0,opacity:openAccordion===i?0:1,transition:"opacity 0.2s"}}/>
                     <span style={{position:"absolute",width:21,height:3,background:"var(--secondary)",borderRadius:0}}/>
@@ -3368,7 +2874,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
                 </button>
                 {openAccordion===i && (
                   <div style={{marginTop:16,display:"flex",flexDirection:"column",gap:24}}>
-                    {item.body && <div style={{...body22,maxWidth:670}}>{item.body}</div>}
+                    {item.body && <div style={{...body22,fontSize:isMobile?19:22,maxWidth:670}}>{item.body}</div>}
                     {item.img && (
                       <img src={item.img} alt={item.label} style={{width:"100%",maxWidth:842,height:"auto",aspectRatio:"842/378",objectFit:"cover",borderRadius:4,display:"block"}} />
                     )}
@@ -3381,7 +2887,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
       </section>
 
       <ContactSection dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />
-      <SiteFooter dark={dark} isMobile={isMobile} onBackToTop={()=>{ if(window.__resetSmoother) window.__resetSmoother(); else window.scrollTo({top:0,behavior:"instant"}); }}/>
+      <SiteFooter dark={dark} isMobile={isMobile} onBackToTop={()=>{ window.__servicesResetOnEnter = true; window.scrollTo({top:0,behavior:"instant"}); requestAnimationFrame(function(){ if(typeof ScrollTrigger!=="undefined") ScrollTrigger.refresh(); }); }}/>
 
     </div>
   );
@@ -3390,109 +2896,9 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
 /* ═══════════════════════════════════════════════════
    WORK PAGE
 ═══════════════════════════════════════════════════ */
-function FilterPill({ label, active, onClick }) {
-  const [hov, setHov] = React.useState(false);
-  return (
-    <button onClick={onClick}
-      onMouseEnter={()=>setHov(true)}
-      onMouseLeave={()=>setHov(false)}
-      style={{
-        display:"inline-flex", alignItems:"center", gap:4,
-        padding:"6px 12px",
-        background: active ? "var(--secondary)" : hov ? "var(--grey)" : "transparent",
-        border:"1px solid",
-        borderColor: active ? "var(--secondary)" : "var(--grey)",
-        borderRadius:100,
-        fontFamily:"var(--mono)", fontSize:11, fontWeight:400,
-        letterSpacing:"0.06em",
-        color: active ? "var(--bg)" : "var(--static)",
-        cursor:"pointer", whiteSpace:"nowrap",
-        transition:"background 0.15s ease",
-      }}>{label}</button>
-  );
-}
-
-const WORK_HEADLINES = [
-  'Creative that converts.',
-  'Data that performs.',
-  'Systems that support.',
-  'Production that moves.',
-];
-
-function WorkHeadlineCycle() {
-  const elRef = useRef(null);
-
-  useEffect(() => {
-    const el = elRef.current;
-    if (!el || typeof gsap === 'undefined') return;
-
-    let idx = 0;
-    let tl;
-
-    const show = () => {
-      el.textContent = WORK_HEADLINES[idx];
-      tl = gsap.timeline({ onComplete: () => {
-        idx = (idx + 1) % WORK_HEADLINES.length;
-        show();
-      }});
-      tl.fromTo(el,
-        { y: 36, opacity: 0 },
-        { y: 0, opacity: 1, duration: 0.75, ease: 'power3.out' }
-      )
-      .to(el, { y: -36, opacity: 0, duration: 0.6, ease: 'power3.in', delay: 1 });
-    };
-
-    show();
-    return () => { if (tl) tl.kill(); };
-  }, []);
-
-  return (
-    <div style={{ overflow: 'hidden' }}>
-      <div ref={elRef} role="heading" aria-level="1" style={{
-        fontFamily: 'var(--sans)',
-        fontSize: 'var(--h2)',
-        fontWeight: 350,
-        lineHeight: 'var(--h2-lh)',
-        letterSpacing: 'var(--h2-ls)',
-        opacity: 0,
-      }} />
-    </div>
-  );
-}
-
-function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
+function WorkPage({ dark, isMobile, setCtaOpen }) {
   const [cat, setCat] = useState("ALL");
   const [view, setView] = useState("grid");
-
-  useEffect(() => {
-    if (isMobile || typeof ScrollTrigger === 'undefined' || typeof gsap === 'undefined') return;
-    let triggers = [];
-    let rafId;
-    const setup = () => {
-      const thumbs = document.querySelectorAll('.work-grid-thumb');
-      thumbs.forEach(thumb => {
-        const img = thumb.querySelector('img');
-        if (!img) return;
-        gsap.set(img, { scale: 1.15, y: 20 });
-        const st = ScrollTrigger.create({
-          trigger: thumb,
-          start: 'top bottom',
-          end: 'bottom top',
-          scrub: true,
-          onUpdate: self => {
-            const p = self.progress;
-            gsap.set(img, { y: 20 - p * 40, scale: 1.15 - p * 0.04 });
-          },
-        });
-        triggers.push(st);
-      });
-    };
-    rafId = requestAnimationFrame(setup);
-    return () => {
-      cancelAnimationFrame(rafId);
-      triggers.forEach(st => st.kill());
-    };
-  }, [cat, view, isMobile]);
 
   const filtered = cat === "ALL" ? WORKS : WORKS.filter(w => w.cat === cat);
 
@@ -3504,7 +2910,7 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
   );
 
   const cardThumb = (w, width, height) => (
-    <div onClick={()=>onCardClick&&onCardClick(w)} style={{width,height,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,position:"relative",overflow:"hidden",borderRadius:4,flexShrink:0,cursor:"pointer"}}>
+    <div style={{width,height,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,position:"relative",overflow:"hidden",borderRadius:4,flexShrink:0}}>
       {w.img
         ? <StripRevealImg src={w.img} alt={w.title} delay={0} style={{position:"absolute",inset:0,width:"100%",height:"100%"}}/>
         : <div style={{position:"absolute",inset:0,background:w.bg||"#2a2a2a"}}/>
@@ -3543,8 +2949,10 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
       {/* Header */}
       <section style={{paddingTop:isMobile?96:256,paddingBottom:0,paddingLeft:isMobile?"var(--s42)":"var(--s64)",paddingRight:isMobile?"var(--s42)":"var(--s64)"}}>
         <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)",marginBottom:isMobile?48:64}}>
-          <img src="svgs/SVG/work.svg" alt="WORK" style={{ height: isMobile ? '10vw' : 'calc((100vw - 128px) * 100 / 1562)', width: 'auto', display: 'block', alignSelf: 'flex-start', filter: dark ? 'invert(1) brightness(0.96) sepia(0.3)' : 'none' }} />
-          <WorkHeadlineCycle />
+          <Eyebrow center={false}>++ OUR WORK ++</Eyebrow>
+          <div data-split="" role="heading" aria-level="1" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:620}}>
+            Creative that converts. Data that performs. Systems that support. Production that moves.
+          </div>
         </div>
 
         {/* Filter + view toggle row */}
@@ -3552,7 +2960,19 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
           {/* Filter pills */}
           <div style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap"}}>
             {CATS.map(c=>(
-              <FilterPill key={c} label={c} active={cat===c} onClick={()=>setCat(c)}/>
+              <button key={c} onClick={()=>setCat(c)} style={{
+                display:"inline-flex",alignItems:"center",gap:4,
+                padding:"6px 12px",
+                background:cat===c?"var(--secondary)":"transparent",
+                border:"1px solid",
+                borderColor:cat===c?"var(--secondary)":"var(--grey)",
+                borderRadius:100,
+                fontFamily:"var(--mono)",fontSize:11,fontWeight:400,
+                letterSpacing:"0.06em",
+                color:cat===c?"var(--bg)":"var(--static)",
+                cursor:"pointer",whiteSpace:"nowrap",
+                transition:"all 0.2s ease",
+              }}>{c}</button>
             ))}
           </div>
 
@@ -3586,7 +3006,7 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
             }} style={{width:"100%"}}>
               {filtered.map((w,i)=>(
                 <div key={i} className="wc" style={{marginBottom:i<filtered.length-1?56:0}}>
-                  <div onClick={()=>onCardClick&&onCardClick(w)} style={{position:"relative",width:"100%",paddingBottom:"64.58%",overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,cursor:"pointer"}}>
+                  <div style={{position:"relative",width:"100%",paddingBottom:"64.58%",overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg}}>
                     <div style={{position:"absolute",top:0,left:0,width:"100%",height:"100%"}}>
                       {w.img
                         ? <StripRevealImg src={w.img} alt={w.title} delay={i*0.1}/>
@@ -3610,7 +3030,7 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
                 <div style={{display:"flex",gap:128,alignItems:"flex-start"}}>
                   {filtered[0] && (
                     <div className="wc" style={{width:720,flexShrink:0}}>
-                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[0])} style={{height:465,background:filtered[0].img?(dark?"#121010":"#1A1A1A"):filtered[0].bg,cursor:"pointer"}}>
+                      <div className="work-grid-thumb" style={{height:465,background:filtered[0].img?(dark?"#121010":"#1A1A1A"):filtered[0].bg}}>
                         {filtered[0].img
                           ? <StripRevealImg src={filtered[0].img} alt={filtered[0].title} delay={0}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[0].bg||"#2a2a2a"}}/>
@@ -3622,7 +3042,7 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
                   )}
                   {filtered[1] && (
                     <div className="wc" style={{width:378,flexShrink:0,paddingTop:252}}>
-                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[1])} style={{height:378,background:filtered[1].img?(dark?"#121010":"#1A1A1A"):filtered[1].bg,cursor:"pointer"}}>
+                      <div className="work-grid-thumb" style={{height:378,background:filtered[1].img?(dark?"#121010":"#1A1A1A"):filtered[1].bg}}>
                         {filtered[1].img
                           ? <StripRevealImg src={filtered[1].img} alt={filtered[1].title} delay={0.2}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[1].bg||"#2a2a2a"}}/>
@@ -3639,7 +3059,7 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
                 <div style={{display:"flex",gap:128,alignItems:"flex-start"}}>
                   {filtered[2] && (
                     <div className="wc" style={{width:378,flexShrink:0,paddingBottom:320}}>
-                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[2])} style={{height:378,background:filtered[2].img?(dark?"#121010":"#1A1A1A"):filtered[2].bg,cursor:"pointer"}}>
+                      <div className="work-grid-thumb" style={{height:378,background:filtered[2].img?(dark?"#121010":"#1A1A1A"):filtered[2].bg}}>
                         {filtered[2].img
                           ? <StripRevealImg src={filtered[2].img} alt={filtered[2].title} delay={0.1}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[2].bg||"#2a2a2a"}}/>
@@ -3651,7 +3071,7 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
                   )}
                   {filtered[3] && (
                     <div className="wc" style={{width:720,flexShrink:0,paddingTop:252}}>
-                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[3])} style={{height:465,background:filtered[3].img?(dark?"#121010":"#1A1A1A"):filtered[3].bg,cursor:"pointer"}}>
+                      <div className="work-grid-thumb" style={{height:465,background:filtered[3].img?(dark?"#121010":"#1A1A1A"):filtered[3].bg}}>
                         {filtered[3].img
                           ? <StripRevealImg src={filtered[3].img} alt={filtered[3].title} delay={0.3}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[3].bg||"#2a2a2a"}}/>
@@ -3663,14 +3083,14 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
                   )}
                 </div>
               )}
-              {/* Row 3: large left + small right */}
+              {/* Row 3: two equal small cards */}
               {(filtered[4] || filtered[5]) && (
-                <div style={{display:"flex",gap:128,alignItems:"flex-start",paddingTop:128}}>
+                <div style={{display:"flex",gap:256,alignItems:"flex-start",paddingTop:128,paddingBottom:96}}>
                   {filtered[4] && (
-                    <div className="wc" style={{width:720,flexShrink:0}}>
-                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[4])} style={{height:465,background:filtered[4].img?(dark?"#121010":"#1A1A1A"):filtered[4].bg,cursor:"pointer"}}>
+                    <div className="wc" style={{width:378,flexShrink:0}}>
+                      <div className="work-grid-thumb" style={{height:378,background:filtered[4].img?(dark?"#121010":"#1A1A1A"):filtered[4].bg}}>
                         {filtered[4].img
-                          ? <StripRevealImg src={filtered[4].img} alt={filtered[4].title} delay={0}/>
+                          ? <StripRevealImg src={filtered[4].img} alt={filtered[4].title} delay={0.1}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[4].bg||"#2a2a2a"}}/>
                         }
                         {cardCta('View project')}
@@ -3679,44 +3099,15 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
                     </div>
                   )}
                   {filtered[5] && (
-                    <div className="wc" style={{width:378,flexShrink:0,paddingTop:252}}>
-                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[5])} style={{height:378,background:filtered[5].img?(dark?"#121010":"#1A1A1A"):filtered[5].bg,cursor:"pointer"}}>
+                    <div className="wc" style={{width:378,flexShrink:0}}>
+                      <div className="work-grid-thumb" style={{height:378,background:filtered[5].img?(dark?"#121010":"#1A1A1A"):filtered[5].bg}}>
                         {filtered[5].img
-                          ? <StripRevealImg src={filtered[5].img} alt={filtered[5].title} delay={0.2}/>
+                          ? <StripRevealImg src={filtered[5].img} alt={filtered[5].title} delay={0.3}/>
                           : <div style={{position:"absolute",inset:0,background:filtered[5].bg||"#2a2a2a"}}/>
                         }
                         {cardCta('View project')}
                       </div>
                       {cardMeta(filtered[5])}
-                    </div>
-                  )}
-                </div>
-              )}
-              {/* Row 4: two equal small cards */}
-              {(filtered[6] || filtered[7]) && (
-                <div style={{display:"flex",gap:256,alignItems:"flex-start",paddingTop:128,paddingBottom:96}}>
-                  {filtered[6] && (
-                    <div className="wc" style={{width:378,flexShrink:0}}>
-                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[6])} style={{height:378,background:filtered[6].img?(dark?"#121010":"#1A1A1A"):filtered[6].bg,cursor:"pointer"}}>
-                        {filtered[6].img
-                          ? <StripRevealImg src={filtered[6].img} alt={filtered[6].title} delay={0.1}/>
-                          : <div style={{position:"absolute",inset:0,background:filtered[6].bg||"#2a2a2a"}}/>
-                        }
-                        {cardCta('View project')}
-                      </div>
-                      {cardMeta(filtered[6])}
-                    </div>
-                  )}
-                  {filtered[7] && (
-                    <div className="wc" style={{width:378,flexShrink:0}}>
-                      <div className="work-grid-thumb" onClick={()=>onCardClick&&onCardClick(filtered[7])} style={{height:378,background:filtered[7].img?(dark?"#121010":"#1A1A1A"):filtered[7].bg,cursor:"pointer"}}>
-                        {filtered[7].img
-                          ? <StripRevealImg src={filtered[7].img} alt={filtered[7].title} delay={0.3}/>
-                          : <div style={{position:"absolute",inset:0,background:filtered[7].bg||"#2a2a2a"}}/>
-                        }
-                        {cardCta('View project')}
-                      </div>
-                      {cardMeta(filtered[7])}
                     </div>
                   )}
                 </div>
@@ -3736,7 +3127,7 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
                   {w.img && <StripRevealImg src={w.img} alt={w.title} delay={i*0.05}/>}
                 </div>
                 <div style={{flex:1,display:"flex",flexDirection:"column",gap:4}}>
-                  <span style={{fontFamily:"var(--sans)",fontSize:'var(--body-lg)',fontWeight:'var(--body-lg-w)',color:"var(--secondary)"}}>{w.title}</span>
+                  <span style={{fontFamily:"var(--sans)",fontSize:22,fontWeight:350,color:"var(--secondary)"}}>{w.title}</span>
                   <span style={{fontFamily:"var(--mono)",fontSize:10,fontWeight:400,letterSpacing:"0.06em",color:"var(--static)"}}>{w.meta}</span>
                 </div>
                 <span style={{fontFamily:"var(--mono)",fontSize:10,fontWeight:400,letterSpacing:"0.06em",color:"var(--static)",flexShrink:0}}>{w.cat}</span>
@@ -3763,408 +3154,6 @@ function getDefaultDark() {
   if (saved) return saved === "dark";
   const h = new Date().getHours();
   return h >= 18 || h < 6;
-}
-
-/* ══════════════════════════════════════
-   CASE STUDY DATA
-══════════════════════════════════════ */
-const CASE_STUDY_1_CONTENT = {
-  headline: "Delivering results for the biggest sales day events of the year. 4 years and running.",
-  sections: [
-    {
-      label: "The ask",
-      body: "Afterpay tasked us with creating an engaging campaign to drive awareness and purchases during Afterpay Day — one of the biggest sales events on the calendar. We needed to cut through, stand out, and reach a global audience.",
-      results: null,
-    },
-    {
-      label: "The process",
-      body: "We developed a full creative suite spanning motion design, social content, CRM communications and animation — all built around a unified campaign identity that could flex across every touchpoint and market.",
-      results: null,
-    },
-    {
-      label: "The results",
-      body: "The campaign drove record engagement across all markets, with content reaching millions of users across Instagram, TikTok, email and paid channels.",
-      results: [
-        { label: "REACH", value: "+12M" },
-        { label: "MARKETS", value: "5" },
-        { label: "PIECES OF CONTENT", value: "80+" },
-        { label: "EMAIL OPEN RATE", value: "32%" },
-      ],
-    },
-  ],
-};
-
-const CASE_STUDY_2_CONTENT = {
-  headline: "Afterpay's point of scale ally. Six years and counting.",
-  stats: [
-    { number: "6", label: "years of partnership" },
-    { number: "5", label: "global markets" },
-    { number: "2", label: "models: Studio + In-house" },
-  ],
-  textSection: {
-    heading: "A partnership built for scale",
-    body: "Since 2020, Dijitally has been Afterpay's point of scale ally — providing creative, strategy, and embedded team capability across six connected pillars. Built for pace, designed for partnership.",
-  },
-  blockquote: {
-    quote: "“Not many agencies quite literally help you extend your team. Dijitally have become a true extension of ours.”",
-    attribution: "— Joe Ahn, Growth Marketing Lead",
-  },
-  modelSection: {
-    heading: "Our model: Studio + In-House",
-    body: "Two operating models. One seamless partnership. We flex between studio delivery and embedded team capability — depending on what the moment demands.",
-    cards: [
-      { title: "Integrated Model", body: "Full-service creative and strategic output delivered from our studio. Ideal for campaigns, launches, and high-volume content production.", video: "videos/Integrated.mp4" },
-      { title: "In-House Model", body: "Dijitally team members embedded directly within Afterpay, working day-to-day alongside their teams.", video: "videos/Inhouse+Embedded.mp4" },
-      { title: "Follow the Sun", body: "Time-zone spanning capability across Sydney, Melbourne and global markets — keeping output moving around the clock.", video: "videos/FollowSun.mp4" },
-    ],
-  },
-  pillars: [
-    "Creative Production",
-    "CRM + Email",
-    "Web + Engineering",
-    "Data + Performance",
-    "Embedded Teams (In-house)",
-    "B2B Growth Strategy",
-  ],
-  howWeWork: [
-    { principle: "Collaboration + Candor", body: "We speak plainly, share work early, and build trust through transparency. No surprises — just straight talk." },
-    { principle: "Shared outcomes", body: "We measure success the same way our clients do. Our goals are aligned from the start." },
-    { principle: "Reactive and proactive", body: "We respond fast and think ahead — anticipating what's needed before it's asked." },
-    { principle: "Overflow, not overlap", body: "We extend capacity without creating confusion. Clear lanes, clean handoffs." },
-    { principle: "Follow the sun", body: "Cross-timezone coverage ensures work keeps moving — no waiting for business hours." },
-  ],
-  timeline: [
-    { year: "2020", body: "Partnership begins. Studio model established across creative and social." },
-    { year: "2021", body: "Embedded team model introduced. CRM + Email capability added." },
-    { year: "2022", body: "Scale-up across global markets. Data + Performance pillar launched." },
-    { year: "2023", body: "Web + Engineering capability added. B2B Growth Strategy pillar introduced." },
-    { year: "2024", body: "Six connected capability pillars operating. Follow the sun model active." },
-    { year: "2025+", body: "Continuing to build the future of global commerce, together." },
-  ],
-  ctaText: "There's a reason you can't spell exponentially without ally. Let's build something together.",
-};
-
-/* ══════════════════════════════════════
-   CASE STUDY PAGE — TEMPLATE 1 (Creative)
-══════════════════════════════════════ */
-function CaseStudy1Page({ work, isMobile, dark, setCtaOpen }) {
-  const [activeSection, setActiveSection] = useState(0);
-  const data = CASE_STUDY_1_CONTENT;
-  const nextWork = WORKS.find(w => w.title === 'Afterpay x Dijitally') || WORKS[0];
-
-  return (
-    <div style={{ background: 'var(--bg)', minHeight: '100vh', paddingTop: 'var(--nav-h)' }}>
-
-      {/* Hero */}
-      <section style={{ paddingTop: isMobile ? 64 : 256, paddingBottom: 42, paddingLeft: 24, paddingRight: 24 }}>
-        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'flex-end', justifyContent: 'space-between', gap: isMobile ? 24 : 0 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 42 }}>
-            <h1 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 64, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-1px', lineHeight: 1.1, maxWidth: 640, color: 'var(--secondary)', margin: 0 }}>
-              {data.headline}
-            </h1>
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--static)', letterSpacing: '-0.2px' }}>{work.meta}</span>
-          </div>
-          <div style={{ width: isMobile ? 50 : 98.6, height: isMobile ? 17 : 34, background: '#000', borderRadius: 2, flexShrink: 0 }} />
-        </div>
-      </section>
-
-      {/* Image grid + text */}
-      {isMobile ? (
-        <section style={{ padding: '0 24px' }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-            <div style={{ width: '100%', height: 209, borderRadius: 2, background: '#000' }} />
-            <div style={{ width: '100%', height: 209, borderRadius: 2, background: '#000' }} />
-            <div style={{ display: 'flex', gap: 12, height: 209 }}>
-              <div style={{ flex: 1, borderRadius: 2, background: '#000' }} />
-              <div style={{ flex: 1, borderRadius: 2, background: '#aef5e9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ width: 66, height: 66, background: '#000', borderRadius: 2 }} />
-              </div>
-            </div>
-            <div style={{ width: '100%', height: 209, borderRadius: 2, background: '#000' }} />
-          </div>
-          <div style={{ paddingTop: 64, paddingBottom: 64, display: 'flex', flexDirection: 'column', gap: 54 }}>
-            {data.sections.map((s, i) => (
-              <div key={i} onClick={() => setActiveSection(i)} style={{ display: 'flex', flexDirection: 'column', gap: 16, cursor: 'pointer' }}>
-                <h3 style={{ fontFamily: 'var(--sans)', fontSize: 'var(--h3)', fontWeight: 'var(--h3-w)', letterSpacing: 'var(--h3-ls)', lineHeight: 'var(--h3-lh)', color: activeSection === i ? 'var(--secondary)' : 'rgba(23,22,24,0.33)', margin: 0 }}>{s.label}</h3>
-                {activeSection === i && (
-                  <>
-                    <p style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-md)', fontWeight: 'var(--body-md-w)', letterSpacing: 'var(--body-md-ls)', lineHeight: 'var(--body-md-lh)', color: 'var(--secondary)', margin: 0 }}>{s.body}</p>
-                    {s.results && s.results.map((r, j) => (
-                      <div key={j} style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 8, borderBottom: '1px solid var(--static)', marginBottom: 0 }}>
-                        <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>{r.label}</span>
-                        <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>{r.value}</span>
-                      </div>
-                    ))}
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      ) : (
-        <section style={{ display: 'flex', gap: 24, padding: '0 24px', alignItems: 'flex-start' }}>
-          <div style={{ width: 1187, flexShrink: 0, display: 'flex', flexDirection: 'column', gap: 24, paddingBottom: 128 }}>
-            <div style={{ width: '100%', height: 640, borderRadius: 2, background: '#000' }} />
-            <div style={{ width: '100%', height: 640, borderRadius: 2, background: '#000' }} />
-            <div style={{ display: 'flex', gap: 24, height: 640 }}>
-              <div style={{ flex: 1, borderRadius: 2, background: '#000' }} />
-              <div style={{ flex: 1, borderRadius: 2, background: '#aef5e9', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                <div style={{ width: 198, height: 198, background: '#000', borderRadius: 2 }} />
-              </div>
-            </div>
-            <div style={{ width: '100%', height: 640, borderRadius: 2, background: '#000' }} />
-          </div>
-          <div style={{ flex: 1, position: 'sticky', top: 0, paddingTop: 64, display: 'flex', flexDirection: 'column', gap: 48, height: '100vh', overflowY: 'auto' }}>
-            {data.sections.map((s, i) => (
-              <div key={i} onClick={() => setActiveSection(i)} style={{ display: 'flex', flexDirection: 'column', gap: 16, cursor: 'pointer' }}>
-                <h3 style={{ fontFamily: 'var(--sans)', fontSize: 'var(--h3)', fontWeight: 'var(--h3-w)', letterSpacing: 'var(--h3-ls)', lineHeight: 'var(--h3-lh)', color: activeSection === i ? 'var(--secondary)' : 'rgba(23,22,24,0.33)', margin: 0 }}>{s.label}</h3>
-                {activeSection === i && (
-                  <>
-                    <p style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-md)', fontWeight: 'var(--body-md-w)', letterSpacing: 'var(--body-md-ls)', lineHeight: 'var(--body-md-lh)', color: 'var(--secondary)', maxWidth: 432, margin: 0 }}>{s.body}</p>
-                    {s.results && s.results.map((r, j) => (
-                      <div key={j} style={{ display: 'flex', justifyContent: 'space-between', paddingBottom: 8, borderBottom: '1px solid var(--static)', marginBottom: 0 }}>
-                        <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>{r.label}</span>
-                        <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>{r.value}</span>
-                      </div>
-                    ))}
-                  </>
-                )}
-              </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      {/* Footer: Up next + CTA */}
-      <section style={{ paddingTop: isMobile ? 64 : 128, paddingLeft: isMobile ? 24 : 64, paddingRight: isMobile ? 24 : 64, paddingBottom: isMobile ? 64 : 128, display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 42, alignItems: 'flex-start' }}>
-        <div onClick={() => window.__goToCaseStudy && window.__goToCaseStudy(nextWork)} style={{ width: isMobile ? '100%' : 393, height: 409, background: 'var(--secondary)', borderRadius: 4, padding: 8, flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', cursor: 'pointer', boxSizing: 'border-box' }}>
-          <div style={{ width: 155, height: 155, background: '#000', borderRadius: 2 }} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bg)', letterSpacing: '-0.48px' }}>UP NEXT</span>
-            <h3 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 28 : 48, fontWeight: 500, letterSpacing: '-0.96px', lineHeight: 1, color: 'var(--bg)', margin: 0 }}>{nextWork.title}</h3>
-          </div>
-        </div>
-        <div style={{ flex: 1, minHeight: 409, background: dark ? '#1a1a1a' : '#EDEAE5', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 42px', boxSizing: 'border-box', width: isMobile ? '100%' : undefined }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'center', textAlign: 'center', width: '100%', maxWidth: 480 }}>
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 500, letterSpacing: '0.08em', color: 'var(--static)', textTransform: 'uppercase' }}>LET'S CHAT</span>
-            <p style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 22 : 28, fontWeight: 350, lineHeight: 1.2, letterSpacing: '-0.5px', color: 'var(--secondary)', margin: 0 }}>Looking for an ally<br/>on your next project?</p>
-            <div style={{ display: 'flex', gap: 12, alignItems: 'stretch', flexDirection: isMobile ? 'column' : 'row' }}>
-              <input type="email" placeholder="Your contact email" style={{ width: 240, padding: '18px 14px', fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 500, border: '1px solid var(--grey)', outline: 'none', background: 'var(--bg)', color: '#878787', boxSizing: 'border-box' }} />
-              <button onClick={() => setCtaOpen && setCtaOpen(true)} className="cta-btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '18px 24px', background: 'var(--tech)', border: 'none', borderRadius: 0, fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 500, color: '#121010', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                <span style={{ display: 'inline-block', width: 4, height: 4, background: 'currentColor', flexShrink: 0 }} />
-                <span className="cta-text">Submit</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <SiteFooter dark={dark} isMobile={isMobile} onBackToTop={() => { if (window.__resetSmoother) window.__resetSmoother(); window.scrollTo(0,0); }} />
-    </div>
-  );
-}
-
-/* ══════════════════════════════════════
-   CASE STUDY PAGE — TEMPLATE 2 (Partnership)
-══════════════════════════════════════ */
-function CaseStudy2Page({ work, isMobile, dark, setCtaOpen }) {
-  const [openPillar, setOpenPillar] = useState(-1);
-  const data = CASE_STUDY_2_CONTENT;
-  const nextWork = WORKS.find(w => w.title === 'Afterpay Day') || WORKS[1];
-
-  return (
-    <div style={{ background: 'var(--bg)', minHeight: '100vh', paddingTop: 'var(--nav-h)' }}>
-
-      {/* 1. Hero */}
-      <section style={{ paddingTop: isMobile ? 64 : 256, paddingBottom: 42, paddingLeft: 24, paddingRight: 24 }}>
-        <div style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: isMobile ? 'flex-start' : 'flex-end', justifyContent: 'space-between', gap: isMobile ? 24 : 0 }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 42 }}>
-            <h1 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 42, fontWeight: isMobile ? 500 : 350, letterSpacing: isMobile ? '-0.26px' : '-0.84px', lineHeight: isMobile ? 1.1 : '110%', maxWidth: 640, color: 'var(--secondary)', margin: 0 }}>
-              {data.headline}
-            </h1>
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, color: 'var(--static)', letterSpacing: '-0.2px' }}>PARTNERSHIP: 2020 — PRESENT</span>
-          </div>
-          <img src="clients/Afterpay.svg" alt="Afterpay" style={{ height: isMobile ? 24 : 52, width: 'auto', display: 'block', flexShrink: 0, filter: dark ? 'invert(1) brightness(0.96) sepia(0.3)' : 'none' }} />
-        </div>
-      </section>
-
-      {/* 2. Hero image with stats */}
-      <section style={{ padding: '0 24px' }}>
-        <div style={{ width: '100%', height: isMobile ? 508 : 849, borderRadius: 2, background: '#000', position: 'relative', overflow: 'hidden' }}>
-          <img src="work/AfterpayxDijitally.png" alt="Afterpay x Dijitally" style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />
-          {!isMobile && (
-            <div style={{ position: 'absolute', bottom: 42, left: '50%', transform: 'translateX(-50%)', display: 'flex', gap: 10 }}>
-              {data.stats.map((s, i) => (
-                <div key={i} style={{ width: 220, height: 220, background: 'rgba(18,16,16,0.15)', backdropFilter: 'blur(64px)', borderRadius: 4, display: 'flex', flexDirection: 'column', gap: 18, alignItems: 'center', justifyContent: 'center', color: '#fdfeff', textAlign: 'center', padding: '0 16px', boxSizing: 'border-box' }}>
-                  <span style={{ fontFamily: 'var(--sans)', fontSize: 64, fontWeight: 700, letterSpacing: '0.64px', lineHeight: 1.2 }}>{s.number}</span>
-                  <span style={{ fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 500, letterSpacing: '0.32px', lineHeight: 1.2 }}>{s.label}</span>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      </section>
-
-      {/* 3. Text section */}
-      <section style={{ paddingTop: 96, paddingBottom: 0, display: 'flex', flexDirection: 'column', alignItems: 'center', paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
-        <div style={{ width: isMobile ? '100%' : 1043, display: 'flex', flexDirection: 'column', gap: 42 }}>
-          <h2 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 42, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-0.84px', lineHeight: 1.1, color: 'var(--secondary)', margin: 0 }}>{data.textSection.heading}</h2>
-          <p style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-lg)', fontWeight: 'var(--body-lg-w)', letterSpacing: 'var(--body-lg-ls)', lineHeight: 'var(--body-lg-lh)', color: 'var(--secondary)', margin: 0 }}>{data.textSection.body}</p>
-        </div>
-      </section>
-
-      {/* 4. Blockquote */}
-      <section style={{ paddingTop: 128, display: 'flex', justifyContent: 'center', paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
-        <div style={{ width: isMobile ? '100%' : 1127, background: '#f6f6f6', border: '1px solid var(--grey)', borderRadius: 4, padding: isMobile ? '64px 32px' : '128px 42px', display: 'flex', flexDirection: 'column', gap: 42, alignItems: 'center', justifyContent: 'center', boxSizing: 'border-box' }}>
-          <p style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 19 : 26, fontWeight: 500, lineHeight: 1.2, color: 'var(--secondary)', maxWidth: 664, textAlign: 'center', margin: 0 }}>{data.blockquote.quote}</p>
-          <span style={{ fontFamily: 'var(--mono)', fontSize: isMobile ? 10 : 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>{data.blockquote.attribution}</span>
-          <img src="clients/Afterpay.svg" alt="Afterpay" style={{ height: isMobile ? 24 : 34, width: 'auto', display: 'block' }} />
-        </div>
-      </section>
-
-      {/* 5. Our model + 3 cards */}
-      <section style={{ paddingTop: 128, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 64, paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
-        <div style={{ width: isMobile ? '100%' : 1043, display: 'flex', flexDirection: 'column', gap: 42 }}>
-          <h2 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 42, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-0.84px', lineHeight: 1.1, color: 'var(--secondary)', margin: 0 }}>{data.modelSection.heading}</h2>
-          <p style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-lg)', fontWeight: 'var(--body-lg-w)', letterSpacing: 'var(--body-lg-ls)', lineHeight: 'var(--body-lg-lh)', color: 'var(--secondary)', margin: 0 }}>{data.modelSection.body}</p>
-        </div>
-        {isMobile ? (
-          <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: 32 }}>
-            {data.modelSection.cards.map((card, i) => (
-              <div key={i} style={{ background: 'var(--bg)', border: '1px solid var(--grey)', borderRadius: 4, padding: 12, display: 'flex', flexDirection: 'column', gap: 42 }}>
-                <div style={{ width: '100%', height: 271, borderRadius: 2, background: '#000', overflow: 'hidden' }}>
-                  {card.video && <video src={card.video} autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
-                </div>
-                <div style={{ padding: '0 12px 30px', display: 'flex', flexDirection: 'column', gap: 24 }}>
-                  <h3 style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-md)', fontWeight: 'var(--body-md-w)', lineHeight: 'var(--body-md-lh)', color: 'var(--secondary)', margin: 0 }}>{card.title}</h3>
-                  <p style={{ fontFamily: 'var(--sans)', fontSize: 14, fontWeight: 500, letterSpacing: '0.14px', lineHeight: 1.2, color: 'var(--secondary)', margin: 0 }}>{card.body}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        ) : (
-          <div style={{ width: '100%', height: 488, display: 'flex', gap: 42, paddingLeft: 42, paddingRight: 42, boxSizing: 'border-box', justifyContent: 'center' }}>
-            {data.modelSection.cards.map((card, i) => (
-              <div key={i} style={{ flex: 1, height: '100%', background: 'var(--bg)', border: '1px solid var(--grey)', borderRadius: 4, display: 'flex', flexDirection: 'column', gap: 42, padding: '24px 24px 42px', boxSizing: 'border-box' }}>
-                <div style={{ height: 271, borderRadius: 2, background: '#000', overflow: 'hidden' }}>
-                  {card.video && <video src={card.video} autoPlay muted loop playsInline style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block' }} />}
-                </div>
-                <div style={{ paddingLeft: 24, paddingRight: 24, display: 'flex', flexDirection: 'column', gap: 24 }}>
-                  <h3 style={{ fontFamily: 'var(--sans)', fontSize: 'var(--card-title)', fontWeight: 'var(--card-title-w)', lineHeight: 'var(--card-title-lh)', color: 'var(--secondary)', margin: 0 }}>{card.title}</h3>
-                  <p style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-xs)', fontWeight: 'var(--body-xs-w)', letterSpacing: 'var(--body-xs-ls)', lineHeight: 'var(--body-xs-lh)', color: 'var(--secondary)', margin: 0 }}>{card.body}</p>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </section>
-
-      {/* 6. Capability pillars */}
-      <section style={{ paddingTop: 128, display: 'flex', flexDirection: isMobile ? 'column' : 'row', alignItems: 'flex-start', justifyContent: 'center', gap: isMobile ? 48 : 64, paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
-        <div style={{ width: isMobile ? '100%' : 308, flexShrink: 0, ...(isMobile ? {} : { position: 'sticky', top: 64 }) }}>
-          <h2 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 42, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-0.84px', lineHeight: 1.1, color: 'var(--secondary)', margin: 0 }}>Ally across six connected capability pillars</h2>
-        </div>
-        <div style={{ width: isMobile ? '100%' : 671, display: 'flex', flexDirection: 'column', paddingTop: isMobile ? 0 : 64 }}>
-          {data.pillars.map((p, i) => (
-            <div key={i} onClick={() => setOpenPillar(openPillar === i ? -1 : i)} style={{ borderBottom: '1px solid #c2c3c3', padding: '21px 0', cursor: 'pointer' }}>
-              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <span style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 18 : 22, fontWeight: 500, lineHeight: 1.1, color: 'var(--secondary)' }}>{p}</span>
-                <div style={{ width: 21, height: 21, position: 'relative', flexShrink: 0, marginLeft: 16 }}>
-                  <div style={{ position: 'absolute', top: '50%', left: 0, width: 21, height: 3, background: 'var(--static)', transform: 'translateY(-50%)' }} />
-                  <div style={{ position: 'absolute', left: '50%', top: 0, width: 3, height: 21, background: 'var(--static)', transform: `translateX(-50%) rotate(${openPillar === i ? 90 : 0}deg)`, transition: 'transform 0.25s ease' }} />
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 7. How we work */}
-      <section style={{ paddingTop: 128, display: 'flex', flexDirection: 'column', alignItems: 'center', paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
-        <div style={{ width: isMobile ? '100%' : 1043, display: 'flex', flexDirection: 'column', gap: 42, marginBottom: 42 }}>
-          <h2 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 42, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-0.84px', lineHeight: 1.1, color: 'var(--secondary)', margin: 0 }}>How we work</h2>
-          <p style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-lg)', fontWeight: 'var(--body-lg-w)', letterSpacing: 'var(--body-lg-ls)', lineHeight: 'var(--body-lg-lh)', color: 'var(--static)', margin: 0 }}>Five principles that guide every engagement.</p>
-        </div>
-        <div style={{ width: isMobile ? '100%' : 1043 }}>
-          {!isMobile && (
-            <div style={{ display: 'flex', gap: 42, paddingBottom: 8, borderBottom: '1px solid var(--static)', marginBottom: 0 }}>
-              <span style={{ width: 300, flexShrink: 0, fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>PRINCIPLE</span>
-              <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--static)', letterSpacing: '-0.24px' }}>WHAT IT MEANS IN PRACTICE</span>
-            </div>
-          )}
-          {data.howWeWork.map((row, i) => (
-            <div key={i} style={{ display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: isMobile ? 12 : 42, padding: '42px 0', borderBottom: '1px solid var(--grey)', background: i % 2 !== 0 ? '#f6f6f6' : 'transparent' }}>
-              <span style={{ width: isMobile ? '100%' : 300, flexShrink: 0, fontFamily: 'var(--sans)', fontSize: 'var(--body-lg)', fontWeight: 'var(--body-lg-w)', letterSpacing: 'var(--body-lg-ls)', lineHeight: 'var(--body-lg-lh)', color: 'var(--secondary)' }}>{row.principle}</span>
-              <span style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-lg)', letterSpacing: 'var(--body-lg-ls)', lineHeight: 'var(--body-lg-lh)', color: 'var(--static)' }}>{row.body}</span>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {/* 8. Six years of scale */}
-      <section style={{ paddingTop: 128, display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 64, paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
-        <div style={{ width: isMobile ? '100%' : 1128 }}>
-          <h2 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 26 : 42, fontWeight: 500, letterSpacing: isMobile ? '-0.26px' : '-0.84px', lineHeight: 1.1, color: 'var(--secondary)', margin: '0 0 64px' }}>Six years of scale</h2>
-          <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
-            <div style={{ display: 'flex', alignItems: 'center', marginBottom: 20, width: 'max-content' }}>
-              {data.timeline.map((_, i) => (
-                <React.Fragment key={i}>
-                  <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#d9d9d9', flexShrink: 0 }} />
-                  {i < data.timeline.length - 1 && <div style={{ width: 252, height: 1, background: '#d9d9d9', flexShrink: 0 }} />}
-                </React.Fragment>
-              ))}
-              <div style={{ width: 8, height: 8, borderRadius: '50%', background: '#d9d9d9', flexShrink: 0 }} />
-            </div>
-            <div style={{ display: 'flex', gap: 64, width: 'max-content', paddingBottom: 8 }}>
-              {data.timeline.map((item, i) => (
-                <div key={i} style={{ width: 252, display: 'flex', flexDirection: 'column', gap: 24 }}>
-                  <span style={{ fontFamily: 'var(--mono)', fontSize: 12, fontWeight: 500, color: 'var(--secondary)', letterSpacing: '0.16px', lineHeight: 1.2 }}>{item.year}</span>
-                  <p style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-sm)', lineHeight: 'var(--body-sm-lh)', letterSpacing: '0.18px', color: 'var(--secondary)', margin: 0, paddingBottom: 42 }}>{item.body}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 9. Dark CTA */}
-      <section style={{ paddingTop: 128, display: 'flex', justifyContent: 'center', paddingLeft: isMobile ? 24 : 0, paddingRight: isMobile ? 24 : 0 }}>
-        <div style={{ width: isMobile ? '100%' : 1128, minHeight: isMobile ? 592 : 602, background: 'var(--secondary)', borderRadius: 4, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 42, padding: isMobile ? '96px 32px' : '128px 209px', boxSizing: 'border-box' }}>
-          <p style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 22 : 24, fontWeight: 500, lineHeight: 1.2, color: 'var(--bg)', textAlign: 'center', maxWidth: 710, margin: 0 }}>{data.ctaText}</p>
-          <button onClick={() => setCtaOpen && setCtaOpen(true)} className="cta-btn" style={{ display: 'inline-flex', alignItems: 'center', gap: 10, padding: '18px 24px', background: 'var(--tech)', border: 'none', borderRadius: 0, fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 500, color: '#121010', cursor: 'pointer', whiteSpace: 'nowrap', width: 208, justifyContent: 'center', flexShrink: 0, boxSizing: 'border-box' }}>
-            <span style={{ display: 'inline-block', width: 4, height: 4, background: 'currentColor', flexShrink: 0 }} />
-            <span className="cta-text">Get in touch</span>
-          </button>
-        </div>
-      </section>
-
-      {/* 10. Up next + CTA */}
-      <section style={{ paddingTop: 128, paddingLeft: isMobile ? 24 : 64, paddingRight: isMobile ? 24 : 64, paddingBottom: isMobile ? 64 : 128, display: 'flex', flexDirection: isMobile ? 'column' : 'row', gap: 42, alignItems: 'flex-start' }}>
-        <div onClick={() => window.__goToCaseStudy && window.__goToCaseStudy(nextWork)} style={{ width: isMobile ? '100%' : 393, height: 409, background: 'var(--secondary)', borderRadius: 4, padding: 8, flexShrink: 0, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', cursor: 'pointer', boxSizing: 'border-box' }}>
-          <div style={{ width: 155, height: 155, background: '#000', borderRadius: 2 }} />
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}>
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 12, color: 'var(--bg)', letterSpacing: '-0.48px' }}>UP NEXT</span>
-            <h3 style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 28 : 48, fontWeight: 500, letterSpacing: '-0.96px', lineHeight: 1, color: 'var(--bg)', margin: 0 }}>{nextWork.title}</h3>
-          </div>
-        </div>
-        <div style={{ flex: 1, minHeight: 409, background: dark ? '#1a1a1a' : '#EDEAE5', borderRadius: 4, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '48px 42px', boxSizing: 'border-box', width: isMobile ? '100%' : undefined }}>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: 24, alignItems: 'center', textAlign: 'center', width: '100%', maxWidth: 480 }}>
-            <span style={{ fontFamily: 'var(--mono)', fontSize: 10, fontWeight: 500, letterSpacing: '0.08em', color: 'var(--static)', textTransform: 'uppercase' }}>LET'S CHAT</span>
-            <p style={{ fontFamily: 'var(--sans)', fontSize: isMobile ? 22 : 28, fontWeight: 350, lineHeight: 1.2, letterSpacing: '-0.5px', color: 'var(--secondary)', margin: 0 }}>Looking for an ally<br/>on your next project?</p>
-            <div style={{ display: 'flex', gap: 12, alignItems: 'stretch', flexDirection: isMobile ? 'column' : 'row' }}>
-              <input type="email" placeholder="Your contact email" style={{ width: 240, padding: '18px 14px', fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 500, border: '1px solid var(--grey)', outline: 'none', background: 'var(--bg)', color: '#878787', boxSizing: 'border-box' }} />
-              <button onClick={() => setCtaOpen && setCtaOpen(true)} className="cta-btn" style={{ display: 'inline-flex', alignItems: 'center', justifyContent: 'center', gap: 10, padding: '18px 24px', background: 'var(--tech)', border: 'none', borderRadius: 0, fontFamily: 'var(--sans)', fontSize: 16, fontWeight: 500, color: '#121010', cursor: 'pointer', whiteSpace: 'nowrap', flexShrink: 0 }}>
-                <span style={{ display: 'inline-block', width: 4, height: 4, background: 'currentColor', flexShrink: 0 }} />
-                <span className="cta-text">Submit</span>
-              </button>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <SiteFooter dark={dark} isMobile={isMobile} onBackToTop={() => { if (window.__resetSmoother) window.__resetSmoother(); window.scrollTo(0,0); }} />
-    </div>
-  );
 }
 
 function _stripTransition(targetPage) {
@@ -4197,8 +3186,6 @@ function _stripTransition(targetPage) {
     if (targetPage === 'home') sessionStorage.setItem('skipIntro', '1');
     if (window.__setPage) window.__setPage(targetPage);
     window.scrollTo(0, 0);
-    if (window.__resetSmoother) window.__resetSmoother();
-    requestAnimationFrame(function() { window.scrollTo(0, 0); if (window.__resetSmoother) window.__resetSmoother(); });
     // wipe strips back out
     slices.forEach(function(sl, i) {
       var frac = i / Math.max(total - 1, 1);
@@ -4213,341 +3200,13 @@ function _stripTransition(targetPage) {
   }, maxEnd * 1000 + 50);
 }
 
-function goToServices()    { _stripTransition('services'); }
-function goToWork()        { _stripTransition('work'); }
-function goToHome()        { _stripTransition('home'); }
-function goToAbout()       { _stripTransition('about'); }
-function goToCaseStudy(w)  { if (window.__setCaseStudy) window.__setCaseStudy(w); _stripTransition('casestudy'); }
-
-/* ══════════════════════════════════════
-   ABOUT PAGE
-══════════════════════════════════════ */
-const TEAM = [
-  { name:"Declan", role:"FOUNDING ALLY" },
-  { name:"Dave",   role:"CREATIVE ALLY" },
-  { name:"Dan",    role:"CLIENT ALLY"   },
-  { name:"Zara",   role:"PERFORMANCE ALLY" },
-  { name:"Matty",  role:"TECH ALLY"     },
-];
-
-function AboutHeroPixels({ dark }) {
-  /* Small pixel-art cluster for bottom-right of hero image */
-  const fill = dark ? "#2a2a2a" : "#F5F3EF";
-  const blocks = [
-    [0,0],[1,0],[2,0],[3,0],
-    [0,1],[1,1],
-    [2,2],[3,2],[4,2],
-    [3,3],[4,3],
-    [4,4],[5,4],[6,4],
-    [5,5],[6,5],[7,5],
-  ];
-  const cell = 8;
-  const cols = 8, rows = 6;
-  return (
-    <svg width={cols*cell} height={rows*cell} style={{display:"block",flexShrink:0}}>
-      {blocks.map(([c,r],i)=>(
-        <rect key={i} x={c*cell} y={r*cell} width={cell-1} height={cell-1} fill={fill}/>
-      ))}
-    </svg>
-  );
-}
-
-function TeamCarousel({ dark, isMobile, nameStyle, roleStyle, padLeft }) {
-  const trackRef = useRef(null);
-  const thumbRef = useRef(null);
-  const barRef   = useRef(null);
-  const dragRef  = useRef({ active:false, startX:0, scrollStart:0 });
-
-  useEffect(()=>{
-    const track = trackRef.current;
-    const thumb = thumbRef.current;
-    const bar   = barRef.current;
-    if (!track || !thumb || !bar) return;
-
-    const update = () => {
-      const scrollable = track.scrollWidth - track.clientWidth;
-      const barW = bar.clientWidth;
-      if (scrollable <= 0) { thumb.style.width = barW + 'px'; thumb.style.left='0'; return; }
-      const thumbW  = Math.max((track.clientWidth / track.scrollWidth) * barW, 40);
-      const maxLeft = barW - thumbW;
-      const pos     = track.scrollLeft / scrollable;
-      thumb.style.width = thumbW + 'px';
-      thumb.style.left  = (pos * maxLeft) + 'px';
-    };
-
-    update();
-    track.addEventListener('scroll', update, {passive:true});
-    window.addEventListener('resize', update);
-
-    // Drag-to-scroll (desktop)
-    const onDown = e => {
-      dragRef.current = { active:true, startX:e.pageX, scrollStart:track.scrollLeft };
-      track.style.cursor = 'grabbing';
-      track.style.userSelect = 'none';
-    };
-    const onMove = e => {
-      if (!dragRef.current.active) return;
-      e.preventDefault();
-      track.scrollLeft = dragRef.current.scrollStart - (e.pageX - dragRef.current.startX);
-    };
-    const onUp = () => {
-      dragRef.current.active = false;
-      track.style.cursor = 'grab';
-      track.style.userSelect = '';
-    };
-    track.addEventListener('mousedown', onDown);
-    window.addEventListener('mousemove', onMove);
-    window.addEventListener('mouseup', onUp);
-    track.style.cursor = 'grab';
-
-    return ()=>{
-      track.removeEventListener('scroll', update);
-      window.removeEventListener('resize', update);
-      track.removeEventListener('mousedown', onDown);
-      window.removeEventListener('mousemove', onMove);
-      window.removeEventListener('mouseup', onUp);
-    };
-  }, []);
-
-  return (
-    <div style={{display:"flex",flexDirection:"column",gap:64}}>
-      <div ref={trackRef} style={{
-        display:"flex",
-        flexDirection:"row",
-        gap:42,
-        overflowX:"auto",
-        scrollbarWidth:"none",
-        msOverflowStyle:"none",
-        paddingLeft: padLeft,
-        paddingRight: 64,
-      }}>
-        {TEAM.map((member,i)=>(
-          <div key={i} style={{
-            display:"flex",
-            flexDirection:"column",
-            gap:24,
-            flexShrink:0,
-            width: isMobile ? "calc(100vw - 48px)" : 320,
-          }}>
-            <div style={{
-              width:"100%",
-              height: isMobile ? "calc(100vw - 48px)" : 320,
-              borderRadius:4,
-              background:"#808080",
-            }}/>
-            <div style={{display:"flex",flexDirection:"column",gap:12}}>
-              <span style={nameStyle}>{member.name}</span>
-              <span style={roleStyle}>{member.role}</span>
-            </div>
-          </div>
-        ))}
-      </div>
-      {/* Scrollbar */}
-      <div ref={barRef} style={{position:"relative",height:2,background:"var(--grey)",marginLeft:padLeft,marginRight:64,overflow:"hidden"}}>
-        <div ref={thumbRef} style={{
-          position:"absolute",top:0,left:0,
-          height:"100%",
-          background:"var(--secondary)",
-          borderRadius:1,
-          pointerEvents:"none",
-        }}/>
-      </div>
-    </div>
-  );
-}
-
-function GrowthSpecialistHero({ dark, isMobile }) {
-  const sectionRef = useRef(null);
-  const w0 = useRef(null), w1 = useRef(null), w2 = useRef(null), w3 = useRef(null);
-  const lineRef = useRef(null);
-
-  useEffect(() => {
-    const el = sectionRef.current;
-    if (!el || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
-    const words = [w0, w1, w2, w3].map(r => r.current).filter(Boolean);
-    gsap.set(words, { y: 60, opacity: 0 });
-    if (lineRef.current) gsap.set(lineRef.current, { scaleX: 0, transformOrigin: 'left center' });
-    const st = ScrollTrigger.create({
-      trigger: el,
-      start: 'top 80%',
-      onEnter: () => {
-        gsap.to(words, { y: 0, opacity: 1, duration: 0.9, ease: 'power3.out', stagger: 0.12 });
-        if (lineRef.current) gsap.to(lineRef.current, { scaleX: 1, duration: 1.1, ease: 'power3.out', delay: 0.15 });
-        st.kill();
-      },
-    });
-    return () => st.kill();
-  }, []);
-
-  const svgH   = isMobile ? 'calc((100vw - 48px) * 0.14)'  : 'calc((100vw - 128px) * 0.095)';
-  const svgHLg = isMobile ? 'calc((100vw - 48px) * 0.24)'  : 'calc((100vw - 128px) * 0.165)';
-  const inv    = { filter: dark ? 'invert(1) brightness(0.96) sepia(0.3)' : 'none' };
-
-  return (
-    <section ref={sectionRef} style={{ padding: isMobile ? '96px 24px 80px' : '128px var(--s64) 96px', overflow: 'hidden' }}>
-      <div ref={w0} style={{ marginBottom: isMobile ? 8 : 12 }}>
-        <img src="svgs/SVG/the.svg" alt="the" style={{ height: svgH, width: 'auto', display: 'block', opacity: 0.35, ...inv }} />
-      </div>
-      <div ref={w1} style={{ marginBottom: 0 }}>
-        <img src="svgs/SVG/growth.svg" alt="growth" style={{ width: '100%', height: 'auto', display: 'block', maxWidth: '100%', ...inv }} />
-      </div>
-      <div ref={lineRef} style={{ height: 1, background: 'var(--border)', margin: isMobile ? '20px 0' : '28px 0' }} />
-      <div style={{ display: 'flex', alignItems: 'flex-end', gap: isMobile ? 16 : 32, flexWrap: 'wrap' }}>
-        <div ref={w2} style={{ transform: 'rotate(-2deg)', transformOrigin: 'left bottom' }}>
-          <img src="svgs/SVG/specialist.svg" alt="specialist" style={{ height: svgH, width: 'auto', display: 'block', ...inv }} />
-        </div>
-        <div ref={w3}>
-          <img src="svgs/SVG/agency.svg" alt="agency" style={{ height: svgH, width: 'auto', display: 'block', opacity: 0.35, ...inv }} />
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function AboutHeroStatic({ isMobile, dark }) {
-  const theRef        = useRef(null);
-  const growthRef     = useRef(null);
-  const specialistRef = useRef(null);
-  const agencyRef     = useRef(null);
-  const headRef       = useRef(null);
-  const bodyRef       = useRef(null);
-  const shaderRef     = useRef(null);
-  useHeroShader(shaderRef, dark);
-
-  useEffect(() => {
-    if (typeof gsap === 'undefined') return;
-    const svgs = [theRef, growthRef, specialistRef, agencyRef].map(r => r.current).filter(Boolean);
-    const text = [headRef, bodyRef].map(r => r.current).filter(Boolean);
-    gsap.set([...svgs, ...text], { y: 36, opacity: 0 });
-    gsap.to(svgs, {
-      y: 0, opacity: 1,
-      duration: 0.9, ease: 'power3.out',
-      stagger: 0.16,
-      delay: 0.2,
-      onComplete: () => {
-        gsap.to(text, { y: 0, opacity: 1, duration: 0.75, ease: 'power2.out', stagger: 0.18 });
-      },
-    });
-  }, []);
-
-  const inv = dark ? 'invert(1) brightness(0.96) sepia(0.3)' : 'none';
-  const headline = "We bring together creative, production, marketing, + technology.";
-  const bodyText = "Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.";
-
-  if (isMobile) return (
-    <section style={{
-      minHeight:'100svh', display:'flex', flexDirection:'column',
-      justifyContent:'flex-end', padding:'0 24px 64px',
-      paddingTop:'var(--nav-h)', background:'var(--bg)', boxSizing:'border-box', overflow:'hidden', position:'relative',
-    }}>
-      <canvas ref={shaderRef} style={{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:0}} />
-      <div style={{ position:'relative', zIndex:1, width:'100%', display:'flex', flexDirection:'column', alignItems:'flex-start', gap:12 }}>
-        <img ref={theRef}        src="svgs/SVG/the.svg"        alt="THE"        style={{ height:'10vw', width:'auto', display:'block', filter:inv }} />
-        <img ref={growthRef}     src="svgs/SVG/growth.svg"     alt="GROWTH"     style={{ height:'10vw', width:'auto', display:'block', filter:inv }} />
-        <img ref={specialistRef} src="svgs/SVG/specialist.svg" alt="SPECIALIST" style={{ height:'10vw', width:'auto', display:'block', filter:inv }} />
-        <img ref={agencyRef}     src="svgs/SVG/agency.svg"     alt="AGENCY"     style={{ height:'10vw', width:'auto', display:'block', filter:inv }} />
-        <div style={{ display:'flex', flexDirection:'column', gap:16, marginTop:12 }}>
-          <p ref={headRef} style={{ fontFamily:'var(--sans)', fontSize:'var(--h1)', fontWeight:350, lineHeight:'110%', letterSpacing:'-0.84px', color:'var(--secondary)', margin:0 }}>{headline}</p>
-          <p ref={bodyRef} style={{ fontFamily:'var(--sans)', fontSize:'var(--body-sm)', fontWeight:'var(--body-sm-w)', lineHeight:'var(--body-sm-lh)', color:'#878787', margin:0 }}>{bodyText}</p>
-        </div>
-      </div>
-    </section>
-  );
-
-  const svgH  = 'calc((100vw - 128px) * 100 / 1562)';
-  const midW  = 'calc((100vw - 128px) * 751 / 1562)';
-  const bodyW = 'calc((100vw - 128px) * 368 / 1562)';
-
-  return (
-    <section style={{
-      height:'100svh', display:'flex', flexDirection:'column', justifyContent:'flex-end',
-      paddingTop:'var(--nav-h)', paddingLeft:64, paddingRight:64, paddingBottom:64,
-      background:'var(--bg)', boxSizing:'border-box', overflow:'hidden', position:'relative',
-    }}>
-      <canvas ref={shaderRef} style={{position:'absolute',inset:0,width:'100%',height:'100%',pointerEvents:'none',zIndex:0}} />
-      <div style={{ position:'relative', zIndex:1, display:'flex', flexDirection:'column', gap:28, width:'100%' }}>
-        <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', width:'100%', height:svgH }}>
-          <img ref={theRef}    src="svgs/SVG/the.svg"    alt="THE"    style={{ height:'100%', width:'auto', display:'block', filter:inv }} />
-          <img ref={growthRef} src="svgs/SVG/growth.svg" alt="GROWTH" style={{ height:'100%', width:'auto', display:'block', filter:inv }} />
-        </div>
-        <div style={{ display:'flex', alignItems:'flex-end', justifyContent:'space-between', width:'100%' }}>
-          <div style={{ display:'flex', flexDirection:'column', gap:28 }}>
-            <div style={{ display:'flex', alignItems:'center', height:svgH, width:midW }}>
-              <img ref={specialistRef} src="svgs/SVG/specialist.svg" alt="SPECIALIST" style={{ height:'100%', width:'auto', display:'block', filter:inv }} />
-            </div>
-            <div style={{ height:svgH }}>
-              <img ref={agencyRef} src="svgs/SVG/agency.svg" alt="AGENCY" style={{ height:'100%', width:'auto', display:'block', filter:inv }} />
-            </div>
-          </div>
-          <div style={{ width:bodyW, display:'flex', flexDirection:'column', gap:28, flexShrink:0 }}>
-            <p ref={headRef} style={{ fontFamily:'var(--sans)', fontSize:'calc((100vw - 128px) * 26 / 1562)', fontWeight:350, lineHeight:1.1, letterSpacing:'-0.26px', color:'var(--secondary)', margin:0 }}>{headline}</p>
-            <p ref={bodyRef} style={{ fontFamily:'var(--sans)', fontSize:'calc((100vw - 128px) * 22 / 1562)', fontWeight:350, lineHeight:1.2, color:'#878787', margin:0 }}>{bodyText}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-  );
-}
-
-function AboutPage({ dark, isMobile, setCtaOpen }) {
-  const nameStyle = {fontFamily:"var(--sans)",fontSize:isMobile?18:22,fontWeight:350,lineHeight:1.1,color:"var(--secondary)"};
-  const roleStyle = {fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",color:"#878787"};
-
-  return (
-    <div style={{background:"var(--bg)",color:"var(--secondary)",minHeight:"100svh"}}>
-
-      <AboutHeroStatic isMobile={isMobile} dark={dark} />
-
-      {/* ── Hero video ── */}
-      <div style={{margin: isMobile ? "0 24px" : "0 var(--s64)",lineHeight:0,flexShrink:0}}>
-        <video
-          autoPlay muted loop playsInline
-          style={{width:"100%",height:"auto",display:"block",objectFit:"cover"}}
-          src="videos/thumbnail.mp4"
-        />
-      </div>
-
-      {/* Mobile body text */}
-
-
-      {/* ── Team ── */}
-      <section style={{
-        paddingTop: isMobile ? 64 : 128,
-        paddingBottom: isMobile ? 64 : 256,
-        paddingLeft: isMobile ? 24 : "var(--s64)",
-        paddingRight: 0,
-        display:"flex",
-        flexDirection:"column",
-        gap: isMobile ? 40 : 64,
-        overflow:"visible",
-      }}>
-        {/* Header row */}
-        <div style={{display:"flex",flexDirection:"column",gap:16}}>
-          <Eyebrow center={false}>OUR SENIOR TEAM ( YOUR ALLIES )</Eyebrow>
-          <h2 style={{fontFamily:"var(--sans)",fontSize:isMobile?"var(--h1)":48,fontWeight:350,lineHeight:1.1,letterSpacing:"-0.96px",color:"var(--secondary)",margin:0,maxWidth:420}}>
-            No lone wolves.<br/>Just smart packs.
-          </h2>
-        </div>
-
-        {/* Team carousel — bleeds off both edges */}
-        <div style={{marginLeft: isMobile ? -24 : "calc(-1 * var(--s64))", marginRight:0}}>
-          <TeamCarousel dark={dark} isMobile={isMobile} nameStyle={nameStyle} roleStyle={roleStyle} padLeft={isMobile ? 24 : "var(--s64)"}/>
-        </div>
-      </section>
-
-      {/* ── Contact ── */}
-      <ContactSection dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen}/>
-
-      {/* ── Footer ── */}
-      <SiteFooter dark={dark} isMobile={isMobile} onBackToTop={()=>{ window.scrollTo({top:0,behavior:"instant"}); }}/>
-    </div>
-  );
-}
+function goToServices() { _stripTransition('services'); }
+function goToWork()     { _stripTransition('work'); }
+function goToHome()     { _stripTransition('home'); }
 
 function Page() {
   const [dark,        setDark]        = useState(getDefaultDark);
   const [page,        setPage]        = useState('home');
-  const [caseStudy,   setCaseStudy]   = useState(null);
   const [scrolled,    setScrolled]    = useState(false);
   const [isMobile,    setIsMobile]    = useState(()=> window.innerWidth <= 768);
   const scrollYRef    = useRef(0);
@@ -4566,25 +3225,8 @@ function Page() {
 
   const CTA_W = isMobile ? window.innerWidth : 661;
 
-  // Wire global setPage + setCaseStudy for strip transitions
-  useEffect(()=>{
-    window.__setPage      = setPage;
-    window.__setCaseStudy = setCaseStudy;
-    window.__goToCaseStudy = goToCaseStudy;
-    return ()=>{ delete window.__setPage; delete window.__setCaseStudy; delete window.__goToCaseStudy; };
-  }, [setPage, setCaseStudy]);
-
-  // Expose smoother reset so _stripTransition can jump to top instantly
-  useEffect(()=>{
-    window.__resetSmoother = function() {
-      if (smootherRef.current) smootherRef.current.scrollTo(0, false);
-    };
-    window.__smootherScrollTo = function(pos) {
-      if (smootherRef.current) smootherRef.current.scrollTo(pos, false);
-      else window.scrollTo({ top: pos, behavior: 'instant' });
-    };
-    return ()=>{ delete window.__resetSmoother; delete window.__smootherScrollTo; };
-  }, []);
+  // Wire global setPage for strip transition
+  useEffect(()=>{ window.__setPage = setPage; return ()=>{ delete window.__setPage; }; }, [setPage]);
 
   // Slide #smooth-wrapper left and animate CTA panel in/out
   useEffect(()=>{
@@ -4751,8 +3393,6 @@ function Page() {
   const modelPanelRef     = useRef(null);
   const modelVideoRefs    = useRef([]);
   const heroTextRef       = useRef(null);
-  const heroShaderRef      = useRef(null);
-  const heroShaderStateRef = useRef(null);
 
   // Capture the hero logo's initial bounding rect (once, before any scroll)
 
@@ -4891,166 +3531,6 @@ function Page() {
     };
   }, [page]);
 
-  // ── Hero halftone shader ──────────────────────────────────────────────────
-  useEffect(() => {
-    if (page !== 'home') return;
-    const canvas = heroShaderRef.current;
-    if (!canvas) return;
-    const gl = canvas.getContext('webgl', { alpha:true, premultipliedAlpha:false })
-            || canvas.getContext('experimental-webgl', { alpha:true, premultipliedAlpha:false });
-    if (!gl) return;
-
-    const VS = `attribute vec2 aPos;varying vec2 vUv;void main(){vUv=aPos*0.5+0.5;gl_Position=vec4(aPos,0.0,1.0);}`;
-    const FIELD_FS = `precision highp float;uniform float uTime;uniform float uAmp;uniform float uReveal;varying vec2 vUv;
-void main(){
-  vec2 c=2.0*vUv-1.0;float ds=uAmp*uReveal;
-  c+=ds*0.4*sin(c.yx+vec2(1.2,3.4)+uTime);
-  c+=ds*0.2*sin(5.2*c.yx+vec2(3.5,0.4)+uTime);
-  c+=ds*0.3*sin(3.5*c.yx+vec2(1.2,3.1)+uTime);
-  c+=ds*1.6*sin(0.4*c.yx+vec2(0.8,2.4)+uTime);
-  float L=length(c);float v=0.0;
-  for(int i=0;i<4;i++){v=mix(v,float(i)/3.0,cos(float(i)*L));}
-  gl_FragColor=vec4(clamp(v,0.0,1.0),0.0,0.0,1.0);}`;
-    const HALF_FS = `precision highp float;
-uniform sampler2D uFieldTex;uniform vec2 uFieldRes;uniform vec2 uRes;
-uniform float uReveal;uniform float uPixelSize;uniform float uGooeyness;
-uniform float uContrast;uniform float uBias;uniform float uInvert;
-uniform vec3 uFg;uniform float uWaveTime;uniform float uWaveFreq;uniform float uWaveAmp;uniform float uShape;
-varying vec2 vUv;
-float rectSDF(vec2 d,vec2 hs){vec2 q=abs(d)-hs;return length(max(q,0.0))+min(max(q.x,q.y),0.0);}
-float shapeSDF(vec2 d,float r){
-  float s=uShape;
-  if(s<0.5) return length(d)-r;
-  if(s<1.5) return rectSDF(d,vec2(r*0.88));
-  if(s<2.5){float a=r*0.34;return min(rectSDF(d,vec2(r,a)),rectSDF(d,vec2(a,r)));}
-  if(s<3.5) return rectSDF(d,vec2(r,r*0.27));
-  return (abs(d.x)+abs(d.y))*0.7071-r*0.88;}
-float smin(float a,float b,float k){if(k<=0.001)return min(a,b);float h=max(k-abs(a-b),0.0)/k;return min(a,b)-h*h*k*0.25;}
-void main(){
-  vec2 px=vUv*uRes;vec2 ci=floor(px/uPixelSize);float md=1.0e5;float sk=uGooeyness*1.5;
-  for(int dx=-1;dx<=1;dx++){for(int dy=-1;dy<=1;dy++){
-    vec2 cell=ci+vec2(float(dx),float(dy));
-    if(mod(cell.x+cell.y,2.0)>0.5)continue;
-    vec2 cuv=clamp((cell+0.5)/uFieldRes,0.0,1.0);
-    float luma=texture2D(uFieldTex,cuv).r;
-    float v=clamp((luma-0.5+uBias)*uContrast+0.5,0.0,1.0);
-    if(uInvert>0.5)v=1.0-v;
-    float r=v*uPixelSize*0.6+uPixelSize*0.05;
-    float wo=uWaveAmp*sin(cuv.y*uWaveFreq*6.28318+uWaveTime);
-    r+=wo*uPixelSize*0.1;
-    vec2 cc=(cell+0.5)*uPixelSize;
-    md=smin(md,shapeSDF(px-cc,r),sk);}}
-  float alpha=1.0-smoothstep(-0.5,0.5,md);
-  gl_FragColor=vec4(uFg*uReveal,alpha*uReveal);}`;
-
-    function mkShader(type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);return s;}
-    function mkProg(vs,fs){const p=gl.createProgram();gl.attachShader(p,mkShader(gl.VERTEX_SHADER,vs));gl.attachShader(p,mkShader(gl.FRAGMENT_SHADER,fs));gl.linkProgram(p);return p;}
-
-    const fProg = mkProg(VS, FIELD_FS);
-    const hProg = mkProg(VS, HALF_FS);
-
-    const fU = {};
-    ['uTime','uAmp','uReveal'].forEach(n=>fU[n]=gl.getUniformLocation(fProg,n));
-    const hU = {};
-    ['uFieldTex','uFieldRes','uRes','uReveal','uPixelSize','uGooeyness','uContrast','uBias','uInvert','uFg','uWaveTime','uWaveFreq','uWaveAmp','uShape'].forEach(n=>hU[n]=gl.getUniformLocation(hProg,n));
-
-    const qbuf = gl.createBuffer();
-    gl.bindBuffer(gl.ARRAY_BUFFER, qbuf);
-    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1,-1,1,-1,-1,1,-1,1,1,-1,1,1]), gl.STATIC_DRAW);
-    function bindQ(prog){gl.bindBuffer(gl.ARRAY_BUFFER,qbuf);const loc=gl.getAttribLocation(prog,'aPos');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);}
-
-    const fFBO = gl.createFramebuffer();
-    const fTex = gl.createTexture();
-    gl.bindTexture(gl.TEXTURE_2D,fTex);
-    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);
-    gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
-    gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,1,1,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
-    gl.bindFramebuffer(gl.FRAMEBUFFER,fFBO);
-    gl.framebufferTexture2D(gl.FRAMEBUFFER,gl.COLOR_ATTACHMENT0,gl.TEXTURE_2D,fTex,0);
-    gl.bindFramebuffer(gl.FRAMEBUFFER,null);
-
-    const sp = {
-      amplitude:1.40, timeSpeed:0.0100, pixelSize:5.5,
-      gooeyness:0.00, contrast:1.00, bias:-0.45, invert:false,
-      fg: localStorage.getItem('dijitally-theme')==='dark' ? '#fdfeff' : '#121010',
-      waveAmp:0.40, waveFreq:0.70, waveSpd:0.0100,
-      reveal:0, shape:2,
-    };
-
-    heroShaderStateRef.current = { sp };
-
-    let rafId, t=0, wt=0, lastTs=0;
-    let fW=1, fH=1, lW=0, lH=0, lPS=0;
-
-    function hex3(h){return[parseInt(h.slice(1,3),16)/255,parseInt(h.slice(3,5),16)/255,parseInt(h.slice(5,7),16)/255];}
-
-    function frame(ts){
-      rafId = requestAnimationFrame(frame);
-      const dt = Math.min((ts-lastTs)/(1000/60),3); lastTs=ts;
-
-      // Resize
-      const cw=Math.round(canvas.offsetWidth*Math.min(devicePixelRatio,1.5));
-      const ch=Math.round(canvas.offsetHeight*Math.min(devicePixelRatio,1.5));
-      if(cw!==lW||ch!==lH||sp.pixelSize!==lPS){
-        lW=cw;lH=ch;lPS=sp.pixelSize;
-        canvas.width=cw;canvas.height=ch;
-        fW=Math.ceil(cw/sp.pixelSize)+1;fH=Math.ceil(ch/sp.pixelSize)+1;
-        gl.bindTexture(gl.TEXTURE_2D,fTex);
-        gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,fW,fH,0,gl.RGBA,gl.UNSIGNED_BYTE,null);
-      }
-
-      // Ease reveal toward 0.75
-      sp.reveal += (0.75 - sp.reveal) * 0.012 * dt;
-
-      t  += sp.timeSpeed * dt;
-      wt += sp.waveSpd   * dt;
-
-      // Pass 1 — field
-      gl.useProgram(fProg); bindQ(fProg);
-      gl.bindFramebuffer(gl.FRAMEBUFFER,fFBO);
-      gl.viewport(0,0,fW,fH);
-      gl.uniform1f(fU.uTime,t); gl.uniform1f(fU.uAmp,sp.amplitude); gl.uniform1f(fU.uReveal,sp.reveal);
-      gl.drawArrays(gl.TRIANGLES,0,6);
-
-      // Pass 2 — halftone
-      gl.useProgram(hProg); bindQ(hProg);
-      gl.bindFramebuffer(gl.FRAMEBUFFER,null);
-      gl.viewport(0,0,canvas.width,canvas.height);
-      gl.enable(gl.BLEND); gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);
-      gl.clearColor(0,0,0,0); gl.clear(gl.COLOR_BUFFER_BIT);
-      gl.activeTexture(gl.TEXTURE0); gl.bindTexture(gl.TEXTURE_2D,fTex); gl.uniform1i(hU.uFieldTex,0);
-      gl.uniform2f(hU.uFieldRes,fW,fH);
-      gl.uniform2f(hU.uRes,canvas.width,canvas.height);
-      gl.uniform1f(hU.uReveal,sp.reveal);
-      gl.uniform1f(hU.uPixelSize,sp.pixelSize);
-      gl.uniform1f(hU.uGooeyness,sp.gooeyness);
-      gl.uniform1f(hU.uContrast,sp.contrast);
-      gl.uniform1f(hU.uBias,sp.bias);
-      gl.uniform1f(hU.uInvert,sp.invert?1:0);
-      gl.uniform3fv(hU.uFg,hex3(sp.fg));
-      gl.uniform1f(hU.uWaveTime,wt);
-      gl.uniform1f(hU.uWaveFreq,sp.waveFreq);
-      gl.uniform1f(hU.uWaveAmp,sp.waveAmp);
-      gl.uniform1f(hU.uShape,sp.shape);
-      gl.drawArrays(gl.TRIANGLES,0,6);
-    }
-    rafId = requestAnimationFrame(frame);
-
-    return () => {
-      cancelAnimationFrame(rafId);
-      heroShaderStateRef.current = null;
-      gl.deleteFramebuffer(fFBO);
-      gl.deleteTexture(fTex);
-    };
-  }, [page]);
-
-  // Swap shader fg when dark mode toggles
-  useEffect(() => {
-    const state = heroShaderStateRef.current;
-    if (state) state.sp.fg = dark ? '#fdfeff' : '#121010';
-  }, [dark]);
 
   // Capture thumbnail + reel rects once at mount
   const initThumbRect = useRef(null);
@@ -5260,15 +3740,6 @@ void main(){
   useEffect(()=>{
     const el = modelPanelRef.current;
     if (!el) return;
-    if (typeof ScrollTrigger !== 'undefined') {
-      const st = ScrollTrigger.create({
-        trigger: el,
-        start: 'top 80%',
-        onEnter: () => { setModelsVisible(true); st.kill(); },
-      });
-      return () => st.kill();
-    }
-    // Fallback for when ScrollTrigger isn't available
     const obs = new IntersectionObserver(([e])=>{
       if (e.isIntersecting) { setModelsVisible(true); obs.disconnect(); }
     }, { threshold: 0.3 });
@@ -5454,7 +3925,7 @@ void main(){
                 height: isMobile ? 19 : "var(--nav-size)",
                 width:"auto",
                 display:"block",
-                filter:dark?"invert(1) brightness(0.96) sepia(0.3)":"none",
+                filter:dark?"invert(1)":"none",
                 transition:"filter 0.3s ease",
               }}
             />
@@ -5468,17 +3939,16 @@ void main(){
             <span key={l} className="mobile-nav-links nav-item" style={{
               display:"flex", alignItems:"center", gap:4,
               padding:6,
-              background: (l==="Services" && page==="services") || (l==="Work" && page==="work") || (l==="About" && page==="about") ? "var(--secondary)" : "var(--bg)",
-              borderBottom: isMobile && ((l==="Services" && page==="services") || (l==="Work" && page==="work") || (l==="About" && page==="about")) ? "2px solid var(--bg)" : "2px solid transparent",
+              background: (l==="Services" && page==="services") || (l==="Work" && page==="work") ? "var(--secondary)" : "var(--bg)",
               fontFamily:"var(--sans)",
               fontSize:"var(--nav-size)",
               fontWeight:"var(--nav-w)",
               letterSpacing:0,
-              color: (l==="Services" && page==="services") || (l==="Work" && page==="work") || (l==="About" && page==="about") ? "var(--bg)" : "var(--secondary)",
+              color: (l==="Services" && page==="services") || (l==="Work" && page==="work") ? "var(--bg)" : "var(--secondary)",
               cursor:"pointer",
               userSelect:"none",
             }}
-            onClick={()=>{ if(l==="Services"){ goToServices(); } else if(l==="Work"){ goToWork(); } else if(l==="About"){ goToAbout(); } }}
+            onClick={()=>{ if(l==="Services"){ goToServices(); } else if(l==="Work"){ goToWork(); } }}
             onMouseEnter={e=>{
               const el = e.currentTarget;
               const textNode = el.querySelector('.nav-text');
@@ -5493,7 +3963,7 @@ void main(){
               gsap.to(textNode,{duration:0.4,ease:'none',
                 scrambleText:{text:l,chars:'upperCase',revealDelay:0.1,speed:0.9}});
             }}>
-              <span className="nav-dot" style={{width:3,height:3,background: (l==="Services" && page==="services") || (l==="Work" && page==="work") || (l==="About" && page==="about") ? "var(--bg)" : "var(--secondary)",display:"inline-block",flexShrink:0}}/>
+              <span className="nav-dot" style={{width:3,height:3,background: (l==="Services" && page==="services") || (l==="Work" && page==="work") ? "var(--bg)" : "var(--secondary)",display:"inline-block",flexShrink:0}}/>
               <span className="nav-text">{l}</span>
             </span>
           ))}
@@ -5563,23 +4033,33 @@ void main(){
         </nav>
       </header>, document.getElementById('nav-portal'))}
 
-      {page === 'services'   && <ServicesPage dark={dark} isMobile={isMobile} setPage={setPage} setCtaOpen={setCtaOpen} />}
-      {page === 'work'       && <WorkPage dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} onCardClick={w => w.template ? goToCaseStudy(w) : null} />}
-      {page === 'about'      && <AboutPage dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />}
-      {page === 'casestudy'  && caseStudy && (
-        caseStudy.template === 1
-          ? <CaseStudy1Page work={caseStudy} dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />
-          : <CaseStudy2Page work={caseStudy} dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />
-      )}
+      {page === 'services' && <ServicesPage dark={dark} isMobile={isMobile} setPage={setPage} setCtaOpen={setCtaOpen} />}
+      {page === 'work'     && <WorkPage dark={dark} isMobile={isMobile} setCtaOpen={setCtaOpen} />}
 
       {page === 'home' && <>
       {/* ══════════════════════════════════════
           HERO + HYPE REEL — combined section for smooth thumb→reel animation
       ══════════════════════════════════════ */}
       <section style={{position:"relative"}}>
+        {!isMobile && !isSafari && (
+          <div style={{position:"absolute",left:"50%",top:0,transform:"translate(-50%, calc(-50% + 128px))",width:"85%",height:"85%",zIndex:0,pointerEvents:"none"}}>
+            <video src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline style={{
+              position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover",
+              filter: dark ? "url(#duotone-svc-dark)" : "url(#duotone-svc-light)",
+            }} />
+          </div>
+        )}
+
         {/* Hero viewport — 100svh on mobile (constant, unaffected by browser chrome show/hide), 100vh on desktop */}
         <div ref={heroViewportRef} style={{height: isMobile ? "100svh" : "100vh", position:"relative", overflow:"hidden"}}>
-          <canvas ref={heroShaderRef} style={{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:0}} />
+          {isMobile && !isSafari && (
+            <div style={{position:"absolute",left:"50%",top:0,transform:"translate(-50%, calc(-50% + 128px))",width:"85%",height:"85%",zIndex:0,pointerEvents:"none"}}>
+              <video src="videos/thumbnail_02.mp4?v=3" autoPlay muted loop playsInline style={{
+                position:"absolute", inset:0, width:"100%", height:"100%", objectFit:"cover",
+                filter: dark ? "url(#duotone-svc-dark)" : "url(#duotone-svc-light)",
+              }} />
+            </div>
+          )}
 
           {/* DIJITALLY™ — centred within first viewport */}
           <div style={{
@@ -5643,7 +4123,11 @@ void main(){
                 transition:"transform 0.3s ease, box-shadow 0.3s ease",
               }}>
               <div style={{position:"absolute",inset:0}}>
-                <video autoPlay muted loop playsInline style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}} src="videos/thumbnail.mp4?v=2"/>
+                  <StripRevealVideo
+                    src="videos/thumbnail.mp4?v=2"
+                    externalTrigger={heroThumbResolved}
+                    videoProps={{autoPlay:true,muted:true,loop:true,playsInline:true,style:{width:"100%",height:"100%",objectFit:"cover",display:"block"}}}
+                  />
               </div>
                 {/* PLAY REEL CTA — slides up on hover */}
                 <div style={{
@@ -5689,7 +4173,7 @@ void main(){
             }}>
               Growth doesn't come from going it alone. It comes from having the right{" "}
               <span style={{display:"inline-block",verticalAlign:"baseline",lineHeight:1}}>
-                <AllyWordmark size={isMobile ? 22 : 54} color="var(--secondary)" />
+                <AllyWordmark size={isMobile ? 32 : 74} color="var(--secondary)" />
               </span>{" "}
               beside you.
             </div>
@@ -5729,7 +4213,11 @@ void main(){
               zIndex: 2,
               willChange:"transform",
             }}>
-              <video autoPlay muted loop playsInline style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}} src="videos/thumbnail.mp4?v=2"/>
+              <StripRevealVideo
+                src="videos/thumbnail.mp4?v=2"
+                externalTrigger={philoResolved}
+                videoProps={{autoPlay:true,muted:true,loop:true,playsInline:true,style:{width:"100%",height:"100%",objectFit:"cover",display:"block"}}}
+              />
             </div>
           )}
 
@@ -5776,6 +4264,7 @@ void main(){
               letterSpacing: 0,
               color:"#878787",
               zIndex: 2,
+              opacity: 0,
             }}>
               And the small details<br/>that put it into action.
             </p>
@@ -5939,6 +4428,28 @@ void main(){
                   externalTrigger={modelsVisible && i === activeModel}
                   videoProps={{muted:true, playsInline:true, style:{objectFit:"cover"}}}
                 />
+                {/* Find out more CTA — bottom-right, 42px inset */}
+                <a href="#" className="cta-btn" style={{
+                  position:"absolute", bottom:42, right:42,
+                  display:"inline-flex", alignItems:"center", justifyContent:"center", gap:10,
+                  padding:"18px 24px",
+                  background:"var(--tech)",
+                  border:"none", borderRadius:0,
+                  fontFamily:"var(--sans)", fontSize:16, fontWeight:500, letterSpacing:0,
+                  color:"#121010",
+                  textDecoration:"none", whiteSpace:"nowrap", flexShrink:0,
+                }} onMouseEnter={e=>{
+                  const t = e.currentTarget.querySelector('.cta-text');
+                  if (!t || typeof gsap==='undefined') return;
+                  if (!t.style.width) {
+                    t.style.display='inline-block'; t.style.whiteSpace='nowrap';
+                    t.style.width=t.offsetWidth+'px'; t.style.overflow='hidden';
+                  }
+                  gsap.to(t,{duration:0.5,ease:'none',scrambleText:{text:'Find out more',chars:'upperCase',revealDelay:0.1,speed:0.8}});
+                }}>
+                  <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/>
+                  <span className="cta-text">Find out more</span>
+                </a>
               </div>
             ))}
           </div>
@@ -5966,8 +4477,10 @@ void main(){
           paddingRight: isMobile ? "var(--s42)" : "var(--s64)",
         }}>
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
-            <img src="svgs/SVG/work.svg" alt="WORK" style={{ height: isMobile ? '10vw' : 'calc((100vw - 128px) * 100 / 1562)', width: 'auto', display: 'block', alignSelf: 'flex-start', filter: dark ? 'invert(1) brightness(0.96) sepia(0.3)' : 'none' }} />
-            <WorkHeadlineCycle />
+            <Eyebrow center={false}>++ OUR WORK ++</Eyebrow>
+            <div data-split="" role="heading" aria-level="2" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:720}}>
+              Creative that converts. Data that performs. Systems that support. Production that moves.
+            </div>
           </div>
         </div>
 
@@ -5994,9 +4507,9 @@ void main(){
                 Array.from(el.children).forEach(c => { if (c.classList.contains('wc')) c.style.width = w + 'px'; });
               });
             }} style={{width:"100%",paddingLeft:"var(--s42)",paddingRight:"var(--s42)",boxSizing:"border-box"}}>
-              {filtered.slice(0,4).map((w,i) => (
-                <div key={i} className="wc" style={{marginBottom: i < Math.min(filtered.length,4)-1 ? 56 : 0}}>
-                  <div onClick={goToWork} style={{position:"relative",width:"100%",paddingBottom:"64.58%",overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,cursor:"pointer"}}>
+              {filtered.map((w,i) => (
+                <div key={i} className="wc" style={{marginBottom: i < filtered.length-1 ? 56 : 0}}>
+                  <div style={{position:"relative",width:"100%",paddingBottom:"64.58%",overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg}}>
                     <div style={{position:"absolute",top:0,left:0,width:"100%",height:"100%"}}>
                       {w.img && <StripRevealImg src={w.img} alt={w.title} delay={i*0.1}/>}
                       {cardCta('View project')}
@@ -6013,7 +4526,7 @@ void main(){
               <div style={{display:"flex",gap:128,alignItems:"flex-start"}}>
                 {filtered[0] && (
                   <div className="wc" style={{width:720,flexShrink:0}}>
-                    <div className="work-grid-thumb" onClick={goToWork} style={{height:465,background:filtered[0].img?(dark?"#121010":"#1A1A1A"):filtered[0].bg,cursor:"pointer"}}>
+                    <div className="work-grid-thumb" style={{height:465,background:filtered[0].img?(dark?"#121010":"#1A1A1A"):filtered[0].bg}}>
                       {filtered[0].img && <StripRevealImg src={filtered[0].img} alt={filtered[0].title} delay={0}/>}
                       {cardCta('View project')}
                     </div>
@@ -6022,7 +4535,7 @@ void main(){
                 )}
                 {filtered[1] && (
                   <div className="wc" style={{width:378,flexShrink:0,paddingTop:252}}>
-                    <div className="work-grid-thumb" onClick={goToWork} style={{height:378,background:filtered[1].img?(dark?"#121010":"#1A1A1A"):filtered[1].bg,cursor:"pointer"}}>
+                    <div className="work-grid-thumb" style={{height:378,background:filtered[1].img?(dark?"#121010":"#1A1A1A"):filtered[1].bg}}>
                       {filtered[1].img && <StripRevealImg src={filtered[1].img} alt={filtered[1].title} delay={0.2}/>}
                       {cardCta('View project')}
                     </div>
@@ -6034,7 +4547,7 @@ void main(){
               <div style={{display:"flex",gap:128,alignItems:"flex-start",paddingBottom:96}}>
                 {filtered[2] && (
                   <div className="wc" style={{width:378,flexShrink:0,paddingBottom:320}}>
-                    <div className="work-grid-thumb" onClick={goToWork} style={{height:378,background:filtered[2].img?(dark?"#121010":"#1A1A1A"):filtered[2].bg,cursor:"pointer"}}>
+                    <div className="work-grid-thumb" style={{height:378,background:filtered[2].img?(dark?"#121010":"#1A1A1A"):filtered[2].bg}}>
                       {filtered[2].img && <StripRevealImg src={filtered[2].img} alt={filtered[2].title} delay={0.1}/>}
                       {cardCta('View project')}
                     </div>
@@ -6043,7 +4556,7 @@ void main(){
                 )}
                 {filtered[3] && (
                   <div className="wc" style={{width:720,flexShrink:0,paddingTop:252}}>
-                    <div className="work-grid-thumb" onClick={goToWork} style={{height:465,background:filtered[3].img?(dark?"#121010":"#1A1A1A"):filtered[3].bg,cursor:"pointer"}}>
+                    <div className="work-grid-thumb" style={{height:465,background:filtered[3].img?(dark?"#121010":"#1A1A1A"):filtered[3].bg}}>
                       {filtered[3].img && <StripRevealImg src={filtered[3].img} alt={filtered[3].title} delay={0.3}/>}
                       {cardCta('View project')}
                     </div>
@@ -6057,7 +4570,7 @@ void main(){
 
         {/* View all CTA — below thumbnails, centred */}
         <div style={{width:"100%",display:"flex",justifyContent:"center",paddingTop:isMobile?24:0,paddingBottom:isMobile?0:256,paddingLeft:"var(--s42)",paddingRight:"var(--s42)"}}>
-          <a href="#work" className="cta-btn" onClick={e=>{e.preventDefault();goToWork();}} style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"18px 24px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,color:"#121010",textDecoration:"none",whiteSpace:"nowrap",cursor:"pointer"}}>
+          <a href="#work" className="cta-btn" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"18px 24px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,color:"#121010",textDecoration:"none",whiteSpace:"nowrap"}}>
             <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span>
           </a>
         </div>
@@ -6154,7 +4667,7 @@ void main(){
                   <a
                     href="#"
                     className="menu-nav-item"
-                    onClick={e=>{ e.preventDefault(); if(label==="Services"){ setMenuOpen(false); setTimeout(goToServices,300); } else if(label==="Work"){ setMenuOpen(false); setTimeout(goToWork,300); } else if(label==="About"){ setMenuOpen(false); setTimeout(goToAbout,300); } else { setMenuOpen(false); } }}
+                    onClick={e=>{ e.preventDefault(); if(label==="Services"){ setMenuOpen(false); setTimeout(goToServices,300); } else if(label==="Work"){ setMenuOpen(false); setTimeout(goToWork,300); } else { setMenuOpen(false); } }}
                     style={{
                       fontFamily:"var(--sans)", fontSize:26, fontWeight:350,
                       lineHeight:"120%", letterSpacing:"0.26px",
@@ -6173,7 +4686,7 @@ void main(){
                   style={{
                     display:"flex", alignItems:"center", gap:10,
                     background:"none", border:"none", cursor:"pointer", padding:0,
-                    fontFamily:"var(--sans)", fontSize:"var(--h3)", fontWeight:"var(--h3-w)",
+                    fontFamily:"var(--sans)", fontSize:26, fontWeight:500,
                     lineHeight:"120%", letterSpacing:"0.26px",
                     color:"#F5F3EE", opacity:0,
                   }}
@@ -6197,10 +4710,10 @@ void main(){
             </div>
 
             {/* Footer — DIJITALLY™ Lottie logo full width */}
-            <div style={{ flexShrink:0, width:"100%" }} onClick={()=>{ setMenuOpen(false); goToHome(); }}>
+            <div style={{ flexShrink:0, width:"100%" }}>
               <div
                 ref={menuLogoRef}
-                style={{ width:"100%", overflow:"hidden", filter:"invert(1)", cursor:"pointer" }}
+                style={{ width:"100%", overflow:"hidden", filter:"invert(1)" }}
               />
             </div>
           </div>
