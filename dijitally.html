@@ -80,8 +80,16 @@
     ::-webkit-scrollbar-thumb { background: var(--tech); }
 
     /* Ticker */
-    @keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
-    .ticker-inner { display:flex; animation:ticker 30s linear infinite; will-change:transform; }
+    @keyframes ticker {
+      0%   { transform: translateX(0); }
+      100% { transform: translateX(-50%); }
+    }
+    .ticker-inner {
+      display: flex;
+      width: max-content;
+      animation: ticker 30s linear infinite;
+      will-change: transform;
+    }
 
     /* Pixel dot grid */
     .dot-grid {
@@ -120,14 +128,33 @@
     }
     #cta-overlay.open { opacity: 0.75; pointer-events: auto; }
 
+    /* Mobile menu panel — pixel reveal canvas covers until animation completes */
+    #menu-panel { }
+
     /* Disable all site interactions while CTA panel is open */
     #smooth-wrapper.cta-open { pointer-events: none; }
     #dj-cursor.cta-open { opacity: 0; }
+
+
+    /* Nav item hover — swap bg ↔ secondary (works for both light + dark) */
+    .nav-item { transition: background 0.2s ease, color 0.2s ease; }
+    .nav-item:hover { background: var(--secondary) !important; color: var(--bg) !important; }
+    .nav-item:hover .nav-dot { background: var(--bg) !important; }
 
     /* CTA button hover — swap green bg ↔ near-black, text becomes green */
     .cta-btn { transition: background 0.2s ease, color 0.2s ease; }
     .cta-btn:hover { background: #121010 !important; color: #B6F4C9 !important; }
     .dark .cta-btn:hover { background: #FDFEFF !important; color: #121010 !important; }
+
+    /* Work thumbnail CTA — must come after .cta-btn to keep transform transition */
+    .work-card-cta {
+      position: absolute;
+      bottom: 24px; right: 24px;
+      transform: translateY(calc(100% + 24px));
+      transition: transform 0.5s cubic-bezier(0.76, 0, 0.24, 1),
+                  background 0.2s ease, color 0.2s ease;
+    }
+    .wc:hover .work-card-cta { transform: translateY(0); }
 
     /* Work card hover */
     /* Dark mode overrides */
@@ -164,9 +191,12 @@
 
     /* ── Mobile breakpoint 768px ── */
     @media(max-width:768px){
+      html, body { overscroll-behavior: none; overflow-anchor: none; }
+      .ticker-inner { animation-duration: 22.5s; }
+      .ticker-wrap { width: 133.34%; transform: scale(0.75); transform-origin: left center; }
       :root{
-        --h1: 28px;
-        --h2: 20px;
+        --h1: 26px;
+        --h2: 26px;
         --nav-size: 13px;
         --s64: 24px;
         --s42: 16px;
@@ -179,7 +209,7 @@
       .hero-body-text { max-width: 100% !important; }
 
       /* Work carousel cards: smaller */
-      .wc { width: calc(100vw - 48px) !important; }
+      .wc { width: calc(100vw - 96px) !important; }
       .wc > div:first-child { width: 100% !important; }
 
       /* Contact section: full width on mobile */
@@ -204,13 +234,23 @@
 <div id="dj-cursor"></div>
 <div id="preloader-counter" style="position:fixed;left:50%;bottom:42px;transform:translateX(-50%);font-family:'Space Grotesk',sans-serif;font-size:12px;font-weight:400;color:#121010;letter-spacing:0.05em;z-index:99;pointer-events:none;line-height:1;">00</div>
 <div id="thumb-overlay" style="display:block;opacity:0;position:fixed;z-index:98;overflow:hidden;border-radius:4px;pointer-events:none;background:#FDFEFF"><video src="videos/thumbnail.mp4?v=2" autoplay muted loop playsinline style="width:100%;height:100%;object-fit:contain;display:block"></video></div>
+<div id="nav-portal"></div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
 const { useState, useEffect, useLayoutEffect, useRef } = React;
 
 if (typeof gsap !== 'undefined') {
-  if (typeof ScrollTrigger !== 'undefined') gsap.registerPlugin(ScrollTrigger);
+  if (typeof ScrollTrigger !== 'undefined') {
+    gsap.registerPlugin(ScrollTrigger);
+    // Prevent ScrollTrigger from refreshing (and snapping scroll) when iOS browser chrome hides/shows
+    ScrollTrigger.config({
+      ignoreMobileResize: true,
+      // Prevent resize/orientationchange from triggering ScrollTrigger refresh
+      // (iOS chrome show/hide fires these and causes scroll position jumps)
+      autoRefreshEvents: "visibilitychange,DOMContentLoaded,load",
+    });
+  }
   if (typeof SplitText !== 'undefined') gsap.registerPlugin(SplitText);
   if (typeof ScrambleTextPlugin !== 'undefined') gsap.registerPlugin(ScrambleTextPlugin);
 }
@@ -291,16 +331,18 @@ const PARTNER_LOGOS = [
   { src:"clients/Blackmores.svg",     alt:"Blackmores"     },
 ];
 function Ticker({dark}) {
-  const items = [...PARTNER_LOGOS,...PARTNER_LOGOS,...PARTNER_LOGOS,...PARTNER_LOGOS];
+  // Exactly 2 sets: first scrolls off while second (identical) scrolls in → perfect loop at -50%
+  const items = [...PARTNER_LOGOS, ...PARTNER_LOGOS];
   return (
-    <div style={{overflow:"hidden",padding:"18px 0"}}>
+    <div style={{overflow:"hidden"}}>
+    <div className="ticker-wrap" style={{padding:"18px 0",whiteSpace:"nowrap"}}>
       <div className="ticker-inner">
         {items.map((logo,i)=>(
           <span key={i} style={{display:"inline-flex",alignItems:"center",paddingRight:128,flexShrink:0}}>
             <img
               src={logo.src}
               alt={logo.alt}
-              style={{height:logo.alt==="Afterpay"?38:20,width:"auto",display:"block",filter:dark?"brightness(0) invert(1)":"none",transition:"filter 0.3s ease"}}
+              style={{height:logo.alt==="Afterpay"?38:logo.alt==="Constantinople"?22:20,width:"auto",display:"block",filter:dark?"brightness(0) invert(1)":"none",transition:"filter 0.3s ease"}}
               onError={e=>{
                 /* fallback to text if SVG not yet placed */
                 e.target.style.display="none";
@@ -313,6 +355,7 @@ function Ticker({dark}) {
           </span>
         ))}
       </div>
+    </div>
     </div>
   );
 }
@@ -364,18 +407,39 @@ function PixelRevealImg({ src, alt, style = {}, externalTrigger = false, delay =
     ctx.fillRect(0, 0, W, H);
     img.style.opacity = 1;
     const cols = Math.ceil(W / PX), rows = Math.ceil(H / PX);
+
     const blocks = [];
     for (let r = 0; r < rows; r++)
       for (let cl = 0; cl < cols; cl++)
         blocks.push({ r, c: cl, d: r + cl });
     blocks.sort((a, b) => (a.d + (Math.random()-0.5)*4) - (b.d + (Math.random()-0.5)*4));
     const total = blocks.length, DURATION = 600;
+    const LEAD = 14; // number of blocks in the SVG frontier ahead of the clear wave
     let next = 0, start = null, raf;
+
+    const drawFrontier = (from, to) => {
+      for (let i = from; i < Math.min(to, total); i++) {
+        const { r, c } = blocks[i];
+        if (Math.random() > 0.25) {
+          const p = PATTERN_IMGS[Math.floor(Math.random() * PATTERN_IMGS.length)];
+          if (p.complete && p.naturalWidth > 0) {
+            ctx.globalAlpha = 0.4 + Math.random() * 0.6;
+            ctx.drawImage(p, c * PX, r * PX, PX, PX);
+            ctx.globalAlpha = 1;
+          }
+        }
+      }
+    };
+
     const tick = (now) => {
       if (!start) start = now;
       const tp = Math.min((now - start) / DURATION, 1);
       const target = Math.floor(tp * total);
+      // Clear blocks (also wipes previous frontier SVGs)
+      const prevNext = next;
       while (next < target) { const { r, c } = blocks[next++]; ctx.clearRect(c * PX, r * PX, PX, PX); }
+      // Draw new SVG frontier at the leading edge of the wave
+      if (next < total) drawFrontier(next, next + LEAD);
       if (tp < 1) raf = requestAnimationFrame(tick);
       else canvas.style.display = 'none';
     };
@@ -449,7 +513,12 @@ function PixelRevealImg({ src, alt, style = {}, externalTrigger = false, delay =
       img.style.opacity = '0';
       if (!hoverRafRef.current) hoverRafRef.current = requestAnimationFrame(loop);
     };
-    const onLeave = () => { hoveredRef.current = false; mouseRef.current = { x:-9999, y:-9999 }; };
+    const onLeave = (e) => {
+      // Keep effect active if cursor moved to a sibling inside the same .wc card (e.g. the CTA button)
+      const card = container.closest('.wc');
+      if (card && card.contains(e.relatedTarget)) return;
+      hoveredRef.current = false; mouseRef.current = { x:-9999, y:-9999 };
+    };
     const onMove  = e  => {
       const r = canvas.getBoundingClientRect();
       mouseRef.current = { x: e.clientX - r.left, y: e.clientY - r.top };
@@ -698,6 +767,10 @@ const SVG_LOGOS = [
   'svgs/pattern_02.svg',
   'svgs/pattern_03.svg',
 ];
+// Preloaded at module level — shared by PixelRevealImg and ContactPixels
+const PATTERN_IMGS = SVG_LOGOS.map(src => {
+  const img = new Image(); img.src = src; return img;
+});
 
 function ContactPixels({ dark }) {
   const canvasRef     = useRef(null);
@@ -1053,6 +1126,216 @@ function DitherCanvas({ dark }) {
 }
 
 /* ═══════════════════════════════════════════════════
+   MOBILE DITHER VIDEO
+   Stripped-down version of DitherCanvas for mobile:
+   same Bayer dithering, no particle physics, sized to
+   fit within the hero viewport (overflow:hidden clips it).
+═══════════════════════════════════════════════════ */
+function MobileDitherVideo({ dark }) {
+  const canvasRef = useRef(null);
+  const wrapRef   = useRef(null);
+  const videoRef  = useRef(null);
+  const darkRef   = useRef(dark);
+  useEffect(()=>{ darkRef.current = dark; }, [dark]);
+
+  useEffect(()=>{
+    const canvas = canvasRef.current;
+    const video  = videoRef.current;
+    const wrap   = wrapRef.current;
+    if (!canvas || !video || !wrap) return;
+
+    const ctx  = canvas.getContext('2d');
+    const smpl = document.createElement('canvas');
+    const sctx = smpl.getContext('2d', { willReadFrequently: true });
+
+    const PX    = 8;
+    const BAYER = [[0,2,0,2],[3,1,3,1],[0,2,0,2],[3,1,3,1]];
+    const GM=1.13, CT=2.4, BR=0.10;
+    const LON=[241,242,243], LOFF=[253,254,255];
+    const DON=[18,16,16],    DOFF=[0,0,0];
+
+    let cols=0, rows=0, raf;
+    let outBuf=null, outImageData=null;
+
+    function build() {
+      cols = Math.floor(canvas.width  / PX);
+      rows = Math.floor(canvas.height / PX);
+      smpl.width = cols; smpl.height = rows;
+      outBuf = new Uint8ClampedArray(canvas.width * canvas.height * 4);
+      outImageData = ctx.createImageData(canvas.width, canvas.height);
+    }
+
+    function setSize() {
+      const vw = video.videoWidth  || 640;
+      const vh = video.videoHeight || 360;
+      // Scale to fill viewport width on mobile — 2x for larger dither effect
+      const s = (window.innerWidth / vw) * 2;
+      canvas.width  = Math.floor(vw * s / PX) * PX;
+      canvas.height = Math.floor(vh * s / PX) * PX;
+      canvas.style.width  = canvas.width  + 'px';
+      canvas.style.height = canvas.height + 'px';
+      build();
+
+      // Intro animation — matches DitherCanvas desktop logic
+      const initialScale = Math.min(196 / canvas.width, 196 / canvas.height);
+      gsap.set(wrap, { xPercent:-50, yPercent:-50,
+        x: window.innerWidth * 0.5,
+        y: window.innerHeight * 0.5,
+        scale: initialScale });
+      gsap.to(wrap, { x: window.innerWidth * 0.5, y: 128, scale: 1,
+        duration: 0.2, ease: 'power2.inOut', delay: 1 });
+
+      // Preloader counter — disabled on mobile
+      const counter = document.getElementById('preloader-counter');
+      if (counter) counter.style.display = 'none';
+    }
+
+    function loop() {
+      raf = requestAnimationFrame(loop);
+      if (!outBuf || video.readyState < 2) return;
+
+      sctx.drawImage(video, 0, 0, cols, rows);
+      const id = sctx.getImageData(0, 0, cols, rows);
+      outBuf.fill(0);
+      const W = canvas.width;
+
+      for (let r = 0; r < rows; r++) {
+        for (let c = 0; c < cols; c++) {
+          const idx = (r * cols + c) * 4;
+          let lum = (0.299*id.data[idx] + 0.587*id.data[idx+1] + 0.114*id.data[idx+2]) / 255;
+          lum = Math.pow(Math.max(0, lum), GM);
+          lum = (lum - 0.5) * CT + 0.5;
+          lum = Math.max(0, Math.min(1, lum + BR));
+          const bl  = darkRef.current ? 1 - lum : lum;
+          const thr = (BAYER[r & 3][c & 3] + 0.5) / 4;
+          const ch  = (bl <= thr) ? (darkRef.current ? DON : LON) : (darkRef.current ? DOFF : LOFF);
+          for (let dy = 0; dy < PX; dy++) {
+            let base = ((r * PX + dy) * W + c * PX) * 4;
+            for (let dx = 0; dx < PX; dx++) {
+              outBuf[base]=ch[0]; outBuf[base+1]=ch[1]; outBuf[base+2]=ch[2]; outBuf[base+3]=255;
+              base += 4;
+            }
+          }
+        }
+      }
+      outImageData.data.set(outBuf);
+      ctx.putImageData(outImageData, 0, 0);
+    }
+
+    // Call setSize once metadata is available (real dimensions); fall back to direct call if already loaded
+    if (video.videoWidth > 0) {
+      setSize();
+    } else {
+      video.addEventListener('loadedmetadata', setSize, { once: true });
+    }
+    video.play().catch(()=>{});
+    loop();
+
+    return ()=>{
+      cancelAnimationFrame(raf);
+      video.removeEventListener('loadedmetadata', setSize, { once: true });
+    };
+  }, []);
+
+  return (
+    <>
+      <video ref={videoRef} src="videos/thumbnail_02.mp4?v=2" autoPlay muted loop playsInline
+        crossOrigin="anonymous"
+        style={{ position:'absolute', opacity:0, width:1, height:1, pointerEvents:'none' }}
+      />
+      <div ref={wrapRef} style={{ position:'absolute', left:0, top:0, zIndex:0, pointerEvents:'none' }}>
+        <canvas ref={canvasRef} style={{ display:'block', opacity:0.9 }} />
+      </div>
+    </>
+  );
+}
+
+/* ═══════════════════════════════════════════════════
+   MENU PIXEL REVEAL
+   Same diagonal canvas animation as work thumbnails.
+   Always uses #121010 fill (dark-mode palette on both themes).
+═══════════════════════════════════════════════════ */
+function MenuPixelReveal({ onComplete }) {
+  const canvasRef = useRef(null);
+  const PX = 16;
+
+  useEffect(()=>{
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const W = window.innerWidth;
+    const H = window.innerHeight;
+    canvas.width  = W;
+    canvas.height = H;
+    const ctx = canvas.getContext('2d');
+
+    // Canvas starts transparent — blocks are DRAWN in (#121010) as the wave moves,
+    // masking the page beneath. SVG frontier leads the fill edge then gets covered.
+    const cols = Math.ceil(W / PX);
+    const rows = Math.ceil(H / PX);
+
+    const blocks = [];
+    for (let r = 0; r < rows; r++)
+      for (let c = 0; c < cols; c++)
+        blocks.push({ r, c, d: r + c });
+    blocks.sort((a, b) => (a.d + (Math.random()-0.5)*4) - (b.d + (Math.random()-0.5)*4));
+
+    const total = blocks.length;
+    const DURATION = 595;
+    const LEAD = 14;
+    let next = 0, start = null, raf;
+
+    // Draw SVG frontier at the leading edge of the fill wave.
+    // Each frontier block is pre-filled #121010 first so the SVG is
+    // visible on a dark background — matching how PixelRevealImg shows
+    // patterns on its dark canvas. The main fill wave covers them solid
+    // on the next tick.
+    const drawFrontier = (from, to) => {
+      ctx.fillStyle = '#121010';
+      for (let i = from; i < Math.min(to, total); i++) {
+        const { r, c } = blocks[i];
+        ctx.fillRect(c * PX, r * PX, PX, PX); // dark base so SVG is visible
+        if (Math.random() > 0.25) {
+          const p = PATTERN_IMGS[Math.floor(Math.random() * PATTERN_IMGS.length)];
+          if (p.complete && p.naturalWidth > 0) {
+            ctx.globalAlpha = 0.4 + Math.random() * 0.6;
+            ctx.drawImage(p, c * PX, r * PX, PX, PX);
+            ctx.globalAlpha = 1;
+          }
+        }
+      }
+    };
+
+    const tick = (now) => {
+      if (!start) start = now;
+      const tp = Math.min((now - start) / DURATION, 1);
+      const target = Math.floor(tp * total);
+      // Fill blocks with #121010 — covers page as wave moves down
+      ctx.fillStyle = '#121010';
+      while (next < target) { const { r, c } = blocks[next++]; ctx.fillRect(c * PX, r * PX, PX, PX); }
+      // SVG patterns at frontier — briefly visible before next fill wave covers them
+      if (next < total) drawFrontier(next, next + LEAD);
+      if (tp < 1) { raf = requestAnimationFrame(tick); }
+      else { onComplete(); }
+    };
+
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
+  }, []);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position:"fixed", top:0, left:0,
+        width:"100vw", height:"100dvh",
+        zIndex:210, pointerEvents:"none",
+        display:"block",
+      }}
+    />
+  );
+}
+
+/* ═══════════════════════════════════════════════════
    PAGE
 ═══════════════════════════════════════════════════ */
 function Page() {
@@ -1067,6 +1350,9 @@ function Page() {
   const [email,       setEmail]       = useState("");
   const [reelOpen,    setReelOpen]    = useState(false);
   const [ctaOpen,     setCtaOpen]     = useState(false);
+  const [menuOpen,    setMenuOpen]    = useState(false);
+  const [menuReady,   setMenuReady]   = useState(false);
+  const menuContentRef = useRef(null);
   const [thumbHover,  setThumbHover]  = useState(false);
 
   const CTA_W = isMobile ? window.innerWidth : 661;
@@ -1115,8 +1401,72 @@ function Page() {
     }
   }, [ctaOpen]);
 
+  // Menu Lottie — load after pixel reveal completes (menuReady), not on open
   useEffect(()=>{
-    const onResize = () => setIsMobile(window.innerWidth <= 768);
+    if (!menuReady || typeof lottie === "undefined") return;
+    const el = menuLogoRef.current;
+    if (!el || el._menuAnim) return;
+    el._menuAnim = lottie.loadAnimation({
+      container: el,
+      renderer: "svg",
+      loop: false,
+      autoplay: true,
+      path: "json/Dijitally-Alternate.json?v=3",
+      rendererSettings: { preserveAspectRatio:"xMidYMid meet" },
+    });
+    return () => {
+      if (el._menuAnim) { el._menuAnim.destroy(); el._menuAnim = null; }
+    };
+  }, [menuReady]);
+
+  // Mobile menu open/close — lock body scroll and pointer events while open
+  useEffect(()=>{
+    if (!isMobile) return;
+    const wrapper = document.getElementById("smooth-wrapper");
+    const cursor  = document.getElementById("dj-cursor");
+    if (menuOpen) {
+      // Lock scroll: save current position, freeze body
+      const scrollY = window.scrollY;
+      document.body.style.position   = 'fixed';
+      document.body.style.top        = `-${scrollY}px`;
+      document.body.style.left       = '0';
+      document.body.style.right      = '0';
+      document.body.style.overflowY  = 'scroll'; // keep scrollbar width stable
+      wrapper?.classList.add("cta-open");
+      if (cursor) cursor.classList.add("cta-open");
+    } else {
+      // Restore scroll position exactly
+      const scrollY = parseInt(document.body.style.top || '0') * -1;
+      document.body.style.position  = '';
+      document.body.style.top       = '';
+      document.body.style.left      = '';
+      document.body.style.right     = '';
+      document.body.style.overflowY = '';
+      window.scrollTo(0, scrollY);
+      wrapper?.classList.remove("cta-open");
+      if (cursor) cursor.classList.remove("cta-open");
+      setMenuReady(false);
+    }
+  }, [menuOpen, isMobile]);
+
+  // Animate menu items up with SplitText once tiles have completed
+  useEffect(()=>{
+    if (!menuReady || !menuContentRef.current) return;
+    const items = menuContentRef.current.querySelectorAll('.menu-nav-item');
+    if (!items.length) return;
+    gsap.fromTo(items,
+      { y: "110%", opacity: 0 },
+      { y: "0%", opacity: 1, duration: 0.65, ease: "power3.out", stagger: 0.07, delay: 0.05 }
+    );
+  }, [menuReady]);
+
+  useEffect(()=>{
+    // Only update isMobile on genuine width changes (not iOS chrome height-only resize)
+    let lastWidth = window.innerWidth;
+    const onResize = () => {
+      const w = window.innerWidth;
+      if (w !== lastWidth) { lastWidth = w; setIsMobile(w <= 768); }
+    };
     window.addEventListener('resize', onResize, { passive: true });
     return () => window.removeEventListener('resize', onResize);
   }, []);
@@ -1139,6 +1489,7 @@ function Page() {
     });
     smoother.paused(true); // hold until hero sequence finishes
     smootherRef.current = smoother;
+
     return () => { smoother.kill(); smootherRef.current = null; };
   }, []);
 
@@ -1147,6 +1498,7 @@ function Page() {
   const heroBodyRef       = useRef(null);
   const navRef            = useRef(null);
   const footerLogoRef     = useRef(null);
+  const menuLogoRef       = useRef(null);
   const heroThumbRef      = useRef(null);
   const carouselRef       = useRef(null);
   const carouselSectionRef = useRef(null);
@@ -1190,7 +1542,7 @@ function Page() {
 
     anim.addEventListener("DOMLoaded", () => {
       captureRect();
-      // 1. Play Lottie after 2s (pixel snap animation plays during this window)
+      // 1. Play Lottie — 1.5s on mobile (dither expands at 1s), 2.5s on desktop
       setTimeout(() => {
         anim.play();
         // 2. Body copy at 25% of Lottie duration (1500ms * 0.25 = 375ms after start)
@@ -1227,7 +1579,7 @@ function Page() {
             onComplete: () => { if (smootherRef.current) smootherRef.current.paused(false); }
           });
         }, 375);
-      }, 2500);
+      }, isMobile ? 1500 : 2500);
     });
 
     return () => anim.destroy();
@@ -1253,7 +1605,9 @@ function Page() {
   }, []);
 
   // Drive animation — runs every frame via GSAP ticker (reads scrollYRef to avoid re-renders)
+  // Disabled on mobile: modifying position:fixed top/left every frame triggers iOS scroll snapping
   useEffect(()=>{
+    if (isMobile) return;
     const lerp = (a,b,t) => a + (b-a)*t;
     const tick = () => {
       const tR = initThumbRect.current;
@@ -1442,12 +1796,7 @@ function Page() {
           path: "json/Dijitally-Alternate.json?v=3",
           rendererSettings: { preserveAspectRatio: "xMidYMid meet" },
         });
-        // Sync dark mode filter on SVG
-        const syncFilter = () => {
-          const svg = el.querySelector("svg");
-          if (svg) svg.style.filter = document.body.classList.contains("dark") ? "invert(1)" : "none";
-        };
-        anim.addEventListener("DOMLoaded", syncFilter);
+        // Dark mode handled by parent div's filter — no need to set inline SVG filter
         obs.disconnect();
       }
     }, { threshold: 0.2 });
@@ -1459,6 +1808,10 @@ function Page() {
 
 
 
+  const prevScrollRef   = useRef(0);
+  const navHiddenRef    = useRef(false);
+  const navDeltaHistory = useRef([]);
+
   useEffect(()=>{
     // Scroll position tracker via GSAP ticker
     const tick = () => {
@@ -1466,6 +1819,27 @@ function Page() {
       scrollYRef.current = current;
       const newScrolled = current > 60;
       if (newScrolled !== scrolledRef.current) { setScrolled(newScrolled); scrolledRef.current = newScrolled; }
+
+      // Nav hide/show — rolling average of last 5 frame deltas to reliably detect direction
+      const delta = current - prevScrollRef.current;
+      prevScrollRef.current = current;
+      const hist = navDeltaHistory.current;
+      hist.push(delta);
+      if (hist.length > 5) hist.shift();
+      const avg = hist.reduce((a,b)=>a+b,0) / hist.length;
+
+      const nav = navRef.current;
+      if (nav) {
+        // Higher threshold on mobile so deceleration wobble doesn't trigger hide/show
+        const threshold = isMobile ? 2.5 : 0.4;
+        if (avg > threshold && current > 120 && !navHiddenRef.current) {
+          gsap.to(nav, { y:"-100%", duration:0.4, ease:"power2.in", overwrite:"auto" });
+          navHiddenRef.current = true;
+        } else if (avg < -threshold && navHiddenRef.current) {
+          gsap.to(nav, { y:"0%", duration:0.4, ease:"power2.out", overwrite:"auto" });
+          navHiddenRef.current = false;
+        }
+      }
     };
     gsap.ticker.add(tick);
 
@@ -1505,37 +1879,43 @@ function Page() {
       {/* ══════════════════════════════════════
           NAV — 126px height, 42px padding
       ══════════════════════════════════════ */}
-      <header ref={navRef} style={{
+      {ReactDOM.createPortal(<header ref={navRef} className={dark?"dark":""} style={{
         position:"fixed",top:0,left:0,right:0,zIndex:100,
-        height: isMobile ? 64 : (scrolled ? 72 : "var(--nav-h)"),
-        padding: isMobile ? "0 16px" : "0 var(--s42)",
-        display:"flex", alignItems:"center", justifyContent: isMobile ? "space-between" : "flex-end",
-        background: "transparent",
-        transition:"height 0.35s ease, background 0.3s ease",
+        height: isMobile ? 64 : (scrolled ? "auto" : "var(--nav-h)"),
+        padding: isMobile ? "0 16px" : (scrolled ? "var(--s32) var(--s42)" : "0 var(--s42)"),
+        display:"flex", alignItems:"center", justifyContent: isMobile ? "flex-end" : (scrolled ? "space-between" : "flex-end"),
+        background: scrolled ? "var(--bg)" : "transparent",
+        borderBottom: scrolled ? "1px solid var(--grey)" : "none",
+        transition:"padding 0.35s ease, background 0.3s ease, border-color 0.3s ease",
+        boxSizing:"border-box",
       }}>
 
-        {/* Logo — visible on mobile, hidden on desktop until hero SVG locks in on scroll */}
-        <a href="/" style={{
-          display: isMobile ? "flex" : "none",
-          alignItems: "center",
-          height: 20,
-          flexShrink:0,
-          transition:"height 0.35s ease",
-        }}>
-          <img
-            src="dijitally-heading.svg"
-            alt="DIJITALLY™"
-            style={{height:"100%",width:"auto",display:"block",filter:dark?"invert(1)":"none",transition:"filter 0.3s ease"}}
-          />
-        </a>
+
+        {/* Secondary nav logo — desktop only, shown when scrolled */}
+        {!isMobile && scrolled && (
+          <a href="/" style={{display:"flex",alignItems:"center",flexShrink:0,textDecoration:"none"}}>
+            <img
+              src="dijitally-heading.svg"
+              alt="DIJITALLY™"
+              style={{
+                height:"var(--nav-size)",
+                width:"auto",
+                display:"block",
+                filter:dark?"invert(1)":"none",
+                transition:"filter 0.3s ease",
+              }}
+            />
+          </a>
+        )}
 
         {/* Nav links — 19px, weight 600, ls -0.38px */}
         <nav style={{display:"flex", alignItems:"center", gap: isMobile ? 12 : 42}}>
           {/* Nav items — dot + label, padding 6px, gap 4px, letter-spacing -0.38px */}
           {["Work","Services","About","Blog"].map(l=>(
-            <span key={l} className="mobile-nav-links" style={{
+            <span key={l} className="mobile-nav-links nav-item" style={{
               display:"flex", alignItems:"center", gap:4,
               padding:6,
+              background:"var(--bg)",
               fontFamily:"var(--sans)",
               fontSize:"var(--nav-size)",
               fontWeight:"var(--nav-w)",
@@ -1543,9 +1923,23 @@ function Page() {
               color:"var(--secondary)",
               cursor:"default",
               userSelect:"none",
+            }}
+            onMouseEnter={e=>{
+              const el = e.currentTarget;
+              const textNode = el.querySelector('.nav-text');
+              if (!textNode || typeof gsap==='undefined') return;
+              if (!textNode.dataset.wLocked) {
+                textNode.style.display='inline-block';
+                textNode.style.whiteSpace='nowrap';
+                textNode.style.overflow='hidden';
+                textNode.style.width=textNode.offsetWidth+'px';
+                textNode.dataset.wLocked='1';
+              }
+              gsap.to(textNode,{duration:0.4,ease:'none',
+                scrambleText:{text:l,chars:'upperCase',revealDelay:0.1,speed:0.9}});
             }}>
-              <span style={{width:3,height:3,background:"var(--secondary)",display:"inline-block",flexShrink:0}}/>
-              {l}
+              <span className="nav-dot" style={{width:3,height:3,background:"var(--secondary)",display:"inline-block",flexShrink:0}}/>
+              <span className="nav-text">{l}</span>
             </span>
           ))}
 
@@ -1566,23 +1960,6 @@ function Page() {
             <span style={{width:3,height:3,background:"currentColor",display:"inline-block",flexShrink:0}}/>
             <span className="cta-text">Get in touch</span>
           </button>
-
-          {/* Hamburger — mobile only: tap to open CTA/menu panel */}
-          {isMobile && (
-            <button
-              onClick={()=>setCtaOpen(true)}
-              aria-label="Open menu"
-              style={{
-                background:"none", border:"none", cursor:"pointer",
-                display:"flex", flexDirection:"column", justifyContent:"center", gap:4,
-                width:28, height:28, padding:2, flexShrink:0,
-              }}
-            >
-              <span style={{display:"block",width:20,height:2,background:"var(--secondary)"}}/>
-              <span style={{display:"block",width:20,height:2,background:"var(--secondary)"}}/>
-              <span style={{display:"block",width:12,height:2,background:"var(--secondary)"}}/>
-            </button>
-          )}
 
           {/* Toggle UI — pill, border: 1px solid var(--secondary), border-radius: 256px, padding 3px, w 29px */}
           <button
@@ -1612,8 +1989,24 @@ function Page() {
               transform: dark ? "translateX(10px)" : "translateX(0px)",
             }}/>
           </button>
+
+          {/* Hamburger — mobile only: tap to open mobile nav menu */}
+          {isMobile && (
+            <button
+              onClick={()=>setMenuOpen(true)}
+              aria-label="Open menu"
+              style={{
+                background:"none", border:"none", cursor:"pointer",
+                display:"flex", flexDirection:"column", justifyContent:"flex-start", gap:6,
+                width:30, height:10, padding:0, flexShrink:0,
+              }}
+            >
+              <span style={{display:"block",width:30,height:2,background:"var(--secondary)"}}/>
+              <span style={{display:"block",width:30,height:2,background:"var(--secondary)"}}/>
+            </button>
+          )}
         </nav>
-      </header>
+      </header>, document.getElementById('nav-portal'))}
 
       {/* ══════════════════════════════════════
           HERO + HYPE REEL — combined section for smooth thumb→reel animation
@@ -1621,14 +2014,17 @@ function Page() {
       <section style={{position:"relative"}}>
         {!isMobile && <DitherCanvas dark={dark} />}
 
-        {/* Hero viewport — 100vh */}
-        <div style={{height:"100vh", position:"relative", overflow:"hidden"}}>
+        {/* Hero viewport — 100dvh on mobile (accounts for iOS collapsing browser chrome), 100vh on desktop */}
+        <div style={{height: isMobile ? "100dvh" : "100vh", position:"relative", overflow:"hidden"}}>
+          {/* Mobile dither video — rendered inside overflow:hidden so it can't bleed over the nav */}
+          {isMobile && <MobileDitherVideo dark={dark} />}
 
           {/* DIJITALLY™ — centred within first viewport */}
           <div style={{
             position:"absolute",
-            top:"50%", left:"var(--s42)", right:"var(--s42)",
-            transform:"translateY(-50%)",
+            top: isMobile ? "72px" : "50%",
+            left:"var(--s42)", right:"var(--s42)",
+            transform: isMobile ? "none" : "translateY(-50%)",
             zIndex:1,
           }}>
             <div
@@ -1656,7 +2052,7 @@ function Page() {
               <span style={{fontFamily:"var(--mono)",fontSize:12,color:"var(--static)"}}>·</span>
               <span ref={heroTextRef} data-split-entrance="" className="hero-body-text" style={{
                   fontFamily:"var(--sans)",
-                  fontSize:"var(--h2)", fontWeight:350,
+                  fontSize: isMobile ? "var(--h1)" : "var(--h2)", fontWeight:350,
                   lineHeight:"var(--h2-lh)", letterSpacing:"var(--h2-ls)",
                   color:"var(--secondary)",
                   maxWidth:533,
@@ -1664,8 +2060,15 @@ function Page() {
                 }}>Through flexible, built-for-scale models, we connect creative, marketing, and technology to drive measurable impact for our allies.</span>
             </div>
 
-            {/* Thumbnail — hidden on mobile, shown on desktop */}
-            <div ref={heroThumbRef} style={{position:"relative",width:256,height:144,flexShrink:0,marginLeft:"auto",display: isMobile ? "none" : "block"}}>
+            {/* Thumbnail — full container width on mobile, 256×144 on desktop */}
+            <div ref={heroThumbRef} style={{
+              position:"relative",
+              width: isMobile ? "100%" : 256,
+              height: isMobile ? "calc((100vw - 32px) * 9 / 16)" : 144,
+              flexShrink:0,
+              marginLeft: isMobile ? 0 : "auto",
+              display:"block",
+            }}>
               <button
                 onClick={()=>setReelOpen(true)}
                 onMouseEnter={()=>setThumbHover(true)}
@@ -1703,7 +2106,7 @@ function Page() {
           {/* Left text — vertically centred with video */}
           <div style={{
             width: isMobile ? "100%" : 400, flexShrink:0,
-            display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s32)",
+            display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s24)",
           }}>
             <Eyebrow>++ FROM ENGINEERING TO EXECUTION ++</Eyebrow>
             <p data-split="" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)"}}>
@@ -1739,7 +2142,7 @@ function Page() {
       <section id="services" style={{...divider, minHeight:1000}}>
 
         {/* Text header */}
-        <div style={{padding: isMobile ? "var(--s42) var(--s42) var(--s32)" : "var(--s42) var(--s42) var(--s32) calc(400px + var(--s42) * 2)",display:"flex",flexDirection:"column",gap:16}}>
+        <div style={{padding: isMobile ? "var(--s42) var(--s42) var(--s32)" : "var(--s42) var(--s42) var(--s32) calc(400px + var(--s42) * 2)",display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
           <Eyebrow center={false}>++ HOW WE OPERATE ++</Eyebrow>
 
           <h2 style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:585}}>
@@ -1770,6 +2173,16 @@ function Page() {
                     borderRadius:4,
                     padding:"24px",
                   }}>
+                    {/* Video — mobile only, above model name */}
+                    {isMobile && (
+                      <div style={{aspectRatio:"16/9",overflow:"hidden",borderRadius:4,marginBottom:16}}>
+                        <PixelResolveVideo
+                          src={m.video}
+                          externalTrigger={true}
+                          videoProps={{muted:true,playsInline:true,autoPlay:true,loop:true,style:{width:"100%",height:"100%",objectFit:"cover",display:"block"}}}
+                        />
+                      </div>
+                    )}
                     <span style={{
                       fontFamily:"var(--sans)",
                       fontSize:"var(--h2)", fontWeight:350,
@@ -1806,7 +2219,9 @@ function Page() {
                     style={{
                       display:"flex", alignItems:"center", justifyContent:"space-between",
                       width:"100%",
-                      padding:"16px 24px", background: hoverModel===i ? (dark?"#1A1A1A":"#F6F6F6") : "none", borderRadius:4, border:"none",
+                      padding:"16px 24px",
+                      background: (isMobile || hoverModel===i) ? (dark?"#1A1A1A":"#F6F6F6") : "none",
+                      borderRadius:4, border:"none",
                       cursor:"pointer", textAlign:"left",
                     }}
                   >
@@ -1814,14 +2229,14 @@ function Page() {
                       fontFamily:"var(--sans)",
                       fontSize:"var(--h2)", fontWeight:350,
                       lineHeight:"var(--h2-lh)", letterSpacing:"var(--h2-ls)",
-                      color: hoverModel===i ? "var(--secondary)" : "var(--static)",
+                      color: (isMobile || hoverModel===i) ? "var(--secondary)" : "var(--static)",
                       transition:"color 0.2s ease",
                     }}>{m.name}</span>
                     <span style={{
                       fontFamily:"var(--sans)",
                       fontSize:"var(--h2)", fontWeight:350,
                       color:"var(--static)",
-                      opacity: hoverModel===i ? 1 : 0,
+                      opacity: (isMobile || hoverModel===i) ? 1 : 0,
                       transition:"opacity 0.2s ease",
                       lineHeight:1,
                     }}>+</span>
@@ -1831,12 +2246,13 @@ function Page() {
             ))}
           </div>
 
-          {/* Video panel — 1164 × 700, sticky on desktop */}
+          {/* Video panel — desktop only; on mobile video lives inside each accordion item */}
           <div ref={modelPanelRef} style={{
             flex:1,
-            position: isMobile ? "relative" : "sticky",
-            top: isMobile ? "auto" : "var(--nav-h)",
-            alignSelf: isMobile ? "auto" : "flex-start",
+            display: isMobile ? "none" : undefined,
+            position:"sticky",
+            top:"var(--nav-h)",
+            alignSelf:"flex-start",
             aspectRatio:"16/9",
             overflow:"hidden",
             background:"#FDFEFF",
@@ -1889,7 +2305,7 @@ function Page() {
       ══════════════════════════════════════ */}
       <section id="work" ref={carouselSectionRef} style={{
         ...divider,
-        paddingTop:"var(--s128)", paddingBottom:"var(--s128)",
+        paddingTop: isMobile ? 64 : "var(--s128)", paddingBottom:"var(--s128)",
         display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s24)",
       }}>
         {/* Header + filters */}
@@ -1904,34 +2320,57 @@ function Page() {
           paddingRight:"var(--s64)",
         }}>
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
+            <Eyebrow center={false}>++ OUR WORK ++</Eyebrow>
             <h2 style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:500}}>
-              <span style={{  fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)"  }}>Our work. Creative that converts. Data that performs. Systems that support. Production that moves.</span>
+              <span style={{  fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)"  }}>Creative that converts. Data that performs. Systems that support. Production that moves.</span>
             </h2>
             {/* Filter pills — under heading */}
             <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
               {CATS.map(c=>(
-                <button key={c} onClick={()=>setActiveFilter(c)} style={{
-                  padding:"5px 12px",
-                  background: c===activeFilter ? "#121010" : "transparent",
-                  border: `1px solid ${c===activeFilter?"#121010":"var(--grey)"}`,
-                  borderRadius:100,
-                  fontFamily:"var(--mono)",fontSize:11,fontWeight:400,letterSpacing:"0.08em",
-                  color: c===activeFilter ? "#FDFEFF" : "var(--secondary)",
-                  cursor:"pointer",transition:"all 0.15s",
-                }}>{c}</button>
+                <button key={c} onClick={()=>setActiveFilter(c)}
+                  onMouseEnter={e=>{
+                    if (c===activeFilter) return;
+                    const el = e.currentTarget;
+                    el.style.background = getComputedStyle(el).borderColor;
+                    if (typeof gsap!=='undefined') {
+                      if (!el.dataset.wLocked) {
+                        el.style.overflow='hidden';
+                        el.style.whiteSpace='nowrap';
+                        el.style.width=el.offsetWidth+'px';
+                        el.dataset.wLocked='1';
+                      }
+                      gsap.to(el,{duration:0.4,ease:'none',
+                        scrambleText:{text:c,chars:'upperCase',revealDelay:0.1,speed:0.9}});
+                    }
+                  }}
+                  onMouseLeave={e=>{
+                    if (c===activeFilter) return;
+                    e.currentTarget.style.background='transparent';
+                  }}
+                  style={{
+                    padding:"5px 12px",
+                    background: c===activeFilter ? "#121010" : "transparent",
+                    border: `1px solid ${c===activeFilter?"#121010":"var(--grey)"}`,
+                    borderRadius:100,
+                    fontFamily:"var(--mono)",fontSize:11,fontWeight:400,letterSpacing:0,
+                    color: c===activeFilter ? "#FDFEFF" : "var(--secondary)",
+                    cursor:"pointer",transition:"background 0.15s",
+                  }}>{c}</button>
               ))}
             </div>
           </div>
-          <a href="#work" className="cta-btn" style={{
-            display:"inline-flex", alignItems:"center", justifyContent:"center", gap:10,
-            padding:"18px 24px",
-            background:"var(--tech)",
-            border:"none", borderRadius:0,
-            fontFamily:"var(--sans)", fontSize:16, fontWeight:500, letterSpacing:0,
-            color:"#121010",
-            textDecoration:"none", whiteSpace:"nowrap",
-            flexShrink:0,
-          }}><span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span></a>
+          {!isMobile && (
+            <a href="#work" className="cta-btn" style={{
+              display:"inline-flex", alignItems:"center", justifyContent:"center", gap:10,
+              padding:"18px 24px",
+              background:"var(--tech)",
+              border:"none", borderRadius:0,
+              fontFamily:"var(--sans)", fontSize:16, fontWeight:500, letterSpacing:0,
+              color:"#121010",
+              textDecoration:"none", whiteSpace:"nowrap",
+              flexShrink:0,
+            }}><span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span></a>
+          )}
         </div>
 
         {/* Cards — horizontal scroll */}
@@ -1965,7 +2404,7 @@ function Page() {
             touchAction: isMobile ? "pan-x pan-y" : "auto",
           }}>
           {filtered.map((w,i)=>(
-            <div key={i} className="wc" style={{flexShrink:0, width: isMobile ? "calc(100vw - 48px)" : 504, cursor:"pointer"}}>
+            <div key={i} className="wc" style={{flexShrink:0, width: isMobile ? "calc(100vw - 96px)" : 504, cursor:"pointer"}}>
               {/* Thumbnail */}
               <div style={{position:"relative",width:"100%",flexShrink:0,overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg}}>
                 {w.img
@@ -1974,6 +2413,24 @@ function Page() {
                       <span style={{fontFamily:"var(--sans)",fontSize:22,fontWeight:900,color:w.fg,letterSpacing:"-0.02em",textAlign:"center",padding:16}}>{w.label}</span>
                     </div>
                 }
+                {/* Slide-in CTA */}
+                <a href="#" className="cta-btn work-card-cta" style={{
+                  display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,
+                  padding:"18px 24px",
+                  background:"var(--tech)",
+                  border:"none",borderRadius:0,
+                  fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,
+                  color:"#121010",
+                  textDecoration:"none",whiteSpace:"nowrap",flexShrink:0,
+                }} onMouseEnter={e=>{
+                  const t=e.currentTarget.querySelector('.cta-text');
+                  if(!t||typeof gsap==='undefined') return;
+                  if(!t.style.width){t.style.display='inline-block';t.style.whiteSpace='nowrap';t.style.width=t.offsetWidth+'px';t.style.overflow='hidden';}
+                  gsap.to(t,{duration:0.4,ease:'none',scrambleText:{text:'View project',chars:'upperCase',revealDelay:0.1,speed:0.8}});
+                }}>
+                  <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/>
+                  <span className="cta-text">View project</span>
+                </a>
               </div>
               {/* Card meta — JetBrains Mono 10px, ls -0.2px, #878787 */}
               <div style={{padding:"16px 0 0",display:"flex",flexDirection:"column",gap:4}}>
@@ -1984,6 +2441,21 @@ function Page() {
             </div>
           ))}
         </div>
+
+        {/* View all CTA — mobile only, below carousel */}
+        {isMobile && (
+          <div style={{paddingLeft:"var(--s64)", paddingRight:"var(--s64)", paddingTop:24}}>
+            <a href="#work" className="cta-btn" style={{
+              display:"inline-flex", alignItems:"center", justifyContent:"center", gap:10,
+              padding:"18px 24px",
+              background:"var(--tech)",
+              border:"none", borderRadius:0,
+              fontFamily:"var(--sans)", fontSize:16, fontWeight:500, letterSpacing:0,
+              color:"#121010",
+              textDecoration:"none", whiteSpace:"nowrap",
+            }}><span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span></a>
+          </div>
+        )}
 
       </section>
 
@@ -2030,6 +2502,15 @@ function Page() {
               autoPlay muted loop playsInline
               style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}}
             />
+            {/* Dark mode overlay — same logic as DitherCanvas: multiply #121010 darkens video to match dark palette */}
+            <div style={{
+              position:"absolute",inset:0,
+              background:"#121010",
+              mixBlendMode:"multiply",
+              opacity: dark ? 1 : 0,
+              transition:"opacity 0.3s ease",
+              pointerEvents:"none",
+            }}/>
           </div>
 
           {/* Right: form */}
@@ -2136,18 +2617,133 @@ function Page() {
       {ReactDOM.createPortal(
         <div className={"lb " + (reelOpen?"open":"")} style={{
           position:"fixed",inset:0,zIndex:200,
-          background:"rgba(18,16,16,0.97)",
+          background:"rgba(18,16,16,0.75)",
+          backdropFilter:"blur(24px)", WebkitBackdropFilter:"blur(24px)",
           display:"flex",alignItems:"center",justifyContent:"center",
         }} onClick={()=>setReelOpen(false)}>
-          <div style={{position:"relative",width:"80vw",aspectRatio:"16/9",background:"#0a0a0a",borderRadius:8,overflow:"hidden"}} onClick={e=>e.stopPropagation()}>
+          <div style={{position:"relative",width:"80vw",aspectRatio:"16/9",background:"#0a0a0a",borderRadius:4,overflow:"hidden"}} onClick={e=>e.stopPropagation()}>
             <video
               src="videos/thumbnail.mp4?v=2"
               autoPlay muted loop playsInline
               style={{position:"absolute",inset:0,width:"100%",height:"100%",objectFit:"cover",display:"block"}}
             />
-            <button onClick={()=>setReelOpen(false)} style={{position:"absolute",top:16,right:16,background:"none",border:"none",color:"rgba(253,254,255,0.6)",fontSize:24,cursor:"pointer",zIndex:1}}>×</button>
+            {/* Close button — same X style as CTA panel */}
+            <button onClick={()=>setReelOpen(false)} style={{
+              position:"absolute",top:16,right:16,zIndex:1,
+              background:"none",border:"none",cursor:"pointer",
+              width:28,height:19,flexShrink:0,
+            }}>
+              <div style={{position:"absolute",inset:0,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                <div style={{width:30,height:2,background:"#FDFEFF",transform:"rotate(-30deg)",position:"absolute",opacity:0.6}}/>
+                <div style={{width:30,height:2,background:"#FDFEFF",transform:"rotate(-150deg)",position:"absolute",opacity:0.6}}/>
+              </div>
+            </button>
           </div>
         </div>,
+        document.getElementById("lb-portal")
+      )}
+
+      {/* ══════════════════════════════════════
+          MOBILE NAV MENU — tile reveal + SplitText content animation
+      ══════════════════════════════════════ */}
+      {isMobile && menuOpen && ReactDOM.createPortal(
+        <>
+          {/* Tile grid — flips from edges to centre, fires onComplete when done */}
+          {!menuReady && (
+            <MenuPixelReveal onComplete={()=> setMenuReady(true)} />
+          )}
+
+          {/* Menu panel — always dark (#121010) regardless of site theme */}
+          <div
+            id="menu-panel"
+            className="dark"
+            style={{
+              position:"fixed", inset:0, zIndex:200,
+              background: menuReady ? "#121010" : "transparent",
+              display:"flex", flexDirection:"column",
+              boxSizing:"border-box",
+              overflow:"hidden",
+            }}
+            onClick={e=>e.stopPropagation()}
+          >
+            {/* Header row — X close only, positioned to match hamburger in main nav (right:16px, vertically centred in 64px) */}
+            <div style={{ position:"relative", height:64, flexShrink:0, zIndex:1, visibility: menuReady ? "visible" : "hidden" }}>
+              <button
+                onClick={()=>setMenuOpen(false)}
+                aria-label="Close menu"
+                style={{ background:"none", border:"none", cursor:"pointer", width:30, height:10, position:"absolute", right:16, top:"50%", transform:"translateY(-50%)", padding:0 }}
+              >
+                <div style={{ position:"absolute", top:"50%", left:"50%", width:30, height:2, background:"#FDFEFF", transform:"translate(-50%,-50%) rotate(-30deg)" }} />
+                <div style={{ position:"absolute", top:"50%", left:"50%", width:30, height:2, background:"#FDFEFF", transform:"translate(-50%,-50%) rotate(-150deg)" }} />
+              </button>
+            </div>
+
+            {/* Nav content — hidden until menuReady, then items animate up */}
+            <div
+              ref={menuContentRef}
+              style={{
+                flex:1, display:"flex", flexDirection:"column", justifyContent:"center",
+                padding:"42px", gap:28,
+                visibility: menuReady ? "visible" : "hidden",
+              }}
+            >
+              {/* Work, Services, About, Blog */}
+              {["Work","Services","About","Blog"].map(label => (
+                <div key={label} style={{ overflow:"hidden" }}>
+                  <a
+                    href="#"
+                    className="menu-nav-item"
+                    onClick={e=>{ e.preventDefault(); setMenuOpen(false); }}
+                    style={{
+                      fontFamily:"var(--sans)", fontSize:26, fontWeight:350,
+                      lineHeight:"120%", letterSpacing:"0.26px",
+                      color:"#FDFEFF", textDecoration:"none",
+                      display:"block", opacity:0,
+                    }}
+                  >{label}</a>
+                </div>
+              ))}
+
+              {/* Get in touch — 4×4 dot + NeuSans Medium 26px */}
+              <div style={{ overflow:"hidden" }}>
+                <button
+                  className="menu-nav-item"
+                  onClick={()=>{ setMenuOpen(false); setTimeout(()=>setCtaOpen(true), 400); }}
+                  style={{
+                    display:"flex", alignItems:"center", gap:10,
+                    background:"none", border:"none", cursor:"pointer", padding:0,
+                    fontFamily:"var(--sans)", fontSize:26, fontWeight:500,
+                    lineHeight:"120%", letterSpacing:"0.26px",
+                    color:"#FDFEFF", opacity:0,
+                  }}
+                >
+                  <span style={{ width:4, height:4, background:"#FDFEFF", flexShrink:0, display:"inline-block" }} />
+                  <span>Get in touch</span>
+                </button>
+              </div>
+
+              {/* Email — JetBrains Mono 14px, muted */}
+              <div style={{ overflow:"hidden", paddingTop:8 }}>
+                <span
+                  className="menu-nav-item"
+                  style={{
+                    fontFamily:"var(--mono)", fontSize:14, fontWeight:400,
+                    lineHeight:"100%", letterSpacing:"-0.28px",
+                    color:"#878787", display:"block", opacity:0,
+                  }}
+                >hello@dijitally.com</span>
+              </div>
+            </div>
+
+            {/* Footer — DIJITALLY™ Lottie logo full width */}
+            <div style={{ flexShrink:0, width:"100%" }}>
+              <div
+                ref={menuLogoRef}
+                style={{ width:"100%", overflow:"hidden", filter:"invert(1)" }}
+              />
+            </div>
+          </div>
+        </>,
         document.getElementById("lb-portal")
       )}
 
