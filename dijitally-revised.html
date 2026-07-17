@@ -2309,16 +2309,16 @@ const MODELS = [
 ];
 
 const WORKS = [
-  {title:"Afterpay x Dijitally",  meta:"PARTNERSHIP · 2024 · DIGITAL",  cat:"PARTNERSHIPS", bg:"#000",     fg:"#B6F4C9", label:"DIJITALLY × afterpay", img:"work/AfterpayxDijitally.png", aspect:"1008/1360", template:2},
-  {title:"Afterpay Day",          meta:"CREATIVE · DESIGN · SOCIAL",     cat:"CREATIVE",     bg:"#1a1a1a",  fg:"#F5F3EE", label:"Afterpay Day",         img:"work/AfterpayDay.jpg",         aspect:"1/1",        template:1},
-  {title:"Constantinople",        meta:"CREATIVE · DESIGN · SOCIAL",     cat:"SOCIAL",       bg:"#FF4500",  fg:"#F5F3EE", label:"Constantinople",       img:"work/Constantinople.png",      aspect:"1008/1360"},
-  {title:"Airwallex x Dijitally", meta:"PERFORMANCE · 2024 · DATA",      cat:"DATA",         bg:"#0a0a1e",  fg:"#B6F4C9", label:"Airwallex",            img:"work/AWXxAirwallex.png",       aspect:"1008/1230"},
-  {title:"Procore x Dijitally",   meta:"PARTNERSHIP · 2025 · DIGITAL",   cat:"PARTNERSHIPS", bg:"#000",     fg:"#B6F4C9", label:"Procore",              img:"work/ProcorexDijitally.png"},
-  {title:"SYD Airport",           meta:"CREATIVE · DESIGN · SOCIAL",     cat:"CREATIVE",     bg:"#000",     fg:"#F5F3EE", label:"SYD Airport",          img:null},
-  {title:"RoomStay Holiday Parks",meta:"CAMPAIGN · EVENT · 2024",        cat:"CREATIVE",     bg:"#1c2419",  fg:"#B6F4C9", label:"RoomStay",             img:"work/RoomStayBE_02.png", aspect:"1008/1360"},
-  {title:"Procore PresSURE",       meta:"CREATIVE · DESIGN · SOCIAL",     cat:"SOCIAL",       bg:"#FF7F3F",  fg:"#F5F3EE", label:"Procore",              img:"work/presSURE.png"},
+  {title:"Afterpay x Dijitally",  meta:"PARTNERSHIP · 2024 · DIGITAL",  cat:"ENABLEMENT",   bg:"#000",     fg:"#B6F4C9", label:"DIJITALLY × afterpay", img:"work/AfterpayxDijitally.png", aspect:"1008/1360", template:2},
+  {title:"Afterpay Day",          meta:"CREATIVE · DESIGN · SOCIAL",     cat:"EXECUTION",    bg:"#1a1a1a",  fg:"#F5F3EE", label:"Afterpay Day",         img:"work/AfterpayDay.jpg",         aspect:"1/1",        template:1},
+  {title:"Constantinople",        meta:"CREATIVE · DESIGN · SOCIAL",     cat:"EXECUTION",    bg:"#FF4500",  fg:"#F5F3EE", label:"Constantinople",       img:"work/Constantinople.png",      aspect:"1008/1360"},
+  {title:"Airwallex x Dijitally", meta:"PERFORMANCE · 2024 · DATA",      cat:"ENGINEERING",  bg:"#0a0a1e",  fg:"#B6F4C9", label:"Airwallex",            img:"work/AWXxAirwallex.png",       aspect:"1008/1230"},
+  {title:"Procore x Dijitally",   meta:"PARTNERSHIP · 2025 · DIGITAL",   cat:"ENABLEMENT",   bg:"#000",     fg:"#B6F4C9", label:"Procore",              img:"work/ProcorexDijitally.png"},
+  {title:"SYD Airport",           meta:"CREATIVE · DESIGN · SOCIAL",     cat:"EXECUTION",    bg:"#000",     fg:"#F5F3EE", label:"SYD Airport",          img:null},
+  {title:"RoomStay Holiday Parks",meta:"CAMPAIGN · EVENT · 2024",        cat:"EXECUTION",    bg:"#1c2419",  fg:"#B6F4C9", label:"RoomStay",             img:"work/RoomStayBE_02.png", aspect:"1008/1360"},
+  {title:"Procore PresSURE",       meta:"CREATIVE · DESIGN · SOCIAL",     cat:"EXECUTION",    bg:"#FF7F3F",  fg:"#F5F3EE", label:"Procore",              img:"work/presSURE.png"},
 ];
-const CATS = ["ALL","PARTNERSHIPS","CREATIVE","SOCIAL","DATA"];
+const CATS = ["ALL","ENGINEERING","ENABLEMENT","EXECUTION"];
 
 
 /* ═══════════════════════════════════════════════════
@@ -5951,8 +5951,8 @@ void main(){
       ══════════════════════════════════════ */}
       <section id="work" ref={carouselSectionRef} style={{
         ...divider,
-        paddingTop: isMobile ? 124 : 256, paddingBottom: isMobile ? 124 : 0,
-        display:"flex", flexDirection:"column", alignItems:"flex-start", gap: isMobile ? 64 : "var(--s64)",
+        paddingTop: isMobile ? 124 : "var(--s128)", paddingBottom: isMobile ? 124 : "var(--s128)",
+        display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s24)",
       }}>
         {/* Header + filters */}
         <div style={{
@@ -5968,98 +5968,74 @@ void main(){
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
             <img src="svgs/SVG/work.svg" alt="WORK" style={{ height: isMobile ? '10vw' : 'calc((100vw - 128px) * 100 / 1562)', width: 'auto', display: 'block', alignSelf: 'flex-start', filter: dark ? 'invert(1) brightness(0.96) sepia(0.3)' : 'none' }} />
             <WorkHeadlineCycle />
-          </div>
-        </div>
-
-        {/* Cards — staggered 2-col grid (shared between mobile + desktop) */}
-        {(()=>{
-          const cardCta = (label) => (
-            <a href="#" className="cta-btn work-card-cta" style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"14px 20px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:14,fontWeight:500,color:"#121010",textDecoration:"none",whiteSpace:"nowrap"}}
-              onMouseEnter={e=>{const t=e.currentTarget.querySelector('.cta-text');if(!t||typeof gsap==='undefined')return;if(!t.style.width){t.style.display='inline-block';t.style.whiteSpace='nowrap';t.style.width=t.offsetWidth+'px';t.style.overflow='hidden';}gsap.to(t,{duration:0.4,ease:'none',scrambleText:{text:label,chars:'upperCase',revealDelay:0.1,speed:0.8}});}}>
-              <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">{label}</span>
-            </a>
-          );
-          const cardMeta = (w, mobile) => (
-            <div style={{padding: mobile ? "12px 0 0" : "20px 0 0",display:"flex",flexDirection:"column",gap: mobile ? 2 : 6}}>
-              <p style={{fontFamily:"var(--sans)",fontSize:"var(--card)",fontWeight:350,lineHeight:"var(--card-lh)",color:"var(--secondary)"}}>{w.title}</p>
-              <span style={{fontFamily:"var(--mono)",fontSize:"var(--meta)",fontWeight:400,letterSpacing:"var(--meta-ls)",color:"var(--static)"}}>{w.meta}</span>
-            </div>
-          );
-          if (isMobile) return (
-            <div ref={el => {
-              if (!el) return;
-              requestAnimationFrame(() => {
-                const cs = getComputedStyle(el);
-                const w = el.offsetWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
-                Array.from(el.children).forEach(c => { if (c.classList.contains('wc')) c.style.width = w + 'px'; });
-              });
-            }} style={{width:"100%",paddingLeft:"var(--s42)",paddingRight:"var(--s42)",boxSizing:"border-box"}}>
-              {filtered.slice(0,4).map((w,i) => (
-                <div key={i} className="wc" style={{marginBottom: i < Math.min(filtered.length,4)-1 ? 56 : 0}}>
-                  <div onClick={goToWork} style={{position:"relative",width:"100%",paddingBottom:"64.58%",overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg,cursor:"pointer"}}>
-                    <div style={{position:"absolute",top:0,left:0,width:"100%",height:"100%"}}>
-                      {w.img && <StripRevealImg src={w.img} alt={w.title} delay={i*0.1}/>}
-                      {cardCta('View project')}
-                    </div>
-                  </div>
-                  {cardMeta(w, true)}
-                </div>
+            {/* Filter pills */}
+            <div className="filter-row" style={{display:"flex",gap:4}}>
+              {CATS.map(c=>(
+                <button key={c} onClick={()=>setActiveFilter(c)} style={{
+                  padding:"5px 12px",
+                  background: c===activeFilter ? "var(--secondary)" : "transparent",
+                  border: `1px solid ${c===activeFilter?"var(--secondary)":"var(--grey)"}`,
+                  borderRadius:100,
+                  fontFamily:"var(--mono)",fontSize:11,fontWeight:400,letterSpacing:"0.08em",
+                  color: c===activeFilter ? "var(--primary)" : "var(--secondary)",
+                  cursor:"pointer",transition:"all 0.15s",
+                }}>{c}</button>
               ))}
             </div>
-          );
-          return (
-            <div style={{width:"100%",paddingLeft:"var(--s64)",paddingRight:"var(--s64)",display:"flex",flexDirection:"column",gap:0,alignItems:"center"}}>
-              {/* Row 1: large left + small right offset down */}
-              <div style={{display:"flex",gap:128,alignItems:"flex-start"}}>
-                {filtered[0] && (
-                  <div className="wc" style={{width:720,flexShrink:0}}>
-                    <div className="work-grid-thumb" onClick={goToWork} style={{height:465,background:filtered[0].img?(dark?"#121010":"#1A1A1A"):filtered[0].bg,cursor:"pointer"}}>
-                      {filtered[0].img && <StripRevealImg src={filtered[0].img} alt={filtered[0].title} delay={0}/>}
-                      {cardCta('View project')}
+          </div>
+          <a href="#work" className="cta-btn" onClick={e=>{e.preventDefault();goToWork();}} style={{
+            display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,
+            padding:"18px 24px",background:"var(--tech)",border:"none",borderRadius:0,
+            fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,
+            color:"#121010",textDecoration:"none",whiteSpace:"nowrap",flexShrink:0,cursor:"pointer",
+          }}><span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span></a>
+        </div>
+
+        {/* Cards — horizontal scroll carousel */}
+        <div
+          ref={carouselRef}
+          data-carousel=""
+          onMouseDown={isMobile ? undefined : e=>{
+            dragRef.current = { active:true, startX: e.pageX - carouselRef.current.offsetLeft, scrollLeft: carouselRef.current.scrollLeft };
+            carouselRef.current.style.cursor = 'grabbing';
+            carouselRef.current.style.userSelect = 'none';
+          }}
+          onMouseMove={isMobile ? undefined : e=>{
+            if (!dragRef.current.active) return;
+            e.preventDefault();
+            const x = e.pageX - carouselRef.current.offsetLeft;
+            const walk = x - dragRef.current.startX;
+            carouselRef.current.scrollLeft = dragRef.current.scrollLeft - walk;
+          }}
+          onMouseUp={isMobile ? undefined : ()=>{ dragRef.current.active = false; carouselRef.current.style.cursor = 'grab'; }}
+          onMouseLeave={isMobile ? undefined : ()=>{ dragRef.current.active = false; carouselRef.current.style.cursor = 'grab'; }}
+          style={{
+            display:"flex", gap:24, overflowX:"auto",
+            width:"100%",
+            paddingLeft: isMobile ? "var(--s42)" : "var(--s64)",
+            paddingRight: isMobile ? "var(--s42)" : "var(--s64)",
+            paddingBottom:"var(--s16)",
+            boxSizing:"border-box",
+            cursor: isMobile ? "default" : "grab",
+            WebkitOverflowScrolling:"touch",
+            touchAction: isMobile ? "pan-x pan-y" : "auto",
+          }}>
+          {filtered.map((w,i)=>(
+            <div key={i} className="wc" onClick={goToWork} style={{flexShrink:0, width: isMobile ? "calc(100vw - 48px)" : 504, cursor:"pointer"}}>
+              <div style={{position:"relative",width:"100%",flexShrink:0,overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg}}>
+                {w.img
+                  ? <StripRevealImg src={w.img} alt={w.title} delay={i*0.15} />
+                  : <div style={{width:504,height:680,display:"flex",alignItems:"center",justifyContent:"center"}}>
+                      <span style={{fontFamily:"var(--sans)",fontSize:22,fontWeight:900,color:w.fg,letterSpacing:"-0.02em",textAlign:"center",padding:16}}>{w.label}</span>
                     </div>
-                    {cardMeta(filtered[0])}
-                  </div>
-                )}
-                {filtered[1] && (
-                  <div className="wc" style={{width:378,flexShrink:0,paddingTop:252}}>
-                    <div className="work-grid-thumb" onClick={goToWork} style={{height:378,background:filtered[1].img?(dark?"#121010":"#1A1A1A"):filtered[1].bg,cursor:"pointer"}}>
-                      {filtered[1].img && <StripRevealImg src={filtered[1].img} alt={filtered[1].title} delay={0.2}/>}
-                      {cardCta('View project')}
-                    </div>
-                    {cardMeta(filtered[1])}
-                  </div>
-                )}
+                }
               </div>
-              {/* Row 2: small left + large right offset down */}
-              <div style={{display:"flex",gap:128,alignItems:"flex-start",paddingBottom:96}}>
-                {filtered[2] && (
-                  <div className="wc" style={{width:378,flexShrink:0,paddingBottom:320}}>
-                    <div className="work-grid-thumb" onClick={goToWork} style={{height:378,background:filtered[2].img?(dark?"#121010":"#1A1A1A"):filtered[2].bg,cursor:"pointer"}}>
-                      {filtered[2].img && <StripRevealImg src={filtered[2].img} alt={filtered[2].title} delay={0.1}/>}
-                      {cardCta('View project')}
-                    </div>
-                    {cardMeta(filtered[2])}
-                  </div>
-                )}
-                {filtered[3] && (
-                  <div className="wc" style={{width:720,flexShrink:0,paddingTop:252}}>
-                    <div className="work-grid-thumb" onClick={goToWork} style={{height:465,background:filtered[3].img?(dark?"#121010":"#1A1A1A"):filtered[3].bg,cursor:"pointer"}}>
-                      {filtered[3].img && <StripRevealImg src={filtered[3].img} alt={filtered[3].title} delay={0.3}/>}
-                      {cardCta('View project')}
-                    </div>
-                    {cardMeta(filtered[3])}
-                  </div>
-                )}
+              <div style={{padding:"16px 0 0",display:"flex",flexDirection:"column",gap:4}}>
+                <p style={{fontFamily:"var(--sans)",fontSize:"var(--card)",fontWeight:350,lineHeight:"var(--card-lh)",color:"var(--secondary)"}}>{w.title}</p>
+                <span style={{fontFamily:"var(--mono)",fontSize:"var(--meta)",fontWeight:400,letterSpacing:"var(--meta-ls)",color:"var(--static)"}}>{w.meta}</span>
               </div>
             </div>
-          );
-        })()}
-
-        {/* View all CTA — below thumbnails, centred */}
-        <div style={{width:"100%",display:"flex",justifyContent:"center",paddingTop:isMobile?24:0,paddingBottom:isMobile?0:256,paddingLeft:"var(--s42)",paddingRight:"var(--s42)"}}>
-          <a href="#work" className="cta-btn" onClick={e=>{e.preventDefault();goToWork();}} style={{display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,padding:"18px 24px",background:"var(--tech)",border:"none",borderRadius:0,fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,color:"#121010",textDecoration:"none",whiteSpace:"nowrap",cursor:"pointer"}}>
-            <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span>
-          </a>
+          ))}
         </div>
 
       </section>
