@@ -60,7 +60,7 @@
       /* Eyebrow     */ --eyebrow: 12px; --eyebrow-ls: -0.24px;
       /* Meta        */ --meta: 10px; --meta-ls: -0.2px;
       /* Nav         */ --nav-size: 19px; --nav-w: 600; --nav-ls: -0.38px;
-      /* Accordion   */ --acc-body: 17px; --acc-body-lh: 120%;
+      /* Accordion   */ --acc-body: 18px; --acc-body-lh: 120%;
 
       /* Spacing */
       --s4:4px; --s6:6px; --s8:8px; --s10:10px; --s12:12px;
@@ -209,6 +209,7 @@
     #dj-cursor { display: none; }
     /* No native drag in carousel */
     .wc img, .wc canvas { -webkit-user-drag: none; user-drag: none; pointer-events: none; }
+    .wc:hover .wc-thumb { transform: scale(1.05); }
     /* Hide carousel scrollbar */
     [data-carousel]::-webkit-scrollbar { display: none; }
     [data-carousel] { scrollbar-width: none; -ms-overflow-style: none; }
@@ -292,6 +293,7 @@
 <div id="glitch-overlay" style="position:fixed;inset:0;z-index:150;overflow:hidden;pointer-events:none;"></div>
 <script>(function(){if(sessionStorage.getItem('skipIntro')){var h=new Date().getHours();var d=localStorage.getItem('dijitally-theme')==='dark'||(!localStorage.getItem('dijitally-theme')&&(h>=18||h<6));var el=document.getElementById('glitch-overlay');if(el)el.style.background=d?'#121010':'#F5F3EE';}})()</script>
 <div id="intro-logo-overlay" style="position:fixed;top:50%;left:42px;right:42px;transform:translateY(-50%);z-index:151;pointer-events:none;aspect-ratio:1604/223;display:none;"></div>
+<div id="intro-logo-underline" style="position:fixed;z-index:151;pointer-events:none;display:none;background:var(--primary);"></div>
 <svg id="logo-filter-svg" aria-hidden="true" style="position:absolute;width:0;height:0;overflow:hidden">
   <defs>
     <!-- Inverts black logo paths to exactly #F5F3EE (245,243,238) -->
@@ -432,7 +434,6 @@
   });
 })();
 </script>
-<div style="position:fixed;bottom:12px;left:12px;z-index:9999;font-family:monospace;font-size:11px;color:red;pointer-events:none;">build ally-fix2</div>
 <div id="lb-portal"></div>
 <div id="smooth-wrapper"><div id="smooth-content"><div id="root"></div></div></div>
 <script type="text/babel">
@@ -664,18 +665,11 @@ function StripRevealVideo({ src, videoRef: externalVideoRef, videoProps={}, styl
   );
 }
 
-/* ── PixelRevealImg — diagonal pixel-dissolve reveal + hover pixelation ── */
-const PATTERN_IMGS = ['svgs/pattern_01.svg','svgs/pattern_02.svg','svgs/pattern_03.svg'].map(src => {
-  const img = new Image(); img.src = src; return img;
-});
+/* ── PixelRevealImg — diagonal pixel-dissolve reveal, gentle scale on hover ── */
 function PixelRevealImg({ src, alt, style = {}, externalTrigger = false, delay = 0 }) {
   const containerRef = useRef(null);
   const imgRef       = useRef(null);
   const revealRef    = useRef(null);
-  const hoverRef     = useRef(null);
-  const mouseRef     = useRef({ x: -9999, y: -9999 });
-  const hoveredRef   = useRef(false);
-  const hoverRafRef  = useRef(null);
   const [ready,  setReady]  = useState(false);
   const [inView, setInView] = useState(false);
   const PX = 16;
@@ -736,54 +730,13 @@ function PixelRevealImg({ src, alt, style = {}, externalTrigger = false, delay =
     return () => { clearTimeout(t); cancelAnimationFrame(raf); };
   }, [ready, inView]);
 
-  useEffect(() => {
-    if (!ready) return;
-    const container = containerRef.current, img = imgRef.current, canvas = hoverRef.current;
-    if (!container || !img || !canvas) return;
-    const W = img.offsetWidth, H = img.offsetHeight;
-    if (!W || !H) return;
-    canvas.width = W; canvas.height = H;
-    const ctx = canvas.getContext('2d');
-    const smpl = document.createElement('canvas'), sctx = smpl.getContext('2d');
-    const RAMP = 1000, MAX_PX = PX;
-    let enterTime = null, leaveTime = null;
-    const ease = t => t < 0.5 ? 2*t*t : -1+(4-2*t)*t;
-    const mounted = { v: true };
-    const loop = (now) => {
-      if (!mounted.v) return;
-      const isHov = hoveredRef.current;
-      if (isHov && !enterTime) { enterTime = now; leaveTime = null; }
-      if (!isHov && !leaveTime) { leaveTime = now; enterTime = null; }
-      const rampUp = enterTime ? Math.min((now - enterTime) / RAMP, 1) : 0;
-      const rampDown = leaveTime ? Math.min((now - leaveTime) / (RAMP * 0.5), 1) : 0;
-      const prog = isHov ? ease(rampUp) : ease(1 - rampDown);
-      if (!isHov && prog <= 0) {
-        ctx.clearRect(0, 0, W, H); img.style.transform = ''; img.style.opacity = '1';
-        hoverRafRef.current = null; return;
-      }
-      const curPX = Math.max(1, Math.round(1 + (MAX_PX - 1) * prog));
-      img.style.transform = `scale(${1 + prog * 0.06})`; img.style.transition = 'none';
-      ctx.clearRect(0, 0, W, H); ctx.imageSmoothingEnabled = false;
-      const cCols = Math.ceil(W / curPX), cRows = Math.ceil(H / curPX);
-      smpl.width = cCols; smpl.height = cRows;
-      sctx.drawImage(img, 0, 0, cCols, cRows);
-      ctx.drawImage(smpl, 0, 0, cCols, cRows, 0, 0, W, H);
-      hoverRafRef.current = requestAnimationFrame(loop);
-    };
-    const onEnter = () => { hoveredRef.current = true; img.style.opacity = '0'; if (!hoverRafRef.current) hoverRafRef.current = requestAnimationFrame(loop); };
-    const onLeave = (e) => { const card = container.closest('.wc'); if (card && card.contains(e.relatedTarget)) return; hoveredRef.current = false; mouseRef.current = { x:-9999, y:-9999 }; };
-    const onMove = e => { const r = canvas.getBoundingClientRect(); mouseRef.current = { x: e.clientX - r.left, y: e.clientY - r.top }; };
-    container.addEventListener('mouseenter', onEnter);
-    container.addEventListener('mouseleave', onLeave);
-    container.addEventListener('mousemove', onMove);
-    return () => { mounted.v = false; container.removeEventListener('mouseenter', onEnter); container.removeEventListener('mouseleave', onLeave); container.removeEventListener('mousemove', onMove); cancelAnimationFrame(hoverRafRef.current); };
-  }, [ready]);
-
   return (
     <div ref={containerRef} style={{ position:'relative', lineHeight:0, overflow:'hidden', borderRadius:4, background:'#1A1A1A', ...style }}>
-      <img ref={imgRef} src={src} alt={alt} draggable={false} onDragStart={e=>e.preventDefault()} crossOrigin="anonymous" onLoad={()=>setReady(true)} style={{ display:'block', width:'100%', height:'auto', opacity:0 }} />
+      <img ref={imgRef} src={src} alt={alt} draggable={false} onDragStart={e=>e.preventDefault()} crossOrigin="anonymous" onLoad={()=>setReady(true)}
+        style={{ display:'block', width:'100%', height:'auto', opacity:0, transition:'transform 0.5s cubic-bezier(0.25,0.46,0.45,0.94)' }}
+        className="wc-thumb"
+      />
       <canvas ref={revealRef} style={{ position:'absolute', top:0, left:0, pointerEvents:'none' }} />
-      <canvas ref={hoverRef}  style={{ position:'absolute', top:0, left:0, pointerEvents:'none' }} />
     </div>
   );
 }
@@ -2413,21 +2366,15 @@ function GreenBtn({children,onClick,style={}}) {
 /* ── Data ── */
 const MODELS = [
   {
-    name:"Integrated",
+    name:"Studio.",
     body:"We bring high-impact capabilities together into one connected way of working to enable faster decision-making and more efficient execution across every stage of growth.",
     areas:["Strategy + Media + Performance","Platforms + Experience","Creative + Production"],
     video:"videos/Integrated.mp4",
   },
   {
-    name:"In-house",
-    body:"We embed within your team, operating as a true extension of your business to build capability, culture, and output from the inside out.",
+    name:"In.House",
+    body:"We embed within your team as a dedicated model. From upstream capability (UX, development) through to downstream execution (artworkers, production) — building capability, culture, and output from the inside out, fully aligned to your goals, processes, and people.",
     areas:["Embedded Expertise","Team Augmentation","Internal Capability Building"],
-    video:"videos/Inhouse+Embedded.mp4",
-  },
-  {
-    name:"Embedded",
-    body:"A dedicated squad that lives inside your organisation, fully aligned to your goals, processes, and people.",
-    areas:["Dedicated Squad","Full Alignment","Continuous Delivery"],
     video:"videos/Inhouse+Embedded.mp4",
   },
 ];
@@ -2990,7 +2937,7 @@ function ServicesHeroStatic({ isMobile, dark }) {
           <img ref={allyRef} src="svgs/SVG/ally.svg" alt="ALLY" style={{ height: '10vw', width: 'auto', display: 'block', filter: imgFilter }} />
           <div style={{ display: 'flex', flexDirection: 'column', gap: 16, marginTop: 12 }}>
             <p ref={headRef} style={{ fontFamily: 'var(--sans)', fontSize: 'var(--h1)', fontWeight: 350, lineHeight: '110%', letterSpacing: '-0.84px', color: 'var(--secondary)', margin: 0 }}>
-              From engineering to execution and everything in between.
+              From engineering to execution, and everything in between.
             </p>
             <p ref={bodyRef} style={{ fontFamily: 'var(--sans)', fontSize: 'var(--body-sm)', fontWeight: 'var(--body-sm-w)', lineHeight: 'var(--body-sm-lh)', color: '#878787', margin: 0 }}>
               Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.
@@ -3037,7 +2984,7 @@ function ServicesHeroStatic({ isMobile, dark }) {
           {/* Right: body copy — live text as per brief */}
           <div style={{ width: bodyW, display: 'flex', flexDirection: 'column', gap: 28, flexShrink: 0 }}>
             <p ref={headRef} style={{ fontFamily: 'var(--sans)', fontSize: 'calc((100vw - 128px) * 26 / 1562)', fontWeight: 350, lineHeight: 1.1, letterSpacing: '-0.26px', color: 'var(--secondary)', margin: 0 }}>
-              From engineering to execution and everything in between.
+              From engineering to execution, and everything in between.
             </p>
             <p ref={bodyRef} style={{ fontFamily: 'var(--sans)', fontSize: 'calc((100vw - 128px) * 22 / 1562)', fontWeight: 350, lineHeight: 1.2, color: '#878787', margin: 0 }}>
               Through close collaboration and globally connected teams, we turn complex challenges into clear, scalable solutions.
@@ -3262,8 +3209,8 @@ function SiteFooter({ isMobile, dark, smootherRef, onBackToTop }) {
   }, []);
   const dot = {width:3,height:3,background:"#878787",display:"inline-block",flexShrink:0};
   const linkStyle = {fontFamily:"var(--mono)",fontSize:12,fontWeight:400,letterSpacing:"var(--eyebrow-ls)",lineHeight:"100%",color:"var(--secondary)"};
-  const navLinks = ["WORK","SERVICES","ABOUT"];
-  const navClick = l => l==="WORK" ? goToWork : l==="SERVICES" ? goToServices : l==="ABOUT" ? goToAbout : undefined;
+  const navLinks = ["WORK","SERVICES"];
+  const navClick = l => l==="WORK" ? goToWork : l==="SERVICES" ? goToServices : undefined;
   return (
     <>
     <footer style={{borderTop:"1px solid var(--border)", minHeight:"auto", padding:isMobile?"64px 24px 24px":"var(--s64) var(--s64) 0", display:"flex", flexDirection:"column", alignItems:isMobile?"flex-start":"flex-end", gap:isMobile?24:0, background:"var(--bg)"}}>
@@ -3394,7 +3341,7 @@ function ServicesPage({ dark, isMobile, setPage, setCtaOpen }) {
       {/* ══ MODELS TABS ══ */}
       <section style={{padding:isMobile?"0 var(--s42) var(--s42)":"0 var(--s64) var(--s42)",background:"var(--bg)",position:isMobile?"sticky":"static",top:isMobile?0:undefined,zIndex:isMobile?10:undefined}}>
         <div style={{display:"flex",gap:12,alignItems:"center",justifyContent:"center",flexWrap:"wrap",paddingTop:isMobile?16:undefined,paddingBottom:isMobile?16:undefined,background:isMobile?"var(--bg)":undefined}}>
-          {["Integrated","In-house","Embedded"].map((t,i)=>(
+          {["Studio.","In.House"].map((t,i)=>(
             <ModelTab key={t} label={t} active={i===0} dark={dark} />
           ))}
         </div>
@@ -3522,7 +3469,7 @@ function FilterPill({ label, active, onClick }) {
       onMouseLeave={()=>setHov(false)}
       style={{
         display:"inline-flex", alignItems:"center", gap:4,
-        padding:"6px 12px",
+        padding:"12px 24px",
         background: active ? "var(--secondary)" : hov ? "var(--grey)" : "transparent",
         border:"1px solid",
         borderColor: active ? "var(--secondary)" : "var(--grey)",
@@ -3639,7 +3586,7 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
 
   const cardMeta = (w) => (
     <div style={{padding:"20px 0 0",display:"flex",flexDirection:"column",gap:6}}>
-      <p style={{fontFamily:"var(--sans)",fontSize:"var(--card)",fontWeight:350,lineHeight:"var(--card-lh)",color:"var(--secondary)"}}>{w.title}</p>
+      <p style={{fontFamily:"var(--sans)",fontSize:32,fontWeight:350,lineHeight:"120%",color:"var(--secondary)"}}>{w.title}</p>
       <span style={{fontFamily:"var(--mono)",fontSize:"var(--meta)",fontWeight:400,letterSpacing:"var(--meta-ls)",color:"var(--static)"}}>{w.meta}</span>
     </div>
   );
@@ -3720,7 +3667,7 @@ function WorkPage({ dark, isMobile, setCtaOpen, onCardClick }) {
                     </div>
                   </div>
                   <div style={{padding:"12px 0 0",display:"flex",flexDirection:"column",gap:2}}>
-                    <p style={{fontFamily:"var(--sans)",fontSize:"var(--card)",fontWeight:350,lineHeight:"var(--card-lh)",color:"var(--secondary)"}}>{w.title}</p>
+                    <p style={{fontFamily:"var(--sans)",fontSize:32,fontWeight:350,lineHeight:"120%",color:"var(--secondary)"}}>{w.title}</p>
                     <span style={{fontFamily:"var(--mono)",fontSize:"var(--meta)",fontWeight:400,letterSpacing:"var(--meta-ls)",color:"var(--static)"}}>{w.meta}</span>
                   </div>
                 </div>
@@ -4921,18 +4868,18 @@ function Page() {
           });
           gsap.set(split.lines, { y:"110%" });
           if (isMobile) {
-            gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out", delay:0.2 });
-            gsap.to(split.lines, { y:"0%", duration:0.7, ease:"power3.out", stagger:0.08, delay:0.2 });
+            gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out", delay:0.7 });
+            gsap.to(split.lines, { y:"0%", duration:0.7, ease:"power3.out", stagger:0.08, delay:0.7 });
           } else {
-            gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out", delay:0.2,
+            gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out", delay:0.7,
               onComplete: () => gsap.to(split.lines, { y:"0%", duration:0.7, ease:"power3.out", stagger:0.08 })
             });
           }
         } else {
-          gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out", delay:0.2 });
+          gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out", delay:0.7 });
         }
       } else {
-        gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out", delay:0.2 });
+        gsap.to(heroBodyRef.current, { opacity:1, y:0, duration:0.6, ease:"power2.out", delay:0.7 });
       }
     };
 
@@ -4954,17 +4901,29 @@ function Page() {
     // ── Full intro: logo plays above overlay, then triggers glitch ──
     const introEl = document.getElementById('intro-logo-overlay');
 
-    // Adjust position for mobile
-    if (introEl) {
-      if (isMobile) {
-        const s42 = getComputedStyle(document.documentElement).getPropertyValue('--s42').trim() || '16px';
-        introEl.style.top = '72px'; introEl.style.transform = 'none';
-        introEl.style.left = s42; introEl.style.right = s42;
-      }
+    // Position overlay to exactly match the hero logo element
+    const underlineEl = document.getElementById('intro-logo-underline');
+    if (introEl && el) {
+      const lb = el.getBoundingClientRect();
+      introEl.style.top       = lb.top + 'px';
+      introEl.style.left      = lb.left + 'px';
+      introEl.style.right     = 'auto';
+      introEl.style.width     = lb.width + 'px';
+      introEl.style.height    = lb.height + 'px';
+      introEl.style.transform = 'none';
       introEl.style.display = 'block';
       // SVG mask: strips will paint black rects here as they exit, masking Logo A strip-by-strip
       introEl.style.webkitMask = 'url(#logo-a-mask)';
       introEl.style.mask = 'url(#logo-a-mask)';
+
+      // Position underline to match the hero underline bar exactly
+      if (underlineEl) {
+        underlineEl.style.top    = (lb.bottom + 18) + 'px';
+        underlineEl.style.left   = (lb.left + lb.width * 0.494) + 'px';
+        underlineEl.style.width  = (lb.width * 0.506) + 'px';
+        underlineEl.style.height = (lb.width * 40 / 1605) + 'px';
+        underlineEl.style.display = 'block';
+      }
     }
 
     // Load intro animation into fixed overlay
@@ -5006,6 +4965,7 @@ function Page() {
       // After glitch fully completes: fade out Logo A overlay
       window.__onGlitchDone = () => {
         if (introEl) gsap.to(introEl, { opacity:0, duration:0.4, onComplete:() => { introEl.style.display='none'; } });
+        if (underlineEl) underlineEl.style.display='none';
       };
     });
 
@@ -5323,51 +5283,6 @@ void main(){
   }, [activeModel]);
 
 
-  // Magnetic hover on work cards — image + text attract to cursor within 60px
-  useEffect(() => {
-    if (isMobile || typeof gsap === 'undefined') return;
-    const PULL   = 60;  // max translation px
-    const MARGIN = 60;  // attraction zone outside card edge
-    const nearState = new Map();
-
-    const isNear = (rect, x, y) =>
-      x >= rect.left - MARGIN && x <= rect.right  + MARGIN &&
-      y >= rect.top  - MARGIN && y <= rect.bottom + MARGIN;
-
-    const cards = Array.from(document.querySelectorAll('#work .wc'));
-    const onMove = (e) => {
-      let anyNear = false;
-      cards.forEach(card => {
-        const rect = card.getBoundingClientRect();
-        const near = isNear(rect, e.clientX, e.clientY);
-        const was  = nearState.get(card);
-        if (near) anyNear = true;
-        if (near) {
-          nearState.set(card, true);
-          const cx = rect.left + rect.width  / 2;
-          const cy = rect.top  + rect.height / 2;
-          const dx = Math.max(-1, Math.min(1, (e.clientX - cx) / (rect.width  / 2)));
-          const dy = Math.max(-1, Math.min(1, (e.clientY - cy) / (rect.height / 2)));
-          gsap.to(card, { x: dx * PULL, y: dy * PULL, filter: 'blur(0px)', duration: 0.4, ease: 'power2.out', overwrite: 'auto' });
-        } else if (was) {
-          nearState.set(card, false);
-          gsap.to(card, { x: 0, y: 0, filter: 'blur(0px)', duration: 0.7, ease: 'elastic.out(1, 0.5)', overwrite: 'auto' });
-        }
-      });
-      // Blur/dim cards that aren't being hovered when any card is active
-      cards.forEach(card => {
-        const near = nearState.get(card);
-        if (anyNear && !near) {
-          gsap.to(card, { filter: 'blur(15px)', duration: 0.35, ease: 'power2.out', overwrite: 'auto' });
-        } else if (!anyNear) {
-          gsap.to(card, { filter: 'blur(0px)', duration: 0.45, ease: 'power2.out', overwrite: 'auto' });
-        }
-      });
-    };
-
-    document.addEventListener('mousemove', onMove, {passive:true});
-    return () => document.removeEventListener('mousemove', onMove);
-  }, [isMobile]);
 
   // Trigger all carousel images when section enters viewport
   useEffect(()=>{
@@ -5588,21 +5503,21 @@ void main(){
         {/* Nav links — 19px, weight 600, ls -0.38px */}
         <nav style={{display:"flex", alignItems:"center", gap: isMobile ? 12 : 42}}>
           {/* Nav items — dot + label, padding 6px, gap 4px, letter-spacing -0.38px */}
-          {["Work","Services","About"].map(l=>(
+          {["Work","Services"].map(l=>(
             <span key={l} className="mobile-nav-links nav-item" style={{
               display:"flex", alignItems:"center", gap:4,
               padding:6,
-              background: (l==="Services" && page==="services") || (l==="Work" && page==="work") || (l==="About" && page==="about") ? "var(--secondary)" : "var(--bg)",
-              borderBottom: isMobile && ((l==="Services" && page==="services") || (l==="Work" && page==="work") || (l==="About" && page==="about")) ? "2px solid var(--bg)" : "2px solid transparent",
+              background: (l==="Services" && page==="services") || (l==="Work" && page==="work") ? "var(--secondary)" : "var(--bg)",
+              borderBottom: isMobile && ((l==="Services" && page==="services") || (l==="Work" && page==="work")) ? "2px solid var(--bg)" : "2px solid transparent",
               fontFamily:"var(--sans)",
               fontSize:"var(--nav-size)",
               fontWeight:"var(--nav-w)",
               letterSpacing:0,
-              color: (l==="Services" && page==="services") || (l==="Work" && page==="work") || (l==="About" && page==="about") ? "var(--bg)" : "var(--secondary)",
+              color: (l==="Services" && page==="services") || (l==="Work" && page==="work") ? "var(--bg)" : "var(--secondary)",
               cursor:"pointer",
               userSelect:"none",
             }}
-            onClick={()=>{ if(l==="Services"){ goToServices(); } else if(l==="Work"){ goToWork(); } else if(l==="About"){ goToAbout(); } }}
+            onClick={()=>{ if(l==="Services"){ goToServices(); } else if(l==="Work"){ goToWork(); } }}
             onMouseEnter={e=>{
               const el = e.currentTarget;
               const textNode = el.querySelector('.nav-text');
@@ -5617,7 +5532,7 @@ void main(){
               gsap.to(textNode,{duration:0.4,ease:'none',
                 scrambleText:{text:l,chars:'upperCase',revealDelay:0.1,speed:0.9}});
             }}>
-              <span className="nav-dot" style={{width:3,height:3,background: (l==="Services" && page==="services") || (l==="Work" && page==="work") || (l==="About" && page==="about") ? "var(--bg)" : "var(--secondary)",display:"inline-block",flexShrink:0}}/>
+              <span className="nav-dot" style={{width:3,height:3,background: (l==="Services" && page==="services") || (l==="Work" && page==="work") ? "var(--bg)" : "var(--secondary)",display:"inline-block",flexShrink:0}}/>
               <span className="nav-text">{l}</span>
             </span>
           ))}
@@ -5625,7 +5540,7 @@ void main(){
           {/* Get in touch — Touchy variant: bg #B6F4C9, padding 6px, gap 4px, same text style */}
           <button onClick={()=>setCtaOpen(true)} className="mobile-nav-links cta-btn" style={{
             display:"flex", alignItems:"center", gap:4,
-            padding:6,
+            padding:"6px 12px",
             background:"var(--tech)",
             border:"none", borderRadius:0,
             fontFamily:"var(--sans)",
@@ -5705,12 +5620,105 @@ void main(){
         <div ref={heroViewportRef} style={{height: isMobile ? "100svh" : "100vh", position:"relative", overflow:"hidden"}}>
           <canvas ref={heroShaderRef} style={{position:"absolute",inset:0,width:"100%",height:"100%",pointerEvents:"none",zIndex:0}} />
 
-          {/* DIJITALLY™ — centred within first viewport */}
+          {/* Text + thumbnail — centred in the gap between nav and DIJITALLY logo */}
+          <div ref={heroBodyRef} style={{
+            position:"absolute",
+            top: isMobile ? "72px" : "var(--nav-h)",
+            bottom: isMobile ? "auto" : "calc(var(--s42) + 18px + (100vw - 84px) * 223 / 1604 + (100vw - 84px) * 40 / 1605)",
+            left:"var(--s42)", right:"var(--s42)",
+            display:"flex",
+            alignItems: isMobile ? "flex-start" : "center",
+            zIndex:1,
+          }}>
+            {/* Thumbnail — absolutely positioned, right edge at 49.4% − 30px gap (desktop only) */}
+            {!isMobile && (
+              <div
+                ref={heroThumbRef}
+                onClick={()=>setReelOpen(true)}
+                onMouseEnter={()=>{setThumbHover(true);const t=heroThumbRef.current?.querySelector('.play-reel-text');if(t&&typeof gsap!=='undefined'){if(!t.style.width){t.style.display='inline-block';t.style.whiteSpace='nowrap';t.style.width=t.offsetWidth+'px';t.style.overflow='hidden';}gsap.to(t,{duration:0.4,ease:'none',scrambleText:{text:'PLAY REEL',chars:'upperCase',revealDelay:0.1,speed:0.8}});}}}
+                onMouseLeave={()=>setThumbHover(false)}
+                style={{
+                  position:"absolute",
+                  right:"calc(50.6% - 97px)",
+                  top:"50%",
+                  width:256, height:144,
+                  cursor:"pointer",
+                  borderRadius:4,
+                  overflow:"hidden",
+                  transform:thumbHover?"translateY(-50%) scale(1.15)":"translateY(-50%)",
+                  boxShadow:thumbHover?"0 18px 30px rgba(0,0,0,0.15)":"none",
+                  transformOrigin:"center right",
+                  transition:"transform 0.3s ease, box-shadow 0.3s ease",
+                }}>
+                <div style={{position:"absolute",inset:0}}>
+                  <video autoPlay muted loop playsInline style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}} src="videos/thumbnail.mp4?v=2"/>
+                </div>
+                <div style={{
+                  position:"absolute",bottom:8,right:8,
+                  display:"inline-flex",alignItems:"center",
+                  padding:"6px 10px",
+                  background:"var(--tech)",
+                  transform:thumbHover?"translateY(0)":"translateY(calc(100% + 8px))",
+                  transition:"transform 0.3s ease",
+                  gap:6,
+                  pointerEvents:"none",
+                }}>
+                  <svg width="7" height="8" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M0 0L7 4L0 8V0Z" fill="#121010"/>
+                  </svg>
+                  <span className="play-reel-text" style={{fontFamily:"var(--mono)",fontSize:11,fontWeight:400,color:"#121010",letterSpacing:0}}>PLAY REEL</span>
+                </div>
+              </div>
+            )}
+
+            {/* "Your ally" text — left edge at 49.4% = left edge of A in DIJITALLY */}
+            <div style={{marginLeft: isMobile ? 0 : "calc(49.4% + 127px)", display:"flex",flexDirection:"column",gap:"var(--s10)"}}>
+              <span ref={heroTextRef} data-split-entrance="" className="hero-body-text" style={{
+                fontFamily:"var(--sans)",
+                fontSize: isMobile ? "var(--h1)" : "var(--h2)", fontWeight:350,
+                lineHeight:"var(--h2-lh)", letterSpacing:"var(--h2-ls)",
+                color:"var(--secondary)",
+                maxWidth:700,
+                display:"block",
+              }}>Your ally for the<br/>post–digital era.</span>
+              {/* Mobile thumbnail */}
+              {isMobile && (
+                <div
+                  ref={heroThumbRef}
+                  onClick={()=>setReelOpen(true)}
+                  style={{
+                    position:"relative",
+                    width:"100%",
+                    height:"calc((100vw - 84px) * 9 / 16)",
+                    cursor:"pointer",
+                    borderRadius:4,
+                    overflow:"hidden",
+                    marginTop:"var(--s10)",
+                  }}>
+                  <div style={{position:"absolute",inset:0}}>
+                    <video autoPlay muted loop playsInline style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}} src="videos/thumbnail.mp4?v=2"/>
+                  </div>
+                  <div style={{
+                    position:"absolute",bottom:8,right:8,
+                    display:"inline-flex",alignItems:"center",
+                    padding:"6px 10px",
+                    background:"var(--tech)",
+                    gap:6, pointerEvents:"none",
+                  }}>
+                    <svg width="7" height="8" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M0 0L7 4L0 8V0Z" fill="#121010"/>
+                    </svg>
+                    <span style={{fontFamily:"var(--mono)",fontSize:11,fontWeight:400,color:"#121010",letterSpacing:0}}>PLAY REEL</span>
+                  </div>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* DIJITALLY™ logo + underline — anchored to hero bottom */}
           <div style={{
             position:"absolute",
-            top: isMobile ? "72px" : "50%",
-            left:"var(--s42)", right:"var(--s42)",
-            transform: isMobile ? "none" : "translateY(-50%)",
+            bottom:"var(--s42)", left:"var(--s42)", right:"var(--s42)",
             zIndex:1,
           }}>
             <div
@@ -5722,71 +5730,14 @@ void main(){
                 transition:"filter 0.3s ease",
               }}
             />
-          </div>
-
-          {/* Body copy + thumbnail — pinned to first viewport bottom */}
-          <div ref={heroBodyRef} style={{
-            position:"absolute",
-            bottom:"var(--s42)", left:"var(--s42)", right:"var(--s42)",
-            display:"flex",
-            flexDirection: isMobile ? "column" : "row",
-            alignItems: isMobile ? "flex-start" : "flex-end",
-            gap:"var(--s42)",
-            zIndex:1,
-          }}>
-            <div style={{flexShrink:0,display:"flex",flexDirection:"column",gap:"var(--s10)"}}>
-              <span ref={heroTextRef} data-split-entrance="" className="hero-body-text" style={{
-                  fontFamily:"var(--sans)",
-                  fontSize: isMobile ? "var(--h1)" : 30, fontWeight:350,
-                  lineHeight:"var(--h2-lh)", letterSpacing:"var(--h2-ls)",
-                  color:"var(--secondary)",
-                  maxWidth:560,
-                  display:"block",
-                }}>Through flexible, built-for-scale models, we connect creative, marketing, and technology to drive measurable impact for our allies.</span>
-            </div>
-
-            {/* Thumbnail — full container width on mobile, 256×144 on desktop */}
-            {/* heroThumbRef is the scale target (no overflow:hidden so scale bleeds outside) */}
-            <div
-              ref={heroThumbRef}
-              onClick={()=>setReelOpen(true)}
-              onMouseEnter={()=>{setThumbHover(true);const t=heroThumbRef.current?.querySelector('.play-reel-text');if(t&&typeof gsap!=='undefined'){if(!t.style.width){t.style.display='inline-block';t.style.whiteSpace='nowrap';t.style.width=t.offsetWidth+'px';t.style.overflow='hidden';}gsap.to(t,{duration:0.4,ease:'none',scrambleText:{text:'PLAY REEL',chars:'upperCase',revealDelay:0.1,speed:0.8}});}}}
-              onMouseLeave={()=>setThumbHover(false)}
-              style={{
-                position:"relative",
-                width: isMobile ? "100%" : 256,
-                height: isMobile ? "calc((100vw - 32px) * 9 / 16)" : 144,
-                flexShrink:0,
-                marginLeft: isMobile ? 0 : "auto",
-                cursor:"pointer",
-                borderRadius: 4,
-                overflow: "hidden",
-                transform: (!isMobile && thumbHover) ? "scale(1.15)" : "none",
-                boxShadow: (!isMobile && thumbHover) ? "0 18px 30px rgba(0,0,0,0.15)" : "none",
-                transformOrigin:"bottom right",
-                transition:"transform 0.3s ease, box-shadow 0.3s ease",
-              }}>
-              <div style={{position:"absolute",inset:0}}>
-                <video autoPlay muted loop playsInline style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}} src="videos/thumbnail.mp4?v=2"/>
-              </div>
-                {/* PLAY REEL CTA — slides up on hover */}
-                <div style={{
-                  position:"absolute",bottom:8,right:8,
-                  display:"inline-flex",alignItems:"center",
-                  padding:"6px 10px",
-                  background:"var(--tech)",
-                  transform: (thumbHover || isMobile) ? "translateY(0)" : "translateY(calc(100% + 8px))",
-                  transition:"transform 0.3s ease",
-                  gap:6,
-                  pointerEvents:"none",
-                }}>
-                  {/* Play icon */}
-                  <svg width="7" height="8" viewBox="0 0 7 8" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M0 0L7 4L0 8V0Z" fill="#121010"/>
-                  </svg>
-                  <span className="play-reel-text" style={{fontFamily:"var(--mono)",fontSize:11,fontWeight:400,color:"#121010",letterSpacing:0}}>PLAY REEL</span>
-                </div>
-            </div>
+            {/* Rectangle: A→Y span, I-width height, 18px below logo */}
+            <div style={{
+              marginTop:18,
+              marginLeft:"49.4%",
+              marginRight:"0%",
+              height:"calc((100vw - 84px) * 40 / 1605)",
+              background:"var(--secondary)",
+            }} />
           </div>
         </div>
 
@@ -5800,22 +5751,18 @@ void main(){
             display:"flex", flexDirection:"column", alignItems:"center", gap:"var(--s42)",
             position: isMobile ? "static" : "sticky", top:"var(--nav-h)",
           }}>
-            <Eyebrow>++ OUR PHILOSOPHY ++</Eyebrow>
+            <Eyebrow>++ OUR BELIEF ++</Eyebrow>
             <div role="paragraph" style={{
               fontFamily:"var(--sans)",
-              fontSize: isMobile ? "var(--h1)" : 74,
-              fontWeight:350,
-              lineHeight:1,
-              letterSpacing: isMobile ? "-0.6px" : "-2.22px",
+              fontSize:"var(--h1)",
+              fontWeight:"var(--h1-w)",
+              lineHeight:"var(--h1-lh)",
+              letterSpacing:"var(--h1-ls)",
               textAlign:"center",
               maxWidth: isMobile ? "100%" : 1040,
               color:"var(--secondary)",
             }}>
-              Growth doesn't come from going it alone. It comes from having the right{" "}
-              <span style={{display:"inline-block",verticalAlign:"baseline",lineHeight:1}}>
-                <AllyWordmark size={isMobile ? 22 : 54} color="var(--secondary)" />
-              </span>{" "}
-              beside you.
+              The best agency partners don't pretend to have all the answers for a fast changing world. They simply help you ask the right questions.
             </div>
           </div>
 
@@ -5825,27 +5772,15 @@ void main(){
             <Ticker dark={dark}/>
           </div>
 
-          {/* Caption — mobile only, shown below ticker */}
-          {isMobile && (
-            <p style={{
-              margin:0, alignSelf:"center", textAlign:"center",
-              fontFamily:"var(--sans)",
-              fontSize: 18, fontWeight: 350,
-              lineHeight: 1.2, letterSpacing: 0,
-              color:"#878787",
-            }}>
-              One who sees the big picture.<br/>And the small details<br/>that put it into action.
-            </p>
-          )}
 
           {/* Floating video card — centered horizontally, hangs half off bottom of quote text */}
           {!isMobile && (
             <div ref={philoCardRef} style={{
               position:"absolute",
-              left: "calc(50% - 190px)",
-              top: 497,
-              width: 381,
-              height: 242,
+              left: "calc(50% - 292px)",
+              top: 460,
+              width: 583,
+              height: 328,
               borderRadius: 4,
               overflow:"hidden",
               boxShadow:"0px 63px 100px 0px rgba(0,0,0,0)",
@@ -5853,57 +5788,15 @@ void main(){
               zIndex: 2,
               willChange:"transform",
             }}>
-              <video autoPlay muted loop playsInline style={{width:"100%",height:"100%",objectFit:"cover",display:"block"}} src="videos/thumbnail.mp4?v=2"/>
+              <iframe
+                src="https://www.youtube.com/embed/Y_HyruYqVDM?autoplay=1&mute=1&controls=0&showinfo=0&rel=0&modestbranding=1&loop=1&playlist=Y_HyruYqVDM&playsinline=1"
+                allow="autoplay; encrypted-media"
+                allowFullScreen
+                style={{width:"100%",height:"100%",border:"none",display:"block"}}
+              />
             </div>
           )}
 
-          {/* Caption text — left of the card */}
-          {!isMobile && (
-            <p ref={philoLeftTextRef} style={{
-              position:"absolute",
-              right: "calc(50% + 215px)",
-              top: 497,
-              height: 242,
-              width: 260,
-              display:"flex",
-              alignItems:"center",
-              justifyContent:"flex-end",
-              textAlign:"right",
-              margin:0,
-              fontFamily:"var(--sans)",
-              fontSize: 18,
-              fontWeight: 350,
-              lineHeight: 1.2,
-              letterSpacing: 0,
-              color:"#878787",
-              zIndex: 2,
-            }}>
-              One who sees<br/>the big picture.
-            </p>
-          )}
-
-          {/* Caption text — right of the card, vertically centred with it */}
-          {!isMobile && (
-            <p ref={philoTextRef} style={{
-              position:"absolute",
-              left: "calc(50% + 215px)",
-              top: 497,
-              height: 242,
-              width: 260,
-              display:"flex",
-              alignItems:"center",
-              margin:0,
-              fontFamily:"var(--sans)",
-              fontSize: 18,
-              fontWeight: 350,
-              lineHeight: 1.2,
-              letterSpacing: 0,
-              color:"#878787",
-              zIndex: 2,
-            }}>
-              And the small details<br/>that put it into action.
-            </p>
-          )}
         </div>
 
       </section>
@@ -5918,7 +5811,7 @@ void main(){
           <Eyebrow center={false}>++ HOW WE OPERATE ++</Eyebrow>
 
           <div data-split="" role="heading" aria-level="2" style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:720}}>
-            Three models. One ecosystem. Globally. We help brands scale by enabling product, brand and marketing teams to deliver results. Fast.
+            We help brands scale by enabling product, brand and marketing teams to deliver results. Globally.
           </div>
         </div>
 
@@ -5943,7 +5836,7 @@ void main(){
                   <div style={{
                     background:dark?"#1A1A1A":"#EDEAE5",
                     borderRadius:4,
-                    padding:"24px",
+                    padding:"36px",
                   }}>
                     {/* Video — mobile only, above model name */}
                     {isMobile && (
@@ -6011,7 +5904,7 @@ void main(){
                     style={{
                       display:"flex", alignItems:"center", justifyContent:"space-between",
                       width:"100%",
-                      padding:"16px 24px",
+                      padding:"28px 36px",
                       background: (isMobile || hoverModel===i) ? (dark?"#1A1A1A":"#EDEAE5") : "none",
                       borderRadius:4, border:"none",
                       cursor:"pointer", textAlign:"left",
@@ -6071,12 +5964,12 @@ void main(){
 
       {/* ══════════════════════════════════════
           WORK / MAIN FRAME
-          padding: 128px 64px, bg #F5F3EE, gap 24px
+          padding: 128px 64px, bg #FDFEFF, gap 24px
       ══════════════════════════════════════ */}
       <section id="work" ref={carouselSectionRef} style={{
         ...divider,
-        paddingTop: isMobile ? 124 : "var(--s128)", paddingBottom: isMobile ? 124 : "var(--s128)",
-        display:"flex", flexDirection:"column", alignItems:"flex-start", gap:"var(--s24)",
+        paddingTop:307, paddingBottom:"var(--s128)",
+        display:"flex", flexDirection:"column", alignItems:"flex-start", gap:64,
       }}>
         {/* Header + filters */}
         <div style={{
@@ -6086,36 +5979,64 @@ void main(){
           justifyContent:"space-between",
           width:"100%",
           gap:"var(--s42)",
-          paddingLeft: isMobile ? "var(--s42)" : "var(--s64)",
-          paddingRight: isMobile ? "var(--s42)" : "var(--s64)",
+          paddingLeft:"var(--s64)",
+          paddingRight:"var(--s64)",
         }}>
           <div style={{display:"flex",flexDirection:"column",gap:"var(--s24)"}}>
-            <img src="svgs/SVG/work.svg" alt="WORK" style={{ height: isMobile ? '10vw' : 'calc((100vw - 128px) * 100 / 1562)', width: 'auto', display: 'block', alignSelf: 'flex-start', filter: dark ? 'invert(1) brightness(0.96) sepia(0.3)' : 'none' }} />
-            <WorkHeadlineCycle />
-            {/* Filter pills */}
-            <div className="filter-row" style={{display:"flex",gap:4}}>
+            <Eyebrow center={false}>++ OUR WORK ++</Eyebrow>
+            <h2 style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)",maxWidth:500}}>
+              <span style={{fontFamily:"var(--sans)",fontSize:"var(--h2)",fontWeight:350,lineHeight:"var(--h2-lh)",letterSpacing:"var(--h2-ls)"}}>From engineering to execution, and everything in between.</span>
+            </h2>
+            {/* Filter pills — under heading */}
+            <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
               {CATS.map(c=>(
-                <button key={c} onClick={()=>setActiveFilter(c)} style={{
-                  padding:"5px 12px",
-                  background: c===activeFilter ? "var(--secondary)" : "transparent",
-                  border: `1px solid ${c===activeFilter?"var(--secondary)":"var(--grey)"}`,
-                  borderRadius:100,
-                  fontFamily:"var(--mono)",fontSize:11,fontWeight:400,letterSpacing:"0.08em",
-                  color: c===activeFilter ? "var(--primary)" : "var(--secondary)",
-                  cursor:"pointer",transition:"all 0.15s",
-                }}>{c}</button>
+                <button key={c} onClick={()=>setActiveFilter(c)}
+                  onMouseEnter={e=>{
+                    if (c===activeFilter) return;
+                    const el = e.currentTarget;
+                    el.style.background = getComputedStyle(el).borderColor;
+                    if (typeof gsap!=='undefined') {
+                      if (!el.dataset.wLocked) {
+                        el.style.overflow='hidden';
+                        el.style.whiteSpace='nowrap';
+                        el.style.width=el.offsetWidth+'px';
+                        el.dataset.wLocked='1';
+                      }
+                      gsap.to(el,{duration:0.4,ease:'none',
+                        scrambleText:{text:c,chars:'upperCase',revealDelay:0.1,speed:0.9}});
+                    }
+                  }}
+                  onMouseLeave={e=>{
+                    if (c===activeFilter) return;
+                    e.currentTarget.style.background='transparent';
+                  }}
+                  style={{
+                    padding:"12px 24px",
+                    background: c===activeFilter ? "var(--secondary)" : "transparent",
+                    border: `1px solid ${c===activeFilter?"var(--secondary)":"var(--grey)"}`,
+                    borderRadius:100,
+                    fontFamily:"var(--mono)",fontSize:11,fontWeight:400,letterSpacing:0,
+                    color: c===activeFilter ? "var(--primary)" : "var(--secondary)",
+                    cursor:"pointer",transition:"background 0.15s",
+                  }}>{c}</button>
               ))}
             </div>
           </div>
-          <a href="#work" className="cta-btn" onClick={e=>{e.preventDefault();goToWork();}} style={{
-            display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,
-            padding:"18px 24px",background:"var(--tech)",border:"none",borderRadius:0,
-            fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,
-            color:"#121010",textDecoration:"none",whiteSpace:"nowrap",flexShrink:0,cursor:"pointer",
-          }}><span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span></a>
+          {!isMobile && (
+            <a href="#work" className="cta-btn" style={{
+              display:"inline-flex", alignItems:"center", justifyContent:"center", gap:10,
+              padding:"18px 24px",
+              background:"var(--tech)",
+              border:"none", borderRadius:0,
+              fontFamily:"var(--sans)", fontSize:16, fontWeight:500, letterSpacing:0,
+              color:"#121010",
+              textDecoration:"none", whiteSpace:"nowrap",
+              flexShrink:0,
+            }}><span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span></a>
+          )}
         </div>
 
-        {/* Cards — horizontal scroll carousel */}
+        {/* Cards — horizontal scroll */}
         <div
           ref={carouselRef}
           data-carousel=""
@@ -6136,31 +6057,65 @@ void main(){
           style={{
             display:"flex", gap:24, overflowX:"auto",
             width:"100%",
-            paddingLeft: isMobile ? "var(--s42)" : "var(--s64)",
-            paddingRight: isMobile ? "var(--s42)" : "var(--s64)",
-            paddingBottom:"var(--s16)",
+            paddingLeft:"var(--s64)", paddingRight:"var(--s64)",
             boxSizing:"border-box",
             cursor: isMobile ? "default" : "grab",
+            WebkitUserDrag:"none",
             WebkitOverflowScrolling:"touch",
             touchAction: isMobile ? "pan-x pan-y" : "auto",
           }}>
           {filtered.map((w,i)=>(
-            <div key={i} className="wc" onClick={goToWork} style={{flexShrink:0, width: isMobile ? "calc(100vw - 48px)" : 504, cursor:"pointer"}}>
+            <div key={i} className="wc" style={{flexShrink:0, width: isMobile ? "calc(100vw - 96px)" : 504, cursor:"pointer"}}>
+              {/* Thumbnail */}
               <div style={{position:"relative",width:"100%",flexShrink:0,overflow:"hidden",borderRadius:4,background:w.img?(dark?"#121010":"#1A1A1A"):w.bg}}>
                 {w.img
-                  ? <PixelRevealImg src={w.img} alt={w.title} externalTrigger={carouselVisible} delay={i*0.35} />
+                  ? <PixelRevealImg src={w.img} alt={w.title} externalTrigger={carouselVisible} delay={i * 0.35} />
                   : <div style={{width:504,height:680,display:"flex",alignItems:"center",justifyContent:"center"}}>
                       <span style={{fontFamily:"var(--sans)",fontSize:22,fontWeight:900,color:w.fg,letterSpacing:"-0.02em",textAlign:"center",padding:16}}>{w.label}</span>
                     </div>
                 }
+                {/* Slide-in CTA */}
+                <a href="#" className="cta-btn work-card-cta" style={{
+                  display:"inline-flex",alignItems:"center",justifyContent:"center",gap:10,
+                  padding:"18px 24px",
+                  background:"var(--tech)",
+                  border:"none",borderRadius:0,
+                  fontFamily:"var(--sans)",fontSize:16,fontWeight:500,letterSpacing:0,
+                  color:"#121010",
+                  textDecoration:"none",whiteSpace:"nowrap",flexShrink:0,
+                }} onMouseEnter={e=>{
+                  const t=e.currentTarget.querySelector('.cta-text');
+                  if(!t||typeof gsap==='undefined') return;
+                  if(!t.style.width){t.style.display='inline-block';t.style.whiteSpace='nowrap';t.style.width=t.offsetWidth+'px';t.style.overflow='hidden';}
+                  gsap.to(t,{duration:0.4,ease:'none',scrambleText:{text:'View project',chars:'upperCase',revealDelay:0.1,speed:0.8}});
+                }}>
+                  <span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/>
+                  <span className="cta-text">View project</span>
+                </a>
               </div>
+              {/* Card meta */}
               <div style={{padding:"16px 0 0",display:"flex",flexDirection:"column",gap:4}}>
-                <p style={{fontFamily:"var(--sans)",fontSize:"var(--card)",fontWeight:350,lineHeight:"var(--card-lh)",color:"var(--secondary)"}}>{w.title}</p>
+                <p style={{fontFamily:"var(--sans)",fontSize:32,fontWeight:350,lineHeight:"120%",color:"var(--secondary)"}}>{w.title}</p>
                 <span style={{fontFamily:"var(--mono)",fontSize:"var(--meta)",fontWeight:400,letterSpacing:"var(--meta-ls)",color:"var(--static)"}}>{w.meta}</span>
               </div>
             </div>
           ))}
         </div>
+
+        {/* View all CTA — mobile only, below carousel */}
+        {isMobile && (
+          <div style={{paddingLeft:"var(--s64)", paddingRight:"var(--s64)", paddingTop:24}}>
+            <a href="#work" className="cta-btn" style={{
+              display:"inline-flex", alignItems:"center", justifyContent:"center", gap:10,
+              padding:"18px 24px",
+              background:"var(--tech)",
+              border:"none", borderRadius:0,
+              fontFamily:"var(--sans)", fontSize:16, fontWeight:500, letterSpacing:0,
+              color:"#121010",
+              textDecoration:"none", whiteSpace:"nowrap",
+            }}><span style={{display:"inline-block",width:4,height:4,background:"currentColor",flexShrink:0}}/><span className="cta-text">View all our work</span></a>
+          </div>
+        )}
 
       </section>
 
@@ -6248,13 +6203,13 @@ void main(){
                 visibility: "visible",
               }}
             >
-              {/* Work, Services, About, Blog */}
-              {["Work","Services","About"].map(label => (
+              {/* Work, Services */}
+              {["Work","Services"].map(label => (
                 <div key={label} style={{ overflow:"hidden" }}>
                   <a
                     href="#"
                     className="menu-nav-item"
-                    onClick={e=>{ e.preventDefault(); if(label==="Services"){ setMenuOpen(false); setTimeout(goToServices,300); } else if(label==="Work"){ setMenuOpen(false); setTimeout(goToWork,300); } else if(label==="About"){ setMenuOpen(false); setTimeout(goToAbout,300); } else { setMenuOpen(false); } }}
+                    onClick={e=>{ e.preventDefault(); if(label==="Services"){ setMenuOpen(false); setTimeout(goToServices,300); } else if(label==="Work"){ setMenuOpen(false); setTimeout(goToWork,300); } else { setMenuOpen(false); } }}
                     style={{
                       fontFamily:"var(--sans)", fontSize:26, fontWeight:350,
                       lineHeight:"120%", letterSpacing:"0.26px",
