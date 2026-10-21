@@ -20,16 +20,16 @@ export default function Hero() {
       <Nav />
 
       <div className="relative flex w-full flex-1 flex-col justify-between gap-12 px-4 pb-4 sm:px-6 sm:pb-6 lg:px-[42px] lg:pb-[42px]">
-        <h1 className="trim max-w-[530px] text-[32px] leading-none tracking-[-0.64px] text-primary lg:text-h1">
+        <h1 className="trim max-w-[530px] text-[32px] leading-none tracking-[-0.64px] text-snow lg:text-h1">
           <span className="lg:inline-block lg:w-[146px]" />
           Brands don’t need another agency.{" "}
-          <span className="text-static">They need an ally that can flex with the ever-changing world around them.</span>
+          <span className="text-stone">They need an ally that can flex with the ever-changing world around them.</span>
         </h1>
 
         <div className="flex items-end justify-between gap-4">
           <a
             href="#allies"
-            className="group flex w-[207px] shrink-0 items-center gap-3 rounded-[8px] bg-panel py-1 pl-1 pr-6 transition-colors hover:bg-[#262626]"
+            className="group flex w-[207px] shrink-0 items-center gap-3 rounded-[8px] bg-zero-dark py-1 pl-1 pr-6 transition-colors hover:bg-[#262626]"
           >
             <span
               aria-hidden
@@ -40,10 +40,10 @@ export default function Hero() {
                 backgroundPosition: "50% 143.7%",
               }}
             />
-            <span className="flex flex-col items-start gap-2 text-primary">
+            <span className="flex flex-col items-start gap-2 text-snow">
               <span className="trim text-[16px] font-medium leading-none">Zara</span>
               <span className="flex items-center gap-1">
-                <span className="size-[3px] bg-primary transition-colors group-hover:bg-tech" />
+                <span className="size-[3px] bg-snow transition-colors group-hover:bg-tech" />
                 <span className="trim text-[12px] font-regular leading-none">Strategic ally</span>
               </span>
             </span>
@@ -51,7 +51,7 @@ export default function Hero() {
 
           <a
             href="#work"
-            className="group hidden flex-col items-start gap-6 rounded-[8px] bg-panel p-6 transition-colors hover:bg-[#262626] md:flex"
+            className="group hidden flex-col items-start gap-6 rounded-[8px] bg-zero-dark p-6 transition-colors hover:bg-[#262626] md:flex"
           >
             <span className="block overflow-hidden rounded-[3px]">
               <Image
@@ -62,8 +62,8 @@ export default function Hero() {
                 className="block h-[236px] w-[420px] object-cover transition-transform duration-500 group-hover:scale-[1.03]"
               />
             </span>
-            <span className="flex items-center gap-1 text-primary">
-              <span className="size-[3px] bg-primary transition-colors group-hover:bg-tech" />
+            <span className="flex items-center gap-1 text-snow">
+              <span className="size-[3px] bg-snow transition-colors group-hover:bg-tech" />
               <span className="trim text-[16px] font-medium leading-none">Recent work</span>
             </span>
           </a>

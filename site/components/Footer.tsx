@@ -16,7 +16,7 @@ function DotLink({ href, label, dot, text }: { href: string; label: string; dot:
 
 export default function Footer() {
   return (
-    <footer id="contact" className="bg-tech text-secondary">
+    <footer id="contact" className="bg-tech text-coal">
       <div className="flex flex-col lg:h-[422px] lg:flex-row lg:items-center">
         <div className="flex min-w-0 flex-1 flex-col items-center gap-[42px] px-4 py-20 lg:p-0">
           <h2 className="trim text-center text-[32px] leading-none tracking-[-0.64px] lg:text-h1">
@@ -26,14 +26,14 @@ export default function Footer() {
           </h2>
           <a
             href="mailto:hello@dijitally.com"
-            className="group flex items-center gap-1 rounded-full border border-secondary bg-secondary px-6 py-[18px] text-[16px] font-medium leading-none text-tech transition-colors hover:bg-transparent hover:text-secondary active:scale-[0.98]"
+            className="group flex items-center gap-1 rounded-full border border-coal bg-coal px-6 py-[18px] text-[16px] font-medium leading-none text-tech transition-colors hover:bg-transparent hover:text-coal active:scale-[0.98]"
           >
-            <span className="size-[3px] bg-tech transition-colors group-hover:bg-secondary" />
+            <span className="size-[3px] bg-tech transition-colors group-hover:bg-coal" />
             <span className="trim">Contact us</span>
           </a>
         </div>
 
-        <div className="h-px w-full bg-secondary lg:h-full lg:w-px" />
+        <div className="h-px w-full bg-coal lg:h-full lg:w-px" />
 
         <div className="flex min-w-0 flex-1 flex-col items-center gap-[42px] overflow-clip py-20 lg:py-0">
           <p className="trim font-mono text-[10px] font-medium leading-[1.2]">GLOB(ALLY)</p>
@@ -41,7 +41,7 @@ export default function Footer() {
             {COUNTRIES.map((c) => (
               <span key={c} className="flex shrink-0 items-center gap-6 pr-6">
                 <span className="trim whitespace-nowrap text-[32px] leading-none tracking-[-0.64px] lg:text-h1">{c}</span>
-                <span className="mt-1.5 size-2 shrink-0 bg-secondary" aria-hidden />
+                <span className="mt-1.5 size-2 shrink-0 bg-coal" aria-hidden />
               </span>
             ))}
           </Marquee>
@@ -57,7 +57,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-[42px] border-t border-secondary p-4 sm:p-6 lg:p-16">
+      <div className="flex flex-col gap-[42px] border-t border-coal p-4 sm:p-6 lg:p-16">
         <img
           src="/figma/footer-wordmark.svg"
           alt="Dijitally"
@@ -66,12 +66,12 @@ export default function Footer() {
           className="block h-auto w-full"
         />
         <div className="flex items-center justify-between gap-4">
-          <DotLink href="#" label="PRIVACY POLICY" dot="bg-static" text="text-secondary" />
-          <DotLink href="#" label="TERMS + CONDITIONS" dot="bg-static" text="text-secondary" />
+          <DotLink href="#" label="PRIVACY POLICY" dot="bg-static" text="text-coal" />
+          <DotLink href="#" label="TERMS + CONDITIONS" dot="bg-static" text="text-coal" />
         </div>
       </div>
 
-      <div className="flex h-[42px] items-center justify-center bg-secondary">
+      <div className="flex h-[42px] items-center justify-center bg-coal">
         <DotLink href="#top" label="BACK TO TOP" dot="bg-tech" text="text-tech" />
       </div>
     </footer>

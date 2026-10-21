@@ -13,8 +13,11 @@ const LOGOS: Logo[] = [
 // Blackmores is exported from Figma as a stack of masked layers.
 const BLACKMORES_MASKS = Array.from({ length: 9 }, (_, i) => `/figma/blackmores/mask-${i}.svg`);
 
+// Logo SVGs are exported in black; in dark mode they're inverted to sit on the dark UI tiles.
+// (RoomStay and Travel NSW bake in a #f6f6f6 tile, which inverts to #090909 — dark UI exactly.)
 const tile =
-  "flex size-[150px] shrink-0 items-center justify-center rounded-[4px] bg-ui transition-transform duration-300 hover:-translate-y-1";
+  "flex size-[150px] shrink-0 items-center justify-center rounded-[4px] bg-ui transition-transform duration-300 hover:-translate-y-1 dark:[&_img]:invert";
+const bakedTile = "size-[150px] shrink-0 transition-transform duration-300 hover:-translate-y-1 dark:[&_img]:invert";
 
 export default function Brands() {
   return (
@@ -31,10 +34,10 @@ export default function Brands() {
             <img src={l.src} alt={l.name} width={l.w} height={l.h} />
           </li>
         ))}
-        <li className="size-[150px] shrink-0 transition-transform duration-300 hover:-translate-y-1">
+        <li className={bakedTile}>
           <img src="/figma/logo-roomstay.svg" alt="RoomStay" width={150} height={150} />
         </li>
-        <li className="size-[150px] shrink-0 transition-transform duration-300 hover:-translate-y-1">
+        <li className={bakedTile}>
           <img src="/figma/logo-travelnsw.svg" alt="Travel NSW" width={150} height={150} />
         </li>
         <li className={tile}>

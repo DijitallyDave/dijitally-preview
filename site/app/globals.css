@@ -1,16 +1,54 @@
 @import "tailwindcss";
 
-/* Tokens mirror the Figma variables in "Dijitally Website 2026" */
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *));
+
+/* "Dijitally" variable collection in Figma (Dijitally Website 2026), Light and Dark modes */
+:root {
+  color-scheme: light;
+  --primary: #fdfeff;
+  --secondary: #121010;
+  --static: #878787;
+  --grey: #dedede;
+  --chrome: #c2c3c3;
+  --ui: #f6f6f6;
+  --wcag: #454545;
+}
+
+[data-theme="dark"] {
+  color-scheme: dark;
+  --primary: #121010;
+  --secondary: #fdfeff;
+  --static: #c2c3c3;
+  --grey: #403a3a;
+  --chrome: #878787;
+  --ui: #090909;
+  --wcag: #878787;
+}
+
+/* Mode-dependent tokens */
+@theme inline {
+  --color-primary: var(--primary);
+  --color-secondary: var(--secondary);
+  --color-static: var(--static);
+  --color-grey: var(--grey);
+  --color-chrome: var(--chrome);
+  --color-ui: var(--ui);
+  --color-wcag: var(--wcag);
+}
+
 @theme {
-  --color-primary: #fdfeff;
-  --color-secondary: #121010;
-  --color-static: #878787;
-  --color-ui: #f6f6f6;
-  --color-wcag: #454545;
-  --color-grey: #dedede;
+  /* Same in both modes (Tech, Electric, Stream, Zero Dark) */
   --color-tech: #98f7b5;
+  --color-electric: #c9cec3;
+  --color-stream: #91dfce;
+  --color-zero-dark: #1a1a1a;
+
+  /* Raw values Figma hardcodes on always-dark / always-green surfaces
+     (hero, nav, team photos, footer), so they don't flip with the mode */
+  --color-snow: #fdfeff;
+  --color-coal: #121010;
+  --color-stone: #878787;
   --color-ink: #040404;
-  --color-panel: #1a1a1a;
   --color-menu-dot: #c2c3c3;
 
   --font-sans: var(--font-neusans), ui-sans-serif, system-ui, sans-serif;
@@ -54,7 +92,7 @@ html {
 }
 
 body {
-  background: var(--color-primary);
-  color: var(--color-secondary);
+  background: var(--primary);
+  color: var(--secondary);
   -webkit-font-smoothing: antialiased;
 }

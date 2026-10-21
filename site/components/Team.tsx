@@ -33,7 +33,7 @@ export default function Team() {
                 className="object-cover transition-transform duration-700 ease-out group-hover/card:scale-[1.05]"
                 style={{ objectPosition: a.position }}
               />
-              <span className="trim relative w-full max-w-[286px] text-[28px] leading-none tracking-[-0.56px] text-primary lg:text-[32px] lg:tracking-[-0.64px]">
+              <span className="trim relative w-full max-w-[286px] text-[28px] leading-none tracking-[-0.56px] text-snow lg:text-[32px] lg:tracking-[-0.64px]">
                 {a.role}
               </span>
             </div>

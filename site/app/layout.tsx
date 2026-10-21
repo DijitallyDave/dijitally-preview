@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { JetBrains_Mono } from "next/font/google";
+import { themeInitScript } from "@/components/theme";
 import "./globals.css";
 
 const neuSans = localFont({
@@ -28,7 +29,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${neuSans.variable} ${jetbrains.variable}`}>
+    // data-theme is set by the inline script before hydration, so React must not compare it
+    <html lang="en" className={`${neuSans.variable} ${jetbrains.variable}`} suppressHydrationWarning>
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+      </head>
       <body className="font-sans font-book">{children}</body>
     </html>
   );

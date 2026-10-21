@@ -21,7 +21,7 @@ export default function Stats() {
           <li
             key={s.value}
             className={`flex h-[280px] items-center overflow-clip rounded-[8px] p-8 lg:h-[370px] lg:p-[42px] ${
-              s.highlight ? "bg-tech" : "bg-ui"
+              s.highlight ? "bg-tech text-coal" : "bg-ui"
             }`}
           >
             <div className="flex w-full max-w-[286px] flex-col gap-6">
