@@ -1,5 +1,6 @@
 import Image from "next/image";
 import HeroHeadline from "./HeroHeadline";
+import HeroReel from "./HeroReel";
 
 export default function Hero() {
   return (
@@ -56,13 +57,9 @@ export default function Hero() {
             className="group hidden flex-col items-start gap-6 rounded-[8px] bg-zero-dark p-6 transition-colors hover:bg-[#262626] md:flex"
           >
             <span className="block overflow-hidden rounded-[3px]">
-              <Image
-                src="/figma/recent-work.png"
-                alt="Recent work: Constantinople banking website on a laptop"
-                width={420}
-                height={237}
-                className="block h-[236px] w-[420px] object-cover transition-transform duration-500 group-hover:scale-[1.03]"
-              />
+              <span className="block transition-transform duration-500 group-hover:scale-[1.03]">
+                <HeroReel />
+              </span>
             </span>
             <span className="flex items-center gap-1 text-snow">
               <span className="size-[3px] bg-snow transition-colors group-hover:bg-tech" />
