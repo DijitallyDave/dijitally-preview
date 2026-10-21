@@ -27,6 +27,14 @@
   --text-h3: 26px;
   --text-h3--line-height: 1.1;
   --text-h3--letter-spacing: -0.52px;
+
+  --animate-marquee: marquee 40s linear infinite;
+
+  @keyframes marquee {
+    to {
+      transform: translateX(-50%);
+    }
+  }
 }
 
 @utility trim {

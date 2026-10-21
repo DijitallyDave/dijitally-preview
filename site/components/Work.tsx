@@ -57,7 +57,11 @@ const PROJECTS: Project[] = [
 
 function ProjectCard({ p }: { p: Project }) {
   return (
-    <a href="#" className="group flex w-[78vw] max-w-[504px] shrink-0 snap-start flex-col gap-6 outline-none lg:w-[504px]">
+    <a
+      href="#"
+      draggable={false}
+      className="group flex w-[78vw] max-w-[504px] shrink-0 snap-start flex-col gap-6 outline-none lg:w-[504px]"
+    >
       <span
         className={`relative block w-full overflow-hidden rounded-[4px] ${p.tall ? "aspect-[504/680]" : "aspect-square"} ${
           p.inset ? "bg-black" : ""
@@ -67,6 +71,7 @@ function ProjectCard({ p }: { p: Project }) {
         {p.inset ? (
           <span className="absolute inset-y-[5.7%] left-[8.7%] right-[8.7%] block">
             <Image
+              draggable={false}
               src={p.image}
               alt={p.alt}
               fill
@@ -76,6 +81,7 @@ function ProjectCard({ p }: { p: Project }) {
           </span>
         ) : (
           <Image
+            draggable={false}
             src={p.image}
             alt={p.alt}
             fill
@@ -96,7 +102,89 @@ function ProjectCard({ p }: { p: Project }) {
 
 export default function Work() {
   const scroller = useRef<HTMLDivElement>(null);
+  const track = useRef<HTMLDivElement>(null);
   const [thumb, setThumb] = useState({ size: 0.165, offset: 0 });
+  // Snap is switched off while the user drags, otherwise it fights every scrollLeft write.
+  const [dragging, setDragging] = useState(false);
+  const drag = useRef({ pointerId: -1, startX: 0, startLeft: 0, ratio: 1, moved: false, captured: false });
+
+  // Grab-to-scroll on the cards (mouse only; touch already scrolls natively).
+  const onCardsPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = scroller.current;
+    if (!el || e.pointerType !== "mouse" || e.button !== 0) return;
+    drag.current = { pointerId: e.pointerId, startX: e.clientX, startLeft: el.scrollLeft, ratio: 1, moved: false, captured: false };
+  };
+
+  const onCardsPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = scroller.current;
+    const d = drag.current;
+    if (!el || d.pointerId !== e.pointerId) return;
+    const dx = e.clientX - d.startX;
+    if (!d.moved && Math.abs(dx) < 5) return;
+    if (!d.captured) {
+      // Capture only once it's a real drag, so plain clicks still reach the card links.
+      el.setPointerCapture(e.pointerId);
+      d.captured = true;
+      d.moved = true;
+      setDragging(true);
+    }
+    el.scrollLeft = d.startLeft - dx;
+  };
+
+  // Drag the thumb, or click the track to jump there.
+  const onTrackPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = scroller.current;
+    const t = track.current;
+    if (!el || !t || e.button !== 0) return;
+    const rect = t.getBoundingClientRect();
+    const thumbW = rect.width * thumb.size;
+    const max = el.scrollWidth - el.clientWidth;
+    const ratio = max / Math.max(1, rect.width - thumbW);
+    const thumbLeft = rect.left + thumb.offset * (rect.width - thumbW);
+    const onThumb = e.clientX >= thumbLeft && e.clientX <= thumbLeft + thumbW;
+    if (!onThumb) {
+      // Centre the thumb on the click point.
+      el.scrollLeft = (e.clientX - rect.left - thumbW / 2) * ratio;
+    }
+    t.setPointerCapture(e.pointerId);
+    drag.current = { pointerId: e.pointerId, startX: e.clientX, startLeft: el.scrollLeft, ratio, moved: false, captured: true };
+    setDragging(true);
+    e.preventDefault();
+  };
+
+  const onTrackPointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    const el = scroller.current;
+    const d = drag.current;
+    if (!el || d.pointerId !== e.pointerId) return;
+    el.scrollLeft = d.startLeft + (e.clientX - d.startX) * d.ratio;
+  };
+
+  const endDrag = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (drag.current.pointerId !== e.pointerId) return;
+    drag.current.pointerId = -1;
+    setDragging(false);
+  };
+
+  // Swallow the click that ends a drag so it doesn't open a project.
+  const onCardsClickCapture = (e: React.MouseEvent) => {
+    if (drag.current.moved) {
+      e.preventDefault();
+      e.stopPropagation();
+      drag.current.moved = false;
+    }
+  };
+
+  const onTrackKeyDown = (e: React.KeyboardEvent) => {
+    const el = scroller.current;
+    if (!el) return;
+    const step = 528; // card + gap
+    if (e.key === "ArrowRight") el.scrollBy({ left: step, behavior: "smooth" });
+    else if (e.key === "ArrowLeft") el.scrollBy({ left: -step, behavior: "smooth" });
+    else if (e.key === "Home") el.scrollTo({ left: 0, behavior: "smooth" });
+    else if (e.key === "End") el.scrollTo({ left: el.scrollWidth, behavior: "smooth" });
+    else return;
+    e.preventDefault();
+  };
 
   useEffect(() => {
     const el = scroller.current;
@@ -126,10 +214,18 @@ export default function Work() {
       </div>
 
       <div
+        id="work-carousel"
         ref={scroller}
         tabIndex={0}
         aria-label="Selected projects"
-        className="no-scrollbar flex snap-x snap-mandatory scroll-px-4 items-start gap-6 overflow-x-auto px-4 outline-none sm:scroll-px-6 sm:px-6 lg:scroll-px-16 lg:px-16"
+        onPointerDown={onCardsPointerDown}
+        onPointerMove={onCardsPointerMove}
+        onPointerUp={endDrag}
+        onPointerCancel={endDrag}
+        onClickCapture={onCardsClickCapture}
+        className={`no-scrollbar flex scroll-px-4 items-start gap-6 overflow-x-auto px-4 outline-none sm:scroll-px-6 sm:px-6 lg:scroll-px-16 lg:px-16 ${
+          dragging ? "cursor-grabbing select-none" : "snap-x snap-mandatory cursor-grab"
+        }`}
       >
         {PROJECTS.map((p) => (
           <ProjectCard key={p.title} p={p} />
@@ -137,11 +233,31 @@ export default function Work() {
       </div>
 
       <div className="px-4 pt-16 sm:px-6 lg:px-16 lg:pt-24">
-        <div className="relative h-2 w-full bg-ui" aria-hidden>
-          <div
-            className="absolute inset-y-0 rounded-full bg-secondary transition-[left] duration-150 ease-out"
-            style={{ width: `${thumb.size * 100}%`, left: `${thumb.offset * (1 - thumb.size) * 100}%` }}
-          />
+        {/* Padding gives the 8px bar a comfortable hit area */}
+        <div
+          ref={track}
+          role="scrollbar"
+          aria-controls="work-carousel"
+          aria-orientation="horizontal"
+          aria-valuemin={0}
+          aria-valuemax={100}
+          aria-valuenow={Math.round(thumb.offset * 100)}
+          tabIndex={0}
+          onPointerDown={onTrackPointerDown}
+          onPointerMove={onTrackPointerMove}
+          onPointerUp={endDrag}
+          onPointerCancel={endDrag}
+          onKeyDown={onTrackKeyDown}
+          className="group -my-3 cursor-pointer touch-none py-3 outline-none"
+        >
+          <div className="relative h-2 w-full bg-ui group-focus-visible:ring-2 group-focus-visible:ring-tech">
+            <div
+              className={`absolute inset-y-0 rounded-full bg-secondary transition-[background-color] ${
+                dragging ? "cursor-grabbing bg-wcag" : "cursor-grab group-hover:bg-wcag"
+              }`}
+              style={{ width: `${thumb.size * 100}%`, left: `${thumb.offset * (1 - thumb.size) * 100}%` }}
+            />
+          </div>
         </div>
       </div>
     </section>

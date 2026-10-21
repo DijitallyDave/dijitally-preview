@@ -1,3 +1,5 @@
+import Marquee from "./Marquee";
+
 const COUNTRIES = ["Australia", "New Zealand", "United Kingdom"];
 
 function DotLink({ href, label, dot, text }: { href: string; label: string; dot: string; text: string }) {
@@ -16,7 +18,7 @@ export default function Footer() {
   return (
     <footer id="contact" className="bg-tech text-secondary">
       <div className="flex flex-col lg:h-[422px] lg:flex-row lg:items-center">
-        <div className="flex flex-1 flex-col items-center gap-[42px] px-4 py-20 lg:py-0">
+        <div className="flex min-w-0 flex-1 flex-col items-center gap-[42px] px-4 py-20 lg:p-0">
           <h2 className="trim text-center text-[32px] leading-none tracking-[-0.64px] lg:text-h1">
             Need an ally for
             <br />
@@ -33,18 +35,16 @@ export default function Footer() {
 
         <div className="h-px w-full bg-secondary lg:h-full lg:w-px" />
 
-        <div className="flex flex-1 flex-col items-center gap-[42px] overflow-clip py-20 lg:py-0">
+        <div className="flex min-w-0 flex-1 flex-col items-center gap-[42px] overflow-clip py-20 lg:py-0">
           <p className="trim font-mono text-[10px] font-medium leading-[1.2]">GLOB(ALLY)</p>
-          <ul className="flex flex-col items-center gap-4 lg:flex-row lg:gap-6">
-            {COUNTRIES.map((c, i) => (
-              <li key={c} className="flex items-center gap-6">
-                {i > 0 && <span className="mt-1.5 hidden size-2 bg-secondary lg:block" aria-hidden />}
-                <span className="trim whitespace-nowrap text-[32px] leading-none tracking-[-0.64px] lg:text-h1">
-                  {c}
-                </span>
-              </li>
+          <Marquee duration={32} repeat={2} label="Where we work" className="w-full">
+            {COUNTRIES.map((c) => (
+              <span key={c} className="flex shrink-0 items-center gap-6 pr-6">
+                <span className="trim whitespace-nowrap text-[32px] leading-none tracking-[-0.64px] lg:text-h1">{c}</span>
+                <span className="mt-1.5 size-2 shrink-0 bg-secondary" aria-hidden />
+              </span>
             ))}
-          </ul>
+          </Marquee>
           <a
             href="https://www.linkedin.com/company/dijitally"
             target="_blank"

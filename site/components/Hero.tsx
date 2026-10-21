@@ -3,7 +3,7 @@ import Nav from "./Nav";
 
 export default function Hero() {
   return (
-    <section id="top" className="relative flex min-h-[640px] flex-col gap-16 overflow-clip bg-ink lg:min-h-[965px]">
+    <section id="top" className="relative flex min-h-[640px] flex-col gap-16 overflow-clip bg-ink lg:h-svh">
       <Image
         src="/figma/hero.png"
         alt=""
