@@ -26,7 +26,10 @@ export type HeroSlide = {
 
 export const HERO_SLIDES: HeroSlide[] = [
   { src: "/hero/zara.jpg", name: "Zara", role: "Strategic ally" },
+  { src: "/hero/dave.jpg", name: "Dave", role: "Creative ally" },
   { src: "/hero/craig.jpg", name: "Craig", role: "Talent ally" },
+  { src: "/hero/declan.jpg", name: "Declan", role: "Founding ally" },
+  { src: "/hero/matty.jpg", name: "Matty", role: "Engineering ally" },
 ];
 
 export const HERO_MELT = {
