@@ -61,6 +61,14 @@
   --text-h1: 48px;
   --text-h1--line-height: 1;
   --text-h1--letter-spacing: -0.96px;
+  /* Dijitally NeuSans/H1.mobile — 26 / 1.1 / -1% */
+  --text-h1-mobile: 26px;
+  --text-h1-mobile--line-height: 1.1;
+  --text-h1-mobile--letter-spacing: -0.26px;
+  /* Body.mobile — 19 / 1.2 / +1% */
+  --text-body-mobile: 19px;
+  --text-body-mobile--line-height: 1.2;
+  --text-body-mobile--letter-spacing: 0.19px;
   /* Dijitally Neu Sans/H3.desktop — 26 / 1.1 / -2% */
   --text-h3: 26px;
   --text-h3--line-height: 1.1;

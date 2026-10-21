@@ -7,9 +7,10 @@ import { useSplitReveal } from "./useSplitReveal";
  * Hero headline whose first line sits flush right while the rest stay left-aligned,
  * giving the Figma "indented" opening line at every width. Words reveal with SplitText on load.
  *
- * CSS can't align a single line, so we measure: lay the text out with no indent, find how
- * much room the first line leaves on the right, and indent by exactly that. The first line
- * already holds as many words as fit, so the indent shifts it without changing where it wraps.
+ * CSS can't align a single line, so we measure: lay the text out with the CSS indent (the
+ * design's minimum, which decides which words make the first line), find how much room the
+ * first line leaves on the right, and add exactly that. Adding only the leftover space shifts
+ * the line without changing where it wraps.
  */
 export default function HeroHeadline({ children, className = "" }: { children: React.ReactNode; className?: string }) {
   const ref = useRef<HTMLHeadingElement>(null);
@@ -17,7 +18,10 @@ export default function HeroHeadline({ children, className = "" }: { children: R
   const measure = useCallback(() => {
     const el = ref.current;
     if (!el) return;
-    el.style.textIndent = "0px";
+    // The CSS indent is the design's minimum opening indent (it decides which words make the
+    // first line); measure with it applied, then add whatever room is left to sit flush right.
+    el.style.textIndent = "";
+    const minIndent = parseFloat(getComputedStyle(el).textIndent) || 0;
     const range = document.createRange();
     range.selectNodeContents(el);
     const rects = [...range.getClientRects()].filter((r) => r.width > 0);
@@ -34,7 +38,7 @@ export default function HeroHeadline({ children, className = "" }: { children: R
 
     // Half a pixel of give so sub-pixel rounding can never push the last word onto line two.
     const slack = contentRight - firstLineRight - 0.5;
-    el.style.textIndent = `${Math.max(0, slack).toFixed(2)}px`;
+    el.style.textIndent = `${(minIndent + Math.max(0, slack)).toFixed(2)}px`;
   }, []);
 
   useLayoutEffect(() => {

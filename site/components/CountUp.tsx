@@ -45,8 +45,9 @@ export default function CountUp({ value, className = "" }: { value: number; clas
   }, [value]);
 
   return (
-    <span ref={ref} className={className}>
-      {/* Screen readers get the real value once, not every intermediate number */}
+    <span ref={ref} className={`relative ${className}`}>
+      {/* Screen readers get the real value once, not every intermediate number. The wrapper is
+          relative so this sr-only copy stays inside its card instead of widening scrolling rows. */}
       <span aria-hidden>{display}</span>
       <span className="sr-only">{value}</span>
     </span>

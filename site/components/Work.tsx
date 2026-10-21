@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
+import CarouselDots, { useActiveSlide } from "./CarouselDots";
 import Lede from "./Lede";
 
 type Project = {
@@ -60,22 +61,23 @@ function ProjectCard({ p }: { p: Project }) {
     <a
       href="#"
       draggable={false}
-      className="group flex w-[78vw] max-w-[504px] shrink-0 snap-start flex-col gap-6 outline-none lg:w-[504px]"
+      className="group flex w-[290px] shrink-0 snap-start flex-col gap-6 outline-none lg:w-[504px]"
     >
       <span
-        className={`relative block w-full overflow-hidden rounded-[4px] ${p.tall ? "aspect-[504/680]" : "aspect-square"} ${
+        // Mobile cards are all 290×420; desktop mixes tall (504×680) and square (504×504).
+        className={`relative block h-[420px] w-full overflow-hidden rounded-[4px] lg:h-auto ${p.tall ? "lg:aspect-[504/680]" : "lg:aspect-square"} ${
           p.inset ? "bg-black" : ""
         } group-focus-visible:ring-2 group-focus-visible:ring-secondary`}
         style={p.background ? { background: p.background } : undefined}
       >
         {p.inset ? (
-          <span className="absolute inset-y-[5.7%] left-[8.7%] right-[8.7%] block">
+          <span className="absolute inset-x-[31.5px] inset-y-[45.75px] block lg:inset-x-[8.7%] lg:inset-y-[5.7%]">
             <Image
               draggable={false}
               src={p.image}
               alt={p.alt}
               fill
-              sizes="416px"
+              sizes="(min-width: 1024px) 416px, 227px"
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
             />
           </span>
@@ -85,16 +87,16 @@ function ProjectCard({ p }: { p: Project }) {
             src={p.image}
             alt={p.alt}
             fill
-            sizes="(min-width: 1024px) 504px, 78vw"
+            sizes="(min-width: 1024px) 504px, 290px"
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
           />
         )}
       </span>
       <span className="flex flex-col items-start gap-3.5">
-        <span className="trim text-[30px] leading-[1.2] tracking-[-0.6px] transition-colors group-hover:text-wcag lg:text-[38px] lg:tracking-[-0.76px]">
+        <span className="trim text-[22px] leading-[1.2] transition-colors group-hover:text-wcag lg:text-[38px] lg:tracking-[-0.76px]">
           {p.title}
         </span>
-        <span className="font-mono text-[10px] leading-none tracking-[-0.2px] text-static">{p.meta}</span>
+        <span className="font-mono text-[8px] leading-none tracking-[-0.16px] text-static lg:text-[10px] lg:tracking-[-0.2px]">{p.meta}</span>
       </span>
     </a>
   );
@@ -103,6 +105,7 @@ function ProjectCard({ p }: { p: Project }) {
 export default function Work() {
   const scroller = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
+  const active = useActiveSlide(scroller);
   const [thumb, setThumb] = useState({ size: 0.165, offset: 0 });
   // Snap is switched off while the user drags, otherwise it fights every scrollLeft write.
   const [dragging, setDragging] = useState(false);
@@ -206,10 +209,13 @@ export default function Work() {
   }, []);
 
   return (
-    <section id="work" data-nav-bg="page" className="bg-primary">
-      <div className="px-4 pb-16 pt-28 sm:px-6 lg:px-16 lg:pb-32 lg:pt-[196px]">
+    <section id="work" data-nav-bg="page" className="flex flex-col gap-16 bg-primary py-16 lg:block lg:py-0">
+      <div className="px-6 lg:px-16 lg:pb-32 lg:pt-[196px]">
         <Lede lead="Our work." className="max-w-[720px]">
-          From engineering to execution. And everything in between.
+          {/* Line breaks as set in both the desktop and mobile Figma frames */}
+          From engineering
+          <br /> to execution. And everything
+          <br /> in between.
         </Lede>
       </div>
 
@@ -223,7 +229,7 @@ export default function Work() {
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         onClickCapture={onCardsClickCapture}
-        className={`no-scrollbar flex scroll-px-4 items-start gap-6 overflow-x-auto px-4 outline-none sm:scroll-px-6 sm:px-6 lg:scroll-px-16 lg:px-16 ${
+        className={`no-scrollbar flex scroll-px-6 items-start gap-6 overflow-x-auto px-6 outline-none lg:scroll-px-16 lg:px-16 ${
           dragging ? "cursor-grabbing select-none" : "snap-x snap-mandatory cursor-grab"
         }`}
       >
@@ -232,8 +238,9 @@ export default function Work() {
         ))}
       </div>
 
-      <div className="px-4 pt-16 sm:px-6 lg:px-16 lg:pt-24">
-        {/* Padding gives the 8px bar a comfortable hit area */}
+      {/* Desktop scrollbar; mobile uses page dots (below) as in the Figma */}
+      <div className="hidden px-16 pt-24 lg:block">
+        {/* An invisible ::before extends the 8px bar into a 32px-tall hit area without affecting layout */}
         <div
           ref={track}
           role="scrollbar"
@@ -248,7 +255,7 @@ export default function Work() {
           onPointerUp={endDrag}
           onPointerCancel={endDrag}
           onKeyDown={onTrackKeyDown}
-          className="group -my-3 cursor-pointer touch-none py-3 outline-none"
+          className="group relative cursor-pointer touch-none outline-none before:absolute before:inset-x-0 before:-inset-y-3 before:content-['']"
         >
           <div className="relative h-2 w-full bg-ui group-focus-visible:ring-2 group-focus-visible:ring-tech">
             <div
@@ -260,6 +267,8 @@ export default function Work() {
           </div>
         </div>
       </div>
+
+      <CarouselDots count={PROJECTS.length} active={active} target={scroller} label="Projects" />
     </section>
   );
 }

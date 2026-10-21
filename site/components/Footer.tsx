@@ -19,8 +19,8 @@ export default function Footer() {
   return (
     <footer id="contact" data-nav-bg="light" className="bg-tech text-coal">
       <div className="flex flex-col lg:h-[422px] lg:flex-row lg:items-center">
-        <div className="flex min-w-0 flex-1 flex-col items-center gap-[42px] px-4 py-20 lg:p-0">
-          <SplitHeading className="trim text-center text-[32px] leading-none tracking-[-0.64px] lg:text-h1">
+        <div className="flex h-[300px] min-w-0 flex-none flex-col items-center justify-center gap-[42px] px-4 lg:h-auto lg:flex-1 lg:p-0">
+          <SplitHeading className="trim text-center text-h1-mobile lg:text-h1">
             Need an ally for
             <br />
             your next project?
@@ -36,12 +36,12 @@ export default function Footer() {
 
         <div className="h-px w-full bg-coal lg:h-full lg:w-px" />
 
-        <div className="flex min-w-0 flex-1 flex-col items-center gap-[42px] overflow-clip py-20 lg:py-0">
+        <div className="flex h-[300px] min-w-0 flex-none flex-col items-center justify-center gap-[42px] overflow-clip lg:h-auto lg:flex-1">
           <p className="trim font-mono text-[10px] font-medium leading-[1.2]">GLOB(ALLY)</p>
           <Marquee duration={32} repeat={2} label="Where we work" className="w-full">
             {COUNTRIES.map((c) => (
               <span key={c} className="flex shrink-0 items-center gap-6 pr-6">
-                <span className="trim whitespace-nowrap text-[32px] leading-none tracking-[-0.64px] lg:text-h1">{c}</span>
+                <span className="trim whitespace-nowrap text-h1-mobile lg:text-h1">{c}</span>
                 <span className="mt-1.5 size-2 shrink-0 bg-coal" aria-hidden />
               </span>
             ))}
@@ -58,7 +58,7 @@ export default function Footer() {
         </div>
       </div>
 
-      <div className="flex flex-col gap-[42px] border-t border-coal p-4 sm:p-6 lg:p-16">
+      <div className="flex flex-col gap-[42px] border-t border-coal px-3 py-[42px] lg:p-16">
         <img
           src="/figma/footer-wordmark.svg"
           alt="Dijitally"

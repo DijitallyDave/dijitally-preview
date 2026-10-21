@@ -11,7 +11,7 @@ export default function Lede({
   className?: string;
 }) {
   return (
-    <SplitHeading className={`trim text-[32px] leading-none tracking-[-0.64px] lg:text-h1 ${className}`}>
+    <SplitHeading className={`trim w-full text-h1-mobile lg:w-auto lg:text-h1 ${className}`}>
       {lead} <span className="text-static">{children}</span>
     </SplitHeading>
   );

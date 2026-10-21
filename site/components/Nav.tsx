@@ -81,11 +81,20 @@ function backgroundUnder(y: number): "dark" | "light" {
 export default function Nav() {
   const header = useRef<HTMLElement>(null);
   const logo = useRef<HTMLAnchorElement>(null);
+  const mobileControls = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [contactOpen, setContactOpen] = useState(false);
   const [theme, setTheme] = useState<Theme>("light");
   const [hidden, setHidden] = useState(false);
-  const [logoOnLight, setLogoOnLight] = useState(false);
+  const [onLight, setOnLight] = useState(false);
+
+  // Check the background behind whichever controls are showing: the wordmark on desktop,
+  // the toggle + menu icon on mobile (a display:none element has no offsetParent).
+  const updateTone = () => {
+    const el = logo.current?.offsetParent ? logo.current : mobileControls.current;
+    const r = el?.getBoundingClientRect();
+    if (r) setOnLight(backgroundUnder(r.top + r.height / 2) === "light");
+  };
 
   // The head script has already applied the saved/system theme; sync the switch to it.
   useEffect(() => {
@@ -122,8 +131,7 @@ export default function Nav() {
         setHidden(false);
         anchor = y;
       }
-      const l = logo.current?.getBoundingClientRect();
-      if (l) setLogoOnLight(backgroundUnder(l.top + l.height / 2) === "light");
+      updateTone();
     };
     const onScroll = () => {
       if (!frame) frame = requestAnimationFrame(update);
@@ -148,8 +156,7 @@ export default function Nav() {
     const next = theme === "dark" ? "light" : "dark";
     applyTheme(next);
     setTheme(next);
-    const l = logo.current?.getBoundingClientRect();
-    if (l) setLogoOnLight(backgroundUnder(l.top + l.height / 2) === "light");
+    updateTone();
   };
 
   return (
@@ -158,17 +165,18 @@ export default function Nav() {
         ref={header}
         // Keyboard users tabbing into a hidden nav bring it back.
         onFocusCapture={() => setHidden(false)}
-        className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex items-end justify-between px-4 pt-4 transition-transform duration-[400ms] ease-[cubic-bezier(0.25,1,0.5,1)] motion-reduce:transition-none sm:px-6 sm:pt-6 lg:px-[42px] lg:pt-[42px] ${
+        className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex items-center justify-end p-6 transition-transform duration-[400ms] ease-[cubic-bezier(0.25,1,0.5,1)] motion-reduce:transition-none lg:items-end lg:justify-between lg:px-[42px] lg:pb-0 lg:pt-[42px] ${
           hidden ? "-translate-y-full" : "translate-y-0"
         }`}
       >
-        <a ref={logo} href="#top" aria-label="Dijitally home" className="pointer-events-auto block shrink-0">
+        {/* Desktop only: on mobile the wordmark sits large in the hero instead */}
+        <a ref={logo} href="#top" aria-label="Dijitally home" className="pointer-events-auto hidden shrink-0 lg:block">
           <img
             src="/figma/wordmark.svg"
             alt="Dijitally"
             width={215.856}
             height={30}
-            className={`block h-[22px] w-auto transition-[filter] duration-200 lg:h-[30px] ${logoOnLight ? "invert" : ""}`}
+            className={`block h-[30px] w-auto transition-[filter] duration-200 ${onLight ? "invert" : ""}`}
           />
         </a>
 
@@ -185,22 +193,39 @@ export default function Nav() {
           <ToggleUI on={theme === "dark"} onToggle={toggleTheme} />
         </nav>
 
-        {/* Mobile menu button */}
-        <button
-          type="button"
-          aria-expanded={open}
-          aria-controls="mobile-menu"
-          onClick={() => setOpen((v) => !v)}
-          className="pointer-events-auto flex items-center gap-1 rounded-[4px] bg-zero-dark px-4 py-3 text-[16px] font-medium leading-none text-snow lg:hidden"
+        {/* Mobile: theme toggle + two-bar menu icon (Figma "Header Container"); inverted over light sections */}
+        <div
+          ref={mobileControls}
+          className={`pointer-events-auto flex items-center gap-6 transition-[filter] duration-200 lg:hidden ${
+            onLight && !open ? "invert" : ""
+          }`}
         >
-          <span className={`size-[3px] transition-colors ${open ? "bg-tech" : "bg-menu-dot"}`} />
-          <span className="trim">{open ? "Close" : "Menu"}</span>
-        </button>
+          <ToggleUI on={theme === "dark"} onToggle={toggleTheme} />
+          <button
+            type="button"
+            aria-label={open ? "Close menu" : "Open menu"}
+            aria-expanded={open}
+            aria-controls="mobile-menu"
+            onClick={() => setOpen((v) => !v)}
+            className="relative h-[19px] w-[30px] cursor-pointer"
+          >
+            <span
+              className={`absolute left-0 h-[2px] w-[30px] bg-snow transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${
+                open ? "top-1/2 -translate-y-1/2 rotate-30" : "top-[4.5px]"
+              }`}
+            />
+            <span
+              className={`absolute left-0 h-[2px] w-[30px] bg-snow transition-transform duration-300 ease-[cubic-bezier(0.25,1,0.5,1)] ${
+                open ? "top-1/2 -translate-y-1/2 -rotate-30" : "top-[12.5px]"
+              }`}
+            />
+          </button>
+        </div>
 
         {open && (
           <nav
             id="mobile-menu"
-            className="pointer-events-auto absolute inset-x-4 top-full mt-3 flex flex-col items-start gap-4 rounded-[4px] bg-zero-dark p-6 sm:inset-x-6 lg:hidden"
+            className="pointer-events-auto absolute inset-x-6 top-full flex flex-col items-start gap-4 rounded-[4px] bg-zero-dark p-6 lg:hidden"
           >
             {LINKS.map((l) => (
               <MenuItem
@@ -210,7 +235,6 @@ export default function Nav() {
                 onClick={(e) => (l.contact ? openContact(e) : setOpen(false))}
               />
             ))}
-            <ToggleUI on={theme === "dark"} onToggle={toggleTheme} />
           </nav>
         )}
       </header>
