@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { useEffect, useState } from "react";
+import { asset } from "./asset";
 
 const VIDEO_ID = "bPo0mWGIRCc"; // "Dijitally Recap on 2025 to date"
 
@@ -42,7 +43,7 @@ export default function HeroReel() {
     // Greyscale on the wrapper so the poster and the video match the black-and-white hero.
     <span className="relative block h-[77px] w-[137px] lg:h-[201px] lg:w-[357px] overflow-hidden rounded-[3px] bg-ink grayscale">
       <Image
-        src="/figma/recent-work.png"
+        src={asset("/figma/recent-work.png")}
         alt="Recent work: Constantinople banking website on a laptop"
         width={420}
         height={237}

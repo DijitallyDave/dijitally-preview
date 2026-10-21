@@ -1,13 +1,14 @@
 import Image from "next/image";
 import Lede from "./Lede";
 import Marquee from "./Marquee";
+import { asset } from "./asset";
 
 const ALLIES = [
-  { role: "Founding ally.", image: "/figma/team-founding.jpg", position: "50% 0%" },
-  { role: "Strategic ally.", image: "/figma/team-strategic.png", position: "50% 50%" },
-  { role: "Engineering ally.", image: "/figma/team-engineering.png", position: "50% 40%" },
-  { role: "Talent ally.", image: "/figma/team-talent.png", position: "50% 30%" },
-  { role: "Creative ally.", image: "/figma/team-creative.png", position: "50% 40%" },
+  { role: "Founding ally.", image: asset("/figma/team-founding.jpg"), position: "50% 0%" },
+  { role: "Strategic ally.", image: asset("/figma/team-strategic.png"), position: "50% 50%" },
+  { role: "Engineering ally.", image: asset("/figma/team-engineering.png"), position: "50% 40%" },
+  { role: "Talent ally.", image: asset("/figma/team-talent.png"), position: "50% 30%" },
+  { role: "Creative ally.", image: asset("/figma/team-creative.png"), position: "50% 40%" },
 ];
 
 export default function Team() {

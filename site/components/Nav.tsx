@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import ContactDialog from "./ContactDialog";
 import { applyTheme, type Theme } from "./theme";
+import { asset } from "./asset";
 
 // "Get in touch" opens the contact lightbox; its href is the no-JS fallback (the footer).
 const LINKS = [
@@ -172,7 +173,7 @@ export default function Nav() {
         {/* Desktop only: on mobile the wordmark sits large in the hero instead */}
         <a ref={logo} href="#top" aria-label="Dijitally home" className="pointer-events-auto hidden shrink-0 lg:block">
           <img
-            src="/figma/wordmark.svg"
+            src={asset("/figma/wordmark.svg")}
             alt="Dijitally"
             width={215.856}
             height={30}

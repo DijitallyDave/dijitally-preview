@@ -1,19 +1,20 @@
 import Image from "next/image";
 import Lede from "./Lede";
+import { asset } from "./asset";
 
 const MODELS = [
   {
     title: "Enablement.",
     body: "Get a plug-and-play in-house team that integrates into your business with complete transparency and flexibility. With us handling everything behind the scenes, you get simple monthly costs with minimal admin and overheads.",
     points: ["Embedded expertise", "Team augmentation", "Internal capability building"],
-    image: "/figma/model-enablement.png",
+    image: asset("/figma/model-enablement.png"),
     alt: "Desk with a laptop showing the Dijitally logo",
   },
   {
     title: "Execution.",
     body: "Tap into our agency team's high-impact capabilities, from upstream strategic architecture and engineering, to downstream creative development and execution. With full flexibility to enable efficient execution across every stage of growth.",
     points: ["Strategy + Media + Performance", "Platforms + Experience", "Creative + Production"],
-    image: "/figma/model-execution.png",
+    image: asset("/figma/model-execution.png"),
     alt: "Desk with a monitor showing the Ally wordmark",
   },
 ];

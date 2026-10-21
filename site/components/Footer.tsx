@@ -1,5 +1,6 @@
 import Marquee from "./Marquee";
 import SplitHeading from "./SplitHeading";
+import { asset } from "./asset";
 
 const COUNTRIES = ["Australia", "New Zealand", "United Kingdom"];
 
@@ -53,14 +54,14 @@ export default function Footer() {
             aria-label="Dijitally on LinkedIn"
             className="block transition-transform hover:-translate-y-0.5"
           >
-            <img src="/figma/linkedin.svg" alt="" width={47} height={47} className="block" />
+            <img src={asset("/figma/linkedin.svg")} alt="" width={47} height={47} className="block" />
           </a>
         </div>
       </div>
 
       <div className="flex flex-col gap-[42px] border-t border-coal px-3 py-[42px] lg:p-16">
         <img
-          src="/figma/footer-wordmark.svg"
+          src={asset("/figma/footer-wordmark.svg")}
           alt="Dijitally"
           width={1562}
           height={217.089}

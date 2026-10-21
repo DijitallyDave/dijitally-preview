@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 
 const CLOSE_MS = 350;
 
-type Status = "idle" | "sending" | "sent" | "error";
+type Status = "idle" | "sending" | "sent" | "error" | "unavailable";
 
 const field =
   "w-full border border-grey bg-transparent px-4 text-[16px] leading-[1.2] tracking-[0.16px] text-secondary outline-none transition-colors focus:border-secondary";
@@ -41,6 +41,11 @@ export default function ContactDialog({ open, onClose }: { open: boolean; onClos
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
+    // The GitHub Pages preview is static, so there's no /api/contact to send to.
+    if (process.env.NEXT_PUBLIC_STATIC_PREVIEW) {
+      setStatus("unavailable");
+      return;
+    }
     setStatus("sending");
     try {
       const res = await fetch("/api/contact", {
@@ -134,6 +139,7 @@ export default function ContactDialog({ open, onClose }: { open: boolean; onClos
               <div className="flex items-center justify-between gap-4">
                 <p role="alert" className="text-[14px] leading-[1.2] text-static">
                   {status === "error" && "Sorry, that didn’t send. Please try again."}
+                  {status === "unavailable" && "This preview can’t send messages."}
                 </p>
                 <button
                   type="submit"

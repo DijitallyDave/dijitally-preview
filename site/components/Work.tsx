@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import CarouselDots, { useActiveSlide } from "./CarouselDots";
 import Lede from "./Lede";
+import { asset } from "./asset";
 
 type Project = {
   title: string;
@@ -20,7 +21,7 @@ const PROJECTS: Project[] = [
   {
     title: "Afterpay x Ally",
     meta: "PARTNERSHIP: 2020 — PRESENT",
-    image: "/figma/work-afterpay.png",
+    image: asset("/figma/work-afterpay.png"),
     alt: "Chrome headphones on black",
     tall: true,
     inset: true,
@@ -28,7 +29,7 @@ const PROJECTS: Project[] = [
   {
     title: "Airwallex x Ally",
     meta: "PARTNERSHIP: 2024 — PRESENT",
-    image: "/figma/work-airwallex.png",
+    image: asset("/figma/work-airwallex.png"),
     alt: "Three rugby players in Airwallex-sponsored jerseys",
     tall: false,
     background: "linear-gradient(to bottom, #36222d, #4f3036 50.081%)",
@@ -36,21 +37,21 @@ const PROJECTS: Project[] = [
   {
     title: "Constantinople",
     meta: "ENGINEERING, DEVELOPMENT",
-    image: "/figma/work-constantinople.png",
+    image: asset("/figma/work-constantinople.png"),
     alt: "Hand holding a phone showing the Constantinople banking site",
     tall: true,
   },
   {
     title: "Procore x Ally",
     meta: "PARTNERSHIP: 2025 — PRESENT",
-    image: "/figma/work-procore.jpg",
+    image: asset("/figma/work-procore.jpg"),
     alt: "Procore construction campaign",
     tall: false,
   },
   {
     title: "RoomStay x Ally",
     meta: "SOCIAL, CREATIVE, IN.HOUSE",
-    image: "/figma/work-roomstay.png",
+    image: asset("/figma/work-roomstay.png"),
     alt: "RoomStay holiday campaign",
     tall: true,
   },

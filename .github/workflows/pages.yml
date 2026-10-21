@@ -1,0 +1,63 @@
+# Publishes the repo to GitHub Pages on every push to main:
+#   - everything Pages served before (the HTML prototypes and their assets) at the root
+#   - the Next.js homepage in site/, built as a static export, at /site/
+# https://dijitallydave.github.io/dijitally-preview/site/
+# Requires Settings → Pages → Source: "GitHub Actions".
+name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: site/package-lock.json
+
+      - name: Build the homepage as a static export
+        working-directory: site
+        run: |
+          npm ci
+          # Route handlers can't be statically exported; on Pages the contact form shows a
+          # "preview can't send" notice instead (see NEXT_PUBLIC_STATIC_PREVIEW).
+          rm -rf app/api
+          GITHUB_PAGES=true npx next build
+
+      - name: Assemble the Pages site
+        run: |
+          mkdir -p _site
+          rsync -a --exclude '.git' --exclude '.github' --exclude 'site' --exclude '_site' ./ _site/
+          cp -r site/out _site/site
+          # Serve folders that start with an underscore (Next.js puts its files in _next/)
+          touch _site/.nojekyll
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}site/
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

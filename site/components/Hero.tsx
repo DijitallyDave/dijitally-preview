@@ -1,6 +1,7 @@
 import Image from "next/image";
 import HeroHeadline from "./HeroHeadline";
 import HeroReel from "./HeroReel";
+import { asset } from "./asset";
 
 // Desktop follows the Figma "Hero" (1690); below lg it follows the mobile "Hero" (415).
 export default function Hero() {
@@ -8,7 +9,7 @@ export default function Hero() {
     <section id="top" data-nav-bg="dark" className="relative flex h-svh min-h-[640px] flex-col overflow-clip bg-ink lg:gap-16">
       {/* Mobile: the photo fills the lower ~60% of the hero, below the headline (Figma mobile frame). */}
       <Image
-        src="/figma/hero.png"
+        src={asset("/figma/hero.png")}
         alt=""
         width={2720}
         height={1530}
@@ -24,7 +25,7 @@ export default function Hero() {
       <div className="relative flex w-full flex-1 flex-col justify-between gap-16 px-[30px] pb-6 pt-[94px] lg:gap-12 lg:px-[42px] lg:pb-[42px] lg:pt-0">
         <div className="flex flex-col items-center gap-[42px] lg:items-start">
           <img
-            src="/figma/wordmark.svg"
+            src={asset("/figma/wordmark.svg")}
             alt="Dijitally"
             width={215.856}
             height={30}
@@ -49,7 +50,7 @@ export default function Hero() {
               aria-hidden
               className="hidden h-20 w-16 shrink-0 rounded-[4px] bg-ink bg-no-repeat lg:block"
               style={{
-                backgroundImage: "url(/figma/hero.png)",
+                backgroundImage: `url(${asset("/figma/hero.png")})`,
                 backgroundSize: "204.69% 92.11%",
                 backgroundPosition: "50% 143.7%",
               }}
