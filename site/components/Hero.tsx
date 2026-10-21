@@ -1,4 +1,5 @@
 import Image from "next/image";
+import HeroHeadline from "./HeroHeadline";
 
 export default function Hero() {
   return (
@@ -20,11 +21,12 @@ export default function Hero() {
       <div aria-hidden className="h-[var(--nav-h,56px)] shrink-0 sm:h-[var(--nav-h,64px)] lg:h-[var(--nav-h,115px)]" />
 
       <div className="relative flex w-full flex-1 flex-col justify-between gap-12 px-4 pb-4 sm:px-6 sm:pb-6 lg:px-[42px] lg:pb-[42px]">
-        <h1 className="trim max-w-[530px] text-[32px] leading-none tracking-[-0.64px] text-snow lg:text-h1">
-          <span className="lg:inline-block lg:w-[146px]" />
+        {/* First line flush right, the rest left. lg:indent is the Figma value at 1690px,
+            shown until HeroHeadline measures the real one after hydration. */}
+        <HeroHeadline className="trim max-w-[530px] text-[32px] leading-none tracking-[-0.64px] text-snow lg:indent-[146px] lg:text-h1">
           Brands don’t need another agency.{" "}
           <span className="text-stone">They need an ally that can flex with the ever-changing world around them.</span>
-        </h1>
+        </HeroHeadline>
 
         <div className="flex items-end justify-between gap-4">
           <a
