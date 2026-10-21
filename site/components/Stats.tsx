@@ -27,7 +27,7 @@ export default function Stats() {
 
       <ul
         ref={track}
-        className="no-scrollbar flex snap-x snap-mandatory scroll-px-6 gap-6 overflow-x-auto px-6 lg:grid lg:snap-none lg:grid-cols-2 lg:gap-[42px] lg:overflow-visible lg:px-[42px] xl:grid-cols-4"
+        className="no-scrollbar flex snap-x snap-mandatory scroll-px-6 gap-6 overflow-x-auto overflow-y-hidden px-6 lg:grid lg:snap-none lg:grid-cols-2 lg:gap-[42px] lg:overflow-visible lg:px-[42px] xl:grid-cols-4"
       >
         {STATS.map((s) => (
           <li

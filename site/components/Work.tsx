@@ -222,6 +222,8 @@ export default function Work() {
 
       <div
         id="work-carousel"
+        // overflow-y-hidden: overflow-x:auto alone makes the y axis scrollable too, and a
+        // sub-pixel overflow would latch the page's wheel scrolling onto this row.
         ref={scroller}
         tabIndex={0}
         aria-label="Selected projects"
@@ -230,7 +232,7 @@ export default function Work() {
         onPointerUp={endDrag}
         onPointerCancel={endDrag}
         onClickCapture={onCardsClickCapture}
-        className={`no-scrollbar flex scroll-px-6 items-start gap-6 overflow-x-auto px-6 outline-none lg:scroll-px-16 lg:px-16 ${
+        className={`no-scrollbar flex scroll-px-6 items-start gap-6 overflow-x-auto overflow-y-hidden px-6 outline-none lg:scroll-px-16 lg:px-16 ${
           dragging ? "cursor-grabbing select-none" : "snap-x snap-mandatory cursor-grab"
         }`}
       >
