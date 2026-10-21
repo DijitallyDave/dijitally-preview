@@ -39,7 +39,8 @@ export default function HeroReel() {
   }, []);
 
   return (
-    <span className="relative block h-[236px] w-[420px] overflow-hidden rounded-[3px] bg-ink">
+    // Greyscale on the wrapper so the poster and the video match the black-and-white hero.
+    <span className="relative block h-[236px] w-[420px] overflow-hidden rounded-[3px] bg-ink grayscale">
       <Image
         src="/figma/recent-work.png"
         alt="Recent work: Constantinople banking website on a laptop"
