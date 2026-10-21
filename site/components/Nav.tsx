@@ -147,6 +147,14 @@ export default function Nav() {
     };
   }, []);
 
+  // Esc closes the mobile menu.
+  useEffect(() => {
+    if (!open) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
+
   // Other buttons on the page (e.g. the footer's "Contact us") open the same lightbox.
   useEffect(() => {
     const open = () => {
@@ -249,6 +257,16 @@ export default function Nav() {
           </nav>
         )}
       </header>
+
+      {/* Mobile menu backdrop: dims and blurs the page (matching the contact lightbox); a tap
+          outside the menu closes it. Outside the header so it isn't moved by the shy transform. */}
+      {open && (
+        <div
+          aria-hidden
+          onClick={() => setOpen(false)}
+          className="fixed inset-0 z-40 bg-coal/60 backdrop-blur-[12px] transition-opacity duration-300 starting:opacity-0 lg:hidden"
+        />
+      )}
 
       {/* Outside the header: it's pointer-events-none and transformed for the shy behaviour */}
       <ContactDialog open={contactOpen} onClose={() => setContactOpen(false)} />

@@ -123,10 +123,12 @@ html {
   margin: -0.12em 0 -0.2em;
 }
 
-/* Contact lightbox scrim: the Figma overlay has no fill of its own, so dim the page
-   behind it, fading with the panel. */
+/* Contact lightbox scrim: the Figma overlay has no fill of its own, so dim and blur the
+   page behind it, fading with the panel. */
 .contact-dialog::backdrop {
   background: rgb(18 16 16 / 0.6);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
   opacity: 0;
   transition: opacity 350ms;
 }
