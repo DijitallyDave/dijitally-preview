@@ -112,6 +112,18 @@ html {
   margin: -0.12em 0 -0.2em;
 }
 
+/* Contact lightbox scrim: the Figma overlay has no fill of its own, so dim the page
+   behind it, fading with the panel. */
+.contact-dialog::backdrop {
+  background: rgb(18 16 16 / 0.6);
+  opacity: 0;
+  transition: opacity 350ms;
+}
+
+.contact-dialog[data-visible]::backdrop {
+  opacity: 1;
+}
+
 /* text-indent is inherited and inline-blocks apply it to their own first line —
    without this every hero word would carry the headline's first-line indent. */
 .split-word-mask,

@@ -1,17 +1,26 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import ContactDialog from "./ContactDialog";
 import { applyTheme, type Theme } from "./theme";
 
+// "Get in touch" opens the contact lightbox; its href is the no-JS fallback (the footer).
 const LINKS = [
   { label: "Services", href: "#ways-of-working" },
   { label: "Work", href: "#work" },
   { label: "Allies", href: "#allies" },
-  { label: "Blog", href: "#" },
-  { label: "Get in touch", href: "#contact" },
+  { label: "Get in touch", href: "#contact", contact: true },
 ];
 
-function MenuItem({ label, href, onClick }: { label: string; href: string; onClick?: () => void }) {
+function MenuItem({
+  label,
+  href,
+  onClick,
+}: {
+  label: string;
+  href: string;
+  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
+}) {
   return (
     <a
       href={href}
@@ -73,6 +82,7 @@ export default function Nav() {
   const header = useRef<HTMLElement>(null);
   const logo = useRef<HTMLAnchorElement>(null);
   const [open, setOpen] = useState(false);
+  const [contactOpen, setContactOpen] = useState(false);
   const [theme, setTheme] = useState<Theme>("light");
   const [hidden, setHidden] = useState(false);
   const [logoOnLight, setLogoOnLight] = useState(false);
@@ -128,6 +138,12 @@ export default function Nav() {
     };
   }, []);
 
+  const openContact = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setOpen(false);
+    setContactOpen(true);
+  };
+
   const toggleTheme = () => {
     const next = theme === "dark" ? "light" : "dark";
     applyTheme(next);
@@ -137,55 +153,70 @@ export default function Nav() {
   };
 
   return (
-    <header
-      ref={header}
-      // Keyboard users tabbing into a hidden nav bring it back.
-      onFocusCapture={() => setHidden(false)}
-      className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex items-end justify-between px-4 pt-4 transition-transform duration-[400ms] ease-[cubic-bezier(0.25,1,0.5,1)] motion-reduce:transition-none sm:px-6 sm:pt-6 lg:px-[42px] lg:pt-[42px] ${
-        hidden ? "-translate-y-full" : "translate-y-0"
-      }`}
-    >
-      <a ref={logo} href="#top" aria-label="Dijitally home" className="pointer-events-auto block shrink-0">
-        <img
-          src="/figma/wordmark.svg"
-          alt="Dijitally"
-          width={215.856}
-          height={30}
-          className={`block h-[22px] w-auto transition-[filter] duration-200 lg:h-[30px] ${logoOnLight ? "invert" : ""}`}
-        />
-      </a>
-
-      {/* Desktop menu */}
-      <nav className="pointer-events-auto hidden items-center gap-6 rounded-[4px] bg-zero-dark px-[30px] py-6 lg:flex">
-        {LINKS.map((l) => (
-          <MenuItem key={l.label} {...l} />
-        ))}
-        <ToggleUI on={theme === "dark"} onToggle={toggleTheme} />
-      </nav>
-
-      {/* Mobile menu button */}
-      <button
-        type="button"
-        aria-expanded={open}
-        aria-controls="mobile-menu"
-        onClick={() => setOpen((v) => !v)}
-        className="pointer-events-auto flex items-center gap-1 rounded-[4px] bg-zero-dark px-4 py-3 text-[16px] font-medium leading-none text-snow lg:hidden"
+    <>
+      <header
+        ref={header}
+        // Keyboard users tabbing into a hidden nav bring it back.
+        onFocusCapture={() => setHidden(false)}
+        className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex items-end justify-between px-4 pt-4 transition-transform duration-[400ms] ease-[cubic-bezier(0.25,1,0.5,1)] motion-reduce:transition-none sm:px-6 sm:pt-6 lg:px-[42px] lg:pt-[42px] ${
+          hidden ? "-translate-y-full" : "translate-y-0"
+        }`}
       >
-        <span className={`size-[3px] transition-colors ${open ? "bg-tech" : "bg-menu-dot"}`} />
-        <span className="trim">{open ? "Close" : "Menu"}</span>
-      </button>
+        <a ref={logo} href="#top" aria-label="Dijitally home" className="pointer-events-auto block shrink-0">
+          <img
+            src="/figma/wordmark.svg"
+            alt="Dijitally"
+            width={215.856}
+            height={30}
+            className={`block h-[22px] w-auto transition-[filter] duration-200 lg:h-[30px] ${logoOnLight ? "invert" : ""}`}
+          />
+        </a>
 
-      {open && (
-        <nav
-          id="mobile-menu"
-          className="pointer-events-auto absolute inset-x-4 top-full mt-3 flex flex-col items-start gap-4 rounded-[4px] bg-zero-dark p-6 sm:inset-x-6 lg:hidden"
-        >
+        {/* Desktop menu */}
+        <nav className="pointer-events-auto hidden items-center gap-6 rounded-[4px] bg-zero-dark px-[30px] py-6 lg:flex">
           {LINKS.map((l) => (
-            <MenuItem key={l.label} {...l} onClick={() => setOpen(false)} />
+            <MenuItem
+              key={l.label}
+              label={l.label}
+              href={l.href}
+              onClick={l.contact ? (e) => openContact(e) : undefined}
+            />
           ))}
           <ToggleUI on={theme === "dark"} onToggle={toggleTheme} />
         </nav>
-      )}
-    </header>
+
+        {/* Mobile menu button */}
+        <button
+          type="button"
+          aria-expanded={open}
+          aria-controls="mobile-menu"
+          onClick={() => setOpen((v) => !v)}
+          className="pointer-events-auto flex items-center gap-1 rounded-[4px] bg-zero-dark px-4 py-3 text-[16px] font-medium leading-none text-snow lg:hidden"
+        >
+          <span className={`size-[3px] transition-colors ${open ? "bg-tech" : "bg-menu-dot"}`} />
+          <span className="trim">{open ? "Close" : "Menu"}</span>
+        </button>
+
+        {open && (
+          <nav
+            id="mobile-menu"
+            className="pointer-events-auto absolute inset-x-4 top-full mt-3 flex flex-col items-start gap-4 rounded-[4px] bg-zero-dark p-6 sm:inset-x-6 lg:hidden"
+          >
+            {LINKS.map((l) => (
+              <MenuItem
+                key={l.label}
+                label={l.label}
+                href={l.href}
+                onClick={(e) => (l.contact ? openContact(e) : setOpen(false))}
+              />
+            ))}
+            <ToggleUI on={theme === "dark"} onToggle={toggleTheme} />
+          </nav>
+        )}
+      </header>
+
+      {/* Outside the header: it's pointer-events-none and transformed for the shy behaviour */}
+      <ContactDialog open={contactOpen} onClose={() => setContactOpen(false)} />
+    </>
   );
 }
