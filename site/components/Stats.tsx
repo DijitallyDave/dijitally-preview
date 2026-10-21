@@ -1,10 +1,11 @@
+import CountUp from "./CountUp";
 import Lede from "./Lede";
 
 const STATS = [
-  { value: "14", label: "years of operation.", highlight: true },
-  { value: "8", label: "countries and counting." },
-  { value: "42", label: "strong, your team of allies." },
-  { value: "24", label: "hour service, follow the sun." },
+  { value: 14, label: "years of operation.", highlight: true },
+  { value: 8, label: "countries and counting." },
+  { value: 42, label: "strong, your team of allies." },
+  { value: 24, label: "hour service, follow the sun." },
 ];
 
 export default function Stats() {
@@ -25,9 +26,10 @@ export default function Stats() {
             }`}
           >
             <div className="flex w-full max-w-[286px] flex-col gap-6">
-              <span className="trim text-[96px] leading-none tracking-[-1.92px] lg:text-[128px] lg:tracking-[-2.56px]">
-                {s.value}
-              </span>
+              <CountUp
+                value={s.value}
+                className="trim tabular-nums text-[96px] leading-none tracking-[-1.92px] lg:text-[128px] lg:tracking-[-2.56px]"
+              />
               <span
                 className={`trim text-[32px] leading-none tracking-[-0.64px] lg:text-[42px] lg:tracking-[-0.84px] ${
                   s.highlight ? "" : "text-static"
