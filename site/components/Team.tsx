@@ -1,6 +1,6 @@
 import Image from "next/image";
 import Lede from "./Lede";
-import Marquee from "./Marquee";
+import DraggableMarquee from "./DraggableMarquee";
 import { asset } from "./asset";
 import { HERO_SLIDES } from "./heroSlides.config";
 
@@ -19,7 +19,7 @@ export default function Team() {
         </Lede>
       </div>
 
-      <Marquee duration={70} repeat={2} label="Our allies">
+      <DraggableMarquee duration={70} repeat={2} label="Our allies">
         {ALLIES.map((a) => (
           <div key={a.name} className="shrink-0 pr-6 lg:pr-[42px]">
             <div className="group/card relative flex size-[260px] items-end overflow-clip rounded-[4px] bg-black p-6 lg:h-[470px] lg:w-[380px] lg:rounded-[8px] lg:p-[42px]">
@@ -39,7 +39,7 @@ export default function Team() {
             </div>
           </div>
         ))}
-      </Marquee>
+      </DraggableMarquee>
     </section>
   );
 }
