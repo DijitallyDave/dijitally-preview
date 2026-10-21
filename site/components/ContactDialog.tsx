@@ -4,6 +4,10 @@ import { useEffect, useRef, useState } from "react";
 
 const CLOSE_MS = 350;
 
+/** Window event that opens the lightbox from anywhere on the page (the nav owns the dialog). */
+export const OPEN_CONTACT_EVENT = "dijitally:open-contact";
+export const openContactDialog = () => window.dispatchEvent(new Event(OPEN_CONTACT_EVENT));
+
 type Status = "idle" | "sending" | "sent" | "error" | "unavailable";
 
 const field =

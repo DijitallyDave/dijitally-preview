@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import ContactDialog from "./ContactDialog";
+import ContactDialog, { OPEN_CONTACT_EVENT } from "./ContactDialog";
 import { applyTheme, type Theme } from "./theme";
 import { asset } from "./asset";
 
@@ -145,6 +145,16 @@ export default function Nav() {
       window.removeEventListener("scroll", onScroll);
       window.removeEventListener("resize", onScroll);
     };
+  }, []);
+
+  // Other buttons on the page (e.g. the footer's "Contact us") open the same lightbox.
+  useEffect(() => {
+    const open = () => {
+      setOpen(false);
+      setContactOpen(true);
+    };
+    window.addEventListener(OPEN_CONTACT_EVENT, open);
+    return () => window.removeEventListener(OPEN_CONTACT_EVENT, open);
   }, []);
 
   const openContact = (e: React.MouseEvent) => {

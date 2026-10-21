@@ -1,3 +1,4 @@
+import ContactLink from "./ContactLink";
 import Marquee from "./Marquee";
 import SplitHeading from "./SplitHeading";
 import { asset } from "./asset";
@@ -26,13 +27,14 @@ export default function Footer() {
             <br />
             your next project?
           </SplitHeading>
-          <a
+          {/* Opens the same lightbox as the nav's "Get in touch"; the mailto is the no-JS fallback */}
+          <ContactLink
             href="mailto:hello@dijitally.com"
-            className="group flex items-center gap-1 rounded-full border border-coal bg-coal px-6 py-[18px] text-[16px] font-medium leading-none text-tech transition-colors hover:bg-transparent hover:text-coal active:scale-[0.98]"
+            className="group flex cursor-pointer items-center gap-1 rounded-full border border-coal bg-coal px-6 py-[18px] text-[16px] font-medium leading-none text-tech transition-colors hover:bg-transparent hover:text-coal active:scale-[0.98]"
           >
             <span className="size-[3px] bg-tech transition-colors group-hover:bg-coal" />
             <span className="trim">Contact us</span>
-          </a>
+          </ContactLink>
         </div>
 
         <div className="h-px w-full bg-coal lg:h-full lg:w-px" />
