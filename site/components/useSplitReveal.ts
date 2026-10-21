@@ -8,6 +8,37 @@ import { SplitText } from "gsap/SplitText";
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
 /**
+ * SplitText only breaks words at spaces, and each word is an unbreakable inline-block, so a
+ * hyphenated word ("ever-changing") can only wrap as a whole and leaves a ragged gap. Cut such
+ * words after each hyphen into separate masked words joined by a <wbr>: they sit together when
+ * they fit and break after the hyphen when they don't, like normal text.
+ * Returns the full word list (with the pieces) for the animation.
+ */
+function breakAtHyphens(words: Element[]): Element[] {
+  const out: Element[] = [];
+  for (const word of words) {
+    const text = word.textContent ?? "";
+    const mask = word.parentElement;
+    // Only plain-text words with an inner hyphen; leave anything with nested markup alone.
+    if (!mask || word.children.length || !/[^-]-[^-]/.test(text)) {
+      out.push(word);
+      continue;
+    }
+    text.split(/(?<=-)/).forEach((part, i) => {
+      if (i > 0) mask.before(document.createElement("wbr"));
+      const pieceMask = mask.cloneNode(false) as Element;
+      const piece = word.cloneNode(false) as Element;
+      piece.textContent = part;
+      pieceMask.append(piece);
+      mask.before(pieceMask);
+      out.push(piece);
+    });
+    mask.remove();
+  }
+  return out;
+}
+
+/**
  * GSAP SplitText reveal for the H1-style headings: each word rises out of its own mask,
  * staggered. Words (not lines) are split so headings keep wrapping naturally on resize —
  * and so the hero's first-line text-indent still works.
@@ -33,10 +64,11 @@ export function useSplitReveal(
 
     const ctx = gsap.context(() => {
       const split = SplitText.create(el, { type: "words", wordsClass: "split-word", mask: "words" });
+      const words = breakAtHyphens(split.words);
       afterSplit?.();
       el.dataset.splitReady = "";
 
-      gsap.from(split.words, {
+      gsap.from(words, {
         // Far enough to clear the mask's extra descender padding (see .split-word-mask).
         yPercent: 140,
         duration: 1,
