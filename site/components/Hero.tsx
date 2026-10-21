@@ -54,7 +54,7 @@ export default function Hero() {
 
           <a
             href="#work"
-            className="group hidden flex-col items-start gap-6 rounded-[8px] bg-zero-dark p-6 transition-colors hover:bg-[#262626] md:flex"
+            className="group hidden flex-col items-start gap-5 rounded-[8px] bg-zero-dark p-5 transition-colors hover:bg-[#262626] md:flex"
           >
             <span className="block overflow-hidden rounded-[3px]">
               <span className="block transition-transform duration-500 group-hover:scale-[1.03]">

@@ -40,13 +40,13 @@ export default function HeroReel() {
 
   return (
     // Greyscale on the wrapper so the poster and the video match the black-and-white hero.
-    <span className="relative block h-[236px] w-[420px] overflow-hidden rounded-[3px] bg-ink grayscale">
+    <span className="relative block h-[201px] w-[357px] overflow-hidden rounded-[3px] bg-ink grayscale">
       <Image
         src="/figma/recent-work.png"
         alt="Recent work: Constantinople banking website on a laptop"
         width={420}
         height={237}
-        className="block h-[236px] w-[420px] object-cover"
+        className="block h-[201px] w-[357px] object-cover"
       />
       {play && (
         <iframe
@@ -58,7 +58,7 @@ export default function HeroReel() {
           aria-hidden
           onLoad={() => setTimeout(() => setVisible(true), FADE_IN_DELAY)}
           // Scaled up slightly so YouTube's title bar and watermark sit outside the frame.
-          className={`pointer-events-none absolute left-1/2 top-1/2 h-[236px] w-[420px] -translate-x-1/2 -translate-y-1/2 scale-[1.2] border-0 transition-opacity duration-700 ${
+          className={`pointer-events-none absolute left-1/2 top-1/2 h-[201px] w-[357px] -translate-x-1/2 -translate-y-1/2 scale-[1.2] border-0 transition-opacity duration-700 ${
             visible ? "opacity-100" : "opacity-0"
           }`}
         />
