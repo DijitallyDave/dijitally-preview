@@ -89,6 +89,9 @@
 
 html {
   scroll-behavior: smooth;
+  /* Keep the scrollbar's space reserved when the contact lightbox locks scrolling,
+     so the page doesn't jump sideways as the scrollbar disappears. */
+  scrollbar-gutter: stable;
 }
 
 /* SplitText headings: hidden until split so they don't flash before animating.
