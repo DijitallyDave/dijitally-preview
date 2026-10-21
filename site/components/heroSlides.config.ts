@@ -7,16 +7,16 @@
  * Strips travel all the way to the edge of the hero, not just the edge of the photo.
  *
  * Adding an image:
- *   1. Put the file in site/public/hero/ (e.g. site/public/hero/sam.jpg).
- *   2. Add a line to HERO_SLIDES below with its path *without* "public" (e.g. "/hero/sam.jpg"),
+ *   1. Put the file in site/public/hero/ (e.g. site/public/hero/sam.webp).
+ *   2. Add a line to HERO_SLIDES below with its path *without* "public" (e.g. "/hero/sam.webp"),
  *      plus the name and role for the name card. Slides play in the order listed.
  */
 
 export type HeroSlide = {
   /**
-   * Path under site/public, e.g. "/hero/zara.jpg" for site/public/hero/zara.jpg.
+   * Path under site/public, e.g. "/hero/zara.webp" for site/public/hero/zara.webp.
    * Use 2720×1530 shots with the person roughly centred so every slide crops alike. The canvas
-   * loads these files as-is (no Next.js resizing), so export JPEGs at ~80% quality (~0.5MB).
+   * loads these files as-is (no Next.js resizing), so keep them small — WebP (~50–100KB) is ideal.
    */
   src: string;
   /** Shown in the name card in the hero's bottom-left corner. */
@@ -25,11 +25,12 @@ export type HeroSlide = {
 };
 
 export const HERO_SLIDES: HeroSlide[] = [
-  { src: "/hero/zara.jpg", name: "Zara", role: "Strategic ally" },
-  { src: "/hero/dave.jpg", name: "Dave", role: "Creative ally" },
-  { src: "/hero/craig.jpg", name: "Craig", role: "Talent ally" },
-  { src: "/hero/declan.jpg", name: "Declan", role: "Founding ally" },
-  { src: "/hero/matty.jpg", name: "Matty", role: "Engineering ally" },
+  { src: "/hero/zara.webp", name: "Zara", role: "Strategic ally" },
+  { src: "/hero/dave.webp", name: "Dave", role: "Creative ally" },
+  { src: "/hero/craig.webp", name: "Craig", role: "Talent ally" },
+  { src: "/hero/carrie.webp", name: "Carrie", role: "Project ally" },
+  { src: "/hero/declan.webp", name: "Declan", role: "Founding ally" },
+  { src: "/hero/matty.webp", name: "Matty", role: "Engineering ally" },
 ];
 
 export const HERO_MELT = {
