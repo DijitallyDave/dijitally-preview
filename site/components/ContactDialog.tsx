@@ -15,7 +15,8 @@ const field =
 
 /**
  * "Get in touch" lightbox, built from the Figma "08. Contact Us" overlay: a 661px panel
- * docked right, inset 64px, over a dimmed page. Native <dialog> gives focus trapping,
+ * docked to the bottom-right (inset 64px on desktop) that hugs its content, over a dimmed,
+ * blurred page. It scrolls internally if the window is too short for it. Native <dialog> gives focus trapping,
  * Esc to close and an inert page behind it.
  */
 export default function ContactDialog({ open, onClose }: { open: boolean; onClose: () => void }) {
@@ -77,10 +78,10 @@ export default function ContactDialog({ open, onClose }: { open: boolean; onClos
       }}
       // Clicks on the dialog itself (not the panel) are clicks on the dimmed backdrop.
       onClick={(e) => e.target === e.currentTarget && onClose()}
-      className="contact-dialog fixed inset-0 m-0 size-full max-h-none max-w-none justify-end bg-transparent p-4 open:flex sm:p-6 lg:p-16"
+      className="contact-dialog fixed inset-0 m-0 size-full max-h-none max-w-none items-end justify-end bg-transparent p-4 open:flex sm:p-6 lg:p-16"
     >
       <section
-        className={`relative flex h-full w-full max-w-[661px] flex-col justify-center overflow-y-auto rounded-[8px] bg-primary px-6 py-20 transition-[translate,opacity] duration-[350ms] ease-[cubic-bezier(0.25,1,0.5,1)] motion-reduce:transition-none lg:px-16 lg:py-[42px] ${
+        className={`relative flex max-h-full w-full max-w-[661px] flex-col gap-[42px] overflow-y-auto rounded-[8px] bg-primary p-6 transition-[translate,opacity] duration-[350ms] ease-[cubic-bezier(0.25,1,0.5,1)] motion-reduce:transition-none lg:px-16 lg:py-[42px] ${
           visible ? "translate-x-0 opacity-100" : "translate-x-8 opacity-0"
         }`}
       >
@@ -89,7 +90,7 @@ export default function ContactDialog({ open, onClose }: { open: boolean; onClos
           type="button"
           aria-label="Close"
           onClick={onClose}
-          className="group absolute right-6 top-6 h-[19px] w-[28px] cursor-pointer lg:right-16 lg:top-[42px]"
+          className="group relative h-[19px] w-[28px] shrink-0 cursor-pointer self-end"
         >
           <span className="absolute left-1/2 top-1/2 h-[2px] w-[30px] -translate-x-1/2 -translate-y-1/2 -rotate-30 bg-secondary transition-transform duration-300 group-hover:-rotate-[20deg]" />
           <span className="absolute left-1/2 top-1/2 h-[2px] w-[30px] -translate-x-1/2 -translate-y-1/2 rotate-30 bg-secondary transition-transform duration-300 group-hover:rotate-[20deg]" />
