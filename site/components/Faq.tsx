@@ -66,7 +66,7 @@ export default function Faq() {
                 aria-expanded={isOpen}
                 aria-controls={panelId}
                 onClick={() => setOpen(isOpen ? null : i)}
-                className={`flex w-full cursor-pointer items-center justify-between gap-6 px-4 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-tech lg:px-6 ${
+                className={`flex w-full cursor-pointer items-center justify-between gap-6 rounded-[4px] px-4 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-tech lg:px-6 ${
                   isOpen ? "bg-secondary py-6 text-primary" : "py-0 hover:text-wcag"
                 }`}
               >
