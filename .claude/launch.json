@@ -1,0 +1,26 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "dijitally",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8765"],
+      "port": 8765,
+      "autoPort": false
+    },
+    {
+      "name": "animation-lab",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": ["-m", "http.server", "8766"],
+      "port": 8766,
+      "autoPort": false
+    },
+    {
+      "name": "site",
+      "runtimeExecutable": "/bin/zsh",
+      "runtimeArgs": ["-c", "cd site && PATH=$HOME/.local/node/bin:$PATH npm run dev"],
+      "port": 3000,
+      "autoPort": false
+    }
+  ]
+}

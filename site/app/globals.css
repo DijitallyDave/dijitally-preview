@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+/* Tokens mirror the Figma variables in "Dijitally Website 2026" */
+@theme {
+  --color-primary: #fdfeff;
+  --color-secondary: #121010;
+  --color-static: #878787;
+  --color-ui: #f6f6f6;
+  --color-wcag: #454545;
+  --color-grey: #dedede;
+  --color-tech: #98f7b5;
+  --color-ink: #040404;
+  --color-panel: #1a1a1a;
+  --color-menu-dot: #c2c3c3;
+
+  --font-sans: var(--font-neusans), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, monospace;
+
+  --font-weight-book: 400;
+  --font-weight-regular: 450;
+
+  /* Dijitally NeuSans/H1.desktop — 48 / 1 / -2% */
+  --text-h1: 48px;
+  --text-h1--line-height: 1;
+  --text-h1--letter-spacing: -0.96px;
+  /* Dijitally Neu Sans/H3.desktop — 26 / 1.1 / -2% */
+  --text-h3: 26px;
+  --text-h3--line-height: 1.1;
+  --text-h3--letter-spacing: -0.52px;
+}
+
+@utility trim {
+  /* Figma trims text boxes to cap height; matches its spacing in supporting browsers */
+  text-box: trim-both cap alphabetic;
+}
+
+@utility no-scrollbar {
+  scrollbar-width: none;
+  &::-webkit-scrollbar {
+    display: none;
+  }
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-primary);
+  color: var(--color-secondary);
+  -webkit-font-smoothing: antialiased;
+}
