@@ -27,7 +27,9 @@ export default function Team() {
                 src={a.image}
                 alt={a.name}
                 fill
-                sizes="(min-width: 1024px) 380px, 260px"
+                // The wide photo is cropped into a tall card, so it renders about 1.75× the
+                // card's height wide (≈830px desktop, ≈460px mobile) — not the card's width.
+                sizes="(min-width: 1024px) 830px, 460px"
                 draggable={false}
                 className="object-cover transition-transform duration-700 ease-out group-hover/card:scale-[1.05]"
               />
