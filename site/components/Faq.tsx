@@ -52,11 +52,13 @@ export default function Faq() {
 
   return (
     <section data-nav-bg="page" className="flex flex-col items-center gap-16 bg-primary px-6 py-16 lg:gap-32 lg:px-16 lg:py-[196px]">
-      {/* Mobile Figma shortens this to "Have more questions?" */}
+      {/* Same copy and two-tone styling at every size; mobile breaks after "more". */}
       <SplitHeading className="trim w-full text-center text-h1-mobile lg:w-auto lg:max-w-[460px] lg:text-h1">
-        <span className="hidden lg:inline">FAQs. </span>
-        <span className="lg:text-static">Have more questions?</span>
-        <span className="hidden text-static lg:inline"> Let’s chat.</span>
+        FAQs.{" "}
+        <span className="text-static">
+          Have more
+          <br className="lg:hidden" /> questions? Let’s chat.
+        </span>
       </SplitHeading>
 
       <ul className="flex w-full max-w-[1003px] flex-col gap-[42px] lg:gap-16">
