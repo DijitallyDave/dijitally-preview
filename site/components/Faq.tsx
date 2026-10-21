@@ -30,15 +30,17 @@ const FAQS = [
 ];
 
 // 36px plus/minus built from two 3px bars; the vertical bar collapses when open.
+// Bars turn white on the closed row's dark hover fill.
 function PlusMinus({ open }: { open: boolean }) {
+  const closedBar = "bg-secondary group-hover:bg-snow group-focus-visible:bg-snow";
   return (
     <span className="relative size-7 shrink-0 lg:size-9" aria-hidden>
       <span
-        className={`absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 transition-colors ${open ? "bg-grey" : "bg-secondary"}`}
+        className={`absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 transition-colors ${open ? "bg-grey" : closedBar}`}
       />
       <span
-        className={`absolute inset-y-0 left-1/2 w-[3px] -translate-x-1/2 bg-secondary transition-transform duration-300 ${
-          open ? "scale-y-0" : "scale-y-100"
+        className={`absolute inset-y-0 left-1/2 w-[3px] -translate-x-1/2 transition-[transform,background-color] duration-300 ${
+          open ? "scale-y-0 bg-secondary" : `scale-y-100 ${closedBar}`
         }`}
       />
     </span>
@@ -66,8 +68,12 @@ export default function Faq() {
                 aria-expanded={isOpen}
                 aria-controls={panelId}
                 onClick={() => setOpen(isOpen ? null : i)}
-                className={`flex w-full cursor-pointer items-center justify-between gap-6 rounded-[4px] px-4 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-tech lg:px-6 ${
-                  isOpen ? "bg-secondary py-6 text-primary" : "py-0 hover:text-wcag"
+                // Closed rows carry the open row's padding (so the hover fill matches its size)
+                // and cancel it with negative margin, keeping the Figma spacing between questions.
+                className={`group flex w-full cursor-pointer items-center justify-between gap-6 rounded-[4px] px-4 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-tech lg:px-6 ${
+                  isOpen
+                    ? "bg-secondary py-6 text-primary"
+                    : "-my-4 py-4 hover:bg-zero-dark hover:text-snow focus-visible:bg-zero-dark focus-visible:text-snow lg:-my-6 lg:py-6"
                 }`}
               >
                 <span className="trim text-[22px] leading-[1.1] tracking-[-0.22px] lg:text-[32px] lg:tracking-[-0.32px]">
