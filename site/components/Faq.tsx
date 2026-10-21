@@ -47,7 +47,7 @@ function PlusMinus({ open }: { open: boolean }) {
 }
 
 export default function Faq() {
-  const [open, setOpen] = useState<number | null>(1);
+  const [open, setOpen] = useState<number | null>(0);
   const baseId = useId();
 
   return (
