@@ -32,14 +32,18 @@ function coverCanvas(img: HTMLImageElement, w: number, h: number) {
 
 /**
  * Per-strip start delays as a random walk, so neighbouring strips move together and the melt
- * edge is jagged rather than noisy (the same idea as DOOM's column offsets).
+ * edge is jagged rather than noisy (the same idea as DOOM's column offsets). `roughness` is
+ * defined per 6px of height; a random walk's spread grows with the square root of the number
+ * of steps, so the per-strip step is scaled by √(stripHeight / 6) to keep the same edge
+ * character at any strip height.
  */
 function stripDelays(count: number) {
-  const { stagger, roughness } = HERO_MELT;
+  const { stagger, roughness, stripHeight } = HERO_MELT;
+  const walk = roughness * stagger * Math.sqrt(Math.max(stripHeight, 0.1) / 6);
   const delays = new Array<number>(count);
   let d = Math.random() * stagger;
   for (let i = 0; i < count; i++) {
-    d = Math.min(stagger, Math.max(0, d + (Math.random() * 2 - 1) * roughness * stagger));
+    d = Math.min(stagger, Math.max(0, d + (Math.random() * 2 - 1) * walk));
     delays[i] = d;
   }
   return delays;
@@ -49,6 +53,10 @@ function stripDelays(count: number) {
  * Hero image slideshow with a sideways DOOM-style melt between images. All tuning lives in
  * heroSlides.config.ts. The first image is rendered as a normal <Image> (fast first paint and
  * no-JS fallback); the canvas takes over once every slide has loaded.
+ *
+ * `className` positions the photo's box. The canvas covers the whole hero (the positioned
+ * parent) so melting strips keep travelling past the photo's edge to the hero's edge; each
+ * photo is drawn into the box's position on that canvas.
  */
 export default function HeroSlideshow({ className = "" }: { className?: string }) {
   const { setIndex } = useContext(SlideContext);
@@ -67,25 +75,33 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
     let caches: HTMLCanvasElement[] = [];
     let current = 0;
     let dpr = 1;
+    // The photo box within the canvas, in canvas pixels.
+    let bx = 0;
+    let by = 0;
     let holdTimer: ReturnType<typeof setTimeout> | undefined;
     let frame = 0;
     let onScreen = true;
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const drawStill = (i: number) => {
-      if (caches[i]) ctx.drawImage(caches[i], 0, 0);
+      ctx.clearRect(0, 0, cv.width, cv.height);
+      if (caches[i]) ctx.drawImage(caches[i], bx, by);
     };
 
-    // Re-render each slide at the canvas's current pixel size.
+    // Size the canvas to the hero and re-render each slide at the photo box's pixel size.
     const resize = () => {
       dpr = Math.min(window.devicePixelRatio || 1, 2);
-      const r = el.getBoundingClientRect();
-      const w = Math.max(1, Math.round(r.width * dpr));
-      const h = Math.max(1, Math.round(r.height * dpr));
-      if (cv.width === w && cv.height === h && caches.length) return;
-      cv.width = w;
-      cv.height = h;
-      caches = images.map((img) => coverCanvas(img, w, h));
+      const c = cv.getBoundingClientRect();
+      const b = el.getBoundingClientRect();
+      cv.width = Math.max(1, Math.round(c.width * dpr));
+      cv.height = Math.max(1, Math.round(c.height * dpr));
+      bx = Math.round((b.left - c.left) * dpr);
+      by = Math.round((b.top - c.top) * dpr);
+      const bw = Math.max(1, Math.round(b.width * dpr));
+      const bh = Math.max(1, Math.round(b.height * dpr));
+      if (caches[0]?.width !== bw || caches[0]?.height !== bh) {
+        caches = images.map((img) => coverCanvas(img, bw, bh));
+      }
       drawStill(current);
     };
 
@@ -94,29 +110,33 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
       const next = (current + 1) % HERO_SLIDES.length;
       if (!loop && next === 0) return;
 
-      const W = cv.width;
+      const from = caches[current];
+      const to = caches[next];
+      const bw = from.width;
+      const bh = from.height;
       const sh = Math.max(1, Math.round(stripHeight * dpr));
       const snap = step > 0 ? Math.max(1, Math.round(step * dpr)) : 0;
-      const rows = Math.ceil(cv.height / sh);
+      const rows = Math.ceil(bh / sh);
       const delays = stripDelays(rows);
       const total = stagger + duration;
       const sign = direction === "left" ? -1 : 1;
-      const from = caches[current];
-      const to = caches[next];
+      // Distance for a strip to clear the hero's edge entirely, not just the photo's.
+      const travel = direction === "left" ? bx + bw : cv.width - bx;
       let swapped = false;
       const start = performance.now();
 
       const tick = (now: number) => {
         const t = now - start;
-        ctx.drawImage(to, 0, 0);
+        ctx.clearRect(0, 0, cv.width, cv.height);
+        ctx.drawImage(to, bx, by);
         for (let r = 0; r < rows; r++) {
           const p = Math.min(1, Math.max(0, (t - delays[r]) / duration));
           if (p >= 1) continue;
-          let x = Math.pow(p, acceleration) * W;
+          let x = Math.pow(p, acceleration) * travel;
           if (snap) x = Math.round(x / snap) * snap;
           const y = r * sh;
-          const h = Math.min(sh, cv.height - y);
-          ctx.drawImage(from, 0, y, W, h, sign * x, y, W, h);
+          const h = Math.min(sh, bh - y);
+          ctx.drawImage(from, 0, y, bw, h, bx + sign * x, by + y, bw, h);
         }
         // Swap the name card halfway through, when the new image is mostly revealed.
         if (!swapped && t >= total / 2) {
@@ -164,6 +184,7 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
         images = loaded;
         resize();
         ro.observe(el);
+        ro.observe(cv);
         setReady(true);
         if (!reduceMotion) scheduleNext();
       })
@@ -182,16 +203,22 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
 
   const first = HERO_SLIDES[0];
   return (
-    <div ref={box} aria-hidden className={`pointer-events-none ${className}`}>
-      <Image
-        src={asset(first.src)}
-        alt=""
-        fill
-        priority
-        sizes="(min-width: 1024px) 89vw, 215vw"
-        className={`object-cover ${ready ? "invisible" : ""}`}
+    <>
+      <div ref={box} aria-hidden className={`pointer-events-none ${className}`}>
+        <Image
+          src={asset(first.src)}
+          alt=""
+          fill
+          priority
+          sizes="(min-width: 1024px) 89vw, 215vw"
+          className={`object-cover ${ready ? "invisible" : ""}`}
+        />
+      </div>
+      <canvas
+        ref={canvas}
+        aria-hidden
+        className={`pointer-events-none absolute inset-0 size-full ${ready ? "" : "invisible"}`}
       />
-      <canvas ref={canvas} className={`absolute inset-0 size-full ${ready ? "" : "invisible"}`} />
-    </div>
+    </>
   );
 }
