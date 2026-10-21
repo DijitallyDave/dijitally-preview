@@ -206,7 +206,7 @@ export default function Work() {
   }, []);
 
   return (
-    <section id="work" className="bg-primary">
+    <section id="work" data-nav-bg="page" className="bg-primary">
       <div className="px-4 pb-16 pt-28 sm:px-6 lg:px-16 lg:pb-32 lg:pt-[196px]">
         <Lede lead="Our work." className="max-w-[720px]">
           From engineering to execution. And everything in between.

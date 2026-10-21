@@ -16,7 +16,7 @@ function DotLink({ href, label, dot, text }: { href: string; label: string; dot:
 
 export default function Footer() {
   return (
-    <footer id="contact" className="bg-tech text-coal">
+    <footer id="contact" data-nav-bg="light" className="bg-tech text-coal">
       <div className="flex flex-col lg:h-[422px] lg:flex-row lg:items-center">
         <div className="flex min-w-0 flex-1 flex-col items-center gap-[42px] px-4 py-20 lg:p-0">
           <h2 className="trim text-center text-[32px] leading-none tracking-[-0.64px] lg:text-h1">

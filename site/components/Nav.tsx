@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { applyTheme, type Theme } from "./theme";
 
 const LINKS = [
@@ -46,35 +46,117 @@ function ToggleUI({ on, onToggle }: { on: boolean; onToggle: () => void }) {
   );
 }
 
+// Pixels of travel in one direction before the nav hides or reveals, so small jitters are ignored.
+const SCROLL_THRESHOLD = 8;
+// Near the top of the page the nav always shows.
+const TOP_ZONE = 120;
+
+/**
+ * Which background is behind the wordmark: sections mark themselves with data-nav-bg =
+ * "dark" | "light" | "page" (page follows the light/dark theme). The white wordmark is
+ * inverted over light backgrounds so it stays legible once the nav floats over the page.
+ */
+function backgroundUnder(y: number): "dark" | "light" {
+  const sections = document.querySelectorAll<HTMLElement>("[data-nav-bg]");
+  for (const s of sections) {
+    const r = s.getBoundingClientRect();
+    if (r.top <= y && r.bottom > y) {
+      const bg = s.dataset.navBg;
+      if (bg === "page") return document.documentElement.dataset.theme === "dark" ? "dark" : "light";
+      return bg === "light" ? "light" : "dark";
+    }
+  }
+  return "dark";
+}
+
 export default function Nav() {
+  const header = useRef<HTMLElement>(null);
+  const logo = useRef<HTMLAnchorElement>(null);
   const [open, setOpen] = useState(false);
   const [theme, setTheme] = useState<Theme>("light");
+  const [hidden, setHidden] = useState(false);
+  const [logoOnLight, setLogoOnLight] = useState(false);
 
   // The head script has already applied the saved/system theme; sync the switch to it.
   useEffect(() => {
     setTheme(document.documentElement.dataset.theme === "dark" ? "dark" : "light");
   }, []);
 
+  // The header is fixed, so publish its height for the hero to reserve the same space.
+  useEffect(() => {
+    const el = header.current;
+    if (!el) return;
+    const ro = new ResizeObserver(() => {
+      document.documentElement.style.setProperty("--nav-h", `${el.offsetHeight}px`);
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  // Shy behaviour: hide on scroll down, reveal on scroll up.
+  const openRef = useRef(open);
+  openRef.current = open;
+  useEffect(() => {
+    let anchor = window.scrollY;
+    let frame = 0;
+    const update = () => {
+      frame = 0;
+      const y = window.scrollY;
+      if (y < TOP_ZONE || openRef.current) {
+        setHidden(false);
+        anchor = y;
+      } else if (y - anchor > SCROLL_THRESHOLD) {
+        setHidden(true);
+        anchor = y;
+      } else if (anchor - y > SCROLL_THRESHOLD) {
+        setHidden(false);
+        anchor = y;
+      }
+      const l = logo.current?.getBoundingClientRect();
+      if (l) setLogoOnLight(backgroundUnder(l.top + l.height / 2) === "light");
+    };
+    const onScroll = () => {
+      if (!frame) frame = requestAnimationFrame(update);
+    };
+    update();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    return () => {
+      cancelAnimationFrame(frame);
+      window.removeEventListener("scroll", onScroll);
+      window.removeEventListener("resize", onScroll);
+    };
+  }, []);
+
   const toggleTheme = () => {
     const next = theme === "dark" ? "light" : "dark";
     applyTheme(next);
     setTheme(next);
+    const l = logo.current?.getBoundingClientRect();
+    if (l) setLogoOnLight(backgroundUnder(l.top + l.height / 2) === "light");
   };
 
   return (
-    <header className="relative z-20 flex w-full items-end justify-between px-4 pt-4 sm:px-6 sm:pt-6 lg:px-[42px] lg:pt-[42px]">
-      <a href="#top" aria-label="Dijitally home" className="block shrink-0">
+    <header
+      ref={header}
+      // Keyboard users tabbing into a hidden nav bring it back.
+      onFocusCapture={() => setHidden(false)}
+      className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex items-end justify-between px-4 pt-4 transition-transform duration-[400ms] ease-[cubic-bezier(0.25,1,0.5,1)] motion-reduce:transition-none sm:px-6 sm:pt-6 lg:px-[42px] lg:pt-[42px] ${
+        hidden ? "-translate-y-full" : "translate-y-0"
+      }`}
+    >
+      <a ref={logo} href="#top" aria-label="Dijitally home" className="pointer-events-auto block shrink-0">
         <img
           src="/figma/wordmark.svg"
           alt="Dijitally"
           width={215.856}
           height={30}
-          className="block h-[22px] w-auto lg:h-[30px]"
+          className={`block h-[22px] w-auto transition-[filter] duration-200 lg:h-[30px] ${logoOnLight ? "invert" : ""}`}
         />
       </a>
 
       {/* Desktop menu */}
-      <nav className="hidden items-center gap-6 rounded-[4px] bg-zero-dark px-[30px] py-6 lg:flex">
+      <nav className="pointer-events-auto hidden items-center gap-6 rounded-[4px] bg-zero-dark px-[30px] py-6 lg:flex">
         {LINKS.map((l) => (
           <MenuItem key={l.label} {...l} />
         ))}
@@ -87,7 +169,7 @@ export default function Nav() {
         aria-expanded={open}
         aria-controls="mobile-menu"
         onClick={() => setOpen((v) => !v)}
-        className="flex items-center gap-1 rounded-[4px] bg-zero-dark px-4 py-3 text-[16px] font-medium leading-none text-snow lg:hidden"
+        className="pointer-events-auto flex items-center gap-1 rounded-[4px] bg-zero-dark px-4 py-3 text-[16px] font-medium leading-none text-snow lg:hidden"
       >
         <span className={`size-[3px] transition-colors ${open ? "bg-tech" : "bg-menu-dot"}`} />
         <span className="trim">{open ? "Close" : "Menu"}</span>
@@ -96,7 +178,7 @@ export default function Nav() {
       {open && (
         <nav
           id="mobile-menu"
-          className="absolute inset-x-4 top-full mt-3 flex flex-col items-start gap-4 rounded-[4px] bg-zero-dark p-6 sm:inset-x-6 lg:hidden"
+          className="pointer-events-auto absolute inset-x-4 top-full mt-3 flex flex-col items-start gap-4 rounded-[4px] bg-zero-dark p-6 sm:inset-x-6 lg:hidden"
         >
           {LINKS.map((l) => (
             <MenuItem key={l.label} {...l} onClick={() => setOpen(false)} />

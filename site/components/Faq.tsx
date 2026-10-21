@@ -50,7 +50,7 @@ export default function Faq() {
   const baseId = useId();
 
   return (
-    <section className="flex flex-col items-center gap-16 bg-primary px-4 py-28 sm:px-6 lg:gap-32 lg:px-16 lg:py-[196px]">
+    <section data-nav-bg="page" className="flex flex-col items-center gap-16 bg-primary px-4 py-28 sm:px-6 lg:gap-32 lg:px-16 lg:py-[196px]">
       <h2 className="trim max-w-[460px] text-center text-[32px] leading-none tracking-[-0.64px] lg:text-h1">
         FAQs. <span className="text-static">Have more questions? Let’s chat.</span>
       </h2>

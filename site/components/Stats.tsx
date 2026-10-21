@@ -9,7 +9,7 @@ const STATS = [
 
 export default function Stats() {
   return (
-    <section className="flex flex-col gap-16 pb-[42px] pt-20 lg:gap-32 lg:pt-32">
+    <section data-nav-bg="page" className="flex flex-col gap-16 pb-[42px] pt-20 lg:gap-32 lg:pt-32">
       <div className="px-4 sm:px-6 lg:px-[84px]">
         <Lede lead="A true ally." className="max-w-[716px]">
           We bring the understanding of an in-house team and the ease of an agency.

@@ -20,7 +20,7 @@ const MODELS = [
 
 export default function WaysOfWorking() {
   return (
-    <section id="ways-of-working" className="flex flex-col gap-16 pb-[42px] pt-20 lg:gap-32 lg:pt-32">
+    <section id="ways-of-working" data-nav-bg="page" className="flex flex-col gap-16 pb-[42px] pt-20 lg:gap-32 lg:pt-32">
       <div className="px-4 sm:px-6 lg:px-[84px]">
         <Lede lead="Flexible ways of working." className="max-w-[626px]">
           We acknowledge the realities of a modern balance sheet, so you can ally with us at any stage of the process,

@@ -21,7 +21,7 @@ const bakedTile = "size-[150px] shrink-0 transition-transform duration-300 hover
 
 export default function Brands() {
   return (
-    <section className="flex flex-col gap-12 px-4 py-20 sm:px-6 lg:flex-row lg:items-start lg:justify-center lg:px-[84px] lg:py-32">
+    <section data-nav-bg="page" className="flex flex-col gap-12 px-4 py-20 sm:px-6 lg:flex-row lg:items-start lg:justify-center lg:px-[84px] lg:py-32">
       <div className="flex-1">
         <Lede lead="The brands we ally with." className="max-w-[530px]">
           Both as an internal and external partner.

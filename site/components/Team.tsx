@@ -12,7 +12,7 @@ const ALLIES = [
 
 export default function Team() {
   return (
-    <section id="allies" className="flex flex-col gap-16 overflow-x-clip bg-primary py-28 lg:gap-32 lg:py-[196px]">
+    <section id="allies" data-nav-bg="page" className="flex flex-col gap-16 overflow-x-clip bg-primary py-28 lg:gap-32 lg:py-[196px]">
       <div className="px-4 sm:px-6 lg:px-16">
         <Lede lead="A team of allies." className="max-w-[716px]">
           A collective of international professionals including creative, strategy, marketing, development, CRM, data

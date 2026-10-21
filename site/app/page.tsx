@@ -1,3 +1,4 @@
+import Nav from "@/components/Nav";
 import Hero from "@/components/Hero";
 import Brands from "@/components/Brands";
 import WaysOfWorking from "@/components/WaysOfWorking";
@@ -10,6 +11,7 @@ import Footer from "@/components/Footer";
 export default function Home() {
   return (
     <main>
+      <Nav />
       <Hero />
       <Brands />
       <WaysOfWorking />

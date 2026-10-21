@@ -1,9 +1,8 @@
 import Image from "next/image";
-import Nav from "./Nav";
 
 export default function Hero() {
   return (
-    <section id="top" className="relative flex min-h-[640px] flex-col gap-16 overflow-clip bg-ink lg:h-svh">
+    <section id="top" data-nav-bg="dark" className="relative flex min-h-[640px] flex-col gap-16 overflow-clip bg-ink lg:h-svh">
       <Image
         src="/figma/hero.png"
         alt=""
@@ -17,7 +16,8 @@ export default function Hero() {
       {/* On narrow screens the headline sits over the face; darken the top for legibility */}
       <div aria-hidden className="pointer-events-none absolute inset-x-0 top-0 h-[60%] bg-gradient-to-b from-ink via-ink/70 to-transparent lg:hidden" />
 
-      <Nav />
+      {/* Reserves the fixed nav's height (published by Nav as --nav-h) */}
+      <div aria-hidden className="h-[var(--nav-h,56px)] shrink-0 sm:h-[var(--nav-h,64px)] lg:h-[var(--nav-h,115px)]" />
 
       <div className="relative flex w-full flex-1 flex-col justify-between gap-12 px-4 pb-4 sm:px-6 sm:pb-6 lg:px-[42px] lg:pb-[42px]">
         <h1 className="trim max-w-[530px] text-[32px] leading-none tracking-[-0.64px] text-snow lg:text-h1">
