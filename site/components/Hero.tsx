@@ -17,20 +17,21 @@ export default function Hero() {
             nav is just a toggle + menu icon over the hero's own top padding. */}
         <div aria-hidden className="hidden h-[var(--nav-h,115px)] shrink-0 lg:block" />
 
-        <div className="relative flex w-full flex-1 flex-col justify-between gap-16 px-[30px] pb-6 pt-[94px] lg:gap-12 lg:px-[42px] lg:pb-[42px] lg:pt-0">
+        <div className="relative flex w-full flex-1 flex-col justify-between gap-16 px-6 pb-6 pt-[94px] lg:gap-12 lg:px-[42px] lg:pb-[42px] lg:pt-0">
           <div className="flex flex-col items-center gap-[42px] lg:items-start">
             <img
               src={asset("/figma/wordmark.svg")}
               alt="Dijitally"
               width={215.856}
               height={30}
-              className="block h-auto w-full max-w-[356px] lg:hidden"
+              className="block h-auto w-full lg:hidden"
             />
 
-            {/* First line flush right, the rest left. The indent classes are the minimum opening
+            {/* Mobile: the wordmark, headline and bottom cards share the header's 24px side margins.
+              First line flush right, the rest left. The indent classes are the minimum opening
                 indent from each Figma frame (mobile puts only "Brands don't need" on line one);
                 HeroHeadline then tops it up to sit flush right. */}
-            <HeroHeadline className="trim w-full max-w-[356px] indent-[4em] text-h1-mobile text-snow lg:max-w-[530px] lg:indent-[146px] lg:text-h1">
+            <HeroHeadline className="trim w-full indent-[4em] text-h1-mobile text-snow lg:max-w-[530px] lg:indent-[146px] lg:text-h1">
               Brands don’t need another agency.{" "}
               <span className="text-stone">They need an ally that can flex with the ever-changing world around them.</span>
             </HeroHeadline>
