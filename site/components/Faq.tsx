@@ -1,6 +1,7 @@
 "use client";
 
 import { useId, useState } from "react";
+import SplitHeading from "./SplitHeading";
 
 const FAQS = [
   {
@@ -30,17 +31,15 @@ const FAQS = [
 ];
 
 // 36px plus/minus built from two 3px bars; the vertical bar collapses when open.
-// Bars turn white on the closed row's dark hover fill.
 function PlusMinus({ open }: { open: boolean }) {
-  const closedBar = "bg-secondary group-hover:bg-snow group-focus-visible:bg-snow";
   return (
     <span className="relative size-7 shrink-0 lg:size-9" aria-hidden>
       <span
-        className={`absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 transition-colors ${open ? "bg-grey" : closedBar}`}
+        className={`absolute inset-x-0 top-1/2 h-[3px] -translate-y-1/2 transition-colors ${open ? "bg-grey" : "bg-secondary"}`}
       />
       <span
-        className={`absolute inset-y-0 left-1/2 w-[3px] -translate-x-1/2 transition-[transform,background-color] duration-300 ${
-          open ? "scale-y-0 bg-secondary" : `scale-y-100 ${closedBar}`
+        className={`absolute inset-y-0 left-1/2 w-[3px] -translate-x-1/2 bg-secondary transition-transform duration-300 ${
+          open ? "scale-y-0" : "scale-y-100"
         }`}
       />
     </span>
@@ -53,9 +52,9 @@ export default function Faq() {
 
   return (
     <section data-nav-bg="page" className="flex flex-col items-center gap-16 bg-primary px-4 py-28 sm:px-6 lg:gap-32 lg:px-16 lg:py-[196px]">
-      <h2 className="trim max-w-[460px] text-center text-[32px] leading-none tracking-[-0.64px] lg:text-h1">
+      <SplitHeading className="trim max-w-[460px] text-center text-[32px] leading-none tracking-[-0.64px] lg:text-h1">
         FAQs. <span className="text-static">Have more questions? Let’s chat.</span>
-      </h2>
+      </SplitHeading>
 
       <ul className="flex w-full max-w-[1003px] flex-col gap-10 lg:gap-16">
         {FAQS.map((f, i) => {
@@ -73,7 +72,7 @@ export default function Faq() {
                 className={`group flex w-full cursor-pointer items-center justify-between gap-6 rounded-[4px] px-4 text-left outline-none transition-colors focus-visible:ring-2 focus-visible:ring-tech lg:px-6 ${
                   isOpen
                     ? "bg-secondary py-6 text-primary"
-                    : "-my-4 py-4 hover:bg-zero-dark hover:text-snow focus-visible:bg-zero-dark focus-visible:text-snow lg:-my-6 lg:py-6"
+                    : "-my-4 py-4 hover:bg-ui focus-visible:bg-ui lg:-my-6 lg:py-6"
                 }`}
               >
                 <span className="trim text-[22px] leading-[1.1] tracking-[-0.22px] lg:text-[32px] lg:tracking-[-0.32px]">

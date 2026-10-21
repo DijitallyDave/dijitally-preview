@@ -1,4 +1,5 @@
 import Marquee from "./Marquee";
+import SplitHeading from "./SplitHeading";
 
 const COUNTRIES = ["Australia", "New Zealand", "United Kingdom"];
 
@@ -19,11 +20,11 @@ export default function Footer() {
     <footer id="contact" data-nav-bg="light" className="bg-tech text-coal">
       <div className="flex flex-col lg:h-[422px] lg:flex-row lg:items-center">
         <div className="flex min-w-0 flex-1 flex-col items-center gap-[42px] px-4 py-20 lg:p-0">
-          <h2 className="trim text-center text-[32px] leading-none tracking-[-0.64px] lg:text-h1">
+          <SplitHeading className="trim text-center text-[32px] leading-none tracking-[-0.64px] lg:text-h1">
             Need an ally for
             <br />
             your next project?
-          </h2>
+          </SplitHeading>
           <a
             href="mailto:hello@dijitally.com"
             className="group flex items-center gap-1 rounded-full border border-coal bg-coal px-6 py-[18px] text-[16px] font-medium leading-none text-tech transition-colors hover:bg-transparent hover:text-coal active:scale-[0.98]"

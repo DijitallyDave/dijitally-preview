@@ -91,6 +91,34 @@ html {
   scroll-behavior: smooth;
 }
 
+/* SplitText headings: hidden until split so they don't flash before animating.
+   Only when JS is running (data-js is set in <head>), and with a failsafe reveal
+   in case the script never gets there. */
+[data-js] [data-split]:not([data-split-ready]) {
+  visibility: hidden;
+  animation: split-failsafe 0s 2.5s forwards;
+}
+
+@keyframes split-failsafe {
+  to {
+    visibility: visible;
+  }
+}
+
+/* Word masks clip at the line box; with leading-none that would cut descenders
+   (g, y, p) and accents. Pad the mask out and cancel it with margin so layout is unchanged. */
+.split-word-mask {
+  padding: 0.12em 0 0.2em;
+  margin: -0.12em 0 -0.2em;
+}
+
+/* text-indent is inherited and inline-blocks apply it to their own first line —
+   without this every hero word would carry the headline's first-line indent. */
+.split-word-mask,
+.split-word {
+  text-indent: 0;
+}
+
 body {
   background: var(--primary);
   color: var(--secondary);
