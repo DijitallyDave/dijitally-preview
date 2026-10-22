@@ -149,3 +149,14 @@ body {
   color: var(--secondary);
   -webkit-font-smoothing: antialiased;
 }
+
+/* Work thumbnail covers are removed by JS; without it (or with reduced motion) never show them. */
+html:not([data-js]) .pixel-reveal {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pixel-reveal {
+    display: none;
+  }
+}

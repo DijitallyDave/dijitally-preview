@@ -4,6 +4,7 @@ import Image from "next/image";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { asset } from "./asset";
 import { HERO_MELT, HERO_SLIDES } from "./heroSlides.config";
+import { meltDelays } from "./melt";
 
 /** Index of the hero slide currently on show, shared with the name card. */
 const SlideContext = createContext<{ index: number; setIndex: (i: number) => void }>({
@@ -28,25 +29,6 @@ function coverCanvas(img: HTMLImageElement, w: number, h: number) {
   const dh = img.naturalHeight * scale;
   c.getContext("2d")!.drawImage(img, (w - dw) / 2, (h - dh) / 2, dw, dh);
   return c;
-}
-
-/**
- * Per-strip start delays as a random walk, so neighbouring strips move together and the melt
- * edge is jagged rather than noisy (the same idea as DOOM's column offsets). `roughness` is
- * defined per 6px of height; a random walk's spread grows with the square root of the number
- * of steps, so the per-strip step is scaled by √(stripHeight / 6) to keep the same edge
- * character at any strip height.
- */
-function stripDelays(count: number) {
-  const { stagger, roughness, stripHeight } = HERO_MELT;
-  const walk = roughness * stagger * Math.sqrt(Math.max(stripHeight, 0.1) / 6);
-  const delays = new Array<number>(count);
-  let d = Math.random() * stagger;
-  for (let i = 0; i < count; i++) {
-    d = Math.min(stagger, Math.max(0, d + (Math.random() * 2 - 1) * walk));
-    delays[i] = d;
-  }
-  return delays;
 }
 
 /**
@@ -117,7 +99,7 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
       const sh = Math.max(1, Math.round(stripHeight * dpr));
       const snap = step > 0 ? Math.max(1, Math.round(step * dpr)) : 0;
       const rows = Math.ceil(bh / sh);
-      const delays = stripDelays(rows);
+      const delays = meltDelays(rows, HERO_MELT);
       const total = stagger + duration;
       const sign = direction === "left" ? -1 : 1;
       // Distance for a strip to clear the hero's edge entirely, not just the photo's.

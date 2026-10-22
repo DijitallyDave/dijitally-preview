@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import CarouselDots, { useActiveSlide } from "./CarouselDots";
 import Lede from "./Lede";
+import PixelReveal, { dominantColour } from "./PixelReveal";
 import { asset } from "./asset";
 
 type Project = {
@@ -57,7 +58,20 @@ const PROJECTS: Project[] = [
   },
 ];
 
-function ProjectCard({ p }: { p: Project }) {
+function ProjectCard({ p, order, revealAt }: { p: Project; order: number; revealAt: number | null }) {
+  const [color, setColor] = useState<string | null>(null);
+  const img = useRef<HTMLImageElement>(null);
+  // Cover colour for the reveal; a failed image just fades its cover out. Inset cards are
+  // mostly their black frame, so they cover in that.
+  const sample = (el: HTMLImageElement) =>
+    setColor(p.inset ? "rgb(0 0 0)" : (dominantColour(el) ?? "transparent"));
+  const onLoad = (e: React.SyntheticEvent<HTMLImageElement>) => sample(e.currentTarget);
+  const onError = () => setColor("transparent");
+  // A cached image can finish loading before hydration, when onLoad isn't listening yet.
+  useEffect(() => {
+    const el = img.current;
+    if (el?.complete && el.naturalWidth) sample(el);
+  }, []);
   return (
     <a
       href="#"
@@ -79,6 +93,9 @@ function ProjectCard({ p }: { p: Project }) {
               alt={p.alt}
               fill
               sizes="(min-width: 1024px) 416px, 227px"
+              ref={img}
+              onLoad={onLoad}
+              onError={onError}
               className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
             />
           </span>
@@ -89,9 +106,13 @@ function ProjectCard({ p }: { p: Project }) {
             alt={p.alt}
             fill
             sizes="(min-width: 1024px) 504px, 290px"
+            ref={img}
+            onLoad={onLoad}
+            onError={onError}
             className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
           />
         )}
+        <PixelReveal color={color} order={order} startAt={revealAt} />
       </span>
       <span className="flex flex-col items-start gap-3.5">
         <span className="trim text-[22px] leading-[1.2] transition-colors group-hover:text-wcag lg:text-[38px] lg:tracking-[-0.76px]">
@@ -107,6 +128,8 @@ export default function Work() {
   const scroller = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const active = useActiveSlide(scroller);
+  // When the carousel first comes into view; the cards' reveals are staggered from here.
+  const [revealAt, setRevealAt] = useState<number | null>(null);
   const [thumb, setThumb] = useState({ size: 0.165, offset: 0 });
   // Snap is switched off while the user drags, otherwise it fights every scrollLeft write.
   const [dragging, setDragging] = useState(false);
@@ -193,6 +216,21 @@ export default function Work() {
   useEffect(() => {
     const el = scroller.current;
     if (!el) return;
+    const io = new IntersectionObserver(
+      ([e]) => {
+        if (!e.isIntersecting) return;
+        setRevealAt(performance.now());
+        io.disconnect();
+      },
+      { threshold: 0.2 },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, []);
+
+  useEffect(() => {
+    const el = scroller.current;
+    if (!el) return;
     const update = () => {
       const max = el.scrollWidth - el.clientWidth;
       setThumb({
@@ -236,8 +274,8 @@ export default function Work() {
           dragging ? "cursor-grabbing select-none" : "snap-x snap-mandatory cursor-grab"
         }`}
       >
-        {PROJECTS.map((p) => (
-          <ProjectCard key={p.title} p={p} />
+        {PROJECTS.map((p, i) => (
+          <ProjectCard key={p.title} p={p} order={i} revealAt={revealAt} />
         ))}
       </div>
 
