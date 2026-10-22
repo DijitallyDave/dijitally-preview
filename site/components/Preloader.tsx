@@ -19,6 +19,8 @@ export const PRELOADER = {
   split: 0.8,
   /** How long each ally's face shows. */
   flick: 0.13,
+  /** Pause once the bar is full, before the site is revealed. */
+  hold: 0.4,
   /** The preloader lifting away to reveal the site. */
   exit: 0.9,
 };
@@ -40,6 +42,20 @@ const PAD = 4;
 const SHIFT = (CARD_W + 2 * PAD + (DIJIT_W - ALLY_X)) / 2;
 const OPEN_W = W + 2 * SHIFT;
 const pct = (u: number) => `${(u / OPEN_W) * 100}%`;
+
+/** Glow behind the card: its diameter, and the colours at its centre and edge. */
+const GLOW = {
+  // In wordmark units, so it scales with the card: 78 is ~100px on a 375px-wide phone.
+  size: 78,
+  // Figma "UI" (light) fading to the preloader's background, so the circle has no hard edge.
+  center: "#f6f6f6",
+  edge: "#040404",
+};
+
+// Static grey noise, rasterised once by the browser and tiled over the glow.
+const NOISE = `url("data:image/svg+xml,${encodeURIComponent(
+  "<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>",
+)}")`;
 
 function Dijit() {
   return (
@@ -105,7 +121,7 @@ export default function Preloader() {
     const faces = loadFaces(2500);
 
     const ctx = gsap.context(() => {
-      const { rise, beat, split, flick, exit } = PRELOADER;
+      const { rise, beat, split, flick, hold, exit } = PRELOADER;
       const q = gsap.utils.selector(el);
       const faceEls = q("[data-face]");
       // GSAP writes the whole transform, so start from its own values rather than the inline CSS.
@@ -127,13 +143,16 @@ export default function Preloader() {
       tl.to(q("[data-dijit]"), { xPercent: (-SHIFT / DIJIT_W) * 100, duration: split, ease: "expo.inOut" }, splitAt);
       tl.to(q("[data-ally]"), { xPercent: (SHIFT / ALLY_W) * 100, duration: split, ease: "expo.inOut" }, splitAt);
       tl.to(q("[data-card]"), { clipPath: "inset(0% 0% 0% 0%)", duration: split, ease: "expo.inOut" }, splitAt);
+      tl.to(q("[data-glow]"), { opacity: 1, duration: split, ease: "power2.out" }, splitAt + split * 0.3);
 
       // Each face is stacked above the last, so showing the next one covers the previous.
       const flickAt = splitAt + split * 0.6;
       faceEls.slice(1).forEach((f, i) => tl.set(f, { visibility: "visible" }, flickAt + (i + 1) * flick));
 
-      const exitAt = flickAt + faceEls.length * flick;
-      tl.to(q("[data-bar]"), { scaleX: 1, duration: exitAt, ease: "none" }, 0);
+      // The bar fills as the last face finishes, then a beat before the site comes in.
+      const barEnd = flickAt + faceEls.length * flick;
+      const exitAt = barEnd + hold;
+      tl.to(q("[data-bar]"), { scaleX: 1, duration: barEnd, ease: "none" }, 0);
       tl.to(el, { yPercent: -100, duration: exit, ease: "expo.inOut" }, exitAt);
       // Start the hero's own intro as the curtain clears it.
       tl.call(markPreloaded, [], exitAt + exit * 0.4);
@@ -160,36 +179,62 @@ export default function Preloader() {
         style={{ transform: "scaleX(0)" }}
       />
 
-      <div className="relative w-full overflow-hidden text-snow" style={{ aspectRatio: `${OPEN_W} / 30` }}>
+      <div className="relative w-full text-snow" style={{ aspectRatio: `${OPEN_W} / 30` }}>
+        {/* Noisy radial glow centred behind the card; outside the clipping box below so it can
+            be taller than the wordmark. */}
         <div
-          data-card
-          className="absolute inset-y-0 overflow-hidden rounded-[6.25%/5%] bg-ink"
-          style={{ left: pct(DIJIT_W + PAD), width: pct(CARD_W), clipPath: "inset(0% 50% 0% 50%)" }}
+          data-glow
+          className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden rounded-full"
+          style={{
+            left: pct(DIJIT_W + PAD + CARD_W / 2),
+            width: pct(GLOW.size),
+            aspectRatio: "1",
+            background: `radial-gradient(closest-side, ${GLOW.center}, ${GLOW.edge})`,
+            opacity: 0,
+          }}
         >
-          {HERO_SLIDES.map((s, i) => (
-            <div
-              key={s.src}
-              data-face
-              className="absolute inset-0 bg-no-repeat"
-              // Same face crop as the hero name card's thumbnail.
-              style={{
-                backgroundImage: `url(${asset(s.src)})`,
-                backgroundSize: "204.69% 92.11%",
-                backgroundPosition: "50% 143.7%",
-                visibility: i === 0 ? "visible" : "hidden",
-              }}
-            />
-          ))}
+          <div
+            className="absolute inset-0 opacity-25"
+            style={{
+              backgroundImage: NOISE,
+              // Fade the grain out with the gradient so it doesn't outline the circle.
+              maskImage: "radial-gradient(closest-side, #000, transparent)",
+            }}
+          />
         </div>
 
-        <div data-dijit className="absolute inset-y-0" style={{ left: pct(SHIFT), width: pct(DIJIT_W) }}>
-          <div data-piece className="size-full" style={{ transform: "translateY(101%)" }}>
-            <Dijit />
+        {/* Clips the wordmark as it rises */}
+        <div className="absolute inset-0 overflow-hidden">
+          <div
+            data-card
+            className="absolute inset-y-0 overflow-hidden rounded-[6.25%/5%] bg-ink"
+            style={{ left: pct(DIJIT_W + PAD), width: pct(CARD_W), clipPath: "inset(0% 50% 0% 50%)" }}
+          >
+            {HERO_SLIDES.map((s, i) => (
+              <div
+                key={s.src}
+                data-face
+                className="absolute inset-0 bg-no-repeat"
+                // Same face crop as the hero name card's thumbnail.
+                style={{
+                  backgroundImage: `url(${asset(s.src)})`,
+                  backgroundSize: "204.69% 92.11%",
+                  backgroundPosition: "50% 143.7%",
+                  visibility: i === 0 ? "visible" : "hidden",
+                }}
+              />
+            ))}
           </div>
-        </div>
-        <div data-ally className="absolute inset-y-0" style={{ left: pct(SHIFT + ALLY_X), width: pct(ALLY_W) }}>
-          <div data-piece className="size-full" style={{ transform: "translateY(101%)" }}>
-            <Ally />
+
+          <div data-dijit className="absolute inset-y-0" style={{ left: pct(SHIFT), width: pct(DIJIT_W) }}>
+            <div data-piece className="size-full" style={{ transform: "translateY(101%)" }}>
+              <Dijit />
+            </div>
+          </div>
+          <div data-ally className="absolute inset-y-0" style={{ left: pct(SHIFT + ALLY_X), width: pct(ALLY_W) }}>
+            <div data-piece className="size-full" style={{ transform: "translateY(101%)" }}>
+              <Ally />
+            </div>
           </div>
         </div>
       </div>
