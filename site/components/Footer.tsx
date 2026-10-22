@@ -3,7 +3,7 @@ import Marquee from "./Marquee";
 import SplitHeading from "./SplitHeading";
 import { asset } from "./asset";
 
-const COUNTRIES = ["Australia", "New Zealand", "England", "Ireland", "Philippines"];
+const COUNTRIES = ["Australia", "New Zealand", "England", "Ireland", "Philippines", "China"];
 
 function DotLink({ href, label, dot, text }: { href: string; label: string; dot: string; text: string }) {
   return (
