@@ -13,19 +13,19 @@ const FAQS = [
     a: "We ally with lorem ipsum dolor sit amet–with a penchant for financial, and professional services–navigating growth, acquisition, integration or strategic transformation. Our clients are typically operating in regulated or high-stakes environments where governance, capital and enterprise value matter.",
   },
   {
-    q: "Lorem ipsum dolor sit amet, consectetur adipiscing?",
+    q: "What’s the difference between Enablement and Execution?",
     a: "We ally with lorem ipsum dolor sit amet–with a penchant for financial, and professional services–navigating growth, acquisition, integration or strategic transformation.",
   },
   {
-    q: "Lorem ipsum dolor sit amet, consectetur adipiscing?",
+    q: "How does pricing work?",
     a: "We ally with lorem ipsum dolor sit amet–with a penchant for financial, and professional services–navigating growth, acquisition, integration or strategic transformation.",
   },
   {
-    q: "Lorem ipsum dolor sit amet, consectetur adipiscing?",
+    q: "How does 24-hour, follow-the-sun service work?",
     a: "We ally with lorem ipsum dolor sit amet–with a penchant for financial, and professional services–navigating growth, acquisition, integration or strategic transformation.",
   },
   {
-    q: "Lorem ipsum dolor sit amet, consectetur adipiscing?",
+    q: "Can we scale the team up or down as our needs change?",
     a: "We ally with lorem ipsum dolor sit amet–with a penchant for financial, and professional services–navigating growth, acquisition, integration or strategic transformation.",
   },
 ];
