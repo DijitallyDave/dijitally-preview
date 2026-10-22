@@ -16,9 +16,13 @@ const BLACKMORES_MASKS = Array.from({ length: 9 }, (_, i) => asset(`/figma/black
 
 // Logo SVGs are exported in black; in dark mode they're inverted to sit on the dark UI tiles.
 // (RoomStay and Travel NSW bake in a #f6f6f6 tile, which inverts to #090909 — dark UI exactly.)
+// Tiles are 150px on desktop and fill a 3-column grid on mobile, so logos are sized as a
+// fraction of the tile (their Figma size on a 150px tile) and scale with it.
 const tile =
-  "flex size-[150px] shrink-0 items-center justify-center rounded-[4px] bg-ui transition-transform duration-300 hover:-translate-y-1 dark:[&_img]:invert";
-const bakedTile = "size-[150px] shrink-0 transition-transform duration-300 hover:-translate-y-1 dark:[&_img]:invert";
+  "flex aspect-square w-full shrink-0 items-center justify-center rounded-[4px] bg-ui transition-transform duration-300 hover:-translate-y-1 dark:[&_img]:invert lg:size-[150px]";
+const bakedTile =
+  "aspect-square w-full shrink-0 transition-transform duration-300 hover:-translate-y-1 dark:[&_img]:invert lg:size-[150px]";
+const ofTile = (px: number) => `${(px / 150) * 100}%`;
 
 export default function Brands() {
   return (
@@ -29,20 +33,26 @@ export default function Brands() {
         </Lede>
       </div>
 
-      <ul className="flex flex-wrap content-start justify-center gap-6 lg:w-[585px] lg:justify-end">
+      {/* Mobile: 3 columns across the same 24px margins as the text above */}
+      <ul className="grid grid-cols-3 gap-6 lg:flex lg:w-[585px] lg:flex-wrap lg:content-start lg:justify-end">
         {LOGOS.map((l) => (
           <li key={l.name} className={tile}>
-            <img src={l.src} alt={l.name} width={l.w} height={l.h} />
+            <img src={l.src} alt={l.name} width={l.w} height={l.h} className="h-auto" style={{ width: ofTile(l.w) }} />
           </li>
         ))}
         <li className={bakedTile}>
-          <img src={asset("/figma/logo-roomstay.svg")} alt="RoomStay" width={150} height={150} />
+          <img src={asset("/figma/logo-roomstay.svg")} alt="RoomStay" width={150} height={150} className="size-full" />
         </li>
         <li className={bakedTile}>
-          <img src={asset("/figma/logo-travelnsw.svg")} alt="Travel NSW" width={150} height={150} />
+          <img src={asset("/figma/logo-travelnsw.svg")} alt="Travel NSW" width={150} height={150} className="size-full" />
         </li>
         <li className={tile}>
-          <span role="img" aria-label="Blackmores" className="relative block h-[10px] w-[105.175px] overflow-clip">
+          <span
+            role="img"
+            aria-label="Blackmores"
+            className="relative block aspect-[105.175/10] overflow-clip"
+            style={{ width: ofTile(105.175) }}
+          >
             <span className="absolute" style={{ inset: "2.9% 0.04% 78.6% 97.96%" }}>
               <img src={asset("/figma/blackmores/fill-1.svg")} alt="" className="absolute inset-0 block size-full max-w-none" />
             </span>
