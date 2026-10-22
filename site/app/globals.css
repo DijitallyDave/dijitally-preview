@@ -160,3 +160,25 @@ html:not([data-js]) .pixel-reveal {
     display: none;
   }
 }
+
+/* The preloader is driven by JS; without it (or with reduced motion) never show it, and lift it
+   anyway if the script stalls. */
+html:not([data-js]) .preloader {
+  display: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .preloader {
+    display: none;
+  }
+}
+
+.preloader {
+  animation: preloader-failsafe 0s 10s forwards;
+}
+
+@keyframes preloader-failsafe {
+  to {
+    visibility: hidden;
+  }
+}

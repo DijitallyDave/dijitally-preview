@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import { JetBrains_Mono } from "next/font/google";
 import { themeInitScript } from "@/components/theme";
+import Preloader from "@/components/Preloader";
 import "./globals.css";
 
 const neuSans = localFont({
@@ -34,7 +35,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body className="font-sans font-book">{children}</body>
+      <body className="font-sans font-book">
+        <Preloader />
+        {children}
+      </body>
     </html>
   );
 }

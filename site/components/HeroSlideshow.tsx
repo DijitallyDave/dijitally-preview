@@ -5,6 +5,7 @@ import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { asset } from "./asset";
 import { HERO_MELT, HERO_SLIDES } from "./heroSlides.config";
 import { meltDelays } from "./melt";
+import { onPreloaded } from "./preloaded";
 
 /** Index of the hero slide currently on show, shared with the name card. */
 const SlideContext = createContext<{ index: number; setIndex: (i: number) => void }>({
@@ -63,6 +64,7 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
     let holdTimer: ReturnType<typeof setTimeout> | undefined;
     let frame = 0;
     let onScreen = true;
+    let stopWaiting = () => {};
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     const drawStill = (i: number) => {
@@ -168,7 +170,8 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
         ro.observe(el);
         ro.observe(cv);
         setReady(true);
-        if (!reduceMotion) scheduleNext();
+        // The first hold starts once the preloader has lifted, so the opening slide gets its full time.
+        if (!reduceMotion) stopWaiting = onPreloaded(scheduleNext);
       })
       .catch(() => {
         // If an image fails, leave the static first slide in place.
@@ -176,6 +179,7 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
 
     return () => {
       cancelled = true;
+      stopWaiting();
       clearTimeout(holdTimer);
       cancelAnimationFrame(frame);
       io.disconnect();

@@ -4,6 +4,7 @@ import { useLayoutEffect } from "react";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { SplitText } from "gsap/SplitText";
+import { onPreloaded } from "./preloaded";
 
 gsap.registerPlugin(ScrollTrigger, SplitText);
 
@@ -46,7 +47,7 @@ function breakAtHyphens(words: Element[]): Element[] {
  * Headings opt in with `data-split`; CSS hides them until they're split (see globals.css)
  * so they don't flash at full opacity first.
  *
- * @param onLoad play straight away (the hero) instead of when scrolled into view.
+ * @param onLoad play on load (the hero, once the preloader hands over) instead of when scrolled into view.
  * @param afterSplit runs once the DOM is split, e.g. to re-measure layout.
  */
 export function useSplitReveal(
@@ -62,24 +63,30 @@ export function useSplitReveal(
       return;
     }
 
+    let stopWaiting = () => {};
     const ctx = gsap.context(() => {
       const split = SplitText.create(el, { type: "words", wordsClass: "split-word", mask: "words" });
       const words = breakAtHyphens(split.words);
       afterSplit?.();
       el.dataset.splitReady = "";
 
-      gsap.from(words, {
+      const tween = gsap.from(words, {
         // Far enough to clear the mask's extra descender padding (see .split-word-mask).
         yPercent: 140,
         duration: 1,
         ease: "expo.out",
         stagger: 0.04,
         delay: onLoad ? 0.15 : 0,
+        paused: onLoad,
         scrollTrigger: onLoad ? undefined : { trigger: el, start: "top 85%", once: true },
       });
+      if (onLoad) stopWaiting = onPreloaded(() => tween.play());
     }, el);
 
-    return () => ctx.revert();
+    return () => {
+      stopWaiting();
+      ctx.revert();
+    };
     // afterSplit is deliberately left out: re-splitting whenever its identity changes isn't wanted.
   }, [ref, onLoad]);
 }
