@@ -7,22 +7,26 @@ import { HERO_SLIDES } from "./heroSlides.config";
 import { markPreloaded } from "./preloaded";
 
 /**
- * Intro timings (seconds). The progress bar runs for the whole intro (rise, split and the
- * face flicks) and reaches the right edge just as the exit starts.
+ * Intro timings (seconds). The progress bar runs through the rise, the split and one pass of
+ * the faces, then sits full for `hold` while the faces keep cycling, before the exit.
  */
 export const PRELOADER = {
   /** The wordmark rising into place. */
   rise: 0.9,
   /** Pause before the wordmark splits. */
   beat: 0.15,
-  /** DIJIT and ALLY sliding apart as the card opens between them. */
+  /** DIJIT and ALLY sliding apart as the card's mask opens between them. */
   split: 0.8,
+  /** The faces start at this scale inside the card and ease up to full size. */
+  faceScale: 0.85,
   /** How long each ally's face shows. */
   flick: 0.13,
   /** Pause once the bar is full, before the site is revealed. */
   hold: 0.4,
-  /** The preloader lifting away to reveal the site. */
-  exit: 0.9,
+  /** The card (on Zara) expanding into the hero photo. */
+  exit: 1.1,
+  /** The preloader fading off the hero once the photo is in place. */
+  fade: 0.4,
 };
 
 /*
@@ -42,6 +46,16 @@ const PAD = 4;
 const SHIFT = (CARD_W + 2 * PAD + (DIJIT_W - ALLY_X)) / 2;
 const OPEN_W = W + 2 * SHIFT;
 const pct = (u: number) => `${(u / OPEN_W) * 100}%`;
+/** Card corner radius as a fraction of its width (rounded-[6.25%/5%] on a 4:5 card). */
+const CARD_RADIUS = 0.0625;
+
+/**
+ * The faces' crop inside the card: the hero name card's crop, 25% closer in and nudged up so
+ * the head sits nearer the top. Sizes are of the card's width/height (they keep the photos'
+ * 16:9 because the card is 4:5); y is the background-position. Also used to line the card up
+ * with the hero photo for the exit.
+ */
+const FACE_CROP = { w: 2.5586, h: 1.1514, y: 0.766 };
 
 /** Glow behind the card: its diameter, and the colours at its centre and edge. */
 const GLOW = {
@@ -50,6 +64,7 @@ const GLOW = {
   // Figma "UI" (light) fading to the preloader's background, so the circle has no hard edge.
   center: "#f6f6f6",
   edge: "#040404",
+  opacity: 0.07,
 };
 
 // Static grey noise, rasterised once by the browser and tiled over the glow.
@@ -82,22 +97,62 @@ function Ally() {
   );
 }
 
-/** Resolves once every face has loaded and decoded, or after `timeout` regardless. */
+/**
+ * Starts loading every face. `ready` resolves once they've all decoded, or after `timeout`
+ * regardless; `images` gives their natural sizes for lining the card up with the hero.
+ */
 function loadFaces(timeout: number) {
-  const all = Promise.all(
-    HERO_SLIDES.map((s) => {
-      const img = new window.Image();
-      img.src = asset(s.src);
-      return img.decode().catch(() => {});
-    }),
-  );
-  return Promise.race([all, new Promise((r) => setTimeout(r, timeout))]);
+  const images = HERO_SLIDES.map((s) => {
+    const img = new window.Image();
+    img.src = asset(s.src);
+    return img;
+  });
+  const all = Promise.all(images.map((img) => img.decode().catch(() => {})));
+  return { images, ready: Promise.race([all, new Promise((r) => setTimeout(r, timeout))]) };
+}
+
+/**
+ * Where the expander (a hero-photo-sized copy of the first slide) must start so that it shows
+ * exactly what the card shows: the transform that maps the hero photo onto the card's crop of
+ * the same image, and the clip (in the expander's own pixels) that trims it to the card.
+ * Returns null if the hero photo isn't on screen, e.g. after a reload part-way down the page.
+ */
+function measureExpand(card: Element, img: HTMLImageElement) {
+  const box = document.querySelector("[data-hero-photo]");
+  if (!box) return null;
+  const b = box.getBoundingClientRect();
+  if (b.bottom <= 0 || b.top >= window.innerHeight) return null;
+  const c = card.getBoundingClientRect();
+  const iw = img.naturalWidth || 2720;
+  const ih = img.naturalHeight || 1530;
+
+  // The hero draws the photo like object-fit: cover, centred in its box.
+  const s = Math.max(b.width / iw, b.height / ih);
+  const hx = (b.width - iw * s) / 2;
+  const hy = (b.height - ih * s) / 2;
+  // The card draws it at FACE_CROP's size and position.
+  const cw = c.width * FACE_CROP.w;
+  const cx = (c.width - cw) * 0.5;
+  const cy = (c.height - c.height * FACE_CROP.h) * FACE_CROP.y;
+
+  const k = cw / iw / s;
+  const x = c.left + cx - b.left - k * hx;
+  const y = c.top + cy - b.top - k * hy;
+  const left = (c.left - b.left - x) / k;
+  const top = (c.top - b.top - y) / k;
+  const right = b.width - left - c.width / k;
+  const bottom = b.height - top - c.height / k;
+  const r = (CARD_RADIUS * c.width) / k;
+  return {
+    rect: { left: b.left, top: b.top, width: b.width, height: b.height },
+    from: { x, y, scale: k, clipPath: `inset(${top}px ${right}px ${bottom}px ${left}px round ${r}px)` },
+  };
 }
 
 /**
  * Intro over a #040404 screen: a progress bar runs across the top while the wordmark rises,
  * splits into DIJIT and ALLY around a card that flicks through every ally's face, then the
- * whole thing lifts away to the site.
+ * card lands on Zara and expands into the hero photo.
  *
  * Only transforms and a small clip-path are animated, the faces swap by visibility (no
  * blending), and the element is removed from the page once it's done. It's server-rendered
@@ -121,12 +176,13 @@ export default function Preloader() {
     const faces = loadFaces(2500);
 
     const ctx = gsap.context(() => {
-      const { rise, beat, split, flick, hold, exit } = PRELOADER;
+      const { rise, beat, split, faceScale, flick, hold, exit, fade } = PRELOADER;
       const q = gsap.utils.selector(el);
       const faceEls = q("[data-face]");
       // GSAP writes the whole transform, so start from its own values rather than the inline CSS.
       gsap.set(q("[data-piece]"), { y: 0, yPercent: 101 });
       gsap.set(q("[data-bar]"), { scaleX: 0 });
+      gsap.set(q("[data-faces]"), { scale: faceScale });
 
       const tl = gsap.timeline({
         onComplete: () => {
@@ -139,23 +195,83 @@ export default function Preloader() {
 
       // The card shows faces from here on, so hold (bar and all) until they've loaded.
       const splitAt = tl.duration() + beat;
-      tl.addPause(splitAt, () => void faces.then(() => tl.resume()));
+      tl.addPause(splitAt, () => void faces.ready.then(() => tl.resume()));
       tl.to(q("[data-dijit]"), { xPercent: (-SHIFT / DIJIT_W) * 100, duration: split, ease: "expo.inOut" }, splitAt);
       tl.to(q("[data-ally]"), { xPercent: (SHIFT / ALLY_W) * 100, duration: split, ease: "expo.inOut" }, splitAt);
-      tl.to(q("[data-card]"), { clipPath: "inset(0% 0% 0% 0%)", duration: split, ease: "expo.inOut" }, splitAt);
-      tl.to(q("[data-glow]"), { opacity: 1, duration: split, ease: "power2.out" }, splitAt + split * 0.3);
+      // The mask grows from the centre to the full card in step with the split. Both ends are
+      // given explicitly: the browser collapses the inline "inset(50% 50% 50% 50%)" to
+      // "inset(50%)", which GSAP would then interpolate as a single value.
+      tl.fromTo(
+        q("[data-card]"),
+        { clipPath: "inset(50% 50% 50% 50%)" },
+        { clipPath: "inset(0% 0% 0% 0%)", duration: split, ease: "expo.inOut", immediateRender: false },
+        splitAt,
+      );
+      tl.to(q("[data-glow]"), { opacity: GLOW.opacity, duration: split, ease: "power2.out" }, splitAt + split * 0.3);
 
-      // Each face is stacked above the last, so showing the next one covers the previous.
+      // The bar fills after one pass through the faces, then a beat before the site comes in.
       const flickAt = splitAt + split * 0.6;
-      faceEls.slice(1).forEach((f, i) => tl.set(f, { visibility: "visible" }, flickAt + (i + 1) * flick));
-
-      // The bar fills as the last face finishes, then a beat before the site comes in.
       const barEnd = flickAt + faceEls.length * flick;
       const exitAt = barEnd + hold;
       tl.to(q("[data-bar]"), { scaleX: 1, duration: barEnd, ease: "none" }, 0);
-      tl.to(el, { yPercent: -100, duration: exit, ease: "expo.inOut" }, exitAt);
-      // Start the hero's own intro as the curtain clears it.
-      tl.call(markPreloaded, [], exitAt + exit * 0.4);
+      // The faces settle more slowly, through the flicks, until the bar fills.
+      tl.to(q("[data-faces]"), { scale: 1, duration: barEnd - splitAt, ease: "power2.out" }, splitAt);
+
+      // The faces keep cycling through the beat, counted so the last one, a flick before the
+      // exit, is Zara: the hero's first slide, which the card then expands into.
+      const steps = Math.max(0, Math.round((exitAt - flick - flickAt) / flick));
+      const faceAt = (step: number) => (((step - steps) % faceEls.length) + faceEls.length) % faceEls.length;
+      gsap.set(faceEls, { visibility: "hidden" });
+      gsap.set(faceEls[faceAt(0)], { visibility: "visible" });
+      for (let i = 1; i <= steps; i++) {
+        const at = flickAt + i * flick;
+        tl.set(faceEls[faceAt(i - 1)], { visibility: "hidden" }, at);
+        tl.set(faceEls[faceAt(i)], { visibility: "visible" }, at);
+      }
+
+      // Exit: swap the card for a hero-photo-sized copy of Zara that starts exactly where the
+      // card is and expands into the hero photo, while everything else fades away. The page
+      // underneath is showing the same photo, so the preloader then fades off without a seam.
+      const expander = q("[data-expander]")[0];
+      let expand: ReturnType<typeof measureExpand> = null;
+      tl.call(
+        () => {
+          expand = measureExpand(q("[data-card]")[0], faces.images[0]);
+          if (expand) {
+            gsap.set(expander, { ...expand.rect, transformOrigin: "0 0", visibility: "visible" });
+            gsap.set(q("[data-card]"), { visibility: "hidden" });
+          }
+        },
+        [],
+        exitAt,
+      );
+      // Start values are read when the exit begins, after the measurement above. Both clips are
+      // spelled out in full so GSAP pairs up all five numbers (the browser would shorten them).
+      tl.fromTo(
+        expander,
+        {
+          x: () => expand?.from.x ?? 0,
+          y: () => expand?.from.y ?? 0,
+          scale: () => expand?.from.scale ?? 1,
+          clipPath: () => expand?.from.clipPath ?? "inset(0px 0px 0px 0px round 0px)",
+        },
+        {
+          x: 0,
+          y: 0,
+          scale: 1,
+          clipPath: "inset(0px 0px 0px 0px round 0px)",
+          duration: exit,
+          ease: "expo.inOut",
+          immediateRender: false,
+        },
+        exitAt,
+      );
+      tl.to(q("[data-bar], [data-glow], [data-dijit], [data-ally]"), { opacity: 0, duration: exit * 0.4, ease: "power2.out" }, exitAt);
+      // With no hero on screen to land on, the card fades with the rest.
+      tl.to(q("[data-card]"), { opacity: () => (expand ? 1 : 0), duration: exit * 0.4 }, exitAt);
+      // Hand over: the hero's headline starts as the preloader fades off it.
+      tl.call(markPreloaded, [], exitAt + exit);
+      tl.to(el, { opacity: 0, duration: fade, ease: "power1.out" }, exitAt + exit);
     }, el);
 
     return () => {
@@ -170,7 +286,7 @@ export default function Preloader() {
     <div
       ref={root}
       aria-hidden
-      className="preloader fixed inset-0 z-[100] flex items-center bg-ink px-6 lg:px-[42px]"
+      className="preloader fixed inset-0 z-[100] flex items-center overflow-hidden bg-ink px-6 lg:px-[42px]"
     >
       {/* Progress bar: Figma "Primary" (light), 6px on desktop and half that on mobile */}
       <div
@@ -208,22 +324,23 @@ export default function Preloader() {
           <div
             data-card
             className="absolute inset-y-0 overflow-hidden rounded-[6.25%/5%] bg-ink"
-            style={{ left: pct(DIJIT_W + PAD), width: pct(CARD_W), clipPath: "inset(0% 50% 0% 50%)" }}
+            style={{ left: pct(DIJIT_W + PAD), width: pct(CARD_W), clipPath: "inset(50% 50% 50% 50%)" }}
           >
-            {HERO_SLIDES.map((s, i) => (
-              <div
-                key={s.src}
-                data-face
-                className="absolute inset-0 bg-no-repeat"
-                // Same face crop as the hero name card's thumbnail.
-                style={{
-                  backgroundImage: `url(${asset(s.src)})`,
-                  backgroundSize: "204.69% 92.11%",
-                  backgroundPosition: "50% 143.7%",
-                  visibility: i === 0 ? "visible" : "hidden",
-                }}
-              />
-            ))}
+            <div data-faces className="absolute inset-0" style={{ transform: `scale(${PRELOADER.faceScale})` }}>
+              {HERO_SLIDES.map((s, i) => (
+                <div
+                  key={s.src}
+                  data-face
+                  className="absolute inset-0 bg-no-repeat"
+                  style={{
+                    backgroundImage: `url(${asset(s.src)})`,
+                    backgroundSize: `${FACE_CROP.w * 100}% ${FACE_CROP.h * 100}%`,
+                    backgroundPosition: `50% ${FACE_CROP.y * 100}%`,
+                    visibility: i === 0 ? "visible" : "hidden",
+                  }}
+                />
+              ))}
+            </div>
           </div>
 
           <div data-dijit className="absolute inset-y-0" style={{ left: pct(SHIFT), width: pct(DIJIT_W) }}>
@@ -238,6 +355,14 @@ export default function Preloader() {
           </div>
         </div>
       </div>
+
+      {/* The exit: the first slide at the hero photo's size, positioned and clipped by GSAP */}
+      <div
+        data-expander
+        className="invisible fixed bg-ink bg-cover bg-center"
+        style={{ backgroundImage: `url(${asset(HERO_SLIDES[0].src)})` }}
+      />
     </div>
   );
 }
+

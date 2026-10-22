@@ -1,7 +1,7 @@
 /** Fired once the preloader has started handing over to the page. */
 const PRELOADED_EVENT = "dijitally:preloaded";
 // If the preloader never reports in (a script error, say), start the page anyway.
-const FAILSAFE_MS = 8000;
+const FAILSAFE_MS = 10000;
 
 export function markPreloaded() {
   if (document.documentElement.dataset.preloaded !== undefined) return;

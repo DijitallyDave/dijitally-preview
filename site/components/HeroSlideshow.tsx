@@ -190,7 +190,7 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
   const first = HERO_SLIDES[0];
   return (
     <>
-      <div ref={box} aria-hidden className={`pointer-events-none ${className}`}>
+      <div ref={box} data-hero-photo aria-hidden className={`pointer-events-none ${className}`}>
         <Image
           src={asset(first.src)}
           alt=""

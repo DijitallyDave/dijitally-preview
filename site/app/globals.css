@@ -174,7 +174,7 @@ html:not([data-js]) .preloader {
 }
 
 .preloader {
-  animation: preloader-failsafe 0s 10s forwards;
+  animation: preloader-failsafe 0s 12s forwards;
 }
 
 @keyframes preloader-failsafe {
