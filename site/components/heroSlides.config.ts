@@ -36,7 +36,7 @@ export const HERO_SLIDES: HeroSlide[] = [
 
 export const HERO_MELT = {
   /** How long each image is fully shown before it melts away (ms). */
-  hold: 5000,
+  hold: 3000,
   /** How long one strip takes to slide all the way out once it starts moving (ms). */
   duration: 900,
   /** Spread of the strips' start times (ms). 0 = every strip moves together, like a wipe. */
