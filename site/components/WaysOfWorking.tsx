@@ -7,15 +7,15 @@ const MODELS = [
     title: "Enablement.",
     body: "Get a plug-and-play in-house team that integrates into your business with complete transparency and flexibility. We handle everything behind the scenes, and you get simple monthly costs with minimal admin and overheads.",
     points: ["Embedded expertise", "Team augmentation", "Internal capability building"],
-    image: asset("/figma/model-execution.png"),
-    alt: "Desk with a monitor showing the Ally wordmark",
+    image: asset("/services/enablement.webp"),
+    alt: "Diagram of Dijitally allies, a creative and a producer, slotting into your company's team",
   },
   {
     title: "Execution.",
     body: "Tap into our agency team's high-impact capabilities, from upstream strategic architecture and engineering, to downstream creative development and execution. With full flexibility to enable efficient execution across every stage of growth.",
     points: ["Strategy + Media + Performance", "Platforms + Experience", "Creative + Production"],
-    image: asset("/figma/model-enablement.png"),
-    alt: "Desk with a laptop showing the Dijitally logo",
+    image: asset("/services/execution.webp"),
+    alt: "List of capabilities from engineering and production to strategy, media, branding and social",
   },
 ];
 
@@ -54,7 +54,8 @@ export default function WaysOfWorking() {
                 ))}
               </ul>
             </div>
-            <div className="relative h-[193px] w-full shrink-0 overflow-hidden rounded-[2px] lg:h-[516px] lg:w-[731px] lg:max-w-[50%] lg:rounded-[4px]">
+            {/* Locked to the artwork's 731:516 so the diagrams are never cropped */}
+            <div className="relative aspect-[731/516] w-full shrink-0 overflow-hidden rounded-[2px] lg:w-[731px] lg:max-w-[50%] lg:rounded-[4px]">
               <Image src={m.image} alt={m.alt} fill sizes="(min-width: 1024px) 731px, 100vw" className="object-cover" />
             </div>
           </article>
