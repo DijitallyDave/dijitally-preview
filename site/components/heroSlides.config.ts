@@ -25,14 +25,17 @@ export type HeroSlide = {
 };
 
 export const HERO_SLIDES: HeroSlide[] = [
-  { src: "/hero/zara.webp", name: "Zara", role: "Strategic ally" },
-  { src: "/hero/dave.webp", name: "Dave", role: "Creative ally" },
-  { src: "/hero/caroline.webp", name: "Caroline", role: "CRM ally" },
-  { src: "/hero/craig.webp", name: "Craig", role: "Talent ally" },
-  { src: "/hero/carrie.webp", name: "Carrie", role: "Project ally" },
-  { src: "/hero/declan.webp", name: "Declan", role: "Founding ally" },
-  { src: "/hero/dess.webp", name: "Dess", role: "Production ally" },
-  { src: "/hero/matty.webp", name: "Matty", role: "Engineering ally" },
+  // Ordered so people alternate looking right and left (→ ← → ←…), with women and men in
+  // pairs: two women and two men face each way, so genders can't strictly alternate as well.
+  // Zara stays first: the preloader lands on her and expands into the hero.
+  { src: "/hero/zara.webp", name: "Zara", role: "Strategic ally" }, // →
+  { src: "/hero/dave.webp", name: "Dave", role: "Creative ally" }, // ←
+  { src: "/hero/craig.webp", name: "Craig", role: "Talent ally" }, // →
+  { src: "/hero/caroline.webp", name: "Caroline", role: "CRM ally" }, // ←
+  { src: "/hero/dess.webp", name: "Dess", role: "Production ally" }, // →
+  { src: "/hero/declan.webp", name: "Declan", role: "Founding ally" }, // ←
+  { src: "/hero/matty.webp", name: "Matty", role: "Engineering ally" }, // →
+  { src: "/hero/carrie.webp", name: "Carrie", role: "Project ally" }, // ←
 ];
 
 export const HERO_MELT = {
