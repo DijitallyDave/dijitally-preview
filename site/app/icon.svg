@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64">
+  <!-- The D from the DIJITALLY wordmark: Figma "Primary" on "Secondary" (light mode) -->
+  <rect width="64" height="64" rx="12" fill="#121010"/>
+  <path transform="translate(14 16.73) scale(1.0182)" fill="#fdfeff" fill-rule="evenodd" d="M20.3573 0C29.1228 7.87558e-05 35.3573 5.97939 35.3573 14.3836V15.6164C35.3573 24.0206 29.1228 29.9999 20.3573 30H0V0H20.3573ZM7.00516 22.982H20.1117C24.8113 22.982 28.2723 20.0313 28.2723 15.6164V14.3836C28.2722 9.96871 24.8113 7.0718 20.1117 7.07178H7.00516V22.982Z"/>
+</svg>
