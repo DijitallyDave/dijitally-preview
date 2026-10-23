@@ -31,6 +31,7 @@ export const HERO_SLIDES: HeroSlide[] = [
   { src: "/hero/craig.webp", name: "Craig", role: "Talent ally" },
   { src: "/hero/carrie.webp", name: "Carrie", role: "Project ally" },
   { src: "/hero/declan.webp", name: "Declan", role: "Founding ally" },
+  { src: "/hero/dess.webp", name: "Dess", role: "Production ally" },
   { src: "/hero/matty.webp", name: "Matty", role: "Engineering ally" },
 ];
 
