@@ -36,6 +36,9 @@ export const HERO_SLIDES: HeroSlide[] = [
   { src: "/hero/declan.webp", name: "Declan", role: "Founding ally" }, // ←
   { src: "/hero/matty.webp", name: "Matty", role: "Engineering ally" }, // →
   { src: "/hero/carrie.webp", name: "Carrie", role: "Project ally" }, // ←
+  { src: "/hero/dante.webp", name: "Dante", role: "Design ally" }, // →
+  // Jon faces the camera, so he sits at the turn of the loop, between two who look right.
+  { src: "/hero/jon.webp", name: "Jon", role: "Creative ally" }, // ↑
 ];
 
 export const HERO_MELT = {
