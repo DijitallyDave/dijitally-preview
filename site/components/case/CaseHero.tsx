@@ -24,7 +24,9 @@ export default function CaseHero({
     <section
       id="top"
       data-nav-bg="page"
-      className="flex flex-col gap-16 bg-primary px-6 pb-16 pt-[120px] lg:gap-24 lg:px-[42px] lg:pb-24 lg:pt-[230px]"
+      // A full screen tall, like the homepage hero, with the image card in the bottom-right
+      // corner at the nav's distance from the edges: 24px on mobile, 42px on desktop.
+      className="flex min-h-svh flex-col justify-between gap-16 bg-primary px-6 pb-6 pt-[120px] lg:px-[42px] lg:pb-[42px] lg:pt-[230px]"
     >
       <div className="flex flex-col gap-6 lg:gap-8 lg:px-[42px]">
         {/* Eyebrow: client and dates on one line, in capitals except a " x " between names */}
@@ -43,8 +45,11 @@ export default function CaseHero({
         </SplitHeading>
       </div>
       {/* The frame is Figma "UI" in light mode and the card's zero-dark in dark mode */}
-      <div className="self-end rounded-[8px] bg-ui p-3 lg:mr-[42px] lg:p-5 dark:bg-zero-dark">
-        <div className="w-[274px] overflow-hidden rounded-[3px] lg:w-[714px]">
+      <div className="self-end rounded-[8px] bg-ui p-3 lg:p-5 dark:bg-zero-dark">
+        {/* On desktop the image is 714px wide when the window is tall enough, and shrinks with
+            the window's height so the hero still fits one screen (the 570px is everything
+            above and around it), down to the homepage card's 357px at the least. */}
+        <div className="w-[274px] overflow-hidden rounded-[3px] lg:w-[clamp(357px,calc((100svh-570px)*16/9),714px)]">
           <RevealImage {...image} width={16} height={9} priority sizes="(min-width: 1024px) 714px, 274px" className="rounded-none!" />
         </div>
       </div>

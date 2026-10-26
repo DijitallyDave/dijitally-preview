@@ -17,7 +17,7 @@ export default function CaseGallery({ images }: { images: CaseImage[] }) {
       >
         {images.map((img, i) => (
           <RevealImage
-            key={img.src}
+            key={`${img.src}-${i}`}
             {...img}
             order={i}
             sizes={cols > 1 ? `(min-width: 1024px) ${Math.round(100 / cols)}vw, 100vw` : "100vw"}

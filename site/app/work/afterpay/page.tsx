@@ -76,6 +76,8 @@ export default function AfterpayCaseStudy() {
         images={[
           img("shelter-sale", "Lit bus shelter poster at night advertising an Afterpay sale, with white over-ear headphones", 2000, 1338),
           img("billboard-reverse", "Dijitally and Afterpay logos locked up on the same atrium billboard, stacked the other way", 1600, 1070),
+          // Placeholder: a repeat of the first image until the third one is chosen.
+          img("shelter-sale", "Lit bus shelter poster at night advertising an Afterpay sale, with white over-ear headphones", 2000, 1338),
         ]}
       />
 
@@ -92,8 +94,8 @@ export default function AfterpayCaseStudy() {
             title: "Studio.",
             body: "High-impact creative, CRM, web and data capability, delivered fast, without the overhead of permanent hires.",
             points: ["Scales up when it’s needed", "And back when it isn’t", "No permanent headcount"],
-            image: asset("/work/afterpay/day-posters.webp"),
-            alt: "Three digital posters in a walkway showing chrome product renders and the Afterpay Day dates",
+            image: asset("/services/studioxafterpay.webp"),
+            alt: "A spread of Afterpay creative by the studio: an Afterpay Day sale poster, social posts, an email and partner campaigns",
           },
           {
             title: "In-house.",
@@ -175,6 +177,8 @@ export default function AfterpayCaseStudy() {
         image={asset("/figma/work-airwallex.webp")}
         alt="Three rugby players in Airwallex-sponsored jerseys"
         background="linear-gradient(to bottom, #36222d, #4f3036 50.081%)"
+        // Airwallex's orange, sampled from the orange end of their official logo
+        color="#F28A45"
       />
 
       <Footer />
