@@ -25,8 +25,9 @@ export default function CaseHero({
       id="top"
       data-nav-bg="page"
       // A full screen tall, like the homepage hero, with the image card in the bottom-right
-      // corner at the nav's distance from the edges: 24px on mobile, 42px on desktop.
-      className="flex min-h-svh flex-col justify-between gap-16 bg-primary px-6 pb-6 pt-[120px] lg:px-[42px] lg:pb-[42px] lg:pt-[230px]"
+      // corner at the nav's distance from the edges: 24px on mobile, 42px on desktop. On mobile
+      // half a screen is enough (a full one left a lot of empty space); it grows to fit if needed.
+      className="flex min-h-[50svh] flex-col justify-between gap-16 bg-primary px-6 pb-6 pt-[120px] lg:min-h-svh lg:px-[42px] lg:pb-[42px] lg:pt-[230px]"
     >
       <div className="flex flex-col gap-6 lg:gap-8 lg:px-[42px]">
         {/* Eyebrow: client and dates on one line, in capitals except a " x " between names */}
