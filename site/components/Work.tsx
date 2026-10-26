@@ -5,67 +5,13 @@ import { useEffect, useRef, useState } from "react";
 import CarouselDots, { useActiveSlide } from "./CarouselDots";
 import Lede from "./Lede";
 import PixelReveal, { dominantColour } from "./PixelReveal";
-import { asset } from "./asset";
-import { pageLink, siteLink } from "./site";
+import { pageLink } from "./site";
+import { STUDIES, type CaseStudy } from "./case/studies";
 
-type Project = {
-  title: string;
-  meta: string;
-  /** The case study on www.dijitally.com. */
-  href: string;
-  image: string;
-  alt: string;
-  tall: boolean;
-  /** Afterpay sits a product shot inside a black frame rather than filling it. */
-  inset?: boolean;
-  background?: string;
-};
+type Project = CaseStudy["card"] & { href: string };
 
-const PROJECTS: Project[] = [
-  {
-    title: "Afterpay x Ally",
-    // Rebuilt in this site (app/work/afterpay); the others still link to www.dijitally.com.
-    href: pageLink("/work/afterpay"),
-    meta: "PARTNERSHIP: 2020 — PRESENT",
-    image: asset("/figma/work-afterpay.webp"),
-    alt: "Chrome headphones on black",
-    tall: true,
-    inset: true,
-  },
-  {
-    title: "Airwallex x Ally",
-    href: siteLink("/work/airwallex"),
-    meta: "PARTNERSHIP: 2024 — PRESENT",
-    image: asset("/figma/work-airwallex.webp"),
-    alt: "Three rugby players in Airwallex-sponsored jerseys",
-    tall: false,
-    background: "linear-gradient(to bottom, #36222d, #4f3036 50.081%)",
-  },
-  {
-    title: "Constantinople",
-    href: siteLink("/work/constantinople"),
-    meta: "ENGINEERING, DEVELOPMENT",
-    image: asset("/figma/work-constantinople.webp"),
-    alt: "Hand holding a phone showing the Constantinople banking site",
-    tall: true,
-  },
-  {
-    title: "Procore x Ally",
-    href: siteLink("/work/procore"),
-    meta: "PARTNERSHIP: 2025 — PRESENT",
-    image: asset("/figma/work-procore.webp"),
-    alt: "Procore construction campaign",
-    tall: false,
-  },
-  {
-    title: "RoomStay x Ally",
-    href: siteLink("/work/roomstay"),
-    meta: "SOCIAL, CREATIVE, IN.HOUSE",
-    image: asset("/figma/work-roomstay.webp"),
-    alt: "RoomStay holiday campaign",
-    tall: true,
-  },
-];
+// The case studies, in order, each linking to its page (components/case/studies.ts).
+const PROJECTS: Project[] = STUDIES.map((s) => ({ ...s.card, href: pageLink(`/work/${s.slug}`) }));
 
 function ProjectCard({ p, order, revealAt }: { p: Project; order: number; revealAt: number | null }) {
   const [color, setColor] = useState<string | null>(null);

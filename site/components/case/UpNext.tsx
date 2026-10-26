@@ -1,6 +1,15 @@
 import Image from "next/image";
 import Lede from "../Lede";
 
+/** Dark text on a light brand colour, light text on a dark one (by relative luminance). */
+function inkFor(hex: string) {
+  const [r, g, b] = [1, 3, 5].map((i) => {
+    const c = parseInt(hex.slice(i, i + 2), 16) / 255;
+    return c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r + 0.7152 * g + 0.0722 * b > 0.18 ? "text-coal" : "text-snow";
+}
+
 /**
  * The close of a case study: a parting line, then the next case study: its photo beside a
  * square panel in the client's brand colour with the title and partnership details.
@@ -14,6 +23,7 @@ export default function UpNext({
   image,
   alt,
   background,
+  inset = false,
   color,
 }: {
   lead: string;
@@ -24,6 +34,8 @@ export default function UpNext({
   image: string;
   alt: string;
   background?: string;
+  /** A cut-out product shot: shown whole on black, as on the homepage card, not cropped. */
+  inset?: boolean;
   /** The next client's brand colour, for the square title panel. */
   color: string;
 }) {
@@ -40,18 +52,18 @@ export default function UpNext({
       <a href={href} className="group grid grid-cols-1 gap-6 outline-none lg:grid-cols-[1fr_auto] lg:gap-[42px]">
         <span
           className="relative block aspect-[16/9] w-full overflow-hidden rounded-[4px] group-focus-visible:ring-2 group-focus-visible:ring-secondary lg:aspect-auto lg:h-full lg:rounded-[8px]"
-          style={background ? { background } : undefined}
+          style={background || inset ? { background: background ?? "#000" } : undefined}
         >
           <Image
             src={image}
             alt={alt}
             fill
             sizes="(min-width: 1024px) 60vw, 100vw"
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+            className={`transition-transform duration-700 ease-out group-hover:scale-[1.03] ${inset ? "object-contain p-[6%]" : "object-cover"}`}
           />
         </span>
         <span
-          className="flex aspect-square w-full flex-col justify-between rounded-[4px] p-6 text-coal lg:w-[clamp(320px,32vw,560px)] lg:rounded-[8px] lg:p-[42px]"
+          className={`flex aspect-square w-full flex-col justify-between rounded-[4px] p-6 lg:w-[clamp(320px,32vw,560px)] lg:rounded-[8px] lg:p-[42px] ${inkFor(color)}`}
           style={{ background: color }}
         >
           <span className="font-mono text-[10px] uppercase leading-none lg:text-[12px]">Up next</span>

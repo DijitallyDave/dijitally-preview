@@ -2,7 +2,8 @@ import Image from "next/image";
 import Lede from "./Lede";
 import { asset } from "./asset";
 
-export type Model = { title: string; body: string; points: string[]; image: string; alt: string };
+/** `image` is optional: without one the card is text only. */
+export type Model = { title: string; body: string; points: string[]; image?: string; alt?: string };
 
 const MODELS: Model[] = [
   {
@@ -79,12 +80,14 @@ export default function WaysOfWorking({
               </ul>
             </div>
             {/* Locked to the artwork's shape so diagrams are never cropped */}
-            <div
-              style={{ aspectRatio: aspect }}
-              className={`relative w-full shrink-0 overflow-hidden rounded-[2px] lg:rounded-[4px] ${columns ? "" : "lg:w-[731px] lg:max-w-[50%]"}`}
-            >
-              <Image src={m.image} alt={m.alt} fill sizes={columns ? "(min-width: 1024px) 50vw, 100vw" : "(min-width: 1024px) 731px, 100vw"} className="object-cover" />
-            </div>
+            {m.image && (
+              <div
+                style={{ aspectRatio: aspect }}
+                className={`relative w-full shrink-0 overflow-hidden rounded-[2px] lg:rounded-[4px] ${columns ? "" : "lg:w-[731px] lg:max-w-[50%]"}`}
+              >
+                <Image src={m.image} alt={m.alt ?? ""} fill sizes={columns ? "(min-width: 1024px) 50vw, 100vw" : "(min-width: 1024px) 731px, 100vw"} className="object-cover" />
+              </div>
+            )}
           </article>
         ))}
       </div>

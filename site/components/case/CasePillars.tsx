@@ -2,8 +2,8 @@ import Lede from "../Lede";
 
 /**
  * Capabilities as tiles on the UI grey of the homepage's logo wall, numbered in the mono
- * label style. On wide screens all six share one row across the page, their widths and type
- * fluid; they fall to three columns, then two, as the page narrows.
+ * label style. On wide screens they all share one row across the page, their widths and type
+ * fluid; as the page narrows they fall to three columns (two, for four or fewer), then two.
  */
 export default function CasePillars({ lead, body, pillars }: { lead: string; body: string; pillars: string[] }) {
   return (
@@ -13,7 +13,10 @@ export default function CasePillars({ lead, body, pillars }: { lead: string; bod
           {body}
         </Lede>
       </div>
-      <ol className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:gap-6 xl:grid-cols-6">
+      <ol
+        className={`grid grid-cols-2 gap-3 lg:gap-6 xl:grid-cols-[repeat(var(--n),minmax(0,1fr))] ${pillars.length > 4 ? "sm:grid-cols-3" : ""}`}
+        style={{ "--n": pillars.length } as React.CSSProperties}
+      >
         {pillars.map((p, i) => (
           <li
             key={p}

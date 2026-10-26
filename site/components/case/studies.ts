@@ -1,0 +1,457 @@
+import type { Stat } from "../Stats";
+import type { Model } from "../WaysOfWorking";
+import type { FaqItem } from "../Faq";
+import type { Milestone } from "./CaseTimeline";
+import type { CaseImage } from "./CaseHero";
+import { asset } from "../asset";
+
+/**
+ * The case studies: one entry per client, rendered by CaseStudyPage at /work/<slug>. The order
+ * here is the homepage work carousel's order and each study's "Up next" (the last leads back to
+ * the first). Rebuilt from the case studies on www.dijitally.com with the copy condensed, so
+ * each point is made once, in the module it belongs to.
+ *
+ * A study's body is a list of sections, in reading order; each maps to one module.
+ */
+
+export type Section =
+  | { type: "stats"; lead: string; body: string; items: Stat[] }
+  | { type: "intro"; lead: string; body: string }
+  | { type: "gallery"; images: CaseImage[] }
+  | { type: "models"; lead: string; body: string; models: Model[]; aspect?: string }
+  | { type: "quote"; quote: string; name: string; role: string }
+  | { type: "pillars"; lead: string; body: string; pillars: string[] }
+  | { type: "timeline"; lead: string; body: string; items: Milestone[] }
+  | { type: "principles"; follow: string; items: FaqItem[] };
+
+export type CaseStudy = {
+  slug: string;
+  /** Page title and description, for search results and link previews. */
+  title: string;
+  description: string;
+  /** The social card image, already on www.dijitally.com. */
+  ogImage: string;
+  /** The client's brand colour, for its panel in the previous study's "Up next". */
+  colour: string;
+  /** The homepage work carousel card, also the photo in "Up next". */
+  card: {
+    title: string;
+    meta: string;
+    image: string;
+    alt: string;
+    /** Desktop card shape: tall (504 × 680) or square. */
+    tall: boolean;
+    /** The image sits inside a black frame rather than filling the card. */
+    inset?: boolean;
+    background?: string;
+  };
+  hero: { lead: string; follow: string; meta: string[]; image: CaseImage };
+  sections: Section[];
+  /** The parting line above "Up next". */
+  closing: { lead: string; body: string };
+};
+
+const img = (slug: string, name: string, alt: string, width: number, height: number): CaseImage => ({
+  src: asset(`/work/${slug}/${name}.webp`),
+  alt,
+  width,
+  height,
+});
+
+const EXPONENTIALLY = "There’s a reason you can’t spell exponentially without ally.";
+
+export const STUDIES: CaseStudy[] = [
+  {
+    slug: "afterpay",
+    title: "Afterpay x Ally | Dijitally",
+    description:
+      "Seven years as Afterpay's point of scale ally: creative, CRM, web, data, embedded teams and B2B strategy across five global markets on a follow-the-sun model.",
+    ogImage: "/work/AfterpayxDijitally.jpg",
+    // Afterpay's mint (their official logo file is black only)
+    colour: "#B2FCE4",
+    card: {
+      title: "Afterpay x Ally",
+      meta: "PARTNERSHIP: 2020 — PRESENT",
+      image: asset("/figma/work-afterpay.webp"),
+      alt: "Chrome headphones on black",
+      tall: true,
+      inset: true,
+    },
+    hero: {
+      lead: "Afterpay’s point of scale ally.",
+      follow: "Seven years and counting.",
+      meta: ["Afterpay x Ally", "Partnership: 2020 — present"],
+      image: img("afterpay", "billboard-lockup", "Afterpay and Dijitally logos locked up on a large digital billboard in a glass atrium", 2000, 1338),
+    },
+    sections: [
+      {
+        type: "stats",
+        lead: "Since 2020.",
+        body: "What began as campaign and engineering support became a full-stack growth partnership.",
+        items: [
+          { value: 7, label: "years of partnership.", highlight: true },
+          { value: 5, label: "global markets." },
+          { value: 24, label: "hour delivery, follow the sun." },
+          { value: 2, label: "models, Studio + In‑house." },
+        ],
+      },
+      {
+        type: "gallery",
+        images: [
+          img("afterpay", "shelter-sale", "Lit bus shelter poster at night advertising an Afterpay sale, with white over-ear headphones", 2000, 1338),
+          img("afterpay", "billboard-reverse", "Dijitally and Afterpay logos locked up on the same atrium billboard, stacked the other way", 1600, 1070),
+          // Placeholder: a repeat of the first image until the third one is chosen.
+          img("afterpay", "shelter-sale", "Lit bus shelter poster at night advertising an Afterpay sale, with white over-ear headphones", 2000, 1338),
+        ],
+      },
+      {
+        type: "models",
+        lead: "Overflow, not overlap.",
+        body: "Afterpay’s own teams are supported by our studio, not substituted by it: one team in two places, with one pipeline.",
+        // The artwork is 731:516 and can't be cropped
+        aspect: "731 / 516",
+        models: [
+          {
+            title: "Studio.",
+            body: "High-impact creative, CRM, web and data capability, delivered fast, without the overhead of permanent hires.",
+            points: ["Scales up when it’s needed", "And back when it isn’t", "No permanent headcount"],
+            image: asset("/services/studioxafterpay.webp"),
+            alt: "A spread of Afterpay creative by the studio: an Afterpay Day sale poster, social posts, an email and partner campaigns",
+          },
+          {
+            title: "In-house.",
+            body: "We build and run Afterpay’s internal team end to end, with full transparency over costs.",
+            points: ["The right people", "The right systems", "Support behind them"],
+            image: asset("/services/enablementxafterpay.webp"),
+            alt: "Diagram of Dijitally allies, a creative and a producer, slotting into Afterpay's team",
+          },
+        ],
+      },
+      {
+        type: "quote",
+        quote:
+          "Not many agencies quite literally help you extend your team. Diji has not just been an agency partner to fulfil needs, they’ve been a strategic ally who builds solutions.",
+        name: "Joe Ahn",
+        role: "Growth Marketing Lead, Afterpay",
+      },
+      {
+        type: "pillars",
+        lead: "Six connected pillars.",
+        body: "One ally across the whole growth stack.",
+        pillars: ["Creative Production", "CRM + Email", "Web + Engineering", "Data + Performance", "Embedded Teams", "B2B Growth Strategy"],
+      },
+      {
+        type: "gallery",
+        images: [img("afterpay", "ooh-shop-deals", "Mint green street poster reading Shop the deals, get the app, with the Afterpay app on a phone", 2000, 1078)],
+      },
+      {
+        type: "gallery",
+        images: [
+          img("afterpay", "holiday-terminal", "Hands holding a phone to a card terminal beside a green wrapped gift with a red ribbon", 2000, 1500),
+          img("afterpay", "holiday-headphones", "Person lying back on a patterned blanket wearing white over-ear headphones, laughing", 1324, 2000),
+        ],
+      },
+      {
+        type: "timeline",
+        lead: "Seven years of scale.",
+        body: "From tactical support to full-stack partner.",
+        items: [
+          { year: "2020", title: "Partnership begins", body: "Engineering support, campaign production, tactical landing pages and B2B CRM basics." },
+          { year: "2021", title: "Going global", body: "Into Afterpay USA and EMEA. Experiential begins: Australian Fashion Week activations with Amplify, plus social tool development." },
+          { year: "2022", title: "Emerging markets", body: "Campaign rollouts across Italy, France and Spain, Mobile SDK integration and a marketing resource centre." },
+          { year: "2023", title: "B2B transformation", body: "A full B2B site rebuild, martech engineering and the Afterpay Plus Card, as ANZ work shifts from the USA." },
+          { year: "2024", title: "Platform maturity", body: "Business Sites rolled out globally, a Marketo migration, dashboarding and the embedded secondment model." },
+          { year: "2025", title: "Full-stack partner", body: "Studio and In-house side by side, a B2B growth strategy program, AI-enabled production and a brand system rollout." },
+          { year: "2026", title: "Year seven", body: "And counting." },
+        ],
+      },
+      {
+        type: "principles",
+        follow: "The principles behind the partnership.",
+        items: [
+          { q: "Collaboration + candour", a: "We tell Afterpay what they need to hear, not just what they want to hear, with immediate, honest feedback in both directions." },
+          { q: "Shared outcomes", a: "We’re measured on the same criteria as the Afterpay team, so the win is shared." },
+          { q: "Reactive and proactive", a: "We turn briefs around fast, and we bring ideas that were never briefed." },
+        ],
+      },
+    ],
+    closing: { lead: EXPONENTIALLY, body: "We work shoulder to shoulder with teams like Afterpay, in every market and time zone." },
+  },
+
+  {
+    slug: "airwallex",
+    title: "Airwallex x Ally | Dijitally",
+    description:
+      "Airwallex's embedded ally: Openair, a bespoke agency ecosystem combining talent management, payroll, operational oversight and overflow studio support.",
+    ogImage: "/work/AWXxAirwallex.jpg",
+    // The orange end of Airwallex's official logo
+    colour: "#F28A45",
+    card: {
+      title: "Airwallex x Ally",
+      meta: "PARTNERSHIP: 2024 — PRESENT",
+      image: asset("/figma/work-airwallex.webp"),
+      alt: "Three rugby players in Airwallex-sponsored jerseys",
+      tall: false,
+      background: "linear-gradient(to bottom, #36222d, #4f3036 50.081%)",
+    },
+    hero: {
+      lead: "Airwallex’s embedded ally.",
+      follow: "Brand and partnerships, from creative and design to execution.",
+      meta: ["Airwallex x Ally", "Partnership: 2024 — present"],
+      image: img("airwallex", "open", "Airwallex brand film still: two colleagues looking at a tablet against a city skyline, Airwallex logo overlaid", 2000, 1125),
+    },
+    sections: [
+      {
+        type: "stats",
+        lead: "Meet Openair.",
+        body: "A bespoke agency ecosystem we built for Airwallex, the global fintech moving money across borders. It sits both inside and alongside the business.",
+        items: [
+          { value: 3, label: "years of partnership.", highlight: true },
+          { value: 2, label: "global markets." },
+          { value: 2, label: "models, Studio + Embedded." },
+        ],
+      },
+      {
+        type: "gallery",
+        images: [
+          img("airwallex", "invoice", "Airwallex presenter beside two invoice screens totalling in euros and US dollars", 1920, 1080),
+          img("airwallex", "transfer", "Airwallex presenter beside a Schedule new transfer screen converting 1,000 Australian dollars to Danish krone", 1920, 1080),
+          img("airwallex", "entities", "Airwallex presenter beside a diagram of a global parent company linked to Singapore, Australia and US entities", 2000, 1125),
+        ],
+      },
+      {
+        type: "models",
+        lead: "Overflow, not overlap.",
+        body: "Airwallex’s own teams are supported by our studio, not substituted by it: the scale of an agency, with the consistency and control a fast-growing global brand needs.",
+        models: [
+          {
+            title: "Studio.",
+            body: "Overflow support from our studio for brand and partnership work, turning business challenges into clear, distinctive and memorable creative.",
+            points: ["Brand and partnerships", "Creative and design", "Execution"],
+          },
+          {
+            title: "Embedded.",
+            body: "Dedicated capability without the admin. We handle recruitment, onboarding, payroll and employment, and Airwallex receives one simple monthly invoice.",
+            points: ["Talent management", "Payroll", "Operational oversight"],
+          },
+        ],
+      },
+      {
+        type: "pillars",
+        lead: "Scope, at a glance.",
+        body: "Bold enough to stand out, structured enough to last.",
+        pillars: ["Creative Production", "Partnership Collateral", "Digital + Performance", "Embedded Teams"],
+      },
+      {
+        type: "principles",
+        follow: "The principles behind the partnership.",
+        items: [
+          { q: "Collaboration + candour", a: "We tell Airwallex what they need to hear, not just what they want to hear." },
+          { q: "Reactive and proactive", a: "We turn briefs around fast, and we bring ideas that were never briefed." },
+          { q: "Strategic thinking + creative output", a: "We start with the why before moving into the what." },
+        ],
+      },
+    ],
+    closing: { lead: EXPONENTIALLY, body: "We work shoulder to shoulder with teams like Airwallex, in every market and time zone." },
+  },
+
+  {
+    slug: "constantinople",
+    title: "Constantinople x Ally | Dijitally",
+    description:
+      "Dijitally built Constantinople's brand platform, banking infrastructure where the product is trust and the margin for error is zero. Present.co led brand and UX/UI.",
+    ogImage: "/work/Constantinople.jpg",
+    // The coral of Constantinople's own site; their logo's navy would vanish on the dark theme
+    colour: "#FF734C",
+    card: {
+      title: "Constantinople",
+      meta: "ENGINEERING, DEVELOPMENT",
+      image: asset("/figma/work-constantinople.webp"),
+      alt: "Hand holding a phone showing the Constantinople banking site",
+      tall: true,
+    },
+    hero: {
+      lead: "Constantinople’s build ally.",
+      follow: "Turning a banking platform into a brand you can use.",
+      meta: ["Constantinople x Ally", "Build partner — Fintech"],
+      image: img("constantinople", "banking-laptop", "The Constantinople site on a laptop, headline A new era of banking beside a swirled colour render", 2000, 1338),
+    },
+    sections: [
+      {
+        type: "intro",
+        lead: "Present.co led the brand, UX and UI. We built it.",
+        body: "Constantinople runs banking infrastructure, where the product is trust and the margin for error is zero. We engineered the design into a fast, accessible, maintainable product, with no seam between what was designed and what shipped.",
+      },
+      {
+        type: "gallery",
+        images: [
+          {
+            src: asset("/figma/work-constantinople.webp"),
+            alt: "Hand holding a phone showing the Constantinople banking site",
+            width: 2040,
+            height: 1360,
+          },
+        ],
+      },
+      {
+        type: "intro",
+        lead: "Intent, intact.",
+        body: "Most builds lose something between design and production. We join where design decisions become engineering decisions, so nothing is lost in the handover.",
+      },
+      {
+        type: "principles",
+        follow: "The principles behind the build.",
+        items: [
+          { q: "Collaboration + candour", a: "Honest feedback in both directions, including with the brand partner." },
+          { q: "Overflow, not overlap", a: "We extend the team that designed it rather than competing with it." },
+          { q: "Strategic thinking + creative output", a: "We start with the why before the what." },
+          { q: "End-to-end delivery", a: "We don’t stop at handover: we support QA, implementation and optimisation." },
+        ],
+      },
+    ],
+    closing: { lead: EXPONENTIALLY, body: "We work shoulder to shoulder with teams like Constantinople, from the first design decision to the last line of code." },
+  },
+
+  {
+    slug: "procore",
+    title: "Procore x Ally | Dijitally",
+    description:
+      "Procore's integrated ally: six campaigns, a new creative platform, and Build Australia Together scaled from a local initiative into a global brand platform.",
+    ogImage: "/work/ProcoreSURE.jpg",
+    // Procore's orange, from their official logo
+    colour: "#FF5200",
+    card: {
+      title: "Procore x Ally",
+      meta: "PARTNERSHIP: 2025 — PRESENT",
+      image: asset("/figma/work-procore.webp"),
+      alt: "Procore construction campaign",
+      tall: false,
+    },
+    hero: {
+      lead: "Procore’s integrated ally.",
+      follow: "Strategy, creative, design and execution.",
+      meta: ["Procore x Ally", "Partnership: 2025 — present"],
+      image: img("procore", "billboard-lockup", "Procore and Dijitally logos locked up on a black billboard above a city street", 2000, 1338),
+    },
+    sections: [
+      {
+        type: "stats",
+        lead: "Since February 2025.",
+        body: "Strategy, creative, content and SEO for Procore ANZ, the construction platform connecting every stage of a build.",
+        items: [
+          { value: 6, label: "campaigns launched.", highlight: true },
+          { value: 1, label: "new creative platform." },
+          { value: 3, suffix: "+", label: "global markets reached." },
+        ],
+      },
+      {
+        type: "gallery",
+        images: [
+          img("procore", "pressure-poster", "Orange street poster from the Procore Pressure campaign, a tablet on a construction site at its centre", 1600, 900),
+          img("procore", "sure-signage", "The same Procore Pressure artwork on a free-standing digital signage panel", 1600, 900),
+        ],
+      },
+      {
+        type: "intro",
+        lead: "Build Australia Together.",
+        body: "With Build New Zealand Together, it grew from a local initiative into a globally recognised brand platform: one strategic idea, scaled across markets and still locally relevant.",
+      },
+      {
+        type: "gallery",
+        images: [img("procore", "site-tablet", "A tablet showing Procore site plans, resting on concrete among steel beams, cabling and tools", 2000, 1090)],
+      },
+      {
+        type: "pillars",
+        lead: "What we do.",
+        body: "High-volume creative across residential, commercial and energy, plus product campaigns for AI and connected data.",
+        pillars: ["Creative Production", "Partnership Collateral", "Digital + Performance", "Embedded Teams"],
+      },
+      {
+        type: "principles",
+        follow: "The principles behind the partnership.",
+        items: [
+          { q: "Collaboration + candour", a: "We tell Procore what they need to hear, not just what they want to hear, with immediate, honest feedback in both directions." },
+          { q: "Reactive and proactive", a: "We turn briefs around fast, and we bring ideas that were never briefed." },
+          { q: "Overflow, not overlap", a: "One team in two places, with one pipeline: no duplication and no competition." },
+          { q: "Strategic thinking + creative output", a: "We start with the why before the what, so campaigns are more effective, more engaging and built to last." },
+        ],
+      },
+    ],
+    closing: {
+      lead: "Short-term partnership, global scale.",
+      body: "What began as tactical campaign support in 2025 is now a full-stack alliance, supporting Procore’s expansion into the UK and MENA.",
+    },
+  },
+
+  {
+    slug: "roomstay",
+    title: "RoomStay | Dijitally",
+    description:
+      "Dijitally didn't win RoomStay as a client, it incubated it. A direct-booking platform for accommodation, founded, branded and taken to market in-house.",
+    ogImage: "/work/RoomStayBE_02.jpg",
+    // The magenta of RoomStay's campaign creative
+    colour: "#A02060",
+    card: {
+      title: "RoomStay x Ally",
+      meta: "SOCIAL, CREATIVE, IN.HOUSE",
+      image: asset("/figma/work-roomstay.webp"),
+      alt: "RoomStay holiday campaign",
+      tall: true,
+    },
+    hero: {
+      lead: "RoomStay.",
+      follow: "The ally that built one.",
+      meta: ["RoomStay x Ally", "Incubation — SaaS"],
+      image: img("roomstay", "parks-hero", "RoomStay ad: an illustrated holiday park at dusk, the line They found your website, and a Book now button", 2000, 1125),
+    },
+    sections: [
+      {
+        type: "intro",
+        lead: "We didn’t pitch for it.",
+        body: "RoomStay helps hotels, hostels and holiday parks win guests directly instead of surrendering margin to Booking.com and Expedia. We founded it, funded it, named it, branded it and took it to market, and we still run its advertising and brand.",
+      },
+      {
+        type: "gallery",
+        images: [
+          img("roomstay", "unhitch-otas", "RoomStay ad: a koala on a magenta gradient with the line So you can unhitch the OTAs", 2000, 1125),
+          img("roomstay", "direct-bookings", "RoomStay ad: 96 per cent, more direct bookings on your site, ringed with Book now tags", 2000, 1125),
+        ],
+      },
+      {
+        type: "intro",
+        lead: "Our own capital at risk.",
+        body: "RoomStay runs the whole model we sell, brand, performance, content, events and engineering, end to end, with no client to hide behind.",
+      },
+      {
+        type: "pillars",
+        lead: "Capability pillars.",
+        body: "Everything it took to start a category.",
+        pillars: ["Creative Production", "Digital + Performance", "Web + Engineering", "B2B Growth Strategy", "Event + Experiential"],
+      },
+      {
+        type: "gallery",
+        images: [
+          img("roomstay", "live-pricing", "RoomStay Loyalty: a hotel booking page with the guest account menu open", 2000, 1125),
+          img("roomstay", "park-clients", "RoomStay quote card: Daintree Holiday Parks on lower commissions, faster bookings and revenue growth", 2000, 1125),
+        ],
+      },
+      {
+        type: "timeline",
+        lead: "The guest journey, end to end.",
+        body: "We own the booking technology as well as the marketing, so we see the whole chain.",
+        items: [
+          { year: "01", title: "Destination discovery", body: "How travellers research where to stay." },
+          { year: "02", title: "Search visibility", body: "How properties compete within search results." },
+          { year: "03", title: "Website experience", body: "How the site shapes whether a guest books directly." },
+          { year: "04", title: "Booking conversion", body: "Or returns to an online travel agency." },
+        ],
+      },
+    ],
+    closing: { lead: EXPONENTIALLY, body: "RoomStay is the proof: the model we sell, applied end to end." },
+  },
+];
+
+export const studyBySlug = (slug: string) => STUDIES.find((s) => s.slug === slug);
+
+/** The study after this one, wrapping from the last back to the first. */
+export const nextStudy = (slug: string) => STUDIES[(STUDIES.findIndex((s) => s.slug === slug) + 1) % STUDIES.length];

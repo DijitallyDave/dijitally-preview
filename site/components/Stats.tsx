@@ -5,7 +5,8 @@ import CarouselDots, { useActiveSlide } from "./CarouselDots";
 import CountUp from "./CountUp";
 import Lede from "./Lede";
 
-export type Stat = { value: number; label: string; highlight?: boolean };
+/** `suffix` follows the counted number, e.g. "+" for "3+". */
+export type Stat = { value: number; suffix?: string; label: string; highlight?: boolean };
 
 const STATS: Stat[] = [
   { value: 14, label: "years of operation.", highlight: true },
@@ -38,7 +39,9 @@ export default function Stats({
 
       <ul
         ref={track}
-        className="no-scrollbar flex snap-x snap-mandatory scroll-px-6 gap-6 overflow-x-auto overflow-y-hidden px-6 lg:grid lg:snap-none lg:grid-cols-2 lg:gap-[42px] lg:overflow-visible lg:px-[42px] xl:grid-cols-4"
+        // One column per stat on wide screens (four on the homepage)
+        style={{ "--n": items.length } as React.CSSProperties}
+        className="no-scrollbar flex snap-x snap-mandatory scroll-px-6 gap-6 overflow-x-auto overflow-y-hidden px-6 lg:grid lg:snap-none lg:grid-cols-2 lg:gap-[42px] lg:overflow-visible lg:px-[42px] xl:grid-cols-[repeat(var(--n),minmax(0,1fr))]"
       >
         {items.map((s) => (
           <li
@@ -48,10 +51,10 @@ export default function Stats({
             }`}
           >
             <div className="flex w-full max-w-[286px] flex-col gap-3 lg:gap-6">
-              <CountUp
-                value={s.value}
-                className="trim tabular-nums text-[82px] leading-none tracking-[-1.64px] lg:text-[128px] lg:tracking-[-2.56px]"
-              />
+              <span className="trim tabular-nums text-[82px] leading-none tracking-[-1.64px] lg:text-[128px] lg:tracking-[-2.56px]">
+                <CountUp value={s.value} />
+                {s.suffix}
+              </span>
               <span
                 className={`trim text-[24px] leading-none tracking-[-0.48px] lg:text-[42px] lg:tracking-[-0.84px] ${
                   s.highlight ? "" : "text-static"
