@@ -7,11 +7,12 @@ import Lede from "./Lede";
 import PixelReveal, { dominantColour } from "./PixelReveal";
 import { pageLink } from "./site";
 import { STUDIES, type CaseStudy } from "./case/studies";
+import { workClick } from "./PageTransition";
 
-type Project = CaseStudy["card"] & { href: string };
+type Project = CaseStudy["card"] & { slug: string; href: string };
 
 // The case studies, in order, each linking to its page (components/case/studies.ts).
-const PROJECTS: Project[] = STUDIES.map((s) => ({ ...s.card, href: pageLink(`/work/${s.slug}`) }));
+const PROJECTS: Project[] = STUDIES.map((s) => ({ ...s.card, slug: s.slug, href: pageLink(`/work/${s.slug}`) }));
 
 function ProjectCard({ p, order, revealAt }: { p: Project; order: number; revealAt: number | null }) {
   const [color, setColor] = useState<string | null>(null);
@@ -30,6 +31,7 @@ function ProjectCard({ p, order, revealAt }: { p: Project; order: number; reveal
   return (
     <a
       href={p.href}
+      onClick={(e) => workClick(e, p.slug)}
       draggable={false}
       className="group flex w-[290px] shrink-0 snap-start flex-col gap-6 outline-none lg:w-[504px]"
     >

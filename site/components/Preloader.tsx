@@ -5,6 +5,7 @@ import { gsap } from "gsap";
 import { asset } from "./asset";
 import { HERO_SLIDES } from "./heroSlides.config";
 import { markPreloaded } from "./preloaded";
+import { SKIP_INTRO_KEY } from "./theme";
 
 /**
  * Intro timings (seconds). The progress bar runs through the rise, the split and one pass of
@@ -36,15 +37,15 @@ export const PRELOADER = {
  * fills the space between the site margins. Everything is laid out in percentages of that
  * open width, so it scales with CSS alone, no measuring.
  */
-const W = 215.856;
-const DIJIT_W = 113.425;
-const ALLY_X = 106.849;
-const ALLY_W = W - ALLY_X;
+export const W = 215.856;
+export const DIJIT_W = 113.425;
+export const ALLY_X = 106.849;
+export const ALLY_W = W - ALLY_X;
 const CARD_W = 24;
 const PAD = 4;
 // How far each half moves out: enough to open a gap of CARD_W + 2 × PAD past the overlap.
 const SHIFT = (CARD_W + 2 * PAD + (DIJIT_W - ALLY_X)) / 2;
-const OPEN_W = W + 2 * SHIFT;
+export const OPEN_W = W + 2 * SHIFT;
 const pct = (u: number) => `${(u / OPEN_W) * 100}%`;
 /** Card corner radius as a fraction of its width (rounded-[6.25%/5%] on a 4:5 card). */
 const CARD_RADIUS = 0.0625;
@@ -72,7 +73,7 @@ const NOISE = `url("data:image/svg+xml,${encodeURIComponent(
   "<svg xmlns='http://www.w3.org/2000/svg' width='128' height='128'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix type='saturate' values='0'/></filter><rect width='100%' height='100%' filter='url(#n)'/></svg>",
 )}")`;
 
-function Dijit() {
+export function Dijit() {
   return (
     <svg viewBox={`0 0 ${DIJIT_W} 30`} fill="currentColor" className="block size-full" aria-hidden>
       <path d="M20.3573 0C29.1228 7.87558e-05 35.3573 5.97939 35.3573 14.3836V15.6164C35.3573 24.0206 29.1228 29.9999 20.3573 30H0V0H20.3573ZM7.00516 22.982H20.1117C24.8113 22.982 28.2723 20.0313 28.2723 15.6164V14.3836C28.2722 9.96871 24.8113 7.0718 20.1117 7.07178H7.00516V22.982Z" fillRule="evenodd" />
@@ -84,7 +85,7 @@ function Dijit() {
   );
 }
 
-function Ally() {
+export function Ally() {
   return (
     <svg viewBox={`${ALLY_X} 0 ${ALLY_W} 30`} fill="currentColor" className="block size-full" aria-hidden>
       <path d="M138.493 30H131.507V23.0137H118.581L114.658 30H106.849L123.699 0H138.493V30ZM122.505 16.0274H131.507V6.9863H127.583L122.505 16.0274Z" fillRule="evenodd" />
@@ -165,13 +166,25 @@ export default function Preloader() {
   useLayoutEffect(() => {
     const el = root.current;
     if (!el) return;
-    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    // Coming back to the homepage from a case study goes straight to the page; arriving
+    // fresh, or reloading it, plays the intro. The flag is used once, then cleared.
+    // The head script marks a return from a case study (see theme.ts); a client-side back
+    // navigation only has the flag.
+    const html = document.documentElement;
+    let skip = html.dataset.skipIntro !== undefined;
+    delete html.dataset.skipIntro;
+    try {
+      skip ||= sessionStorage.getItem(SKIP_INTRO_KEY) !== null;
+      sessionStorage.removeItem(SKIP_INTRO_KEY);
+    } catch {
+      // Storage blocked: go by the head script alone.
+    }
+    if (skip || window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
       markPreloaded();
       setDone(true);
       return;
     }
 
-    const html = document.documentElement;
     html.style.overflow = "hidden";
     const faces = loadFaces(2500);
 

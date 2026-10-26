@@ -33,6 +33,14 @@ export type CaseStudy = {
   ogImage: string;
   /** The client's brand colour, for its panel in the previous study's "Up next". */
   colour: string;
+  /** The panel's text colour, when it should be a brand colour too (otherwise black or white). */
+  panelText?: string;
+  /**
+   * The client's logo, shown between DIJIT and ALLY in the transition into this study (see
+   * PageTransition). Studies without one are opened with a plain page load. `invert` turns a
+   * dark logo light for the black transition screen.
+   */
+  logo?: { src: string; width: number; height: number; invert?: boolean };
   /** The homepage work carousel card, also the photo in "Up next". */
   card: {
     title: string;
@@ -69,6 +77,7 @@ export const STUDIES: CaseStudy[] = [
     ogImage: "/work/AfterpayxDijitally.jpg",
     // Afterpay's mint (their official logo file is black only)
     colour: "#B2FCE4",
+    logo: { src: asset("/figma/logo-afterpay.svg"), width: 114.943, height: 40, invert: true },
     card: {
       title: "Afterpay x Ally",
       meta: "PARTNERSHIP: 2020 — PRESENT",
@@ -261,8 +270,9 @@ export const STUDIES: CaseStudy[] = [
     description:
       "Dijitally built Constantinople's brand platform, banking infrastructure where the product is trust and the margin for error is zero. Present.co led brand and UX/UI.",
     ogImage: "/work/Constantinople.jpg",
-    // The coral of Constantinople's own site; their logo's navy would vanish on the dark theme
-    colour: "#FF734C",
+    // Black with the coral of Constantinople's own site as the text
+    colour: "#040404",
+    panelText: "#FF734C",
     card: {
       title: "Constantinople",
       meta: "ENGINEERING, DEVELOPMENT",

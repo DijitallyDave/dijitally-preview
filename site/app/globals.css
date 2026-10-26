@@ -163,9 +163,10 @@ html:not([data-js]) .pixel-reveal {
   }
 }
 
-/* The preloader is driven by JS; without it (or with reduced motion) never show it, and lift it
-   anyway if the script stalls. */
-html:not([data-js]) .preloader {
+/* The preloader is driven by JS; without it (or with reduced motion, or on the way back from a
+   case study) never show it, and lift it anyway if the script stalls. */
+html:not([data-js]) .preloader,
+html[data-skip-intro] .preloader {
   display: none;
 }
 

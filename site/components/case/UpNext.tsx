@@ -1,5 +1,8 @@
+"use client";
+
 import Image from "next/image";
 import Lede from "../Lede";
+import { workClick } from "../PageTransition";
 
 /** Dark text on a light brand colour, light text on a dark one (by relative luminance). */
 function inkFor(hex: string) {
@@ -20,17 +23,21 @@ export default function UpNext({
   title,
   meta,
   href,
+  slug,
   image,
   alt,
   background,
   inset = false,
   color,
+  textColor,
 }: {
   lead: string;
   body: string;
   title: string;
   meta: string;
   href: string;
+  /** The next study, for the transition into it. */
+  slug: string;
   image: string;
   alt: string;
   background?: string;
@@ -38,6 +45,8 @@ export default function UpNext({
   inset?: boolean;
   /** The next client's brand colour, for the square title panel. */
   color: string;
+  /** The panel's text colour; by default black or white, whichever reads on `color`. */
+  textColor?: string;
 }) {
   return (
     <section data-nav-bg="page" className="flex flex-col gap-16 bg-primary px-6 py-16 lg:gap-32 lg:px-[42px] lg:py-32">
@@ -49,7 +58,7 @@ export default function UpNext({
 
       {/* The photo, with a square panel in the client's colour to its right holding the title,
           set apart by the page margin (24px mobile, 42px desktop). Stacked on mobile. */}
-      <a href={href} className="group grid grid-cols-1 gap-6 outline-none lg:grid-cols-[1fr_auto] lg:gap-[42px]">
+      <a href={href} onClick={(e) => workClick(e, slug)} className="group grid grid-cols-1 gap-6 outline-none lg:grid-cols-[1fr_auto] lg:gap-[42px]">
         <span
           className="relative block aspect-[16/9] w-full overflow-hidden rounded-[4px] group-focus-visible:ring-2 group-focus-visible:ring-secondary lg:aspect-auto lg:h-full lg:rounded-[8px]"
           style={background || inset ? { background: background ?? "#000" } : undefined}
@@ -63,8 +72,8 @@ export default function UpNext({
           />
         </span>
         <span
-          className={`flex aspect-square w-full flex-col justify-between rounded-[4px] p-6 lg:w-[clamp(320px,32vw,560px)] lg:rounded-[8px] lg:p-[42px] ${inkFor(color)}`}
-          style={{ background: color }}
+          className={`flex aspect-square w-full flex-col justify-between rounded-[4px] p-6 lg:w-[clamp(320px,32vw,560px)] lg:rounded-[8px] lg:p-[42px] ${textColor ? "" : inkFor(color)}`}
+          style={{ background: color, color: textColor }}
         >
           <span className="font-mono text-[10px] uppercase leading-none lg:text-[12px]">Up next</span>
           <span className="flex flex-col items-start gap-3.5">

@@ -10,6 +10,7 @@ import CaseQuote from "./CaseQuote";
 import CasePillars from "./CasePillars";
 import CaseTimeline from "./CaseTimeline";
 import UpNext from "./UpNext";
+import WorkVisit from "./WorkVisit";
 import { nextStudy, type CaseStudy, type Section } from "./studies";
 import { pageLink } from "../site";
 
@@ -50,6 +51,7 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
   const next = nextStudy(study.slug);
   return (
     <main>
+      <WorkVisit />
       <Nav home={false} />
       <CaseHero {...study.hero} />
       {study.sections.map((section, i) => (
@@ -61,11 +63,13 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
         title={next.card.title}
         meta={next.card.meta}
         href={pageLink(`/work/${next.slug}`)}
+        slug={next.slug}
         image={next.card.image}
         alt={next.card.alt}
         background={next.card.background}
         inset={next.card.inset}
         color={next.colour}
+        textColor={next.panelText}
       />
       <Footer />
     </main>
