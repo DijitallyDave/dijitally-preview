@@ -30,6 +30,8 @@ export const HERO_SLIDES: HeroSlide[] = [
   // Zara stays first: the preloader lands on her and expands into the hero.
   { src: "/hero/zara.webp", name: "Zara", role: "Strategic ally" }, // →
   { src: "/hero/dave.webp", name: "Dave", role: "Creative ally" }, // ←
+  // Lou faces the camera, so she sits where a left-looker meets a right-looker.
+  { src: "/hero/lou.webp", name: "Lou", role: "CRM ally" }, // ↑
   { src: "/hero/craig.webp", name: "Craig", role: "Talent ally" }, // →
   { src: "/hero/caroline.webp", name: "Caroline", role: "CRM ally" }, // ←
   { src: "/hero/dess.webp", name: "Dess", role: "Production ally" }, // →
