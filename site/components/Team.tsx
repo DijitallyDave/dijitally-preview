@@ -33,9 +33,9 @@ export default function Team() {
                 draggable={false}
                 className="object-cover transition-transform duration-700 ease-out group-hover/card:scale-[1.05]"
               />
-              <span className="trim relative w-full max-w-[176px] text-[24px] leading-none tracking-[-0.48px] text-snow lg:max-w-[286px] lg:text-[32px] lg:tracking-[-0.64px]">
+              <p className="trim relative w-full max-w-[176px] text-[24px] leading-none tracking-[-0.48px] text-snow lg:max-w-[286px] lg:text-[32px] lg:tracking-[-0.64px]">
                 {a.role}
-              </span>
+              </p>
             </div>
           </div>
         ))}

@@ -26,7 +26,7 @@ const ofTile = (px: number) => `${(px / 150) * 100}%`;
 
 export default function Brands() {
   return (
-    <section data-nav-bg="page" className="flex flex-col gap-16 px-6 py-16 lg:flex-row lg:items-start lg:justify-center lg:gap-12 lg:px-[84px] lg:py-32">
+    <section data-nav-bg="page" className="flex flex-col gap-16 bg-primary px-6 py-16 lg:flex-row lg:items-start lg:justify-center lg:gap-12 lg:px-[84px] lg:py-32">
       <div className="flex-1">
         <Lede lead="The brands we ally with." className="max-w-[530px]">
           Both as an internal and external partner.

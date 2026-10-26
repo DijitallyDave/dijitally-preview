@@ -11,7 +11,8 @@ export function markPreloaded() {
 
 /** Run `cb` once the preloader is out of the way (straight away if it already is). */
 export function onPreloaded(cb: () => void) {
-  if (document.documentElement.dataset.preloaded !== undefined) {
+  // Only the homepage has a preloader; anywhere else the page starts straight away.
+  if (document.documentElement.dataset.preloaded !== undefined || !document.querySelector(".preloader")) {
     cb();
     return () => {};
   }

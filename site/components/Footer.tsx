@@ -2,6 +2,7 @@ import ContactLink from "./ContactLink";
 import Marquee from "./Marquee";
 import SplitHeading from "./SplitHeading";
 import { asset } from "./asset";
+import { siteLink } from "./site";
 
 const COUNTRIES = ["Australia", "New Zealand", "England", "Ireland", "Philippines", "China"];
 
@@ -50,9 +51,9 @@ export default function Footer() {
             ))}
           </Marquee>
           <a
-            href="https://www.linkedin.com/company/dijitally"
+            href="https://www.linkedin.com/company/dijitallyau/"
             target="_blank"
-            rel="noreferrer"
+            rel="noopener noreferrer"
             aria-label="Dijitally on LinkedIn"
             className="block transition-transform hover:-translate-y-0.5"
           >
@@ -70,8 +71,8 @@ export default function Footer() {
           className="block h-auto w-full"
         />
         <div className="flex items-center justify-between gap-4">
-          <DotLink href="#" label="PRIVACY POLICY" dot="bg-static" text="text-coal" />
-          <DotLink href="#" label="TERMS + CONDITIONS" dot="bg-static" text="text-coal" />
+          <DotLink href={siteLink("/privacy")} label="PRIVACY POLICY" dot="bg-static" text="text-coal" />
+          <DotLink href={siteLink("/terms")} label="TERMS + CONDITIONS" dot="bg-static" text="text-coal" />
         </div>
       </div>
 

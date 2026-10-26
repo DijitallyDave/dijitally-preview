@@ -142,6 +142,8 @@ html {
 .split-word-mask,
 .split-word {
   text-indent: 0;
+  /* SplitText makes them spans (valid inside a heading); the masked rise needs boxes. */
+  display: inline-block;
 }
 
 body {

@@ -3,7 +3,9 @@
 import { useId, useState } from "react";
 import SplitHeading from "./SplitHeading";
 
-const FAQS = [
+export type FaqItem = { q: string; a: string };
+
+const FAQS: FaqItem[] = [
   {
     q: "How is your model different from traditional agencies?",
     a: "We ally with lorem ipsum dolor sit amet–with a penchant for financial, and professional services–navigating growth, acquisition, integration or strategic transformation. Our clients are typically operating in regulated or high-stakes environments where governance, capital and enterprise value matter.",
@@ -46,7 +48,19 @@ function PlusMinus({ open }: { open: boolean }) {
   );
 }
 
-export default function Faq() {
+const HEADING = (
+  <>
+    FAQs.{" "}
+    <span className="text-static">
+      Have more
+      <br className="lg:hidden" /> questions? Let’s chat.
+    </span>
+  </>
+);
+
+// An accordion of questions, first one open. Defaults to the homepage FAQs; case studies
+// reuse it for other lists (their working principles, say).
+export default function Faq({ heading = HEADING, items = FAQS }: { heading?: React.ReactNode; items?: FaqItem[] }) {
   const [open, setOpen] = useState<number | null>(0);
   const baseId = useId();
 
@@ -54,15 +68,11 @@ export default function Faq() {
     <section data-nav-bg="page" className="flex flex-col items-center gap-16 bg-primary px-6 py-16 lg:gap-32 lg:px-16 lg:py-[196px]">
       {/* Same copy and two-tone styling at every size; mobile breaks after "more". */}
       <SplitHeading className="trim w-full text-center text-h1-mobile lg:w-auto lg:max-w-[460px] lg:text-h1">
-        FAQs.{" "}
-        <span className="text-static">
-          Have more
-          <br className="lg:hidden" /> questions? Let’s chat.
-        </span>
+        {heading}
       </SplitHeading>
 
       <ul className="flex w-full max-w-[1003px] flex-col gap-[42px] lg:gap-16">
-        {FAQS.map((f, i) => {
+        {items.map((f, i) => {
           const isOpen = open === i;
           const panelId = `${baseId}-panel-${i}`;
           return (

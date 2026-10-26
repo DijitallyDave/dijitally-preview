@@ -4,6 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import ContactDialog, { OPEN_CONTACT_EVENT } from "./ContactDialog";
 import { applyTheme, type Theme } from "./theme";
 import { asset } from "./asset";
+import { pageLink } from "./site";
 
 // "Get in touch" opens the contact lightbox; its href is the no-JS fallback (the footer).
 const LINKS = [
@@ -79,7 +80,13 @@ function backgroundUnder(y: number): "dark" | "light" {
   return "dark";
 }
 
-export default function Nav() {
+/**
+ * The site header. On the homepage its links scroll to sections of the page; elsewhere
+ * (`home={false}`, e.g. a case study) they go back to those sections on the homepage, and the
+ * wordmark also shows on mobile, where the homepage leaves it to the hero.
+ */
+export default function Nav({ home = true }: { home?: boolean }) {
+  const linkTo = (href: string) => (home ? href : pageLink(`/${href}`));
   const header = useRef<HTMLElement>(null);
   const logo = useRef<HTMLAnchorElement>(null);
   const mobileControls = useRef<HTMLDivElement>(null);
@@ -189,7 +196,7 @@ export default function Nav() {
         }`}
       >
         {/* Desktop only: on mobile the wordmark sits large in the hero instead */}
-        <a ref={logo} href="#top" aria-label="Dijitally home" className="pointer-events-auto hidden shrink-0 lg:block">
+        <a ref={logo} href={home ? "#top" : pageLink("/")} aria-label="Dijitally home" className="pointer-events-auto hidden shrink-0 lg:block">
           <img
             src={asset("/figma/wordmark.svg")}
             alt="Dijitally"
@@ -205,12 +212,23 @@ export default function Nav() {
             <MenuItem
               key={l.label}
               label={l.label}
-              href={l.href}
+              href={l.contact ? l.href : linkTo(l.href)}
               onClick={l.contact ? (e) => openContact(e) : undefined}
             />
           ))}
           <ToggleUI on={theme === "dark"} onToggle={toggleTheme} />
         </nav>
+
+        {/* Mobile wordmark, off the homepage only (there the hero carries it large) */}
+        {!home && (
+          <a
+            href={pageLink("/")}
+            aria-label="Dijitally home"
+            className={`pointer-events-auto mr-auto block transition-[filter] duration-200 lg:hidden ${onLight && !open ? "invert" : ""}`}
+          >
+            <img src={asset("/figma/wordmark.svg")} alt="Dijitally" width={215.856} height={30} className="block h-5 w-auto" />
+          </a>
+        )}
 
         {/* Mobile: theme toggle + two-bar menu icon (Figma "Header Container"); inverted over light sections */}
         <div
@@ -250,7 +268,7 @@ export default function Nav() {
               <MenuItem
                 key={l.label}
                 label={l.label}
-                href={l.href}
+                href={l.contact ? l.href : linkTo(l.href)}
                 onClick={(e) => (l.contact ? openContact(e) : setOpen(false))}
               />
             ))}

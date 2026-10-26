@@ -65,7 +65,8 @@ export function useSplitReveal(
 
     let stopWaiting = () => {};
     const ctx = gsap.context(() => {
-      const split = SplitText.create(el, { type: "words", wordsClass: "split-word", mask: "words" });
+      // Spans, not the default divs: a div inside a heading is invalid HTML.
+      const split = SplitText.create(el, { type: "words", tag: "span", wordsClass: "split-word", mask: "words" });
       const words = breakAtHyphens(split.words);
       afterSplit?.();
       el.dataset.splitReady = "";

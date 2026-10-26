@@ -46,6 +46,24 @@ export default function ContactDialog({ open, onClose }: { open: boolean; onClos
   async function onSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
+    const data = Object.fromEntries(new FormData(form)) as Record<string, string>;
+    // On www.dijitally.com, leads go through the site's own pipeline (HubSpot, Slack and the
+    // conversion events; see tracking.ts). The honeypot is dropped quietly, as /api/contact does.
+    if (window.dijiSendLead) {
+      if (data.company) {
+        form.reset();
+        setStatus("sent");
+        return;
+      }
+      setStatus("sending");
+      const ok = await window.dijiSendLead(
+        { name: data.name ?? "", email: data.email ?? "", notes: data.notes ?? "" },
+        "Get in touch lightbox",
+      );
+      if (ok) form.reset();
+      setStatus(ok ? "sent" : "error");
+      return;
+    }
     // The GitHub Pages preview is static, so there's no /api/contact to send to.
     if (process.env.NEXT_PUBLIC_STATIC_PREVIEW) {
       setStatus("unavailable");
@@ -56,7 +74,7 @@ export default function ContactDialog({ open, onClose }: { open: boolean; onClos
       const res = await fetch("/api/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(Object.fromEntries(new FormData(form))),
+        body: JSON.stringify(data),
       });
       if (!res.ok) throw new Error(String(res.status));
       form.reset();
@@ -137,6 +155,7 @@ export default function ContactDialog({ open, onClose }: { open: boolean; onClos
                 name="company"
                 tabIndex={-1}
                 autoComplete="off"
+                aria-label="Company"
                 aria-hidden
                 className="absolute -left-[9999px] size-px opacity-0"
               />

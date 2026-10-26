@@ -6,10 +6,13 @@ import CarouselDots, { useActiveSlide } from "./CarouselDots";
 import Lede from "./Lede";
 import PixelReveal, { dominantColour } from "./PixelReveal";
 import { asset } from "./asset";
+import { pageLink, siteLink } from "./site";
 
 type Project = {
   title: string;
   meta: string;
+  /** The case study on www.dijitally.com. */
+  href: string;
   image: string;
   alt: string;
   tall: boolean;
@@ -21,38 +24,44 @@ type Project = {
 const PROJECTS: Project[] = [
   {
     title: "Afterpay x Ally",
+    // Rebuilt in this site (app/work/afterpay); the others still link to www.dijitally.com.
+    href: pageLink("/work/afterpay"),
     meta: "PARTNERSHIP: 2020 — PRESENT",
-    image: asset("/figma/work-afterpay.png"),
+    image: asset("/figma/work-afterpay.webp"),
     alt: "Chrome headphones on black",
     tall: true,
     inset: true,
   },
   {
     title: "Airwallex x Ally",
+    href: siteLink("/work/airwallex"),
     meta: "PARTNERSHIP: 2024 — PRESENT",
-    image: asset("/figma/work-airwallex.png"),
+    image: asset("/figma/work-airwallex.webp"),
     alt: "Three rugby players in Airwallex-sponsored jerseys",
     tall: false,
     background: "linear-gradient(to bottom, #36222d, #4f3036 50.081%)",
   },
   {
     title: "Constantinople",
+    href: siteLink("/work/constantinople"),
     meta: "ENGINEERING, DEVELOPMENT",
-    image: asset("/figma/work-constantinople.png"),
+    image: asset("/figma/work-constantinople.webp"),
     alt: "Hand holding a phone showing the Constantinople banking site",
     tall: true,
   },
   {
     title: "Procore x Ally",
+    href: siteLink("/work/procore"),
     meta: "PARTNERSHIP: 2025 — PRESENT",
-    image: asset("/figma/work-procore.jpg"),
+    image: asset("/figma/work-procore.webp"),
     alt: "Procore construction campaign",
     tall: false,
   },
   {
     title: "RoomStay x Ally",
+    href: siteLink("/work/roomstay"),
     meta: "SOCIAL, CREATIVE, IN.HOUSE",
-    image: asset("/figma/work-roomstay.png"),
+    image: asset("/figma/work-roomstay.webp"),
     alt: "RoomStay holiday campaign",
     tall: true,
   },
@@ -74,7 +83,7 @@ function ProjectCard({ p, order, revealAt }: { p: Project; order: number; reveal
   }, []);
   return (
     <a
-      href="#"
+      href={p.href}
       draggable={false}
       className="group flex w-[290px] shrink-0 snap-start flex-col gap-6 outline-none lg:w-[504px]"
     >
@@ -114,12 +123,12 @@ function ProjectCard({ p, order, revealAt }: { p: Project; order: number; reveal
         )}
         <PixelReveal color={color} order={order} startAt={revealAt} />
       </span>
-      <span className="flex flex-col items-start gap-3.5">
+      <div className="flex flex-col items-start gap-3.5">
         <span className="trim text-[22px] leading-[1.2] transition-colors group-hover:text-wcag lg:text-[38px] lg:tracking-[-0.76px]">
           {p.title}
         </span>
-        <span className="font-mono text-[8px] leading-none tracking-[-0.16px] text-static lg:text-[10px] lg:tracking-[-0.2px]">{p.meta}</span>
-      </span>
+        <p className="font-mono text-[8px] leading-none tracking-[-0.16px] text-static lg:text-[10px] lg:tracking-[-0.2px]">{p.meta}</p>
+      </div>
     </a>
   );
 }
