@@ -24,7 +24,7 @@ export default function HeroVideo({ vimeo, poster }: { vimeo: string; poster: st
     );
 
   return (
-    <div className="absolute inset-0 overflow-hidden bg-ui">
+    <div className={`absolute inset-0 overflow-hidden ${showing ? "" : "bg-ui"}`}>
       {/* Larger than the box, so the blur's soft edges fall outside it. A size container, so the
           16:9 player can cover it whatever its shape, like object-fit: cover. */}
       {reduced === false && (

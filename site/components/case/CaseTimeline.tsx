@@ -36,7 +36,8 @@ export default function CaseTimeline({ lead, body, items }: { lead: string; body
                 latest ? "bg-tech text-coal" : "bg-ui"
               }`}
             >
-              <span className="trim tabular-nums text-[64px] leading-none tracking-[-1.28px] lg:text-[82px] lg:tracking-[-1.64px]">
+              {/* The same size as the title under it */}
+              <span className="trim tabular-nums text-[24px] leading-none tracking-[-0.48px] lg:text-[26px] lg:tracking-[-0.52px]">
                 {m.year}
               </span>
               <div className="flex flex-col gap-3">
