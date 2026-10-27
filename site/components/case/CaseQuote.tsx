@@ -26,7 +26,7 @@ export default function CaseQuote({ quote, name, role }: { quote: string; name: 
 
   return (
     <section data-nav-bg="page" className="bg-primary px-6 py-16 lg:px-[84px] lg:py-[196px]">
-      <figure className="mx-auto flex w-full flex-col items-center gap-10 text-center lg:w-3/4 lg:gap-16">
+      <figure className="mx-auto flex w-full flex-col items-center gap-10 text-center lg:w-3/5 lg:gap-16">
         {/* The marks stand apart from the words, above and below, at twice the quote's size and
             48px from it. */}
         <blockquote className="flex flex-col items-center gap-12">

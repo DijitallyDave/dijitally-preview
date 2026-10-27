@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { usePathname, useRouter } from "next/navigation";
 import { gsap } from "gsap";
 import { ALLY_W, Ally, DIJIT_W, Dijit, OPEN_W } from "./Preloader";
@@ -39,6 +39,7 @@ export function workClick(e: React.MouseEvent, slug: string) {
 const COVER = 0.7; // seconds for the black to slide up over the page
 const HOLD = 0.35; // seconds on the logo once the new page is in, before rolling off
 const REVEAL = 0.8; // seconds for the black to roll off the top
+const STALL = 10000; // milliseconds to wait for the case study before giving up and rolling off
 const PAD = 4; // units either side of the logo's square, as around the preloader's card
 const LOGO_W = 0.8; // the logo's width, as a share of its square
 
@@ -84,29 +85,64 @@ export default function PageTransition() {
   const outer = useRef<HTMLDivElement>(null);
   const inner = useRef<HTMLDivElement>(null);
   const [study, setStudy] = useState<CaseStudy | null>(null);
-  // The page being opened, once the black has covered the screen and navigation has started.
-  const going = useRef<string | null>(null);
+  // While a transition is under way: the page it started on, and whether navigation has begun
+  // (the black has covered the screen).
+  const from = useRef<string | null>(null);
+  const going = useRef(false);
+  const stall = useRef<ReturnType<typeof setTimeout>>(undefined);
+  const path = useRef(pathname);
+  path.current = pathname;
+
+  // The black rolls off the top the same way it came in, and the transition is over. Left to
+  // finish rather than killed on cleanup: it runs once, and a re-run of an effect (React does
+  // that in development) must not strand the screen black.
+  const rollOff = useCallback((delay: number) => {
+    from.current = null;
+    going.current = false;
+    clearTimeout(stall.current);
+    gsap.killTweensOf([outer.current, inner.current]);
+    const tl = gsap.timeline({ delay, onComplete: () => setStudy(null) });
+    tl.to(outer.current, { yPercent: -100, duration: REVEAL, ease: "expo.inOut" }, 0);
+    tl.to(inner.current, { yPercent: 100, duration: REVEAL, ease: "expo.inOut" }, 0);
+  }, []);
 
   useEffect(() => {
     const onOpen = (e: Event) => {
       const s = studyBySlug((e as CustomEvent<string>).detail);
-      if (!s) return;
+      if (!s || from.current) return;
+      from.current = path.current;
       router.prefetch(`/work/${s.slug}`);
       setStudy(s);
     };
+    // A page restored from the browser's back/forward cache comes back exactly as it was left,
+    // which can be mid-transition (the page it led to was a full load): clear it.
+    const onShow = (e: PageTransitionEvent) => {
+      if (!e.persisted || !from.current) return;
+      from.current = null;
+      going.current = false;
+      clearTimeout(stall.current);
+      setStudy(null);
+    };
     window.addEventListener(EVENT, onOpen);
-    return () => window.removeEventListener(EVENT, onOpen);
+    window.addEventListener("pageshow", onShow);
+    return () => {
+      window.removeEventListener(EVENT, onOpen);
+      window.removeEventListener("pageshow", onShow);
+    };
   }, [router]);
 
   // Cover: the black slides up while its contents slide down by the same amount, so the
-  // wordmark stays put and the black's top edge works as a mask passing up over it.
+  // wordmark stays put and the black's top edge works as a mask passing up over it. Then the
+  // case study is opened, and if it hasn't arrived after STALL the black rolls off anyway.
   useLayoutEffect(() => {
     if (!study || going.current) return;
     const href = `/work/${study.slug}`;
     const tl = gsap.timeline({
       onComplete: () => {
-        going.current = href;
+        if (!from.current) return; // the page changed while covering (see below)
+        going.current = true;
         router.push(href);
+        stall.current = setTimeout(() => rollOff(0), STALL);
       },
     });
     // y: 0 because GSAP would otherwise read the inline starting transform as a pixel offset
@@ -116,18 +152,15 @@ export default function PageTransition() {
     return () => {
       tl.kill();
     };
-  }, [study, router]);
+  }, [study, router, rollOff]);
 
-  // Reveal, once the new page is the one showing: the black rolls off the top the same way.
-  // Left to finish rather than killed on cleanup: it runs once, and a re-run of this effect
-  // (React does that in development) must not strand the screen black.
+  // Reveal once the page changes: normally the case study arriving, after a moment on the logo.
+  // But any change counts, so Back pressed mid-transition (or any other way off the page) never
+  // leaves the black up waiting for a page that isn't coming.
   useEffect(() => {
-    if (!going.current || pathname.replace(/\/$/, "") !== going.current) return;
-    going.current = null;
-    const tl = gsap.timeline({ delay: HOLD, onComplete: () => setStudy(null) });
-    tl.to(outer.current, { yPercent: -100, duration: REVEAL, ease: "expo.inOut" }, 0);
-    tl.to(inner.current, { yPercent: 100, duration: REVEAL, ease: "expo.inOut" }, 0);
-  }, [pathname]);
+    if (!from.current || pathname === from.current) return;
+    rollOff(going.current ? HOLD : 0);
+  }, [pathname, rollOff]);
 
   if (!study?.logo) return null;
   return (
