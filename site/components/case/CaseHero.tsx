@@ -4,6 +4,13 @@ import RevealImage from "./RevealImage";
 export type CaseImage = { src: string; alt: string; width: number; height: number };
 
 /**
+ * Desktop width of a client logo, so a long thin wordmark and a chunky lockup read as the same
+ * size rather than the same width or height. Matching areas exactly (width growing with the
+ * square root of the aspect ratio) left the chunky ones looking small; a 0.4 power evens it out.
+ */
+const logoWidth = ({ width, height }: { width: number; height: number }) => 65.5 * (width / height) ** 0.4;
+
+/**
  * Case study opener, on the page colour so it follows the light/dark theme: the headline in the
  * H1 style (second sentence in grey, like the homepage's two-tone headings) under an eyebrow of
  * the client and dates in the mono label style of the work cards, then the lead image framed like the
@@ -15,6 +22,7 @@ export default function CaseHero({
   meta,
   image,
   sheet = false,
+  logo,
 }: {
   lead: string;
   follow: string;
@@ -22,6 +30,8 @@ export default function CaseHero({
   image: CaseImage;
   /** The top of a sheet laid over the image (see CaseStudyPage), so no image card here. */
   sheet?: boolean;
+  /** The client's logo (dark artwork), top right of the sheet. */
+  logo?: { src: string; width: number; height: number; alt: string };
 }) {
   const heading = (
     <div className="flex flex-col gap-6 lg:gap-8 lg:px-[42px]">
@@ -51,8 +61,21 @@ export default function CaseHero({
     return (
       <section
         data-nav-bg="page"
-        className="case-sheet rounded-t-[4px] bg-primary p-6 lg:rounded-t-[8px] lg:px-[42px] lg:pb-[42px] lg:pt-[84px]"
+        className="case-sheet relative rounded-t-[4px] bg-primary p-6 lg:rounded-t-[8px] lg:px-[42px] lg:pb-[42px] lg:pt-[84px]"
       >
+        {/* The client's logo, top right: on desktop level with the eyebrow and as far in from
+            the right as the text is from the left; on mobile, where the eyebrow takes the full
+            width, on its own line above it at three-quarter size. Lightened in dark mode. */}
+        {logo && (
+          <img
+            src={logo.src}
+            alt={logo.alt}
+            width={logo.width}
+            height={logo.height}
+            style={{ "--w": `${logoWidth(logo)}px` } as React.CSSProperties}
+            className="mb-6 ml-auto block h-auto w-[calc(var(--w)*0.75)] dark:invert lg:absolute lg:right-[84px] lg:top-[90px] lg:mb-0 lg:w-(--w) lg:-translate-y-1/2"
+          />
+        )}
         {heading}
       </section>
     );

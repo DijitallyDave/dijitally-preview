@@ -83,10 +83,14 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
             nav than that margin. .case-sheet swaps the page and UI colours inside it (see
             globals.css). Up next and the footer follow on the page as usual. */}
         <div className="mx-6 flex min-h-[50svh] flex-col justify-end pt-[calc(var(--nav-h,68px)+24px)] lg:mx-[42px] lg:min-h-svh lg:pt-[calc(var(--nav-h,115.375px)+42px)]">
-          <CaseHero {...study.hero} sheet />
+          <CaseHero
+            {...study.hero}
+            sheet
+            logo={study.logo && { ...study.logo, alt: study.card.title.replace(/ x Ally$/, "") }}
+          />
         </div>
         <div className="case-sheet mx-6 overflow-clip rounded-b-[4px] bg-primary lg:mx-[42px] lg:rounded-b-[8px]">{sections}</div>
-        {/* The hero image (or video), filling the first screen behind the sheet under a 30%
+        {/* The hero image (or video), filling the first screen behind the sheet under a 60%
             scrim of the dark mode page colour (coal), in both modes. After the sheet in the page
             so the nav reads the sheet's sections first when it checks what's under it, and this
             only above the sheet. */}
@@ -96,7 +100,7 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
           ) : (
             <Image src={study.hero.image.src} alt="" fill priority sizes="100vw" className="object-cover" />
           )}
-          <div className="absolute inset-0 bg-coal/30" />
+          <div className="absolute inset-0 bg-coal/60" />
         </div>
         {upNext}
         <Footer />
