@@ -7,14 +7,21 @@ import { useReducedMotion, useVimeoShowing, vimeoSrc } from "./vimeo";
 /**
  * A blurred Vimeo video filling its box behind a case study's sheet, in Vimeo's "background"
  * mode (autoplaying, muted, looping, no controls), fading in over a solid fill once it's playing.
- * With reduced motion, the hero image instead, still.
+ * With reduced motion, the hero image instead, still and blurred the same way.
  */
 export default function HeroVideo({ vimeo, poster }: { vimeo: string; poster: string }) {
   const reduced = useReducedMotion();
   const frame = useRef<HTMLIFrameElement>(null);
   const { showing, onLoad } = useVimeoShowing(frame, true);
 
-  if (reduced) return <Image src={poster} alt="" fill priority sizes="100vw" className="object-cover" />;
+  if (reduced)
+    return (
+      <div className="absolute inset-0 overflow-hidden">
+        <div className="absolute -inset-12 blur-[24px]">
+          <Image src={poster} alt="" fill priority sizes="100vw" className="object-cover" />
+        </div>
+      </div>
+    );
 
   return (
     <div className="absolute inset-0 overflow-hidden bg-ui">

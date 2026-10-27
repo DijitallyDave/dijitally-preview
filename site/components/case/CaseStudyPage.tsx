@@ -98,7 +98,12 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
           {study.hero.vimeo ? (
             <HeroVideo vimeo={study.hero.vimeo} poster={study.hero.image.src} />
           ) : (
-            <Image src={study.hero.image.src} alt="" fill priority sizes="100vw" className="object-cover" />
+            // Blurred like the video heroes, larger than the box so the blur's soft edges fall outside it
+            <div className="absolute inset-0 overflow-hidden">
+              <div className="absolute -inset-12 blur-[24px]">
+                <Image src={study.hero.image.src} alt="" fill priority sizes="100vw" className="object-cover" />
+              </div>
+            </div>
           )}
           <div className="absolute inset-0 bg-coal/70" />
         </div>
