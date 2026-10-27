@@ -191,7 +191,7 @@ export default function Nav({ home = true }: { home?: boolean }) {
         ref={header}
         // Keyboard users tabbing into a hidden nav bring it back.
         onFocusCapture={() => setHidden(false)}
-        className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex items-center justify-end p-6 transition-transform duration-[400ms] ease-[cubic-bezier(0.25,1,0.5,1)] motion-reduce:transition-none lg:items-end lg:justify-between lg:px-[42px] lg:pb-0 lg:pt-[42px] ${
+        className={`pointer-events-none fixed inset-x-0 top-0 z-50 flex items-center justify-end p-6 transition-transform duration-[400ms] ease-[cubic-bezier(0.25,1,0.5,1)] motion-reduce:transition-none lg:items-start lg:justify-between lg:px-[42px] lg:pb-0 lg:pt-[42px] ${
           hidden ? "-translate-y-full" : "translate-y-0"
         }`}
       >

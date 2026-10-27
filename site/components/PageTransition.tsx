@@ -15,7 +15,7 @@ import { ON_DIJITALLY } from "./site";
  * study.
  *
  * Opened with openWork(slug) from a work link's click. Only studies with a `logo` have one
- * (Afterpay, for now); everything else, and anywhere motion is reduced, is a plain page load.
+ * (all of them, today); anything else, and anywhere motion is reduced, is a plain page load.
  */
 
 const EVENT = "dijitally:open-work";

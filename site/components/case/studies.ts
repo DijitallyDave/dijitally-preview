@@ -195,6 +195,7 @@ export const STUDIES: CaseStudy[] = [
     ogImage: "/work/AWXxAirwallex.jpg",
     // The orange end of Airwallex's official logo
     colour: "#F28A45",
+    logo: { src: asset("/figma/logo-airwallex.svg"), width: 120.116, height: 16.456, invert: true },
     card: {
       title: "Airwallex x Ally",
       meta: "PARTNERSHIP: 2024 — PRESENT",
@@ -272,6 +273,7 @@ export const STUDIES: CaseStudy[] = [
     ogImage: "/work/Constantinople.jpg",
     // Black with the coral of Constantinople's own site as the text
     colour: "#040404",
+    logo: { src: asset("/figma/logo-constantinople.svg"), width: 110.041, height: 16, invert: true },
     panelText: "#FF734C",
     card: {
       title: "Constantinople",
@@ -330,6 +332,7 @@ export const STUDIES: CaseStudy[] = [
     ogImage: "/work/ProcoreSURE.jpg",
     // Procore's orange, from their official logo
     colour: "#FF5200",
+    logo: { src: asset("/figma/logo-procore.svg"), width: 113.553, height: 14.262, invert: true },
     card: {
       title: "Procore x Ally",
       meta: "PARTNERSHIP: 2025 — PRESENT",
@@ -401,6 +404,8 @@ export const STUDIES: CaseStudy[] = [
     ogImage: "/work/RoomStayBE_02.jpg",
     // The magenta of RoomStay's campaign creative
     colour: "#A02060",
+    // The wordmark alone, cropped from the logo tile (which has its own light square)
+    logo: { src: asset("/figma/logo-roomstay-wordmark.svg"), width: 118.446, height: 10, invert: true },
     card: {
       title: "RoomStay x Ally",
       meta: "SOCIAL, CREATIVE, IN.HOUSE",
