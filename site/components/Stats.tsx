@@ -17,24 +17,38 @@ const STATS: Stat[] = [
 
 // Desktop: a grid of cards. Mobile: a swipeable row of 260px cards with page dots (Figma mobile).
 // Defaults to the homepage's "A true ally." numbers; case studies pass their own.
+// `plain` sets the intro as body copy, like the homepage's model cards, instead of a heading.
 export default function Stats({
   lead = "A true ally.",
   body = "We bring the understanding of an in-house team and the ease of an agency.",
   items = STATS,
+  plain = false,
 }: {
   lead?: string;
   body?: React.ReactNode;
   items?: Stat[];
+  plain?: boolean;
 }) {
   const track = useRef<HTMLUListElement>(null);
   const active = useActiveSlide(track);
 
   return (
-    <section data-nav-bg="page" className="flex flex-col gap-16 bg-primary py-16 lg:gap-32 lg:pb-[42px] lg:pt-32">
+    // As body copy it follows straight on from the heading above (the case study's title),
+    // so it drops the section's top padding: the gap is that heading's bottom margin.
+    <section
+      data-nav-bg="page"
+      className={`flex flex-col gap-16 bg-primary pb-16 lg:gap-32 lg:pb-[42px] ${plain ? "" : "pt-16 lg:pt-32"}`}
+    >
       <div className="px-6 lg:px-[84px]">
-        <Lede lead={lead} className="max-w-[716px]">
-          {body}
-        </Lede>
+        {plain ? (
+          <p className="trim max-w-[716px] text-body-mobile lg:text-h3 lg:text-wcag">
+            {lead} {body}
+          </p>
+        ) : (
+          <Lede lead={lead} className="max-w-[716px]">
+            {body}
+          </Lede>
+        )}
       </div>
 
       <ul

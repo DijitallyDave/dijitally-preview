@@ -25,6 +25,19 @@
   --wcag: #878787;
 }
 
+/* A case study's sheet (CaseStudyPage) is UI-coloured, so inside it the page and UI colours
+   swap: its sections keep their page-coloured backgrounds and their cards stand out in the
+   page colour instead. */
+.case-sheet {
+  --primary: #f6f6f6;
+  --ui: #fdfeff;
+}
+
+[data-theme="dark"] .case-sheet {
+  --primary: #090909;
+  --ui: #121010;
+}
+
 /* Mode-dependent tokens */
 @theme inline {
   --color-primary: var(--primary);

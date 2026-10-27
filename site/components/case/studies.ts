@@ -53,7 +53,13 @@ export type CaseStudy = {
     inset?: boolean;
     background?: string;
   };
-  hero: { lead: string; follow: string; meta: string[]; image: CaseImage };
+  /** `video`, on a sheet layout, plays muted on a loop behind it instead of showing `image`. */
+  hero: { lead: string; follow: string; meta: string[]; image: CaseImage; video?: string };
+  /**
+   * Lay the page out as a UI-coloured sheet over the hero image (which fills the first screen
+   * behind it, under a scrim) instead of the image card in the hero's corner.
+   */
+  sheet?: boolean;
   sections: Section[];
   /** The parting line above "Up next". */
   closing: { lead: string; body: string };
@@ -89,9 +95,13 @@ export const STUDIES: CaseStudy[] = [
     hero: {
       lead: "Afterpay’s point of scale ally.",
       follow: "Seven years and counting.",
-      meta: ["Afterpay x Ally", "Partnership: 2020 — present"],
+      meta: ["Afterpay x Ally", "Partnership"],
       image: img("afterpay", "billboard-lockup", "Afterpay and Dijitally logos locked up on a large digital billboard in a glass atrium", 2000, 1338),
+      // A trial of the hero as video (the 15s APD spot, cut down to 720p); it'll be hosted on
+      // Vimeo or YouTube for real.
+      video: asset("/videos/afterpay-hero.mp4"),
     },
+    sheet: true,
     sections: [
       {
         type: "stats",
@@ -210,6 +220,7 @@ export const STUDIES: CaseStudy[] = [
       meta: ["Airwallex x Ally", "Partnership: 2024 — present"],
       image: img("airwallex", "open", "Airwallex brand film still: two colleagues looking at a tablet against a city skyline, Airwallex logo overlaid", 2000, 1125),
     },
+    sheet: true,
     sections: [
       {
         type: "stats",
@@ -288,6 +299,7 @@ export const STUDIES: CaseStudy[] = [
       meta: ["Constantinople x Ally", "Build partner — Fintech"],
       image: img("constantinople", "banking-laptop", "The Constantinople site on a laptop, headline A new era of banking beside a swirled colour render", 2000, 1338),
     },
+    sheet: true,
     sections: [
       {
         type: "intro",
@@ -346,6 +358,7 @@ export const STUDIES: CaseStudy[] = [
       meta: ["Procore x Ally", "Partnership: 2025 — present"],
       image: img("procore", "billboard-lockup", "Procore and Dijitally logos locked up on a black billboard above a city street", 2000, 1338),
     },
+    sheet: true,
     sections: [
       {
         type: "stats",
@@ -419,6 +432,7 @@ export const STUDIES: CaseStudy[] = [
       meta: ["RoomStay x Ally", "Incubation — SaaS"],
       image: img("roomstay", "parks-hero", "RoomStay ad: an illustrated holiday park at dusk, the line They found your website, and a Book now button", 2000, 1125),
     },
+    sheet: true,
     sections: [
       {
         type: "intro",
