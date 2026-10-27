@@ -213,6 +213,32 @@ export const STUDIES: CaseStudy[] = [
         ],
       },
       {
+        type: "gallery",
+        images: [
+          {
+            // The 6s "Headline 04" spot ("Friends with benefits"), square.
+            vimeo: "https://player.vimeo.com/video/1239734860?h=62bf9e7205",
+            alt: "Afterpay Friends with benefits video, 6 seconds",
+            width: 1,
+            height: 1,
+          },
+          {
+            // The 6s Last Chance spot for Meta, square.
+            vimeo: "https://player.vimeo.com/video/1239731877?h=ff994e0d62",
+            alt: "Afterpay Last Chance video, 6 seconds",
+            width: 1,
+            height: 1,
+          },
+          {
+            // The 7s back-to-school ("School your list") spot for Meta, square.
+            vimeo: "https://player.vimeo.com/video/1239750957?h=ce760235e8",
+            alt: "Afterpay back to school video, 7 seconds",
+            width: 1,
+            height: 1,
+          },
+        ],
+      },
+      {
         type: "timeline",
         lead: "Seven years of scale.",
         body: "From tactical support to full-stack partner.",

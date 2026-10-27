@@ -79,10 +79,10 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
         <Nav home={false} />
         {/* The sheet: the case study's own sections on the UI colour, inset by the nav's margin
             (24px on mobile, 42px on desktop) so the image shows around it. Its top is the hero,
-            pushed to the foot of the first screen (half of it on mobile) and never closer to the
-            nav than that margin. .case-sheet swaps the page and UI colours inside it (see
+            starting halfway down the screen, and never closer to the nav than that margin on a
+            very short one. .case-sheet swaps the page and UI colours inside it (see
             globals.css). Up next and the footer follow on the page as usual. */}
-        <div className="mx-6 flex min-h-[50svh] flex-col justify-end pt-[calc(var(--nav-h,68px)+24px)] lg:mx-[42px] lg:min-h-svh lg:pt-[calc(var(--nav-h,115.375px)+42px)]">
+        <div className="mx-6 pt-[max(50svh,calc(var(--nav-h,68px)+24px))] lg:mx-[42px] lg:pt-[max(50svh,calc(var(--nav-h,115.375px)+42px))]">
           <CaseHero
             {...study.hero}
             sheet
@@ -94,7 +94,7 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
             scrim of the dark mode page colour (coal), in both modes. After the sheet in the page
             so the nav reads the sheet's sections first when it checks what's under it, and this
             only above the sheet. */}
-        <div data-nav-bg="dark" aria-hidden className="absolute inset-x-0 top-0 -z-10 h-[50svh] lg:h-svh">
+        <div data-nav-bg="dark" aria-hidden className="absolute inset-x-0 top-0 -z-10 h-svh">
           {study.hero.vimeo ? (
             <HeroVideo vimeo={study.hero.vimeo} poster={study.hero.image.src} />
           ) : (
