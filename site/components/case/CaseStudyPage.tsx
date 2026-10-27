@@ -90,17 +90,17 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
           />
         </div>
         <div className="case-sheet mx-6 overflow-clip rounded-b-[4px] bg-primary lg:mx-[42px] lg:rounded-b-[8px]">{sections}</div>
-        {/* The hero image (or video), filling the first screen behind the sheet under a 60%
+        {/* The hero image (or video), filling the first screen behind the sheet under a 70%
             scrim of the dark mode page colour (coal), in both modes. After the sheet in the page
             so the nav reads the sheet's sections first when it checks what's under it, and this
             only above the sheet. */}
         <div data-nav-bg="dark" aria-hidden className="absolute inset-x-0 top-0 -z-10 h-[50svh] lg:h-svh">
-          {study.hero.video ? (
-            <HeroVideo src={study.hero.video} poster={study.hero.image.src} />
+          {study.hero.vimeo ? (
+            <HeroVideo vimeo={study.hero.vimeo} poster={study.hero.image.src} />
           ) : (
             <Image src={study.hero.image.src} alt="" fill priority sizes="100vw" className="object-cover" />
           )}
-          <div className="absolute inset-0 bg-coal/60" />
+          <div className="absolute inset-0 bg-coal/70" />
         </div>
         {upNext}
         <Footer />

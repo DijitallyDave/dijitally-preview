@@ -2,7 +2,7 @@ import type { Stat } from "../Stats";
 import type { Model } from "../WaysOfWorking";
 import type { FaqItem } from "../Faq";
 import type { Milestone } from "./CaseTimeline";
-import type { CaseImage } from "./CaseHero";
+import type { CaseImage, CaseVideo } from "./CaseHero";
 import { asset } from "../asset";
 
 /**
@@ -17,7 +17,7 @@ import { asset } from "../asset";
 export type Section =
   | { type: "stats"; lead: string; body: string; items: Stat[] }
   | { type: "intro"; lead: string; body: string }
-  | { type: "gallery"; images: CaseImage[] }
+  | { type: "gallery"; images: (CaseImage | CaseVideo)[] }
   | { type: "models"; lead: string; body: string; models: Model[]; aspect?: string }
   | { type: "quote"; quote: string; name: string; role: string }
   | { type: "pillars"; lead: string; body: string; pillars: string[] }
@@ -53,8 +53,11 @@ export type CaseStudy = {
     inset?: boolean;
     background?: string;
   };
-  /** `video`, on a sheet layout, plays muted on a loop behind it instead of showing `image`. */
-  hero: { lead: string; follow: string; meta: string[]; image: CaseImage; video?: string };
+  /**
+   * `vimeo` (a Vimeo player URL, 16:9), on a sheet layout, plays blurred, muted and on a loop
+   * behind it instead of showing `image`.
+   */
+  hero: { lead: string; follow: string; meta: string[]; image: CaseImage; vimeo?: string };
   /**
    * Lay the page out as a UI-coloured sheet over the hero image (which fills the first screen
    * behind it, under a scrim) instead of the image card in the hero's corner.
@@ -71,6 +74,9 @@ const img = (slug: string, name: string, alt: string, width: number, height: num
   width,
   height,
 });
+
+// Afterpay's 15s APD BVOD spot (16:9), behind the hero and first in the gallery.
+const AFTERPAY_APD = "https://player.vimeo.com/video/1239733480?h=a4200ec4fc";
 
 const EXPONENTIALLY = "There’s a reason you can’t spell exponentially without ally.";
 
@@ -97,9 +103,8 @@ export const STUDIES: CaseStudy[] = [
       follow: "Seven years and counting.",
       meta: ["Afterpay x Ally", "Partnership"],
       image: img("afterpay", "billboard-lockup", "Afterpay and Dijitally logos locked up on a large digital billboard in a glass atrium", 2000, 1338),
-      // A trial of the hero as video (the 15s APD spot, cut down to 720p); it'll be hosted on
-      // Vimeo or YouTube for real.
-      video: asset("/videos/afterpay-hero.mp4"),
+      // The same APD spot that opens the gallery below, blurred
+      vimeo: AFTERPAY_APD,
     },
     sheet: true,
     sections: [
@@ -117,10 +122,27 @@ export const STUDIES: CaseStudy[] = [
       {
         type: "gallery",
         images: [
-          img("afterpay", "shelter-sale", "Lit bus shelter poster at night advertising an Afterpay sale, with white over-ear headphones", 2000, 1338),
-          img("afterpay", "billboard-reverse", "Dijitally and Afterpay logos locked up on the same atrium billboard, stacked the other way", 1600, 1070),
-          // Placeholder: a repeat of the first image until the third one is chosen.
-          img("afterpay", "shelter-sale", "Lit bus shelter poster at night advertising an Afterpay sale, with white over-ear headphones", 2000, 1338),
+          {
+            // The 15s APD BVOD spot, 16:9.
+            vimeo: AFTERPAY_APD,
+            alt: "Afterpay Day video, 15 seconds",
+            width: 16,
+            height: 9,
+          },
+          {
+            // The 15s Growth Acquisition AU spot, square.
+            vimeo: "https://player.vimeo.com/video/1239731603?h=7b24e15175",
+            alt: "Afterpay Growth Acquisition video, 15 seconds",
+            width: 1,
+            height: 1,
+          },
+          {
+            // The 15s "Headline 01" spot, portrait.
+            vimeo: "https://player.vimeo.com/video/1239734600?h=c0802a3799",
+            alt: "Afterpay Headline video, 15 seconds",
+            width: 9,
+            height: 16,
+          },
         ],
       },
       {
@@ -161,13 +183,33 @@ export const STUDIES: CaseStudy[] = [
       },
       {
         type: "gallery",
-        images: [img("afterpay", "ooh-shop-deals", "Mint green street poster reading Shop the deals, get the app, with the Afterpay app on a phone", 2000, 1078)],
+        images: [
+          {
+            // The 15s Afterpay Day NZ BVOD spot, 16:9.
+            vimeo: "https://player.vimeo.com/video/1239742337?h=c41db47130",
+            alt: "Afterpay Day New Zealand video, 15 seconds",
+            width: 16,
+            height: 9,
+          },
+        ],
       },
       {
         type: "gallery",
         images: [
-          img("afterpay", "holiday-terminal", "Hands holding a phone to a card terminal beside a green wrapped gift with a red ribbon", 2000, 1500),
-          img("afterpay", "holiday-headphones", "Person lying back on a patterned blanket wearing white over-ear headphones, laughing", 1324, 2000),
+          {
+            // The 10s Last Chance Shorts spot, 16:9.
+            vimeo: "https://player.vimeo.com/video/1239732013?h=f2aeca5505",
+            alt: "Afterpay Last Chance Shorts video, 10 seconds",
+            width: 16,
+            height: 9,
+          },
+          {
+            // The 10s Bunnings in-store animation, portrait.
+            vimeo: "https://player.vimeo.com/video/1239738129?h=d715b7ff34",
+            alt: "Afterpay at Bunnings animation, 10 seconds",
+            width: 9,
+            height: 16,
+          },
         ],
       },
       {

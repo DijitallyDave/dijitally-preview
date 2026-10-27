@@ -3,6 +3,9 @@ import RevealImage from "./RevealImage";
 
 export type CaseImage = { src: string; alt: string; width: number; height: number };
 
+/** A Vimeo video (its player URL) in a gallery, in place of an image: see VimeoClip. */
+export type CaseVideo = { vimeo: string; alt: string; width: number; height: number };
+
 /**
  * Desktop width of a client logo, so a long thin wordmark and a chunky lockup read as the same
  * size rather than the same width or height. Matching areas exactly (width growing with the
