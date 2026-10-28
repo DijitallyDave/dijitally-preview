@@ -4,6 +4,7 @@ import Image from "next/image";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { asset } from "./asset";
 import { HERO_MELT, HERO_SLIDES } from "./heroSlides.config";
+import { createEdgeFx, type EdgeFx } from "./heroEdges";
 import { meltDelays } from "./melt";
 import { onPreloaded } from "./preloaded";
 
@@ -40,11 +41,16 @@ function coverCanvas(img: HTMLImageElement, w: number, h: number) {
  * `className` positions the photo's box. The canvas covers the whole hero (the positioned
  * parent) so melting strips keep travelling past the photo's edge to the hero's edge; each
  * photo is drawn into the box's position on that canvas.
+ *
+ * Where WebGL is available, the still slide is shown through a second canvas that adds a colour
+ * split on the allies' edges and, just before each melt, a streak of stray edge pixels
+ * (heroEdges.ts). The melt itself always plays on the plain canvas, at full speed.
  */
 export default function HeroSlideshow({ className = "" }: { className?: string }) {
   const { setIndex } = useContext(SlideContext);
   const box = useRef<HTMLDivElement>(null);
   const canvas = useRef<HTMLCanvasElement>(null);
+  const glCanvas = useRef<HTMLCanvasElement>(null);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
@@ -66,6 +72,14 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
     let onScreen = true;
     let stopWaiting = () => {};
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    let fx: EdgeFx | null = null;
+    // Which canvas is on show: the edge effects over a still, or the plain one for the melt.
+    const showFx = (on: boolean) => {
+      const gl = glCanvas.current;
+      if (!gl) return;
+      gl.style.visibility = on && fx ? "visible" : "";
+      cv.style.visibility = on && fx ? "hidden" : "";
+    };
 
     const drawStill = (i: number) => {
       ctx.clearRect(0, 0, cv.width, cv.height);
@@ -87,6 +101,7 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
         caches = images.map((img) => coverCanvas(img, bw, bh));
       }
       drawStill(current);
+      fx?.resize();
     };
 
     const melt = () => {
@@ -132,10 +147,19 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
         } else {
           current = next;
           drawStill(current);
+          fx?.still();
+          showFx(true);
           scheduleNext();
         }
       };
-      frame = requestAnimationFrame(tick);
+      const go = () => {
+        if (cancelled) return;
+        showFx(false);
+        frame = requestAnimationFrame(tick);
+      };
+      // The stray pixels streak first, over the still, then the melt takes over.
+      if (fx) fx.streak().then(go);
+      else go();
     };
 
     const scheduleNext = () => {
@@ -166,7 +190,15 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
       .then((loaded) => {
         if (cancelled) return;
         images = loaded;
+        if (glCanvas.current) {
+          fx = createEdgeFx(cv, glCanvas.current, () => {
+            // The GPU dropped the context: fall back to the plain canvas.
+            fx = null;
+            showFx(false);
+          });
+        }
         resize();
+        showFx(true);
         ro.observe(el);
         ro.observe(cv);
         setReady(true);
@@ -184,6 +216,7 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
       cancelAnimationFrame(frame);
       io.disconnect();
       ro.disconnect();
+      fx?.destroy();
     };
   }, [setIndex]);
 
@@ -204,6 +237,12 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
         ref={canvas}
         aria-hidden
         className={`pointer-events-none absolute inset-0 size-full ${ready ? "" : "invisible"}`}
+      />
+      <canvas
+        ref={glCanvas}
+        aria-hidden
+        // Shown by the effect once it has drawn (see showFx)
+        className="pointer-events-none invisible absolute inset-0 size-full"
       />
     </>
   );
