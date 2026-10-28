@@ -26,7 +26,6 @@ export default function UpNext({
   slug,
   image,
   alt,
-  background,
   inset = false,
   color,
   textColor,
@@ -40,8 +39,7 @@ export default function UpNext({
   slug: string;
   image: string;
   alt: string;
-  background?: string;
-  /** A cut-out product shot: shown whole on black, as on the homepage card, not cropped. */
+  /** A cut-out product shot: shown whole on the card's fill, as on the homepage card, not cropped. */
   inset?: boolean;
   /** The next client's brand colour, for the square title panel. */
   color: string;
@@ -60,8 +58,7 @@ export default function UpNext({
           set apart by the page margin (24px mobile, 42px desktop). Stacked on mobile. */}
       <a href={href} onClick={(e) => workClick(e, slug)} className="group grid grid-cols-1 gap-6 outline-none lg:grid-cols-[1fr_auto] lg:gap-[42px]">
         <span
-          className="relative block aspect-[16/9] w-full overflow-hidden rounded-[4px] group-focus-visible:ring-2 group-focus-visible:ring-secondary lg:aspect-auto lg:h-full lg:rounded-[8px]"
-          style={background || inset ? { background: background ?? "#000" } : undefined}
+          className="relative block aspect-[16/9] w-full overflow-hidden rounded-[4px] group-focus-visible:ring-2 group-focus-visible:ring-secondary lg:aspect-auto lg:h-full lg:rounded-[8px] bg-ui dark:bg-wcag"
         >
           <Image
             src={image}

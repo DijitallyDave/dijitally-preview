@@ -73,12 +73,14 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
     let stopWaiting = () => {};
     const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     let fx: EdgeFx | null = null;
-    // Which canvas is on show: the edge effects over a still, or the plain one for the melt.
-    const showFx = (on: boolean) => {
+    // The edge effects sit over the plain canvas while a slide is still, and fade off for the
+    // melt (which plays on the plain canvas) rather than switching, so the edges don't jump.
+    // Fading is the compositor's job, so it costs nothing on the page.
+    const showFx = (on: boolean, ms: number) => {
       const gl = glCanvas.current;
       if (!gl) return;
-      gl.style.visibility = on && fx ? "visible" : "";
-      cv.style.visibility = on && fx ? "hidden" : "";
+      gl.style.transition = `opacity ${ms}ms ease-out`;
+      gl.style.opacity = on && fx ? "1" : "0";
     };
 
     const drawStill = (i: number) => {
@@ -148,13 +150,13 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
           current = next;
           drawStill(current);
           fx?.still();
-          showFx(true);
+          showFx(true, 300);
           scheduleNext();
         }
       };
       const go = () => {
         if (cancelled) return;
-        showFx(false);
+        showFx(false, 200);
         frame = requestAnimationFrame(tick);
       };
       // The stray pixels streak first, over the still, then the melt takes over.
@@ -194,11 +196,11 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
           fx = createEdgeFx(cv, glCanvas.current, () => {
             // The GPU dropped the context: fall back to the plain canvas.
             fx = null;
-            showFx(false);
+            showFx(false, 0);
           });
         }
         resize();
-        showFx(true);
+        showFx(true, 0);
         ro.observe(el);
         ro.observe(cv);
         setReady(true);
@@ -241,8 +243,8 @@ export default function HeroSlideshow({ className = "" }: { className?: string }
       <canvas
         ref={glCanvas}
         aria-hidden
-        // Shown by the effect once it has drawn (see showFx)
-        className="pointer-events-none invisible absolute inset-0 size-full"
+        // Faded in by the effect once it has drawn (see showFx)
+        className={`pointer-events-none absolute inset-0 size-full opacity-0 ${ready ? "" : "invisible"}`}
       />
     </>
   );

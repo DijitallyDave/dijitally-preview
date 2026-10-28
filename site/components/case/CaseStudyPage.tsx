@@ -63,7 +63,6 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
       slug={next.slug}
       image={next.card.image}
       alt={next.card.alt}
-      background={next.card.background}
       inset={next.card.inset}
       color={next.colour}
       textColor={next.panelText}

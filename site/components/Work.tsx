@@ -1,26 +1,70 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import CarouselDots, { useActiveSlide } from "./CarouselDots";
 import Lede from "./Lede";
 import PixelReveal, { dominantColour } from "./PixelReveal";
 import { pageLink } from "./site";
 import { STUDIES, type CaseStudy } from "./case/studies";
 import { workClick } from "./PageTransition";
+import { useReducedMotion, useVimeoShowing, vimeoSrc } from "./case/vimeo";
 
 type Project = CaseStudy["card"] & { slug: string; href: string };
 
 // The case studies, in order, each linking to its page (components/case/studies.ts).
 const PROJECTS: Project[] = STUDIES.map((s) => ({ ...s.card, slug: s.slug, href: pageLink(`/work/${s.slug}`) }));
 
+/**
+ * A card's video, muted and looping in Vimeo's background mode, covering the card like the
+ * image beneath it (object-fit: cover, via a size container), and fading in once it's playing.
+ */
+function CardVideo({ video, onShowing }: { video: NonNullable<Project["video"]>; onShowing: () => void }) {
+  const reduced = useReducedMotion();
+  const frame = useRef<HTMLIFrameElement>(null);
+  const { showing, onLoad } = useVimeoShowing(frame, true);
+  useEffect(() => {
+    if (showing) onShowing();
+  }, [showing, onShowing]);
+  if (reduced !== false) return null;
+  const ratio = video.width / video.height;
+  return (
+    // Decorative: the image beneath carries the card's description.
+    <span
+      aria-hidden
+      className="absolute inset-0 block transition-transform duration-700 ease-out [container-type:size] group-hover:scale-[1.04]"
+      style={{ "--r": ratio } as React.CSSProperties}
+    >
+      <iframe
+        ref={frame}
+        src={vimeoSrc(video.vimeo, true)}
+        title=""
+        tabIndex={-1}
+        allow="autoplay"
+        loading="lazy"
+        onLoad={onLoad}
+        className={`pointer-events-none absolute left-1/2 top-1/2 h-[max(100cqh,calc(100cqw/var(--r)))] w-[max(100cqw,calc(100cqh*var(--r)))] -translate-x-1/2 -translate-y-1/2 transition-opacity duration-500 ${
+          showing ? "opacity-100" : "opacity-0"
+        }`}
+      />
+    </span>
+  );
+}
+
 function ProjectCard({ p, order, revealAt }: { p: Project; order: number; revealAt: number | null }) {
   const [color, setColor] = useState<string | null>(null);
+  // Once a card's video is playing, the image under it is hidden, so it can't show through
+  // along the card's softened (antialiased) edges.
+  const [videoShowing, setVideoShowing] = useState(false);
+  const onVideoShowing = useCallback(() => setVideoShowing(true), []);
   const img = useRef<HTMLImageElement>(null);
+  const box = useRef<HTMLSpanElement>(null);
   // Cover colour for the reveal; a failed image just fades its cover out. Inset cards are
-  // mostly their black frame, so they cover in that.
+  // mostly their frame (the card's own fill), so they cover in that.
   const sample = (el: HTMLImageElement) =>
-    setColor(p.inset ? "rgb(0 0 0)" : (dominantColour(el) ?? "transparent"));
+    setColor(
+      p.inset && box.current ? getComputedStyle(box.current).backgroundColor : (dominantColour(el) ?? "transparent"),
+    );
   const onLoad = (e: React.SyntheticEvent<HTMLImageElement>) => sample(e.currentTarget);
   const onError = () => setColor("transparent");
   // A cached image can finish loading before hydration, when onLoad isn't listening yet.
@@ -36,11 +80,11 @@ function ProjectCard({ p, order, revealAt }: { p: Project; order: number; reveal
       className="group flex w-[290px] shrink-0 snap-start flex-col gap-6 outline-none lg:w-[504px]"
     >
       <span
+        ref={box}
         // Mobile cards are all 290×420; desktop mixes tall (504×680) and square (504×504).
-        className={`relative block h-[420px] w-full overflow-hidden rounded-[4px] lg:h-auto ${p.tall ? "lg:aspect-[504/680]" : "lg:aspect-square"} ${
-          p.inset ? "bg-black" : ""
-        } group-focus-visible:ring-2 group-focus-visible:ring-secondary`}
-        style={p.background ? { background: p.background } : undefined}
+        // Every card sits on the UI colour (light) or the WCAG grey (dark): the frame around an
+        // inset card, and what shows while an image loads.
+        className={`relative block h-[420px] w-full overflow-hidden rounded-[4px] lg:h-auto ${p.tall ? "lg:aspect-[504/680]" : "lg:aspect-square"} bg-ui dark:bg-wcag group-focus-visible:ring-2 group-focus-visible:ring-secondary`}
       >
         {p.inset ? (
           <span className="absolute inset-x-[31.5px] inset-y-[45.75px] block lg:inset-x-[8.7%] lg:inset-y-[5.7%]">
@@ -50,6 +94,7 @@ function ProjectCard({ p, order, revealAt }: { p: Project; order: number; reveal
               alt={p.alt}
               fill
               sizes="(min-width: 1024px) 416px, 227px"
+              unoptimized
               ref={img}
               onLoad={onLoad}
               onError={onError}
@@ -63,12 +108,16 @@ function ProjectCard({ p, order, revealAt }: { p: Project; order: number; reveal
             alt={p.alt}
             fill
             sizes="(min-width: 1024px) 504px, 290px"
+            // The original file, as the published sites serve it. Next's dev resizing goes by the
+            // card's width, but these crop landscape shots into tall cards, so it came out soft.
+            unoptimized
             ref={img}
             onLoad={onLoad}
             onError={onError}
-            className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+            className={`object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] ${videoShowing ? "invisible" : ""}`}
           />
         )}
+        {p.video && !p.inset && <CardVideo video={p.video} onShowing={onVideoShowing} />}
         <PixelReveal color={color} order={order} startAt={revealAt} />
       </span>
       <div className="flex flex-col items-start gap-3.5">

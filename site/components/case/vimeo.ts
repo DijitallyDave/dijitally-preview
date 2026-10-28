@@ -31,6 +31,44 @@ export function useVimeoShowing(iframe: React.RefObject<HTMLIFrameElement | null
   const [loaded, setLoaded] = useState(false);
   const [showing, setShowing] = useState(false);
 
+  // Some videos play a few milliseconds past the duration Vimeo reports and then sit on their
+  // last frame, never looping. So an autoplaying video that reaches its end, or stalls within a
+  // second of it, is sent back to the start.
+  useEffect(() => {
+    if (!autoplay) return;
+    let seconds = 0;
+    let duration = 0;
+    let moved = 0;
+    const restart = () => {
+      moved = performance.now();
+      iframe.current?.contentWindow?.postMessage(JSON.stringify({ method: "setCurrentTime", value: 0 }), ORIGIN);
+    };
+    const onMessage = (e: MessageEvent) => {
+      if (e.origin !== ORIGIN || e.source !== iframe.current?.contentWindow) return;
+      let data = e.data;
+      try {
+        if (typeof data === "string") data = JSON.parse(data);
+      } catch {
+        return;
+      }
+      if (data?.event !== "timeupdate" && data?.event !== "playProgress") return;
+      const s = data.data?.seconds;
+      if (typeof s !== "number") return;
+      duration = data.data.duration || duration;
+      if (s !== seconds) moved = performance.now();
+      seconds = s;
+      if (duration && seconds >= duration - 0.05) restart();
+    };
+    const stall = setInterval(() => {
+      if (duration && seconds >= duration - 1 && performance.now() - moved > 1500) restart();
+    }, 1000);
+    window.addEventListener("message", onMessage);
+    return () => {
+      clearInterval(stall);
+      window.removeEventListener("message", onMessage);
+    };
+  }, [iframe, autoplay]);
+
   useEffect(() => {
     const onMessage = (e: MessageEvent) => {
       const frame = iframe.current?.contentWindow;

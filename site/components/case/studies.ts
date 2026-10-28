@@ -51,7 +51,11 @@ export type CaseStudy = {
     tall: boolean;
     /** The image sits inside a black frame rather than filling the card. */
     inset?: boolean;
-    background?: string;
+    /**
+     * A Vimeo player URL and its shape, to play muted on a loop over `image` (which still
+     * shows while it loads, with reduced motion, and in "Up next").
+     */
+    video?: { vimeo: string; width: number; height: number };
   };
   /**
    * `vimeo` (a Vimeo player URL, 16:9), on a sheet layout, plays blurred, muted and on a loop
@@ -292,7 +296,6 @@ export const STUDIES: CaseStudy[] = [
       image: asset("/figma/work-airwallex.webp"),
       alt: "Three rugby players in Airwallex-sponsored jerseys",
       tall: false,
-      background: "linear-gradient(to bottom, #36222d, #4f3036 50.081%)",
     },
     hero: {
       lead: "Airwallex’s embedded ally.",
@@ -410,6 +413,7 @@ export const STUDIES: CaseStudy[] = [
       image: asset("/figma/work-constantinople.webp"),
       alt: "Hand holding a phone showing the Constantinople banking site",
       tall: true,
+      video: { vimeo: "https://player.vimeo.com/video/1240120195?h=41e018c66e", width: 720, height: 972 },
     },
     hero: {
       lead: "Constantinople’s build ally.",
