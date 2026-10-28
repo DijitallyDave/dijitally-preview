@@ -6,6 +6,7 @@ import { gsap } from "gsap";
 import { ALLY_W, Ally, DIJIT_W, Dijit, OPEN_W } from "./Preloader";
 import { studyBySlug, type CaseStudy } from "./case/studies";
 import { ON_DIJITALLY } from "./site";
+import LogoStrip from "./case/LogoStrip";
 
 /**
  * The move into a case study. A black screen slides up from the bottom; as its edge passes it
@@ -13,6 +14,10 @@ import { ON_DIJITALLY } from "./site";
  * client's logo between them. The page changes underneath (a client-side navigation, so this
  * stays on screen throughout), then the black rolls on up and off the top, uncovering the case
  * study.
+ *
+ * Into a study with a full hero (CaseFullHero), the wordmark is instead that hero's scrolling
+ * DIJIT [pill] ALLY strip, in exactly its place at the foot of the screen and at the same point
+ * in its scroll, so as the black rolls off it match-cuts to the hero's own strip underneath.
  *
  * Opened with openWork(slug) from a work link's click. Only studies with a `logo` have one
  * (all of them, today); anything else, and anywhere motion is reduced, is a plain page load.
@@ -165,8 +170,17 @@ export default function PageTransition() {
   if (!study?.logo) return null;
   return (
     <div ref={outer} aria-hidden className="fixed inset-0 z-[90] overflow-hidden bg-ink" style={{ transform: "translateY(100%)" }}>
-      <div ref={inner} className="absolute inset-0 flex items-center px-6 lg:px-[42px]" style={{ transform: "translateY(-100%)" }}>
-        <Mark logo={study.logo} />
+      <div ref={inner} className="absolute inset-0" style={{ transform: "translateY(-100%)" }}>
+        {study.hero.full ? (
+          // As in CaseFullHero: the foot of a screen-high (svh) box, 24px up.
+          <div className="absolute inset-x-0 top-0 flex h-svh min-h-[640px] flex-col justify-end pb-6 text-snow">
+            <LogoStrip pill={study.hero.full.pill} />
+          </div>
+        ) : (
+          <div className="flex size-full items-center px-6 lg:px-[42px]">
+            <Mark logo={study.logo} />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -9,7 +9,9 @@ import { useReducedMotion, useVimeoShowing, vimeoSrc } from "./vimeo";
  * mode (autoplaying, muted, looping, no controls), fading in over a solid fill once it's playing.
  * With reduced motion, the hero image instead, still and blurred the same way.
  */
-export default function HeroVideo({ vimeo, poster }: { vimeo: string; poster: string }) {
+export default function HeroVideo({ vimeo, poster, mono = false }: { vimeo: string; poster: string; mono?: boolean }) {
+  // `mono` desaturates it to greys.
+  const grey = mono ? "grayscale" : "";
   const reduced = useReducedMotion();
   const frame = useRef<HTMLIFrameElement>(null);
   const { showing, onLoad } = useVimeoShowing(frame, true);
@@ -17,7 +19,7 @@ export default function HeroVideo({ vimeo, poster }: { vimeo: string; poster: st
   if (reduced)
     return (
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -inset-12 blur-[24px]">
+        <div className={`absolute -inset-12 blur-[24px] ${grey}`}>
           <Image src={poster} alt="" fill priority sizes="100vw" className="object-cover" />
         </div>
       </div>
@@ -28,7 +30,7 @@ export default function HeroVideo({ vimeo, poster }: { vimeo: string; poster: st
       {/* Larger than the box, so the blur's soft edges fall outside it. A size container, so the
           16:9 player can cover it whatever its shape, like object-fit: cover. */}
       {reduced === false && (
-        <div className="absolute -inset-12 blur-[24px] [container-type:size]">
+        <div className={`absolute -inset-12 blur-[24px] [container-type:size] ${grey}`}>
           <iframe
             ref={frame}
             src={vimeoSrc(vimeo, true)}

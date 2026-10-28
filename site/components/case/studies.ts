@@ -61,7 +61,19 @@ export type CaseStudy = {
    * `vimeo` (a Vimeo player URL, 16:9), on a sheet layout, plays blurred, muted and on a loop
    * behind it instead of showing `image`.
    */
-  hero: { lead: string; follow: string; meta: string[]; image: CaseImage; vimeo?: string };
+  hero: {
+    lead: string;
+    follow: string;
+    meta: string[];
+    image: CaseImage;
+    vimeo?: string;
+    /**
+     * A full-screen hero instead of the sheet's title card (see CaseFullHero), with this logo
+     * pill in the DIJIT · ALLY strip along its bottom. The opening section's intro moves up
+     * into it.
+     */
+    full?: { pill: { src: string; width: number; height: number } };
+  };
   /**
    * Lay the page out as a UI-coloured sheet over the hero image (which fills the first screen
    * behind it, under a scrim) instead of the image card in the hero's corner.
@@ -109,6 +121,7 @@ export const STUDIES: CaseStudy[] = [
       image: img("afterpay", "billboard-lockup", "Afterpay and Dijitally logos locked up on a large digital billboard in a glass atrium", 2000, 1338),
       // The same APD spot that opens the gallery below, blurred
       vimeo: AFTERPAY_APD,
+      full: { pill: { src: asset("/figma/afterpay-pill.svg"), width: 224.148, height: 78.0034 } },
     },
     sheet: true,
     sections: [
