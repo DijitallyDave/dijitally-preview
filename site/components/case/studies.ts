@@ -18,7 +18,7 @@ export type Section =
   | { type: "stats"; lead: string; body: string; items: Stat[] }
   | { type: "intro"; lead: string; body: string }
   | { type: "gallery"; images: (CaseImage | CaseVideo)[] }
-  | { type: "models"; lead: string; body: string; models: Model[]; aspect?: string }
+  | { type: "models"; lead: string; body: string; detail?: string; models: Model[]; aspect?: string }
   | { type: "quote"; quote: string; name: string; role: string }
   | { type: "pillars"; lead: string; body: string; pillars: string[] }
   | { type: "timeline"; lead: string; body: string; items: Milestone[] }
@@ -136,12 +136,24 @@ export const STUDIES: CaseStudy[] = [
             width: 1,
             height: 1,
           },
+        ],
+      },
+      {
+        type: "gallery",
+        images: [
           {
             // The 15s "Headline 01" spot, portrait.
             vimeo: "https://player.vimeo.com/video/1239734600?h=c0802a3799",
             alt: "Afterpay Headline video, 15 seconds",
             width: 9,
             height: 16,
+          },
+          {
+            // The 15s Bunnings in-store animation, 16:9.
+            vimeo: "https://player.vimeo.com/video/1240061183?h=c5d93e4932",
+            alt: "Afterpay at Bunnings in-store animation, 15 seconds",
+            width: 16,
+            height: 9,
           },
         ],
       },
@@ -285,7 +297,7 @@ export const STUDIES: CaseStudy[] = [
     hero: {
       lead: "Airwallex’s embedded ally.",
       follow: "Brand and partnerships, from creative and design to execution.",
-      meta: ["Airwallex x Ally", "Partnership: 2024 — present"],
+      meta: ["Airwallex x Ally", "Partnership"],
       image: img("airwallex", "open", "Airwallex brand film still: two colleagues looking at a tablet against a city skyline, Airwallex logo overlaid", 2000, 1125),
     },
     sheet: true,
@@ -303,25 +315,41 @@ export const STUDIES: CaseStudy[] = [
       {
         type: "gallery",
         images: [
-          img("airwallex", "invoice", "Airwallex presenter beside two invoice screens totalling in euros and US dollars", 1920, 1080),
+          img("airwallex", "bluesxawx_01", "Airwallex x Blues campaign: three Blues rugby players, arms folded in a stadium at dusk, beside the line Spend. Handled. and an Airwallex Visa card on a phone", 3840, 2160),
+          // Placeholder: Afterpay's square video until Airwallex's own is in
+          { vimeo: "https://player.vimeo.com/video/1239731603?h=7b24e15175", alt: "Afterpay Growth Acquisition video, 15 seconds", width: 1, height: 1 },
+        ],
+      },
+      {
+        type: "gallery",
+        images: [
+          img("airwallex", "bluesxawx_02", "Airwallex x Blues campaign, portrait: Spend. Handled. above three Blues rugby players in a stadium at dusk, an Airwallex Visa card on a phone in front", 2160, 3840),
           img("airwallex", "transfer", "Airwallex presenter beside a Schedule new transfer screen converting 1,000 Australian dollars to Danish krone", 1920, 1080),
-          img("airwallex", "entities", "Airwallex presenter beside a diagram of a global parent company linked to Singapore, Australia and US entities", 2000, 1125),
         ],
       },
       {
         type: "models",
         lead: "Overflow, not overlap.",
-        body: "Airwallex’s own teams are supported by our studio, not substituted by it: the scale of an agency, with the consistency and control a fast-growing global brand needs.",
+        body: "Airwallex’s own teams are supported by our studio, not substituted by it.",
+        detail: "The scale of an agency, with the consistency and control a fast-growing global brand needs.",
+        // The artwork is 731:516 and can't be cropped
+        aspect: "731 / 516",
         models: [
           {
             title: "Studio.",
             body: "Overflow support from our studio for brand and partnership work, turning business challenges into clear, distinctive and memorable creative.",
             points: ["Brand and partnerships", "Creative and design", "Execution"],
+            // Placeholder: Afterpay's artwork until Airwallex's own is in
+            image: asset("/services/studioxafterpay.webp"),
+            alt: "A spread of Afterpay creative by the studio: an Afterpay Day sale poster, social posts, an email and partner campaigns",
           },
           {
             title: "Embedded.",
             body: "Dedicated capability without the admin. We handle recruitment, onboarding, payroll and employment, and Airwallex receives one simple monthly invoice.",
             points: ["Talent management", "Payroll", "Operational oversight"],
+            // Placeholder: Afterpay's artwork until Airwallex's own is in
+            image: asset("/services/enablementxafterpay.webp"),
+            alt: "Diagram of Dijitally allies, a creative and a producer, slotting into Afterpay's team",
           },
         ],
       },
@@ -330,6 +358,28 @@ export const STUDIES: CaseStudy[] = [
         lead: "Scope, at a glance.",
         body: "Bold enough to stand out, structured enough to last.",
         pillars: ["Creative Production", "Partnership Collateral", "Digital + Performance", "Embedded Teams"],
+      },
+      // The same run of rows as Afterpay's, its videos standing in until Airwallex's own are in
+      {
+        type: "gallery",
+        images: [
+          img("airwallex", "entities", "Airwallex presenter beside a diagram of a global parent company linked to Singapore, Australia and US entities", 2000, 1125),
+        ],
+      },
+      {
+        type: "gallery",
+        images: [
+          img("airwallex", "open", "Airwallex brand film still: two colleagues looking at a tablet against a city skyline, Airwallex logo overlaid", 2000, 1125),
+          { vimeo: "https://player.vimeo.com/video/1239738129?h=d715b7ff34", alt: "Afterpay at Bunnings animation, 10 seconds", width: 9, height: 16 },
+        ],
+      },
+      {
+        type: "gallery",
+        images: [
+          { vimeo: "https://player.vimeo.com/video/1239734860?h=62bf9e7205", alt: "Afterpay Friends with benefits video, 6 seconds", width: 1, height: 1 },
+          { vimeo: "https://player.vimeo.com/video/1239731877?h=ff994e0d62", alt: "Afterpay Last Chance video, 6 seconds", width: 1, height: 1 },
+          { vimeo: "https://player.vimeo.com/video/1239750957?h=ce760235e8", alt: "Afterpay back to school video, 7 seconds", width: 1, height: 1 },
+        ],
       },
       {
         type: "principles",

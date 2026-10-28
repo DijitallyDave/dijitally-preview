@@ -33,6 +33,7 @@ export default function WaysOfWorking({
   models = MODELS,
   aspect = "731 / 516",
   columns = false,
+  detail,
 }: {
   id?: string;
   lead?: string;
@@ -40,6 +41,8 @@ export default function WaysOfWorking({
   models?: Model[];
   aspect?: string;
   columns?: boolean;
+  /** Body copy under the heading, set like a case study's opening paragraph. */
+  detail?: string;
 }) {
   return (
     <section id={id} data-nav-bg="page" className="flex flex-col gap-[106px] bg-primary pb-[42px] pt-16 lg:gap-32 lg:pt-32">
@@ -47,6 +50,7 @@ export default function WaysOfWorking({
         <Lede lead={lead} className="max-w-[626px]">
           {body}
         </Lede>
+        {detail && <p className="trim mt-6 max-w-[716px] text-body-mobile lg:mt-[42px] lg:text-h3 lg:text-wcag">{detail}</p>}
       </div>
 
       {/* Side by side, the cards take the intro's 84px margins so the pair sits under its text */}

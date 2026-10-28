@@ -64,7 +64,7 @@ export default function CaseHero({
     return (
       <section
         data-nav-bg="page"
-        className="case-sheet relative rounded-t-[4px] bg-primary p-6 lg:rounded-t-[8px] lg:px-[42px] lg:pb-[42px] lg:pt-[84px]"
+        className="case-sheet relative rounded-t-[4px] bg-primary px-6 pt-6 lg:rounded-t-[8px] lg:px-[42px] lg:pt-[84px]"
       >
         {/* The client's logo, top right: on desktop level with the eyebrow and as far in from
             the right as the text is from the left; on mobile, where the eyebrow takes the full

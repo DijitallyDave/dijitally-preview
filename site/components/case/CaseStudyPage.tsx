@@ -20,14 +20,14 @@ import { pageLink } from "../site";
 function CaseSection({ section, plain }: { section: Section; plain?: boolean }) {
   switch (section.type) {
     case "stats":
-      return <Stats lead={section.lead} body={section.body} items={section.items} plain={plain} />;
+      return <Stats lead={section.lead} body={section.body} items={section.items} plain={plain} compact />;
     case "intro":
       return <CaseIntro lead={section.lead} body={section.body} plain={plain} />;
     case "gallery":
       return <CaseGallery images={section.images} />;
     case "models":
       return (
-        <WaysOfWorking id="model" lead={section.lead} body={section.body} models={section.models} aspect={section.aspect} columns />
+        <WaysOfWorking id="model" lead={section.lead} body={section.body} models={section.models} aspect={section.aspect} detail={section.detail} columns />
       );
     case "quote":
       return <CaseQuote quote={section.quote} name={section.name} role={section.role} />;
@@ -89,7 +89,11 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
             logo={study.logo && { ...study.logo, alt: study.card.title.replace(/ x Ally$/, "") }}
           />
         </div>
-        <div className="case-sheet mx-6 overflow-clip rounded-b-[4px] bg-primary lg:mx-[42px] lg:rounded-b-[8px]">{sections}</div>
+        {/* The gap under the title is this padding, not the title's: the first section's text is
+            trimmed to its letters, which would otherwise poke out of the top of the clip. */}
+        <div className="case-sheet mx-6 overflow-clip rounded-b-[4px] bg-primary pt-6 lg:mx-[42px] lg:rounded-b-[8px] lg:pt-[42px]">
+          {sections}
+        </div>
         {/* The hero image (or video), filling the first screen behind the sheet under a 70%
             scrim of the dark mode page colour (coal), in both modes. After the sheet in the page
             so the nav reads the sheet's sections first when it checks what's under it, and this
