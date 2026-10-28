@@ -31,7 +31,7 @@ export default function Home() {
       <Nav />
       <Hero />
       <Brands />
-      <WaysOfWorking />
+      <WaysOfWorking columns />
       <Stats />
       <Work />
       <Team />
