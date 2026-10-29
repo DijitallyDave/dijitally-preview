@@ -489,17 +489,15 @@ export const STUDIES: CaseStudy[] = [
     card: {
       title: "Procore x Ally",
       meta: "PARTNERSHIP: 2025 — PRESENT",
-      image: asset("/figma/work-procore.webp"),
-      alt: "Procore construction campaign",
+      image: asset("/work/procore/PresSURE.webp"),
+      alt: "Orange Procore PresSURE poster on a free-standing panel in a dusty building site",
       tall: false,
     },
     hero: {
       lead: "Procore’s integrated ally.",
       follow: "Strategy, creative, design and execution.",
       meta: ["Procore x Ally", "Partnership: 2025 — present"],
-      image: img("procore", "billboard-lockup", "Procore and Dijitally logos locked up on a black billboard above a city street", 2000, 1338),
-      vimeo: "https://player.vimeo.com/video/1240118736?h=db9f99558e",
-      vimeoAspect: 1,
+      image: img("procore", "PresSURE", "Orange Procore PresSURE poster on a free-standing panel in a dusty building site, an excavator behind it", 2720, 1530),
     },
     sheet: true,
     sections: [
@@ -516,8 +514,7 @@ export const STUDIES: CaseStudy[] = [
       {
         type: "gallery",
         images: [
-          img("procore", "pressure-poster", "Orange street poster from the Procore Pressure campaign, a tablet on a construction site at its centre", 1600, 900),
-          img("procore", "sure-signage", "The same Procore Pressure artwork on a free-standing digital signage panel", 1600, 900),
+          img("procore", "PresSURE", "Orange Procore PresSURE poster on a free-standing panel in a dusty building site, an excavator behind it", 2720, 1530),
         ],
       },
       {
@@ -533,7 +530,7 @@ export const STUDIES: CaseStudy[] = [
         type: "pillars",
         lead: "What we do.",
         body: "High-volume creative across residential, commercial and energy, plus product campaigns for AI and connected data.",
-        pillars: ["Creative Production", "Partnership Collateral", "Digital + Performance", "Embedded Teams"],
+        pillars: ["Creative Production", "Partnership Collateral", "Digital + Performance"],
       },
       {
         type: "principles",
@@ -559,7 +556,7 @@ export const STUDIES: CaseStudy[] = [
       "Dijitally didn't win RoomStay as a client, it incubated it. A direct-booking platform for accommodation, founded, branded and taken to market in-house.",
     ogImage: "/work/RoomStayBE_02.jpg",
     // The magenta of RoomStay's campaign creative
-    colour: "#A02060",
+    colour: "#C43864",
     // The wordmark alone, cropped from the logo tile (which has its own light square)
     logo: { src: asset("/figma/logo-roomstay-wordmark.svg"), width: 118.446, height: 10, invert: true },
     card: {
@@ -571,7 +568,7 @@ export const STUDIES: CaseStudy[] = [
     },
     hero: {
       lead: "RoomStay.",
-      follow: "The ally that built one.",
+      follow: "A hotel, hostel and holiday park ally.",
       meta: ["RoomStay x Ally", "Incubation — SaaS"],
       image: img("roomstay", "parks-hero", "RoomStay ad: an illustrated holiday park at dusk, the line They found your website, and a Book now button", 2000, 1125),
     },
@@ -585,8 +582,7 @@ export const STUDIES: CaseStudy[] = [
       {
         type: "gallery",
         images: [
-          img("roomstay", "unhitch-otas", "RoomStay ad: a koala on a magenta gradient with the line So you can unhitch the OTAs", 2000, 1125),
-          img("roomstay", "direct-bookings", "RoomStay ad: 96 per cent, more direct bookings on your site, ringed with Book now tags", 2000, 1125),
+          img("roomstay", "RoomStayBE", "RoomStay billboard on the corner of a brick building: a koala on magenta with the line Give the OTAs a wake-up call", 2930, 1960),
         ],
       },
       {
