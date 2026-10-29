@@ -7,8 +7,9 @@ import Lede from "../Lede";
  */
 export default function CasePillars({ lead, body, pillars }: { lead: string; body: string; pillars: string[] }) {
   return (
-    <section data-nav-bg="page" className="flex flex-col gap-16 bg-primary px-6 py-16 lg:gap-32 lg:px-[42px] lg:py-32">
-      <div className="lg:px-[42px]">
+    <section data-nav-bg="page" className="flex flex-col gap-16 bg-primary px-6 py-16 lg:gap-32 lg:px-[84px] lg:py-32">
+      {/* Heading and tiles share the case study's 84px text margin */}
+      <div>
         <Lede lead={lead} className="max-w-[716px]">
           {body}
         </Lede>

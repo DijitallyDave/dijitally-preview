@@ -1,8 +1,43 @@
 "use client";
 
 import Image from "next/image";
+import { useRef } from "react";
 import Lede from "../Lede";
 import { workClick } from "../PageTransition";
+import { useReducedMotion, useVimeoShowing, vimeoSrc } from "./vimeo";
+
+type TileVideo = { vimeo: string; width: number; height: number; background: string };
+
+/**
+ * A video in place of the photo: muted and looping, fitted whole inside the tile and centred,
+ * on the colour of its own edges so the tile reads as one picture. It fades in once playing.
+ */
+function TileVideo({ video }: { video: TileVideo }) {
+  const frame = useRef<HTMLIFrameElement>(null);
+  const { showing, onLoad } = useVimeoShowing(frame, true);
+  return (
+    <span aria-hidden className="absolute inset-0 flex items-center justify-center [container-type:size]">
+      <span
+        className="relative block transition-transform duration-700 ease-out group-hover:scale-[1.03]"
+        style={{
+          width: `min(100cqw, 100cqh * ${video.width / video.height})`,
+          aspectRatio: `${video.width} / ${video.height}`,
+        }}
+      >
+        <iframe
+          ref={frame}
+          src={vimeoSrc(video.vimeo, true)}
+          title=""
+          tabIndex={-1}
+          allow="autoplay"
+          loading="lazy"
+          onLoad={onLoad}
+          className={`pointer-events-none absolute inset-0 size-full transition-opacity duration-500 ${showing ? "opacity-100" : "opacity-0"}`}
+        />
+      </span>
+    </span>
+  );
+}
 
 /** Dark text on a light brand colour, light text on a dark one (by relative luminance). */
 function inkFor(hex: string) {
@@ -27,6 +62,7 @@ export default function UpNext({
   image,
   alt,
   inset = false,
+  video,
   color,
   textColor,
 }: {
@@ -41,11 +77,15 @@ export default function UpNext({
   alt: string;
   /** A cut-out product shot: shown whole on the card's fill, as on the homepage card, not cropped. */
   inset?: boolean;
+  /** A video in place of the photo (except with reduced motion), with its edges' colour. */
+  video?: TileVideo;
   /** The next client's brand colour, for the square title panel. */
   color: string;
   /** The panel's text colour; by default black or white, whichever reads on `color`. */
   textColor?: string;
 }) {
+  const reduced = useReducedMotion();
+  const playVideo = video && reduced === false;
   return (
     <section data-nav-bg="page" className="flex flex-col gap-16 bg-primary px-6 py-16 lg:gap-32 lg:px-[42px] lg:py-32">
       <div className="lg:px-[42px]">
@@ -58,15 +98,23 @@ export default function UpNext({
           set apart by the page margin (24px mobile, 42px desktop). Stacked on mobile. */}
       <a href={href} onClick={(e) => workClick(e, slug)} className="group grid grid-cols-1 gap-6 outline-none lg:grid-cols-[1fr_auto] lg:gap-[42px]">
         <span
-          className="relative block aspect-[16/9] w-full overflow-hidden rounded-[4px] group-focus-visible:ring-2 group-focus-visible:ring-secondary lg:aspect-auto lg:h-full lg:rounded-[8px] bg-ui dark:bg-wcag"
+          className={`relative block aspect-[16/9] w-full overflow-hidden rounded-[4px] group-focus-visible:ring-2 group-focus-visible:ring-secondary lg:aspect-auto lg:h-full lg:rounded-[8px] ${video ? "" : "bg-ui dark:bg-wcag"}`}
+          style={video ? { background: video.background } : undefined}
         >
-          <Image
-            src={image}
-            alt={alt}
-            fill
-            sizes="(min-width: 1024px) 60vw, 100vw"
-            className={`transition-transform duration-700 ease-out group-hover:scale-[1.03] ${inset ? "object-contain p-[6%]" : "object-cover"}`}
-          />
+          {playVideo ? (
+            <>
+              <span className="sr-only">{alt}</span>
+              <TileVideo video={video} />
+            </>
+          ) : (
+            <Image
+              src={image}
+              alt={alt}
+              fill
+              sizes="(min-width: 1024px) 60vw, 100vw"
+              className={`transition-transform duration-700 ease-out group-hover:scale-[1.03] ${inset ? "object-contain p-[6%]" : "object-cover"}`}
+            />
+          )}
         </span>
         <span
           className={`flex aspect-square w-full flex-col justify-between rounded-[4px] p-6 lg:w-[clamp(320px,32vw,560px)] lg:rounded-[8px] lg:p-[42px] ${textColor ? "" : inkFor(color)}`}

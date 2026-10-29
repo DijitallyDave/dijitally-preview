@@ -25,7 +25,7 @@ export default function CaseTimeline({ lead, body, items }: { lead: string; body
 
       <ol
         ref={track}
-        className="no-scrollbar flex snap-x snap-mandatory scroll-px-6 gap-6 overflow-x-auto overflow-y-hidden px-6 lg:grid lg:snap-none lg:grid-cols-4 lg:gap-[42px] lg:overflow-visible lg:px-[42px]"
+        className="no-scrollbar flex snap-x snap-mandatory scroll-px-6 gap-6 overflow-x-auto overflow-y-hidden px-6 lg:grid lg:snap-none lg:grid-cols-4 lg:gap-[42px] lg:overflow-visible lg:px-[84px]"
       >
         {items.map((m, i) => {
           const latest = i === items.length - 1;

@@ -5,7 +5,7 @@ import CarouselDots, { useActiveSlide } from "./CarouselDots";
 import CountUp from "./CountUp";
 import Lede from "./Lede";
 
-/** `suffix` follows the counted number, e.g. "+" for "3+". */
+/** `suffix` follows the counted number, e.g. "+" for "3+". A "\n" in `label` breaks the line there. */
 export type Stat = { value: number; suffix?: string; label: string; highlight?: boolean };
 
 const STATS: Stat[] = [
@@ -18,6 +18,7 @@ const STATS: Stat[] = [
 // Desktop: a grid of cards. Mobile: a swipeable row of 260px cards with page dots (Figma mobile).
 // Defaults to the homepage's "A true ally." numbers; case studies pass their own.
 // `plain` sets the intro as body copy, like the homepage's model cards, instead of a heading.
+// `inset` sets the cards in from the page margin to the intro's 84px, as in a case study.
 // `intro={false}` leaves the intro out, where the page has already shown it (a full hero).
 // `compact` halves the cards, and on desktop sets them in the right half of the page.
 export default function Stats({
@@ -27,6 +28,7 @@ export default function Stats({
   plain = false,
   compact = false,
   intro = true,
+  inset = false,
 }: {
   lead?: string;
   body?: React.ReactNode;
@@ -34,6 +36,7 @@ export default function Stats({
   plain?: boolean;
   compact?: boolean;
   intro?: boolean;
+  inset?: boolean;
 }) {
   const track = useRef<HTMLUListElement>(null);
   const active = useActiveSlide(track);
@@ -63,7 +66,7 @@ export default function Stats({
         ref={track}
         // One column per stat on wide screens (four on the homepage)
         style={{ "--n": items.length } as React.CSSProperties}
-        className={`no-scrollbar flex snap-x snap-mandatory scroll-px-6 overflow-x-auto overflow-y-hidden px-6 lg:grid lg:snap-none lg:grid-cols-2 lg:overflow-visible lg:px-[42px] xl:grid-cols-[repeat(var(--n),minmax(0,1fr))] ${
+        className={`no-scrollbar flex snap-x snap-mandatory scroll-px-6 overflow-x-auto overflow-y-hidden px-6 lg:grid lg:snap-none lg:grid-cols-2 lg:overflow-visible ${inset ? "lg:px-[84px]" : "lg:px-[42px]"} xl:grid-cols-[repeat(var(--n),minmax(0,1fr))] ${
           // Small cards take the right half on desktop; on wide screens each is a quarter of that half
           // (less gaps), however many there are, so three cards match four elsewhere.
           compact
@@ -91,10 +94,10 @@ export default function Stats({
                 {s.suffix}
               </span>
               <span
-                className={`trim leading-none ${
+                className={`trim whitespace-pre-line leading-none ${
                   compact
                     ? "text-[12px] tracking-[-0.24px] lg:text-[21px] lg:tracking-[-0.42px]"
-                    : "text-[24px] tracking-[-0.48px] lg:text-[42px] lg:tracking-[-0.84px]"
+                    : "text-[24px] tracking-[-0.48px] lg:text-[36px] lg:tracking-[-0.72px]"
                 } ${s.highlight ? "" : "text-static"}`}
               >
                 {s.label}

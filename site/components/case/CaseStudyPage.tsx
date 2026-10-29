@@ -18,13 +18,14 @@ import { nextStudy, type CaseStudy, type Section } from "./studies";
 import { pageLink } from "../site";
 
 // `plain`: the opening section on a sheet (see below), whose intro is set as body copy under the title.
-// `noIntro`: its intro has moved up into a full hero instead.
+// `noIntro`: its intro has moved up into a full hero instead; then its stats are full size, as
+// on the homepage, rather than the half-size set the other studies use.
 function CaseSection({ section, plain, noIntro }: { section: Section; plain?: boolean; noIntro?: boolean }) {
   switch (section.type) {
     case "stats":
-      return <Stats lead={section.lead} body={section.body} items={section.items} plain={plain} compact intro={!noIntro} />;
+      return <Stats lead={section.lead} body={section.body} items={section.items} plain={plain} compact={!noIntro} intro={!noIntro} inset />;
     case "intro":
-      return <CaseIntro lead={section.lead} body={section.body} plain={plain} />;
+      return noIntro ? null : <CaseIntro lead={section.lead} body={section.body} detail={section.detail} plain={plain} />;
     case "gallery":
       return <CaseGallery images={section.images} />;
     case "models":
@@ -54,10 +55,9 @@ function CaseSection({ section, plain, noIntro }: { section: Section; plain?: bo
 /** A case study page: the shared nav, hero, the study's own sections, "Up next" and footer. */
 export default function CaseStudyPage({ study }: { study: CaseStudy }) {
   const next = nextStudy(study.slug);
-  const full = study.sheet ? study.hero.full : undefined;
-  // A full hero carries the opening stats' intro itself.
+  // A sheet study's opening section's intro is set on its own between the hero and the sheet.
   const first = study.sections[0];
-  const intro = full && first?.type === "stats" ? `${first.lead} ${first.body}` : undefined;
+  const intro = study.sheet && (first?.type === "stats" || first?.type === "intro") ? `${first.lead} ${first.body}` : undefined;
   const sections = study.sections.map((section, i) => (
     <CaseSection key={i} section={section} plain={study.sheet && i === 0} noIntro={!!intro && i === 0} />
   ));
@@ -72,6 +72,7 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
       image={next.card.image}
       alt={next.card.alt}
       inset={next.card.inset}
+      video={next.upNextVideo}
       color={next.colour}
       textColor={next.panelText}
     />
@@ -84,51 +85,40 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
       <main id="top" className="relative isolate">
         <WorkVisit />
         <Nav home={false} />
-        {/* The sheet: the case study's own sections on the UI colour, inset by the nav's margin
-            (24px on mobile, 42px on desktop) so the image shows around it. Its top is the hero,
-            starting halfway down the screen, and never closer to the nav than that margin on a
-            very short one. .case-sheet swaps the page and UI colours inside it (see
-            globals.css). Up next and the footer follow on the page as usual. */}
-        {full ? (
-          // A full-screen hero over the video, then the sheet as a card of its own below it.
-          <>
-            <CaseFullHero {...study.hero} intro={intro} pill={full.pill} />
-            <div className="case-sheet mx-6 mt-6 overflow-clip rounded-[4px] bg-primary pt-6 lg:mx-[42px] lg:mt-[42px] lg:rounded-[8px] lg:pt-[42px]">
-              {sections}
-            </div>
-          </>
-        ) : (
-          <>
-            <div className="mx-6 pt-[max(50svh,calc(var(--nav-h,68px)+24px))] lg:mx-[42px] lg:pt-[max(50svh,calc(var(--nav-h,115.375px)+42px))]">
-              <CaseHero
-                {...study.hero}
-                sheet
-                logo={study.logo && { ...study.logo, alt: study.card.title.replace(/ x Ally$/, "") }}
-              />
-            </div>
-            {/* The gap under the title is this padding, not the title's: the first section's text is
-                trimmed to its letters, which would otherwise poke out of the top of the clip. */}
-            <div className="case-sheet mx-6 overflow-clip rounded-b-[4px] bg-primary pt-6 lg:mx-[42px] lg:rounded-b-[8px] lg:pt-[42px]">
-              {sections}
-            </div>
-          </>
+        {/* A full-screen hero over the video or image, then the sheet: the case study's own
+            sections on the UI colour, as a card inset by the nav's margin (24px on mobile, 42px
+            on desktop). Inside, the top matches the sides: 24px on mobile, 84px on desktop, with
+            the first section's own top padding dropped. .case-sheet swaps the page and UI
+            colours inside it (see globals.css).
+            Up next and the footer follow on the page as usual. */}
+        <CaseFullHero {...study.hero} study={study} />
+        {/* The opening paragraph, out from the hero on the page colour, centred, with 128px
+            (64px on mobile) above and below it */}
+        {intro && (
+          <section data-nav-bg="page" className="px-6 py-16 lg:py-32">
+            <p className="trim mx-auto max-w-[620px] text-center text-body-mobile text-wcag lg:text-h3">
+              {intro}
+            </p>
+          </section>
         )}
-        {/* The hero image (or video), filling the first screen behind the sheet under a 70%
-            scrim of the dark mode page colour (coal), in both modes. After the sheet in the page
-            so the nav reads the sheet's sections first when it checks what's under it, and this
-            only above the sheet. */}
+        <div className={`case-sheet mx-6 overflow-clip rounded-[4px] bg-primary pt-6 lg:mx-[42px] lg:rounded-[8px] lg:pt-[84px] [&>*:first-child]:pt-0 ${intro ? "" : "mt-6 lg:mt-[42px]"}`}>
+          {sections}
+        </div>
+        {/* The hero video (or image), blurred and in greys, filling the first screen behind the
+            hero under a 90% scrim of the dark mode page colour (coal), in both modes. Last in
+            the page so the nav reads the hero and sheet first when it checks what's under it. */}
         <div data-nav-bg="dark" aria-hidden className="absolute inset-x-0 top-0 -z-10 h-svh">
           {study.hero.vimeo ? (
-            <HeroVideo vimeo={study.hero.vimeo} poster={study.hero.image.src} mono={!!full} />
+            <HeroVideo vimeo={study.hero.vimeo} poster={study.hero.image.src} mono />
           ) : (
             // Blurred like the video heroes, larger than the box so the blur's soft edges fall outside it
             <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute -inset-12 blur-[24px]">
+              <div className="absolute -inset-12 blur-[24px] grayscale">
                 <Image src={study.hero.image.src} alt="" fill priority sizes="100vw" className="object-cover" />
               </div>
             </div>
           )}
-          <div className="absolute inset-0 bg-coal/70" />
+          <div className="absolute inset-0 bg-coal/90" />
         </div>
         {upNext}
         <Footer />

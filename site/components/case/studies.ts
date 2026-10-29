@@ -16,7 +16,7 @@ import { asset } from "../asset";
 
 export type Section =
   | { type: "stats"; lead: string; body: string; items: Stat[] }
-  | { type: "intro"; lead: string; body: string }
+  | { type: "intro"; lead: string; body: string; detail?: string }
   | { type: "gallery"; images: (CaseImage | CaseVideo)[] }
   | { type: "models"; lead: string; body: string; detail?: string; models: Model[]; aspect?: string }
   | { type: "quote"; quote: string; name: string; role: string }
@@ -33,7 +33,7 @@ export type CaseStudy = {
   ogImage: string;
   /** The client's brand colour, for its panel in the previous study's "Up next". */
   colour: string;
-  /** The panel's text colour, when it should be a brand colour too (otherwise black or white). */
+  /** The panel's text colour, when it should be a brand or theme colour (otherwise black or white). */
   panelText?: string;
   /**
    * The client's logo, shown between DIJIT and ALLY in the transition into this study (see
@@ -41,6 +41,16 @@ export type CaseStudy = {
    * dark logo light for the black transition screen.
    */
   logo?: { src: string; width: number; height: number; invert?: boolean };
+  /**
+   * The client's pill in the DIJIT · ALLY strip along the foot of the hero (see LogoStrip), as
+   * its own artwork. Without one, the strip sets `logo` in a plain white pill.
+   */
+  pill?: { src: string; width: number; height: number };
+  /**
+   * A Vimeo video for this study's tile in the previous study's "Up next", in place of the card
+   * image: fitted whole and centred, on `background` (the colour of the video's edges).
+   */
+  upNextVideo?: { vimeo: string; width: number; height: number; background: string };
   /** The homepage work carousel card, also the photo in "Up next". */
   card: {
     title: string;
@@ -67,12 +77,6 @@ export type CaseStudy = {
     meta: string[];
     image: CaseImage;
     vimeo?: string;
-    /**
-     * A full-screen hero instead of the sheet's title card (see CaseFullHero), with this logo
-     * pill in the DIJIT · ALLY strip along its bottom. The opening section's intro moves up
-     * into it.
-     */
-    full?: { pill: { src: string; width: number; height: number } };
   };
   /**
    * Lay the page out as a UI-coloured sheet over the hero image (which fills the first screen
@@ -106,6 +110,7 @@ export const STUDIES: CaseStudy[] = [
     // Afterpay's mint (their official logo file is black only)
     colour: "#B2FCE4",
     logo: { src: asset("/figma/logo-afterpay.svg"), width: 114.943, height: 40, invert: true },
+    pill: { src: asset("/figma/afterpay-pill.svg"), width: 224.148, height: 78.0034 },
     card: {
       title: "Afterpay x Ally",
       meta: "PARTNERSHIP: 2020 — PRESENT",
@@ -121,7 +126,6 @@ export const STUDIES: CaseStudy[] = [
       image: img("afterpay", "billboard-lockup", "Afterpay and Dijitally logos locked up on a large digital billboard in a glass atrium", 2000, 1338),
       // The same APD spot that opens the gallery below, blurred
       vimeo: AFTERPAY_APD,
-      full: { pill: { src: asset("/figma/afterpay-pill.svg"), width: 224.148, height: 78.0034 } },
     },
     sheet: true,
     sections: [
@@ -131,7 +135,7 @@ export const STUDIES: CaseStudy[] = [
         body: "What began as campaign and engineering support became a full-stack growth partnership.",
         items: [
           { value: 7, label: "years of partnership.", highlight: true },
-          { value: 5, label: "global markets." },
+          { value: 5, label: "global\nmarkets." },
           { value: 24, label: "hour delivery, follow the sun." },
           { value: 2, label: "models, Studio + In‑house." },
         ],
@@ -324,7 +328,7 @@ export const STUDIES: CaseStudy[] = [
         body: "A bespoke agency ecosystem we built for Airwallex, the global fintech moving money across borders. It sits both inside and alongside the business.",
         items: [
           { value: 3, label: "years of partnership.", highlight: true },
-          { value: 2, label: "global markets." },
+          { value: 2, label: "global\nmarkets." },
           { value: 2, label: "models, Studio + Embedded." },
         ],
       },
@@ -332,15 +336,27 @@ export const STUDIES: CaseStudy[] = [
         type: "gallery",
         images: [
           img("airwallex", "bluesxawx_01", "Airwallex x Blues campaign: three Blues rugby players, arms folded in a stadium at dusk, beside the line Spend. Handled. and an Airwallex Visa card on a phone", 3840, 2160),
-          // Placeholder: Afterpay's square video until Airwallex's own is in
-          { vimeo: "https://player.vimeo.com/video/1239731603?h=7b24e15175", alt: "Afterpay Growth Acquisition video, 15 seconds", width: 1, height: 1 },
+          // These files' own names have spaces (and the next an @ and %), so they're encoded for the URL
+          img(
+            "airwallex",
+            encodeURIComponent("SG VISA Campaign_Zenxin_Arrival T3 Pillar_Row B_1380x2990"),
+            "Airwallex Singapore Visa campaign pillar: Tai Seng Yee of ZENXIN Organic tending greens in a glasshouse, under the line The financial platform for business growth",
+            2070,
+            4485,
+          ),
         ],
       },
       {
         type: "gallery",
         images: [
           img("airwallex", "bluesxawx_02", "Airwallex x Blues campaign, portrait: Spend. Handled. above three Blues rugby players in a stadium at dusk, an Airwallex Visa card on a phone in front", 2160, 3840),
-          img("airwallex", "transfer", "Airwallex presenter beside a Schedule new transfer screen converting 1,000 Australian dollars to Danish krone", 1920, 1080),
+          img(
+            "airwallex",
+            encodeURIComponent("SG VISA Campaign 2026_Far East Flora_39 Keppel Road_West Facing_21800x11730@10%"),
+            "Airwallex Singapore Visa campaign billboard: Ryan Chioh of Far East Flora Holdings arranging flowers, under the line The financial platform for business growth",
+            3270,
+            1760,
+          ),
         ],
       },
       {
@@ -352,20 +368,19 @@ export const STUDIES: CaseStudy[] = [
         aspect: "731 / 516",
         models: [
           {
+            title: "Embedded.",
+            body: "Dedicated capability without the admin. We handle recruitment, onboarding, payroll and employment, and Airwallex receives one simple monthly invoice.",
+            points: ["Talent management", "Payroll", "Operational oversight"],
+            image: asset("/work/airwallex/enablementxairwallex.webp"),
+            alt: "Diagram of Dijitally allies, two of a row of seven highlighted, slotting in under Airwallex",
+          },
+          {
             title: "Studio.",
             body: "Overflow support from our studio for brand and partnership work, turning business challenges into clear, distinctive and memorable creative.",
             points: ["Brand and partnerships", "Creative and design", "Execution"],
             // Placeholder: Afterpay's artwork until Airwallex's own is in
             image: asset("/services/studioxafterpay.webp"),
             alt: "A spread of Afterpay creative by the studio: an Afterpay Day sale poster, social posts, an email and partner campaigns",
-          },
-          {
-            title: "Embedded.",
-            body: "Dedicated capability without the admin. We handle recruitment, onboarding, payroll and employment, and Airwallex receives one simple monthly invoice.",
-            points: ["Talent management", "Payroll", "Operational oversight"],
-            // Placeholder: Afterpay's artwork until Airwallex's own is in
-            image: asset("/services/enablementxafterpay.webp"),
-            alt: "Diagram of Dijitally allies, a creative and a producer, slotting into Afterpay's team",
           },
         ],
       },
@@ -374,28 +389,6 @@ export const STUDIES: CaseStudy[] = [
         lead: "Scope, at a glance.",
         body: "Bold enough to stand out, structured enough to last.",
         pillars: ["Creative Production", "Partnership Collateral", "Digital + Performance", "Embedded Teams"],
-      },
-      // The same run of rows as Afterpay's, its videos standing in until Airwallex's own are in
-      {
-        type: "gallery",
-        images: [
-          img("airwallex", "entities", "Airwallex presenter beside a diagram of a global parent company linked to Singapore, Australia and US entities", 2000, 1125),
-        ],
-      },
-      {
-        type: "gallery",
-        images: [
-          img("airwallex", "open", "Airwallex brand film still: two colleagues looking at a tablet against a city skyline, Airwallex logo overlaid", 2000, 1125),
-          { vimeo: "https://player.vimeo.com/video/1239738129?h=d715b7ff34", alt: "Afterpay at Bunnings animation, 10 seconds", width: 9, height: 16 },
-        ],
-      },
-      {
-        type: "gallery",
-        images: [
-          { vimeo: "https://player.vimeo.com/video/1239734860?h=62bf9e7205", alt: "Afterpay Friends with benefits video, 6 seconds", width: 1, height: 1 },
-          { vimeo: "https://player.vimeo.com/video/1239731877?h=ff994e0d62", alt: "Afterpay Last Chance video, 6 seconds", width: 1, height: 1 },
-          { vimeo: "https://player.vimeo.com/video/1239750957?h=ce760235e8", alt: "Afterpay back to school video, 7 seconds", width: 1, height: 1 },
-        ],
       },
       {
         type: "principles",
@@ -416,10 +409,11 @@ export const STUDIES: CaseStudy[] = [
     description:
       "Dijitally built Constantinople's brand platform, banking infrastructure where the product is trust and the margin for error is zero. Present.co led brand and UX/UI.",
     ogImage: "/work/Constantinople.jpg",
-    // Black with the coral of Constantinople's own site as the text
-    colour: "#040404",
+    // The coral of Constantinople’s own site, with the text in the secondary colour
+    colour: "#FF734C",
     logo: { src: asset("/figma/logo-constantinople.svg"), width: 110.041, height: 16, invert: true },
-    panelText: "#FF734C",
+    upNextVideo: { vimeo: "https://player.vimeo.com/video/1240118736?h=db9f99558e", width: 540, height: 540, background: "#070707" },
+    panelText: "var(--secondary)",
     card: {
       title: "Constantinople",
       meta: "ENGINEERING, DEVELOPMENT",
@@ -431,7 +425,7 @@ export const STUDIES: CaseStudy[] = [
     hero: {
       lead: "Constantinople’s build ally.",
       follow: "Turning a banking platform into a brand you can use.",
-      meta: ["Constantinople x Ally", "Build partner — Fintech"],
+      meta: ["Constantinople x Ally"],
       image: img("constantinople", "banking-laptop", "The Constantinople site on a laptop, headline A new era of banking beside a swirled colour render", 2000, 1338),
     },
     sheet: true,
@@ -455,7 +449,8 @@ export const STUDIES: CaseStudy[] = [
       {
         type: "intro",
         lead: "Intent, intact.",
-        body: "Most builds lose something between design and production. We join where design decisions become engineering decisions, so nothing is lost in the handover.",
+        body: "Most builds lose something between design and production.",
+        detail: "We join where design decisions become engineering decisions, so nothing is lost in the handover.",
       },
       {
         type: "principles",
@@ -502,7 +497,7 @@ export const STUDIES: CaseStudy[] = [
         items: [
           { value: 6, label: "campaigns launched.", highlight: true },
           { value: 1, label: "new creative platform." },
-          { value: 3, suffix: "+", label: "global markets reached." },
+          { value: 3, suffix: "+", label: "global\nmarkets reached." },
         ],
       },
       {

@@ -15,7 +15,7 @@ import LogoStrip from "./case/LogoStrip";
  * stays on screen throughout), then the black rolls on up and off the top, uncovering the case
  * study.
  *
- * Into a study with a full hero (CaseFullHero), the wordmark is instead that hero's scrolling
+ * Into a study with a full hero (CaseFullHero, every sheet study), the wordmark is instead that hero's scrolling
  * DIJIT [pill] ALLY strip, in exactly its place at the foot of the screen and at the same point
  * in its scroll, so as the black rolls off it match-cuts to the hero's own strip underneath.
  *
@@ -171,10 +171,10 @@ export default function PageTransition() {
   return (
     <div ref={outer} aria-hidden className="fixed inset-0 z-[90] overflow-hidden bg-ink" style={{ transform: "translateY(100%)" }}>
       <div ref={inner} className="absolute inset-0" style={{ transform: "translateY(-100%)" }}>
-        {study.hero.full ? (
+        {study.sheet ? (
           // As in CaseFullHero: the foot of a screen-high (svh) box, 24px up.
           <div className="absolute inset-x-0 top-0 flex h-svh min-h-[640px] flex-col justify-end pb-6 text-snow">
-            <LogoStrip pill={study.hero.full.pill} />
+            <LogoStrip study={study} />
           </div>
         ) : (
           <div className="flex size-full items-center px-6 lg:px-[42px]">
