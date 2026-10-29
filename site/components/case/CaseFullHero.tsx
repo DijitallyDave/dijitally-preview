@@ -37,7 +37,8 @@ export default function CaseFullHero({
               </li>
             ))}
           </ul>
-          <SplitHeading as="h1" onLoad className="trim text-h1-mobile lg:text-h1">
+          {/* 42px on mobile, set like the H1 (line height 1, -2%); the H1's 48px on desktop */}
+          <SplitHeading as="h1" onLoad className="trim text-[42px] leading-none tracking-[-0.84px] lg:text-h1">
             {lead} {follow}
           </SplitHeading>
         </div>
