@@ -338,10 +338,9 @@ export const STUDIES: CaseStudy[] = [
         type: "gallery",
         images: [
           img("airwallex", "bluesxawx_01", "Airwallex x Blues campaign: three Blues rugby players, arms folded in a stadium at dusk, beside the line Spend. Handled. and an Airwallex Visa card on a phone", 3840, 2160),
-          // These files' own names have spaces (and the next an @ and %), so they're encoded for the URL
           img(
             "airwallex",
-            encodeURIComponent("SG VISA Campaign_Zenxin_Arrival T3 Pillar_Row B_1380x2990"),
+            "sg-visa-zenxin-pillar",
             "Airwallex Singapore Visa campaign pillar: Tai Seng Yee of ZENXIN Organic tending greens in a glasshouse, under the line The financial platform for business growth",
             2070,
             4485,
@@ -354,7 +353,7 @@ export const STUDIES: CaseStudy[] = [
           img("airwallex", "bluesxawx_02", "Airwallex x Blues campaign, portrait: Spend. Handled. above three Blues rugby players in a stadium at dusk, an Airwallex Visa card on a phone in front", 2160, 3840),
           img(
             "airwallex",
-            encodeURIComponent("SG VISA Campaign 2026_Far East Flora_39 Keppel Road_West Facing_21800x11730@10%"),
+            "sg-visa-far-east-flora",
             "Airwallex Singapore Visa campaign billboard: Ryan Chioh of Far East Flora Holdings arranging flowers, under the line The financial platform for business growth",
             3270,
             1760,

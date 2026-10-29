@@ -5,7 +5,6 @@ import { usePathname, useRouter } from "next/navigation";
 import { gsap } from "gsap";
 import { ALLY_W, Ally, DIJIT_W, Dijit, OPEN_W } from "./Preloader";
 import { studyBySlug, type CaseStudy } from "./case/studies";
-import { ON_DIJITALLY } from "./site";
 import LogoStrip from "./case/LogoStrip";
 
 /**
@@ -28,8 +27,7 @@ const EVENT = "dijitally:open-work";
 /** Starts the transition into a case study. Returns false if there isn't one to play. */
 export function openWork(slug: string) {
   const study = studyBySlug(slug);
-  // On www.dijitally.com the case studies are that site's own pages, not this app's.
-  if (ON_DIJITALLY || !study?.logo) return false;
+  if (!study?.logo) return false;
   if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
   window.dispatchEvent(new CustomEvent(EVENT, { detail: slug }));
   return true;

@@ -4,6 +4,7 @@ import { JetBrains_Mono } from "next/font/google";
 import { themeInitScript } from "@/components/theme";
 import { HOME_DESCRIPTION, HOME_TITLE, ON_DIJITALLY, SITE_URL } from "@/components/site";
 import PageTransition from "@/components/PageTransition";
+import VirtualPageView from "@/components/VirtualPageView";
 import { GTM_SNIPPET, HUBSPOT_SRC, LEAD_SNIPPET, OPENAI_PIXEL_SNIPPET, STRUCTURED_DATA } from "@/components/tracking";
 import "./globals.css";
 
@@ -53,6 +54,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className="font-sans font-book">
         <PageTransition />
+        {ON_DIJITALLY && <VirtualPageView />}
         {children}
       </body>
     </html>
