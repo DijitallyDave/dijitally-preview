@@ -222,11 +222,12 @@ export default function Preloader() {
       );
       tl.to(q("[data-glow]"), { opacity: GLOW.opacity, duration: split, ease: "power2.out" }, splitAt + split * 0.3);
 
-      // The bar fills after one pass through the faces, then a beat before the site comes in.
+      // The bar fills after one pass through the faces (easing in, so it gathers pace toward
+      // the end), then a beat before the site comes in.
       const flickAt = splitAt + split * 0.6;
       const barEnd = flickAt + faceEls.length * flick;
       const exitAt = barEnd + hold;
-      tl.to(q("[data-bar]"), { scaleX: 1, duration: barEnd, ease: "none" }, 0);
+      tl.to(q("[data-bar]"), { scaleX: 1, duration: barEnd, ease: "power2.in" }, 0);
       // The faces settle more slowly, through the flicks, until the bar fills.
       tl.to(q("[data-faces]"), { scale: 1, duration: barEnd - splitAt, ease: "power2.out" }, splitAt);
 

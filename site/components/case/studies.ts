@@ -378,9 +378,8 @@ export const STUDIES: CaseStudy[] = [
             title: "Studio.",
             body: "Overflow support from our studio for brand and partnership work, turning business challenges into clear, distinctive and memorable creative.",
             points: ["Brand and partnerships", "Creative and design", "Execution"],
-            // Placeholder: Afterpay's artwork until Airwallex's own is in
-            image: asset("/services/studioxafterpay.webp"),
-            alt: "A spread of Afterpay creative by the studio: an Afterpay Day sale poster, social posts, an email and partner campaigns",
+            image: asset("/work/airwallex/studioxAWX.webp"),
+            alt: "A spread of Airwallex creative by the studio: a McLaren Homegrown Hero poster, a printed feature with a message from Airwallex, and corporate card ads",
           },
         ],
       },
