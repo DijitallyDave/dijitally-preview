@@ -68,8 +68,8 @@ export type CaseStudy = {
     video?: { vimeo: string; width: number; height: number };
   };
   /**
-   * `vimeo` (a Vimeo player URL, 16:9), on a sheet layout, plays blurred, muted and on a loop
-   * behind it instead of showing `image`.
+   * `vimeo` (a Vimeo player URL), on a sheet layout, plays blurred, muted and on a loop
+   * behind it instead of showing `image`; `vimeoAspect` is its width over height (16:9 if not given).
    */
   hero: {
     lead: string;
@@ -77,6 +77,7 @@ export type CaseStudy = {
     meta: string[];
     image: CaseImage;
     vimeo?: string;
+    vimeoAspect?: number;
   };
   /**
    * Lay the page out as a UI-coloured sheet over the hero image (which fills the first screen
@@ -426,6 +427,8 @@ export const STUDIES: CaseStudy[] = [
       follow: "Turning a banking platform into a brand you can use.",
       meta: ["Constantinople x Ally"],
       image: img("constantinople", "banking-laptop", "The Constantinople site on a laptop, headline A new era of banking beside a swirled colour render", 2000, 1338),
+      vimeo: "https://player.vimeo.com/video/1240118736?h=db9f99558e",
+      vimeoAspect: 1,
     },
     sheet: true,
     sections: [
@@ -438,10 +441,18 @@ export const STUDIES: CaseStudy[] = [
         type: "gallery",
         images: [
           {
-            src: asset("/figma/work-constantinople.webp"),
-            alt: "Hand holding a phone showing the Constantinople banking site",
-            width: 2040,
-            height: 1360,
+            // 16:9
+            vimeo: "https://player.vimeo.com/video/1240643009?h=246c5c2726",
+            alt: "Constantinople video",
+            width: 16,
+            height: 9,
+          },
+          {
+            // Square
+            vimeo: "https://player.vimeo.com/video/1240650424?h=7120c79440",
+            alt: "Constantinople video",
+            width: 1,
+            height: 1,
           },
         ],
       },
@@ -486,6 +497,8 @@ export const STUDIES: CaseStudy[] = [
       follow: "Strategy, creative, design and execution.",
       meta: ["Procore x Ally", "Partnership: 2025 — present"],
       image: img("procore", "billboard-lockup", "Procore and Dijitally logos locked up on a black billboard above a city street", 2000, 1338),
+      vimeo: "https://player.vimeo.com/video/1240118736?h=db9f99558e",
+      vimeoAspect: 1,
     },
     sheet: true,
     sections: [

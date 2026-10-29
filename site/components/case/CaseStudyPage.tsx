@@ -110,7 +110,7 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
             the page so the nav reads the hero and sheet first when it checks what's under it. */}
         <div data-nav-bg="dark" aria-hidden className="absolute inset-x-0 top-0 -z-10 h-svh min-h-[480px] lg:min-h-[640px]">
           {study.hero.vimeo ? (
-            <HeroVideo vimeo={study.hero.vimeo} poster={study.hero.image.src} mono />
+            <HeroVideo vimeo={study.hero.vimeo} aspect={study.hero.vimeoAspect} poster={study.hero.image.src} mono />
           ) : (
             // Blurred like the video heroes, larger than the box so the blur's soft edges fall outside it
             <div className="absolute inset-0 overflow-hidden">

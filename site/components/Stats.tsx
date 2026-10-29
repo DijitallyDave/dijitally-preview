@@ -1,15 +1,15 @@
 "use client";
 
-import { useRef } from "react";
+import { Fragment, useRef } from "react";
 import CarouselDots, { useActiveSlide } from "./CarouselDots";
 import CountUp from "./CountUp";
 import Lede from "./Lede";
 
-/** `suffix` follows the counted number, e.g. "+" for "3+". A "\n" in `label` breaks the line there. */
+/** `suffix` follows the counted number, e.g. "+" for "3+". A "\n" in `label` breaks the line there; a "|", on desktop only (keep a space before it for mobile). */
 export type Stat = { value: number; suffix?: string; label: string; highlight?: boolean };
 
 const STATS: Stat[] = [
-  { value: 14, label: "years of operation.", highlight: true },
+  { value: 14, label: "years of |operation.", highlight: true },
   { value: 8, label: "countries and counting." },
   { value: 42, label: "strong, your team of allies." },
   { value: 24, label: "hour service, follow the sun." },
@@ -100,7 +100,12 @@ export default function Stats({
                     : "text-[24px] tracking-[-0.48px] lg:text-[36px] lg:tracking-[-0.72px]"
                 } ${s.highlight ? "" : "text-static"}`}
               >
-                {s.label}
+                {s.label.split("|").map((part, j) => (
+                  <Fragment key={j}>
+                    {j > 0 && <br className="hidden lg:inline" />}
+                    {part}
+                  </Fragment>
+                ))}
               </span>
             </div>
           </li>
