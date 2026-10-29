@@ -108,7 +108,7 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
         {/* The hero video (or image), blurred and in greys, filling the first screen behind the
             hero under a 90% scrim of the dark mode page colour (coal), in both modes. Last in
             the page so the nav reads the hero and sheet first when it checks what's under it. */}
-        <div data-nav-bg="dark" aria-hidden className="absolute inset-x-0 top-0 -z-10 h-screen min-h-[640px]">
+        <div data-nav-bg="dark" aria-hidden className="absolute inset-x-0 top-0 -z-10 h-svh min-h-[480px] lg:min-h-[640px]">
           {study.hero.vimeo ? (
             <HeroVideo vimeo={study.hero.vimeo} poster={study.hero.image.src} mono />
           ) : (

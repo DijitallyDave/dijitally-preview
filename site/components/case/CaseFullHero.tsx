@@ -23,7 +23,9 @@ export default function CaseFullHero({
   study: Pick<CaseStudy, "pill" | "logo">;
 }) {
   return (
-    <section data-nav-bg="dark" className="relative flex h-screen min-h-[640px] flex-col text-snow">
+    // As tall as the screen with the browser's toolbars showing (svh), so on a phone the logo
+    // strip at its foot is never hidden behind them. Never shorter than 480px (640px on desktop).
+    <section data-nav-bg="dark" className="relative flex h-svh min-h-[480px] lg:min-h-[640px] flex-col text-snow">
       <div className="flex flex-1 items-center px-6 pt-[var(--nav-h,68px)] lg:px-[42px] lg:pt-[var(--nav-h,115px)]">
         <div className="flex w-full max-w-[460px] flex-col gap-6">
           {/* Eyebrow: in capitals except a " x " between names, as on the other case studies */}
