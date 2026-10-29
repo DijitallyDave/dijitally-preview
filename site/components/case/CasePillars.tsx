@@ -26,8 +26,8 @@ export default function CasePillars({ lead, body, pillars }: { lead: string; bod
             <span className="font-mono text-[10px] leading-none text-static lg:text-[12px]">
               {String(i + 1).padStart(2, "0")}
             </span>
-            {/* 16px at every size */}
-            <span className="trim text-[16px] leading-[1.1] tracking-[-0.02em]">
+            {/* 24px at every size */}
+            <span className="trim text-[24px] leading-[1.1] tracking-[-0.02em]">
               {p}
             </span>
           </li>

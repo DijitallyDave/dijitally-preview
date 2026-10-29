@@ -119,7 +119,7 @@ export const STUDIES: CaseStudy[] = [
       alt: "Chrome headphones on black",
       tall: true,
       inset: true,
-      video: { vimeo: "https://player.vimeo.com/video/1240654494?h=14fc0dee1f", width: 720, height: 1280 },
+      video: { vimeo: "https://player.vimeo.com/video/1240663748?h=da6ede925e", width: 540, height: 960 },
     },
     hero: {
       lead: "Afterpay’s point of scale ally.",
@@ -410,11 +410,11 @@ export const STUDIES: CaseStudy[] = [
     description:
       "Dijitally built Constantinople's brand platform, banking infrastructure where the product is trust and the margin for error is zero. Present.co led brand and UX/UI.",
     ogImage: "/work/Constantinople.jpg",
-    // The coral of Constantinople’s own site, with the text in the secondary colour
+    // The coral of Constantinople’s own site, with the text in coal (light mode’s secondary) in both themes
     colour: "#FF734C",
     logo: { src: asset("/figma/logo-constantinople.svg"), width: 110.041, height: 16, invert: true },
     upNextVideo: { vimeo: "https://player.vimeo.com/video/1240118736?h=db9f99558e", width: 540, height: 540, background: "#070707" },
-    panelText: "var(--secondary)",
+    panelText: "var(--color-coal)",
     card: {
       title: "Constantinople",
       meta: "ENGINEERING, DEVELOPMENT",
@@ -523,7 +523,7 @@ export const STUDIES: CaseStudy[] = [
       {
         type: "intro",
         lead: "Build Australia Together.",
-        body: "With Build New Zealand Together, it grew from a local initiative into a globally recognised brand platform: one strategic idea, scaled across markets and still locally relevant.",
+        body: "A local initiative from a globally recognised brand platform: one strategic idea, scaled across ANZ markets and still locally relevant.",
       },
       {
         type: "gallery",
