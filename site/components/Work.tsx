@@ -100,7 +100,7 @@ function ProjectCard({ p, order, revealAt }: { p: Project; order: number; reveal
               ref={img}
               onLoad={onLoad}
               onError={onError}
-              className="object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04]"
+              className={`object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] ${videoShowing ? "invisible" : ""}`}
             />
           </span>
         ) : (
@@ -119,7 +119,7 @@ function ProjectCard({ p, order, revealAt }: { p: Project; order: number; reveal
             className={`object-cover transition-transform duration-700 ease-out group-hover:scale-[1.04] ${videoShowing ? "invisible" : ""}`}
           />
         )}
-        {p.video && !p.inset && <CardVideo video={p.video} onShowing={onVideoShowing} />}
+        {p.video && <CardVideo video={p.video} onShowing={onVideoShowing} />}
         <PixelReveal color={color} order={order} startAt={revealAt} />
       </span>
       <div className="flex flex-col items-start gap-3.5">

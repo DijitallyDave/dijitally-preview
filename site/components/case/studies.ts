@@ -119,6 +119,7 @@ export const STUDIES: CaseStudy[] = [
       alt: "Chrome headphones on black",
       tall: true,
       inset: true,
+      video: { vimeo: "https://player.vimeo.com/video/1240654494?h=14fc0dee1f", width: 720, height: 1280 },
     },
     hero: {
       lead: "Afterpay’s point of scale ally.",
@@ -420,7 +421,7 @@ export const STUDIES: CaseStudy[] = [
       image: asset("/figma/work-constantinople.webp"),
       alt: "Hand holding a phone showing the Constantinople banking site",
       tall: true,
-      video: { vimeo: "https://player.vimeo.com/video/1240120195?h=41e018c66e", width: 720, height: 972 },
+      video: { vimeo: "https://player.vimeo.com/video/1240650424?h=7120c79440", width: 540, height: 540 },
     },
     hero: {
       lead: "Constantinople’s build ally.",
