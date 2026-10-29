@@ -44,7 +44,7 @@ export default function WaysOfWorking({
   columns?: boolean;
   /** Body copy under the heading, set like a case study's opening paragraph. */
   detail?: string;
-  /** Side by side, set the cards in at twice the intro's margin (168px on desktop), as in a case study. */
+  /** Side by side, set the cards in at twice the intro’s margin (168px on desktop). */
   inset?: boolean;
 }) {
   return (

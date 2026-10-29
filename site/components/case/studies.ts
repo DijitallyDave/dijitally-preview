@@ -95,8 +95,8 @@ const img = (slug: string, name: string, alt: string, width: number, height: num
   height,
 });
 
-// Afterpay's 15s APD BVOD spot (16:9), behind the hero and first in the gallery.
-const AFTERPAY_APD = "https://player.vimeo.com/video/1239733480?h=a4200ec4fc";
+// Afterpay's 15s APD BVOD spot (16:9), behind the hero and first in the gallery, and the homepage hero's recent-work reel.
+export const AFTERPAY_APD = "https://player.vimeo.com/video/1239733480?h=a4200ec4fc";
 
 const EXPONENTIALLY = "There’s a reason you can’t spell exponentially without ally.";
 

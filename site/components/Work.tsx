@@ -17,7 +17,8 @@ const PROJECTS: Project[] = STUDIES.map((s) => ({ ...s.card, slug: s.slug, href:
 
 /**
  * A card's video, muted and looping in Vimeo's background mode, covering the card like the
- * image beneath it (object-fit: cover, via a size container), and fading in once it's playing.
+ * image beneath it (object-fit: cover, via a size container, and a touch over so its edges are
+ * always covered), and fading in once it's playing.
  */
 function CardVideo({ video, onShowing }: { video: NonNullable<Project["video"]>; onShowing: () => void }) {
   const reduced = useReducedMotion();
@@ -43,7 +44,7 @@ function CardVideo({ video, onShowing }: { video: NonNullable<Project["video"]>;
         allow="autoplay"
         loading="lazy"
         onLoad={onLoad}
-        className={`pointer-events-none absolute left-1/2 top-1/2 h-[max(100cqh,calc(100cqw/var(--r)))] w-[max(100cqw,calc(100cqh*var(--r)))] -translate-x-1/2 -translate-y-1/2 transition-opacity duration-500 ${
+        className={`pointer-events-none absolute left-1/2 top-1/2 h-[max(100cqh,calc(100cqw/var(--r)))] w-[max(100cqw,calc(100cqh*var(--r)))] -translate-x-1/2 -translate-y-1/2 scale-[1.01] transition-opacity duration-500 ${
           showing ? "opacity-100" : "opacity-0"
         }`}
       />
@@ -53,14 +54,15 @@ function CardVideo({ video, onShowing }: { video: NonNullable<Project["video"]>;
 
 function ProjectCard({ p, order, revealAt }: { p: Project; order: number; revealAt: number | null }) {
   const [color, setColor] = useState<string | null>(null);
-  // Once a card's video is playing, the image under it is hidden, so it can't show through
-  // along the card's softened (antialiased) edges.
+  // Once a card's video is playing, the image and fill under it are dropped, so neither shows
+  // through along the card's softened (antialiased) edges, where the fill (light grey in dark
+  // mode) read as a keyline.
   const [videoShowing, setVideoShowing] = useState(false);
   const onVideoShowing = useCallback(() => setVideoShowing(true), []);
   const img = useRef<HTMLImageElement>(null);
   const box = useRef<HTMLSpanElement>(null);
   // Cover colour for the reveal; a failed image just fades its cover out. Inset cards are
-  // mostly their frame (the card's own fill), so they cover in that.
+  // mostly their black frame (the card's own fill), so they cover in that.
   const sample = (el: HTMLImageElement) =>
     setColor(
       p.inset && box.current ? getComputedStyle(box.current).backgroundColor : (dominantColour(el) ?? "transparent"),
@@ -82,9 +84,9 @@ function ProjectCard({ p, order, revealAt }: { p: Project; order: number; reveal
       <span
         ref={box}
         // Mobile cards are all 290×420; desktop mixes tall (504×680) and square (504×504).
-        // Every card sits on the UI colour (light) or the WCAG grey (dark): the frame around an
-        // inset card, and what shows while an image loads.
-        className={`relative block h-[420px] w-full overflow-hidden rounded-[4px] lg:h-auto ${p.tall ? "lg:aspect-[504/680]" : "lg:aspect-square"} bg-ui dark:bg-wcag group-focus-visible:ring-2 group-focus-visible:ring-secondary`}
+        // Every card sits on the UI colour (light) or the WCAG grey (dark), which shows while an
+        // image loads; an inset card (a product shot on black) sits on black in both.
+        className={`relative block h-[420px] w-full overflow-hidden rounded-[4px] lg:h-auto ${p.tall ? "lg:aspect-[504/680]" : "lg:aspect-square"} ${videoShowing ? "" : p.inset ? "bg-black" : "bg-ui dark:bg-wcag"} group-focus-visible:ring-2 group-focus-visible:ring-secondary`}
       >
         {p.inset ? (
           <span className="absolute inset-x-[31.5px] inset-y-[45.75px] block lg:inset-x-[8.7%] lg:inset-y-[5.7%]">
