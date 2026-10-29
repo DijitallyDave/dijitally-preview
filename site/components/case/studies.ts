@@ -506,7 +506,7 @@ export const STUDIES: CaseStudy[] = [
       {
         type: "stats",
         lead: "Since February 2025.",
-        body: "Strategy, creative, content and SEO for Procore ANZ, the construction platform connecting every stage of a build.",
+        body: "Strategy, creative, content and SEO for Procore Australia, New Zealand and the United Kingdom, the construction platform connecting every stage of a build.",
         items: [
           { value: 6, label: "campaigns launched.", highlight: true },
           { value: 1, label: "new creative platform." },
