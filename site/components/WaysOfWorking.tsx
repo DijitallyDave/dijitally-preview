@@ -34,6 +34,7 @@ export default function WaysOfWorking({
   aspect = "731 / 516",
   columns = false,
   detail,
+  inset = false,
 }: {
   id?: string;
   lead?: string;
@@ -43,6 +44,8 @@ export default function WaysOfWorking({
   columns?: boolean;
   /** Body copy under the heading, set like a case study's opening paragraph. */
   detail?: string;
+  /** Side by side, set the cards in at twice the intro's margin (168px on desktop), as in a case study. */
+  inset?: boolean;
 }) {
   return (
     <section id={id} data-nav-bg="page" className="flex flex-col gap-[106px] bg-primary pb-[42px] pt-16 lg:gap-32 lg:pt-32">
@@ -54,7 +57,7 @@ export default function WaysOfWorking({
       </div>
 
       {/* Side by side, the cards take the intro's 84px margins so the pair sits under its text */}
-      <div className={`flex flex-col gap-8 px-6 lg:gap-[42px] ${columns ? "lg:grid lg:grid-cols-2 lg:px-[84px]" : "lg:px-[42px]"}`}>
+      <div className={`flex flex-col gap-8 px-6 lg:gap-[42px] ${columns ? `lg:grid lg:grid-cols-2 ${inset ? "lg:px-[168px]" : "lg:px-[84px]"}` : "lg:px-[42px]"}`}>
         {models.map((m) => (
           <article
             key={m.title}

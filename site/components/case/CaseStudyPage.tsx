@@ -30,7 +30,7 @@ function CaseSection({ section, plain, noIntro }: { section: Section; plain?: bo
       return <CaseGallery images={section.images} />;
     case "models":
       return (
-        <WaysOfWorking id="model" lead={section.lead} body={section.body} models={section.models} aspect={section.aspect} detail={section.detail} columns />
+        <WaysOfWorking id="model" lead={section.lead} body={section.body} models={section.models} aspect={section.aspect} detail={section.detail} columns inset />
       );
     case "quote":
       return <CaseQuote quote={section.quote} name={section.name} role={section.role} />;
