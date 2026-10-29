@@ -172,8 +172,8 @@ export default function PageTransition() {
     <div ref={outer} aria-hidden className="fixed inset-0 z-[90] overflow-hidden bg-ink" style={{ transform: "translateY(100%)" }}>
       <div ref={inner} className="absolute inset-0" style={{ transform: "translateY(-100%)" }}>
         {study.sheet ? (
-          // As in CaseFullHero: the foot of a screen-high (svh) box, 24px up.
-          <div className="absolute inset-x-0 top-0 flex h-svh min-h-[640px] flex-col justify-end pb-6 text-snow">
+          // As in CaseFullHero: the foot of a screen-high (100vh) box, 24px up.
+          <div className="absolute inset-x-0 top-0 flex h-screen min-h-[640px] flex-col justify-end pb-6 text-snow">
             <LogoStrip study={study} />
           </div>
         ) : (

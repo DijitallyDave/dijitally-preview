@@ -87,8 +87,8 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
         <WorkVisit />
         <Nav home={false} />
         {/* A full-screen hero over the video or image, then the sheet: the case study's own
-            sections on the UI colour, as a card inset by the nav's margin (24px on mobile, 42px
-            on desktop). Inside, the top matches the sides: 24px on mobile, 84px on desktop, with
+            sections on the UI colour: full width on mobile, and on desktop a card inset by the
+            nav's 42px margin. Inside, the top matches the sides: 24px on mobile, 84px on desktop, with
             the first section's own top padding dropped. .case-sheet swaps the page and UI
             colours inside it (see globals.css).
             Up next and the footer follow on the page as usual. */}
@@ -102,13 +102,13 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
             </p>
           </section>
         )}
-        <div className={`case-sheet mx-6 overflow-clip rounded-[4px] bg-primary pt-6 lg:mx-[42px] lg:rounded-[8px] lg:pt-[84px] [&>*:first-child]:pt-0 ${intro ? "" : "mt-6 lg:mt-[42px]"}`}>
+        <div className={`case-sheet overflow-clip bg-primary pt-6 lg:mx-[42px] lg:rounded-[8px] lg:pt-[84px] [&>*:first-child]:pt-0 ${intro ? "" : "mt-6 lg:mt-[42px]"}`}>
           {sections}
         </div>
         {/* The hero video (or image), blurred and in greys, filling the first screen behind the
             hero under a 90% scrim of the dark mode page colour (coal), in both modes. Last in
             the page so the nav reads the hero and sheet first when it checks what's under it. */}
-        <div data-nav-bg="dark" aria-hidden className="absolute inset-x-0 top-0 -z-10 h-svh">
+        <div data-nav-bg="dark" aria-hidden className="absolute inset-x-0 top-0 -z-10 h-screen min-h-[640px]">
           {study.hero.vimeo ? (
             <HeroVideo vimeo={study.hero.vimeo} poster={study.hero.image.src} mono />
           ) : (
