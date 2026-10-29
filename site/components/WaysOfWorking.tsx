@@ -56,8 +56,18 @@ export default function WaysOfWorking({
         {detail && <p className="trim mt-6 max-w-[716px] text-body-mobile lg:mt-[42px] lg:text-h3 lg:text-wcag">{detail}</p>}
       </div>
 
-      {/* Side by side, the cards take the intro's 84px margins so the pair sits under its text */}
-      <div className={`flex flex-col gap-8 px-6 lg:gap-[42px] ${columns ? `lg:grid lg:grid-cols-2 ${inset ? "lg:px-[168px]" : "lg:px-[84px]"}` : "lg:px-[42px]"}`}>
+      {/* Side by side, the cards take the intro's 84px margins so the pair sits under its text,
+          staggered: the second drops so its top is level with the middle of the first's image
+          (the card's 42px padding plus half the image, whose width is half the row less the gap
+          and the padding). */}
+      <div
+        className={`flex flex-col gap-8 px-6 lg:gap-[42px] ${
+          columns
+            ? `lg:grid lg:grid-cols-2 lg:items-start lg:[container-type:inline-size] lg:[&>*:nth-child(2)]:mt-[calc(42px+((100cqw-42px)/2-84px)/var(--ar)/2)] ${inset ? "lg:px-[168px]" : "lg:px-[84px]"}`
+            : "lg:px-[42px]"
+        }`}
+        style={columns ? ({ "--ar": `calc(${aspect})` } as React.CSSProperties) : undefined}
+      >
         {models.map((m) => (
           <article
             key={m.title}
@@ -72,7 +82,8 @@ export default function WaysOfWorking({
                 <h3 className="trim text-h1-mobile lg:text-[38px] lg:leading-none lg:tracking-[-0.76px]">
                   {m.title}
                 </h3>
-                <p className="trim text-body-mobile lg:text-h3 lg:text-wcag">{m.body}</p>
+                {/* 20px on desktop, in the body style (1.2, +1%) */}
+                <p className="trim text-body-mobile lg:text-[20px] lg:leading-[1.2] lg:tracking-[0.2px] lg:text-wcag">{m.body}</p>
               </div>
               <ul className="flex w-full max-w-[316px] flex-col gap-[18px]">
                 {m.points.map((p, i) => (
