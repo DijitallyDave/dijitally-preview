@@ -582,7 +582,7 @@ export const STUDIES: CaseStudy[] = [
       {
         type: "gallery",
         images: [
-          img("roomstay", "RoomStayBE", "RoomStay billboard on the corner of a brick building: a koala on magenta with the line Give the OTAs a wake-up call", 2930, 1960),
+          img("roomstay", "RoomStayBE", "RoomStay billboard on the corner of a brick building: a koala on magenta with the line Give the OTAs a wake-up call, and a note beside it: Online Travel Agents", 2930, 1960),
         ],
       },
       {
