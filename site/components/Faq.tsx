@@ -60,14 +60,25 @@ const HEADING = (
 
 // An accordion of questions, first one open. Defaults to the homepage FAQs; case studies
 // reuse it for other lists (their working principles, say).
-export default function Faq({ heading = HEADING, items = FAQS }: { heading?: React.ReactNode; items?: FaqItem[] }) {
+// `wide` lets a longer heading run to 716px on desktop, so it sets in two lines.
+export default function Faq({
+  heading = HEADING,
+  items = FAQS,
+  wide = false,
+}: {
+  heading?: React.ReactNode;
+  items?: FaqItem[];
+  wide?: boolean;
+}) {
   const [open, setOpen] = useState<number | null>(0);
   const baseId = useId();
 
   return (
     <section data-nav-bg="page" className="flex flex-col items-center gap-16 bg-primary px-6 py-16 lg:gap-32 lg:px-16 lg:py-[196px]">
       {/* Same copy and two-tone styling at every size; mobile breaks after "more". */}
-      <SplitHeading className="trim w-full text-center text-h1-mobile lg:w-auto lg:max-w-[460px] lg:text-h1">
+      <SplitHeading
+        className={`trim w-full text-center text-h1-mobile lg:w-auto lg:text-h1 ${wide ? "lg:max-w-[716px]" : "lg:max-w-[460px]"}`}
+      >
         {heading}
       </SplitHeading>
 

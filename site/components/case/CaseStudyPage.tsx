@@ -47,6 +47,7 @@ function CaseSection({ section, plain, noIntro }: { section: Section; plain?: bo
             </>
           }
           items={section.items}
+          wide
         />
       );
   }
