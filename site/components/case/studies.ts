@@ -513,7 +513,7 @@ export const STUDIES: CaseStudy[] = [
       {
         type: "gallery",
         images: [
-          img("procore", "PresSURE", "Orange Procore PresSURE poster on a free-standing panel in a dusty building site, an excavator behind it", 2720, 1530),
+          img("procore", "Construction_01", "Orange Procore poster on a free-standing panel on a residential building site, headed Fragile: keep risk from creeping in on residential sites, an excavator and a half-built block behind it", 2720, 1530),
         ],
       },
       {
@@ -523,7 +523,7 @@ export const STUDIES: CaseStudy[] = [
       },
       {
         type: "gallery",
-        images: [img("procore", "site-tablet", "A tablet showing Procore site plans, resting on concrete among steel beams, cabling and tools", 2000, 1090)],
+        images: [img("procore", "Construction_02", "Orange Procore poster on a free-standing panel in a dug-out site, headed PresSURE: control and reassurance for residential construction, an excavator behind it", 2720, 1530)],
       },
       {
         type: "pillars",
