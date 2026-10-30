@@ -567,7 +567,7 @@ export const STUDIES: CaseStudy[] = [
     },
     hero: {
       lead: "RoomStay.",
-      follow: "A hotel, hostel and holiday park ally.",
+      follow: "A hotel, hostel and holiday park’s greatest ally.",
       meta: ["RoomStay x Ally", "Incubation — SaaS"],
       image: img("roomstay", "parks-hero", "RoomStay ad: an illustrated holiday park at dusk, the line They found your website, and a Book now button", 2000, 1125),
     },
