@@ -105,21 +105,21 @@ export default function CaseStudyPage({ study }: { study: CaseStudy }) {
         <div className={`case-sheet overflow-clip bg-primary pt-6 lg:mx-[42px] lg:rounded-[8px] lg:pt-[84px] [&>*:first-child]:pt-0 ${intro ? "" : "mt-6 lg:mt-[42px]"}`}>
           {sections}
         </div>
-        {/* The hero video (or image), blurred and in greys, filling the first screen behind the
-            hero under a 90% scrim of the dark mode page colour (coal), in both modes. Last in
+        {/* The hero video (or image), blurred and in colour, filling the first screen behind the
+            hero under a 66% scrim of the dark mode page colour (coal), in both modes. Last in
             the page so the nav reads the hero and sheet first when it checks what's under it. */}
         <div data-nav-bg="dark" aria-hidden className="absolute inset-x-0 top-0 -z-10 h-svh min-h-[480px] lg:min-h-[640px]">
           {study.hero.vimeo ? (
-            <HeroVideo vimeo={study.hero.vimeo} aspect={study.hero.vimeoAspect} poster={study.hero.image.src} mono />
+            <HeroVideo vimeo={study.hero.vimeo} aspect={study.hero.vimeoAspect} poster={study.hero.image.src} />
           ) : (
             // Blurred like the video heroes, larger than the box so the blur's soft edges fall outside it
             <div className="absolute inset-0 overflow-hidden">
-              <div className="absolute -inset-12 blur-[24px] grayscale">
+              <div className="absolute -inset-12 blur-[24px]">
                 <Image src={study.hero.image.src} alt="" fill priority sizes="100vw" className="object-cover" />
               </div>
             </div>
           )}
-          <div className="absolute inset-0 bg-coal/90" />
+          <div className="absolute inset-0 bg-coal/66" />
         </div>
         {upNext}
         <Footer />

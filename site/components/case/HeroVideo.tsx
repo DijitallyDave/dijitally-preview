@@ -12,17 +12,13 @@ import { useReducedMotion, useVimeoShowing, vimeoSrc } from "./vimeo";
 export default function HeroVideo({
   vimeo,
   poster,
-  mono = false,
   aspect = 16 / 9,
 }: {
   vimeo: string;
   poster: string;
-  mono?: boolean;
   /** The video's width over its height. */
   aspect?: number;
 }) {
-  // `mono` desaturates it to greys.
-  const grey = mono ? "grayscale" : "";
   const reduced = useReducedMotion();
   const frame = useRef<HTMLIFrameElement>(null);
   const { showing, onLoad } = useVimeoShowing(frame, true);
@@ -30,7 +26,7 @@ export default function HeroVideo({
   if (reduced)
     return (
       <div className="absolute inset-0 overflow-hidden">
-        <div className={`absolute -inset-12 blur-[24px] ${grey}`}>
+        <div className="absolute -inset-12 blur-[24px]">
           <Image src={poster} alt="" fill priority sizes="100vw" className="object-cover" />
         </div>
       </div>
@@ -41,7 +37,7 @@ export default function HeroVideo({
       {/* Larger than the box, so the blur's soft edges fall outside it. A size container, so the
           player can cover it whatever its shape, like object-fit: cover. */}
       {reduced === false && (
-        <div className={`absolute -inset-12 blur-[24px] [container-type:size] ${grey}`}>
+        <div className="absolute -inset-12 blur-[24px] [container-type:size]">
           <iframe
             ref={frame}
             src={vimeoSrc(vimeo, true)}

@@ -96,7 +96,7 @@ const img = (slug: string, name: string, alt: string, width: number, height: num
   height,
 });
 
-// Afterpay's 15s APD BVOD spot (16:9), behind the hero and first in the gallery, and the homepage hero's recent-work reel.
+// Afterpay’s 15s APD BVOD spot (16:9), behind the hero and first in the gallery.
 export const AFTERPAY_APD = "https://player.vimeo.com/video/1239733480?h=a4200ec4fc";
 
 const EXPONENTIALLY = "There’s a reason you can’t spell exponentially without ally.";
@@ -427,8 +427,8 @@ export const STUDIES: CaseStudy[] = [
       follow: "Turning a banking platform into a brand you can use.",
       meta: ["Constantinople x Ally"],
       image: img("constantinople", "banking-laptop", "The Constantinople site on a laptop, headline A new era of banking beside a swirled colour render", 2000, 1338),
-      vimeo: "https://player.vimeo.com/video/1240118736?h=db9f99558e",
-      vimeoAspect: 1,
+      // The 16:9 film that opens the gallery
+      vimeo: "https://player.vimeo.com/video/1240643009?h=246c5c2726",
     },
     sheet: true,
     sections: [
@@ -567,9 +567,10 @@ export const STUDIES: CaseStudy[] = [
     },
     hero: {
       lead: "RoomStay.",
-      follow: "A hotel, hostel and holiday park’s greatest ally.",
+      follow: "A hotel, hostel or holiday park’s greatest ally.",
       meta: ["RoomStay x Ally", "Incubation — SaaS"],
-      image: img("roomstay", "parks-hero", "RoomStay ad: an illustrated holiday park at dusk, the line They found your website, and a Book now button", 2000, 1125),
+      // The billboard that opens the gallery
+      image: img("roomstay", "RoomStayBE", "RoomStay billboard on the corner of a brick building: a koala on magenta with the line Give the OTAs a wake-up call, and a note beside it: Online Travel Agents", 2930, 1960),
     },
     sheet: true,
     sections: [
@@ -584,7 +585,7 @@ export const STUDIES: CaseStudy[] = [
           img("roomstay", "RoomStayBE", "RoomStay billboard on the corner of a brick building: a koala on magenta with the line Give the OTAs a wake-up call, and a note beside it: Online Travel Agents", 2930, 1960),
           {
             // Portrait, 926x1616
-            vimeo: "https://player.vimeo.com/video/1240705516?h=19095a4378",
+            vimeo: "https://player.vimeo.com/video/1241055048?h=5f4c4b4432",
             alt: "RoomStay video",
             width: 926,
             height: 1616,
@@ -629,3 +630,16 @@ export const studyBySlug = (slug: string) => STUDIES.find((s) => s.slug === slug
 
 /** The study after this one, wrapping from the last back to the first. */
 export const nextStudy = (slug: string) => STUDIES[(STUDIES.findIndex((s) => s.slug === slug) + 1) % STUDIES.length];
+
+/**
+ * Every 16:9 video in the case studies' galleries, once each, for the homepage hero's
+ * "Recent work" reel. A video added to a gallery at 16:9 joins it.
+ */
+export const WIDESCREEN_VIDEOS: CaseVideo[] = [
+  ...new Map(
+    STUDIES.flatMap((s) => s.sections)
+      .flatMap((s) => (s.type === "gallery" ? s.images : []))
+      .filter((m): m is CaseVideo => "vimeo" in m && Math.abs(m.width / m.height - 16 / 9) < 0.01)
+      .map((v) => [v.vimeo, v] as const),
+  ).values(),
+];
