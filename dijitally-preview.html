@@ -8,19 +8,10 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500&display=swap" rel="stylesheet" />
   <style>
-    /* ── NeuSans Trial @font-face ── */
-    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Light.otf") format("opentype"); font-weight:300; font-style:normal; }
-    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-LightItalic.otf") format("opentype"); font-weight:300; font-style:italic; }
-    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Book.otf") format("opentype"); font-weight:350; font-style:normal; }
-    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-BookItalic.otf") format("opentype"); font-weight:350; font-style:italic; }
-    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Regular.otf") format("opentype"); font-weight:400; font-style:normal; }
-    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-RegularItalic.otf") format("opentype"); font-weight:400; font-style:italic; }
-    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Medium.otf") format("opentype"); font-weight:500; font-style:normal; }
-    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-MediumItalic.otf") format("opentype"); font-weight:500; font-style:italic; }
-    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Bold.otf") format("opentype"); font-weight:700; font-style:normal; }
-    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-BoldItalic.otf") format("opentype"); font-weight:700; font-style:italic; }
-    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-Black.otf") format("opentype"); font-weight:900; font-style:normal; }
-    @font-face { font-family:"NeuSans Trial"; src:url("Fonts/NeuSansTrial-BlackItalic.otf") format("opentype"); font-weight:900; font-style:italic; }
+    /* ── NeuSans @font-face: the purchased Book and Medium. Book covers the lighter weights
+       these pages ask for (300 to 450), Medium the heavier (500 to 900). ── */
+    @font-face { font-family:"NeuSans"; src:url("site/public/fonts/NeuSans-Book.woff2") format("woff2"); font-weight:100 450; font-style:normal; }
+    @font-face { font-family:"NeuSans"; src:url("site/public/fonts/NeuSans-Medium.woff2") format("woff2"); font-weight:451 900; font-style:normal; }
   </style>
   <!-- GSAP -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
@@ -43,7 +34,7 @@
       --bg:        #FDFEFF;   /* page bg */
 
       /* Fonts */
-      --sans: "NeuSans Trial", "Helvetica Neue", Arial, sans-serif;
+      --sans: "NeuSans", "Helvetica Neue", Arial, sans-serif;
       --mono: "JetBrains Mono", monospace;
 
       /* Typography — Figma exact */
@@ -2905,7 +2896,7 @@ function Page() {
               {/* Card meta — JetBrains Mono 10px, ls -0.2px, #878787 */}
               <div style={{padding:"16px 0 0",display:"flex",flexDirection:"column",gap:4}}>
                 <p style={{fontFamily:"var(--sans)",fontSize:"var(--card)",fontWeight:350,lineHeight:"var(--card-lh)",color:"var(--secondary)"}}>{w.title}</p>
-                {/* Card title — NeuSans Trial 24px, weight 500, lh 120% */}
+                {/* Card title — NeuSans 24px, weight 500, lh 120% */}
                 <span style={{fontFamily:"var(--mono)",fontSize:"var(--meta)",fontWeight:400,letterSpacing:"var(--meta-ls)",color:"var(--static)"}}>{w.meta}</span>
               </div>
             </div>

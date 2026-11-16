@@ -31,7 +31,7 @@ export default function HeroAllyCard() {
         <span className="trim whitespace-nowrap text-[12px] font-medium leading-none">{slide.name}</span>
         <span className="flex items-center gap-1">
           <span className="size-[3px] bg-snow transition-colors group-hover:bg-tech" />
-          <span className="trim whitespace-nowrap text-[16px] font-regular leading-none">{slide.role}</span>
+          <span className="trim whitespace-nowrap text-[16px] leading-none">{slide.role}</span>
         </span>
       </span>
     </a>

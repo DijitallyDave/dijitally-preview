@@ -10,9 +10,8 @@ import "./globals.css";
 
 const neuSans = localFont({
   src: [
-    { path: "../public/fonts/NeuSansTrial-Book.otf", weight: "400", style: "normal" },
-    { path: "../public/fonts/NeuSansTrial-Regular.otf", weight: "450", style: "normal" },
-    { path: "../public/fonts/NeuSansTrial-Medium.otf", weight: "500", style: "normal" },
+    { path: "../public/fonts/NeuSans-Book.woff2", weight: "400", style: "normal" },
+    { path: "../public/fonts/NeuSans-Medium.woff2", weight: "500", style: "normal" },
   ],
   variable: "--font-neusans",
   display: "swap",
